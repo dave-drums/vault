@@ -147,11 +147,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         html += '<tr class="pv-editor-row" data-uid="' + uid + '" style="display:none;background:#fafafa;">';
         html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
-        html += '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">';
+        html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end;">';
 
         function inputBlock(label, key) {
           return (
-            '<div style="display:flex;flex-direction:column;gap:6px;min-width:180px;flex:1;">' +
+            '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
               '<div style="font-size:12px;opacity:.75;">' + label + '</div>' +
               '<input type="text" class="pv-prog" data-uid="' + uid + '" data-key="' + key + '" ' +
               'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;" ' +
@@ -319,3 +319,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 15000);
   });
 });
+
