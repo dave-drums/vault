@@ -1,14 +1,12 @@
 // vault-ui.js
 // Members page UI (login/account) + optional progress accordion
-// Fix: Contact Support button keeps floating above because Squarespace places it in a different wrapper.
-// Solution: remove/hide ALL existing "Contact Support" buttons/links and inject our own in the correct spot.
+// Fix: Contact Support floating (Squarespace DOM) + reliable in-card error line
 
 document.addEventListener('DOMContentLoaded', function () {
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
   var auth = firebase.auth();
   var db = firebase.firestore();
-
   var adminEmail = 'info@davedrums.com.au';
 
   var loginBox = document.getElementById('members-login');
@@ -23,13 +21,11 @@ document.addEventListener('DOMContentLoaded', function () {
   var changePwBtn = document.getElementById('change-password-btn');
   var logoutBtn = document.getElementById('logout-btn');
 
-  // We will IGNORE any existing contact button block and inject our own
-  var CONTACT_TEXT = 'Contact Support';
-  var CONTACT_HREF = '/contact'; // change if your contact URL differs
-
-  // Original elements (hide to avoid layout fights)
   var accountTextEl = document.getElementById('members-account-text');
   var legacyMsgEl = document.getElementById('members-message');
+
+  var CONTACT_TEXT = 'Contact Support';
+  var CONTACT_HREF = '/contact';
 
   var injected = false;
   var uiWrap = null;
@@ -42,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var myProgressBtn = null;
   var progressBox = null;
 
-  var contactBtn = null; // injected contact
+  var contactBtn = null;
   var isAccordionOpen = false;
 
   var unsubProgress = null;
@@ -87,11 +83,22 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.textContent = 'You are logged in as ' + (email || 'member');
   }
 
+  // IMPORTANT: show error in BOTH the injected line and the legacy message element
+  // This avoids any Squarespace CSS/display quirks.
   function setError(text) {
-    if (!errorP) return;
     var t = String(text || '').trim();
-    errorP.textContent = t;
-    errorP.style.display = t ? 'block' : 'none';
+
+    if (errorP) {
+      errorP.textContent = t;
+      errorP.style.display = t ? 'block' : 'none';
+    }
+
+    if (legacyMsgEl) {
+      legacyMsgEl.textContent = t;
+      legacyMsgEl.style.display = t ? 'block' : 'none';
+      legacyMsgEl.style.color = '#c00';
+      legacyMsgEl.style.marginTop = t ? '10px' : '0';
+    }
   }
 
   function ensureProgressStyles() {
@@ -167,14 +174,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function detectUiWrap() {
-    // Use the existing action stack parent (same as Logout/Change Password)
     if (logoutBtn && logoutBtn.parentNode) return logoutBtn.parentNode;
     if (changePwBtn && changePwBtn.parentNode) return changePwBtn.parentNode;
     return accountBox || document.body;
   }
 
   function removeAllContactSupportButtons() {
-    // Remove any <a> or <button> that reads "Contact Support" (case-insensitive)
     var nodes = document.querySelectorAll('a,button');
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
@@ -246,17 +251,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     uiWrap = detectUiWrap();
 
-    // Hide legacy display elements
     if (accountTextEl) accountTextEl.style.display = 'none';
-    if (legacyMsgEl) legacyMsgEl.style.display = 'none';
 
-    // Normalise logout label
+    // Keep legacy message element, but we control it (so don't hide it)
+    if (legacyMsgEl) {
+      legacyMsgEl.style.display = 'none';
+      legacyMsgEl.style.marginTop = '0';
+    }
+
     if (logoutBtn) logoutBtn.textContent = 'Logout';
 
-    // Remove any existing Contact Support buttons anywhere on the page
     removeAllContactSupportButtons();
 
-    // Header block inside uiWrap
     headerWrap = document.createElement('div');
     headerWrap.id = 'members-header-wrap';
     headerWrap.style.width = '100%';
@@ -266,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.style.margin = '0';
     loggedInP.style.textAlign = 'center';
 
+    // Error line directly under logged-in line
     errorP = document.createElement('p');
     errorP.className = 'p2';
     errorP.style.margin = '8px 0 0 0';
@@ -276,33 +283,28 @@ document.addEventListener('DOMContentLoaded', function () {
     headerWrap.appendChild(loggedInP);
     headerWrap.appendChild(errorP);
 
-    // Buttons we control
     openVaultBtn = createNativeButton('Open Practice Vault', 'open-vault-btn');
     openVaultBtn.style.background = '#06b3fd';
     openVaultBtn.style.borderColor = 'transparent';
     openVaultBtn.style.color = '#fff';
 
     myProgressBtn = createNativeButton('My Progress', 'my-progress-btn');
-
     contactBtn = createNativeButton(CONTACT_TEXT, 'contact-support-btn-injected');
 
     matchLogoutRounding(openVaultBtn);
     matchLogoutRounding(myProgressBtn);
     matchLogoutRounding(contactBtn);
 
-    // Progress container
     progressBox = document.createElement('div');
     progressBox.id = 'members-progress';
     progressBox.style.display = 'none';
 
-    // Add into stack
     uiWrap.appendChild(headerWrap);
     uiWrap.appendChild(openVaultBtn);
     uiWrap.appendChild(myProgressBtn);
     uiWrap.appendChild(progressBox);
     uiWrap.appendChild(contactBtn);
 
-    // Remove duplicates in stack from page markup
     removeDuplicateVaultButtons();
 
     openVaultBtn.addEventListener('click', function () { window.location.href = '/vault'; });
@@ -351,10 +353,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderProgressGrid({ grooves: grooves, fills: fills, hands: hands, feet: feet });
       showOrHideProgressButton();
-    }, function () {
+    }, function (e) {
       hasProgressData = false;
       showOrHideProgressButton();
       setAccordion(false);
+      setError((e && e.message) ? e.message : 'Missing or insufficient permissions.');
     });
   }
 
@@ -364,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (loginBox) loginBox.style.display = 'block';
     if (accountBox) accountBox.style.display = 'none';
     setTitle('MEMBER LOGIN');
+    setError('');
   }
 
   function showAccount(user) {
@@ -376,7 +380,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setLoggedInText(user.email || '');
     setError('');
 
-    // Ensure users_public exists with email only (no progress defaults)
     db.collection('users_public').doc(user.uid)
       .set({ email: user.email || '' }, { merge: true })
       .catch(function (e) {
@@ -389,6 +392,9 @@ document.addEventListener('DOMContentLoaded', function () {
     scheduleAutoRedirectIfFreshLogin();
   }
 
+  // Expose a manual test hook (remove later if you want)
+  window.DD_setMembersError = function (t) { ensureInjectedUI(); setError(t); };
+
   auth.onAuthStateChanged(function (user) {
     if (!user) return showLogin();
     showAccount(user);
@@ -400,6 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var pass = passInput ? String(passInput.value || '') : '';
 
       ensureInjectedUI();
+      setError('');
 
       if (!email || !pass) {
         setError('Please enter email and password.');
