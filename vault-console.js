@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
     var root0 = document.getElementById('vault-admin-root');
+    showBody();
     if (root0) root0.textContent = 'Firebase not available.';
     return;
   }
@@ -9,7 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var db = firebase.firestore();
   var adminEmail = 'info@davedrums.com.au';
   var rootEl = document.getElementById('vault-admin-root');
+
+  function showBody() {
+    if (document.body) document.body.style.opacity = '1';
+  }
+
   if (!rootEl) return;
+  showBody();
 
   var ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -94,13 +101,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var html = '';
 
+    // Online card
     html += '<div style="margin:0 0 18px 0;padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<h3 class="members-title" style="margin:0 0 10px 0;">CURRENTLY ONLINE</h3>';
+    html += '<h4 class="members-title" style="margin:0 0 10px 0;">CURRENTLY ONLINE</h4>';
     html += '<div style="font-size:14px;line-height:1.5;word-break:break-word;">' + onlineText + '</div>';
     html += '</div>';
 
+    // Student list card
     html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<h3 class="members-title" style="margin:0 0 12px 0;">STUDENT LIST</h3>';
+    html += '<h4 class="members-title" style="margin:0 0 12px 0;">STUDENT LIST</h4>';
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
@@ -138,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
         html += '</td>';
         html += '</tr>';
 
+        // hidden editor row
         html += '<tr class="pv-editor-row" data-uid="' + uid + '" style="display:none;background:#fafafa;">';
         html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
         html += '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">';
@@ -292,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
   rootEl.textContent = 'Loading admin data…';
 
   auth.onAuthStateChanged(function (user) {
+    showBody();
     if (!user) {
       rootEl.textContent = 'Please log in as admin.';
       return;
