@@ -115,8 +115,7 @@
     const tokens = [];
 
     for(let i=0;i<lines.length;i++){
-      const original = lines[i] || "";
-      const line = original.trim();
+      const line = (lines[i] || "").trim();
       if(!line) continue;
 
       const m = line.match(ID_RE);
@@ -158,30 +157,26 @@
       }
 
       if(tag === "T"){
-        // IMPORTANT: include same-line text after T>
         const textLines = [];
         let ytLine = null;
 
         if(rest) textLines.push(rest);
 
-        // Collect until next identifier (blank lines are allowed)
         let j = i + 1;
         while(j < lines.length){
           const nxtRaw = lines[j] || "";
           const nxtTrim = nxtRaw.trim();
 
-          if(nxtTrim && ID_RE.test(nxtTrim)) break; // next identifier
+          if(nxtTrim && ID_RE.test(nxtTrim)) break;
 
           if(nxtTrim && (nxtTrim.includes("youtube.com") || nxtTrim.includes("youtu.be")) && !ytLine){
             ytLine = nxtTrim;
           }else{
-            // preserve blank lines and normal lines
             textLines.push(nxtRaw.replace(/\s+$/,""));
           }
           j++;
         }
 
-        // Trim excessive empty lines at start/end
         while(textLines.length && String(textLines[0]).trim() === "") textLines.shift();
         while(textLines.length && String(textLines[textLines.length-1]).trim() === "") textLines.pop();
 
@@ -283,7 +278,9 @@
         iframe.loading = "lazy";
         iframe.setAttribute("frameborder","0");
         iframe.setAttribute("allow","autoplay");
-        iframe.style.height = "240px"; // default; will auto-resize if GrooveEmbed sends messages
+
+        /* IMPORTANT: small default height, then GrooveEmbed auto-resizes it */
+        iframe.style.height = "150px";
 
         player.appendChild(iframe);
         wrap.appendChild(player);
@@ -308,7 +305,6 @@
         aWrap.appendChild(node);
         out.appendChild(aWrap);
 
-        // Let your audio-player.js hook in if it exposes a scanner
         try{
           if(window.VaultAudioPlayer && typeof window.VaultAudioPlayer.scan === "function"){
             window.VaultAudioPlayer.scan();
@@ -357,7 +353,7 @@
 
     document.querySelectorAll(".vault-groove-player iframe").forEach(function(iframe){
       if(iframe.contentWindow === event.source){
-        iframe.style.height = (data.height || 240) + "px";
+        iframe.style.height = (data.height || 150) + "px";
       }
     });
   });
