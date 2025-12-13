@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var headerWrap = null;
   var loggedInP = null;
-
-  // 🔥 New: ultra-reliable error line (never hidden, not dependent on Squarespace classes)
   var errorLine = null;
 
   var openVaultBtn = null;
@@ -42,31 +40,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var unsubProgress = null;
   var hasProgressData = false;
 
-  var LOGIN_REDIRECT_FLAG = 'dd_login_redirect_to_vault';
-  var redirectTimer = null;
+  // Prevent repeated writes + UI spam
+  var didWritePublicEmail = false;
+  var lastErrorText = '';
 
   function setTitle(t) {
     if (!titleEls) return;
     for (var i = 0; i < titleEls.length; i++) titleEls[i].textContent = t;
-  }
-
-  function clearRedirectTimer() {
-    if (redirectTimer) {
-      clearTimeout(redirectTimer);
-      redirectTimer = null;
-    }
-  }
-
-  function scheduleAutoRedirectIfFreshLogin() {
-    try {
-      if (sessionStorage.getItem(LOGIN_REDIRECT_FLAG) === '1') {
-        sessionStorage.removeItem(LOGIN_REDIRECT_FLAG);
-        clearRedirectTimer();
-        redirectTimer = setTimeout(function () {
-          window.location.href = '/vault';
-        }, 2200);
-      }
-    } catch (e) {}
   }
 
   function stopProgressListener() {
@@ -84,23 +64,20 @@ document.addEventListener('DOMContentLoaded', function () {
   function setError(text) {
     var t = String(text || '').trim();
 
-    // Always ensure UI exists before we try to show an error
-    ensureInjectedUI();
+    // De-dupe identical messages
+    if (t === lastErrorText) return;
+    lastErrorText = t;
 
-    // New reliable line
     if (errorLine) {
       errorLine.textContent = t;
       errorLine.style.display = t ? 'block' : 'none';
     }
 
-    // Legacy fallback (some layouts still show it)
+    // Always suppress legacy message to avoid doubling
     if (legacyMsgEl) {
-      legacyMsgEl.textContent = t;
-      legacyMsgEl.style.display = t ? 'block' : 'none';
-      legacyMsgEl.style.color = '#c00';
-      legacyMsgEl.style.marginTop = t ? '10px' : '0';
-      legacyMsgEl.style.visibility = 'visible';
-      legacyMsgEl.style.opacity = '1';
+      legacyMsgEl.textContent = '';
+      legacyMsgEl.style.display = 'none';
+      legacyMsgEl.style.marginTop = '0';
     }
   }
 
@@ -108,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('members-progress-style')) return;
 
     var css =
-      '#members-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px;}' +
+      '#members-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px;}' +
       '.members-prog-card{padding:14px;border:1px solid rgba(0,0,0,0.12);border-radius:12px;background:#fff;}' +
       '.members-prog-label{margin:0 0 6px 0;opacity:.75;}' +
       '.members-prog-value{margin:0;}';
@@ -138,11 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
       );
     }
 
-    if (!progressBox) {
-      progressBox = document.createElement('div');
-      progressBox.id = 'members-progress';
-      uiWrap.appendChild(progressBox);
-    }
+    if (!progressBox) return;
 
     progressBox.innerHTML =
       '<div id="members-progress-grid">' +
@@ -193,26 +166,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function removeDuplicateVaultButtons() {
-    if (!uiWrap) return;
-    var items = uiWrap.querySelectorAll('a,button');
-    for (var i = 0; i < items.length; i++) {
-      var el = items[i];
-      if (openVaultBtn && el === openVaultBtn) continue;
-
-      var txt = (el.textContent || '').trim().toLowerCase();
-      var href = (el.getAttribute && el.getAttribute('href')) ? String(el.getAttribute('href')) : '';
-
-      var looksLikeVault =
-        txt === 'open practice vault' ||
-        (href && /\/vault\b/.test(href));
-
-      if (looksLikeVault) {
-        if (el && el.parentNode) el.parentNode.removeChild(el);
-      }
-    }
-  }
-
   function setAccordion(open) {
     isAccordionOpen = !!open;
     if (!progressBox) return;
@@ -255,12 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
     uiWrap = detectUiWrap();
 
     if (accountTextEl) accountTextEl.style.display = 'none';
-
-    // Don’t hide legacy message permanently — keep it available as a fallback
-    if (legacyMsgEl) {
-      legacyMsgEl.style.marginTop = '0';
-      legacyMsgEl.style.display = 'none';
-    }
+    if (legacyMsgEl) legacyMsgEl.style.display = 'none';
 
     if (logoutBtn) logoutBtn.textContent = 'Logout';
 
@@ -275,17 +223,14 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.style.margin = '0';
     loggedInP.style.textAlign = 'center';
 
+    // Single error line
     errorLine = document.createElement('div');
     errorLine.id = 'dd-members-error';
-    errorLine.style.display = 'none';
+    errorLine.className = 'p2';
     errorLine.style.margin = '8px 0 0 0';
     errorLine.style.textAlign = 'center';
     errorLine.style.color = '#c00';
-    errorLine.style.fontSize = 'inherit';
-    errorLine.style.lineHeight = 'inherit';
-    errorLine.style.fontWeight = 'inherit';
-    errorLine.style.visibility = 'visible';
-    errorLine.style.opacity = '1';
+    errorLine.style.display = 'none';
 
     headerWrap.appendChild(loggedInP);
     headerWrap.appendChild(errorLine);
@@ -311,8 +256,6 @@ document.addEventListener('DOMContentLoaded', function () {
     uiWrap.appendChild(myProgressBtn);
     uiWrap.appendChild(progressBox);
     uiWrap.appendChild(contactBtn);
-
-    removeDuplicateVaultButtons();
 
     openVaultBtn.addEventListener('click', function () { window.location.href = '/vault'; });
     myProgressBtn.addEventListener('click', function () { setAccordion(!isAccordionOpen); });
@@ -368,12 +311,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  function writePublicEmailOnce(user) {
+    if (didWritePublicEmail) return;
+    didWritePublicEmail = true;
+
+    db.collection('users_public').doc(user.uid)
+      .set({ email: user.email || '' }, { merge: true })
+      .catch(function (e) {
+        // allow a later retry, but don't hammer on every state callback
+        didWritePublicEmail = false;
+        setError((e && e.message) ? e.message : 'Missing or insufficient permissions.');
+      });
+  }
+
   function showLogin() {
     stopProgressListener();
-    clearRedirectTimer();
+    didWritePublicEmail = false;
     if (loginBox) loginBox.style.display = 'block';
     if (accountBox) accountBox.style.display = 'none';
     setTitle('MEMBER LOGIN');
+    ensureInjectedUI();
     setError('');
   }
 
@@ -387,19 +344,18 @@ document.addEventListener('DOMContentLoaded', function () {
     setLoggedInText(user.email || '');
     setError('');
 
-    db.collection('users_public').doc(user.uid)
-      .set({ email: user.email || '' }, { merge: true })
-      .catch(function (e) {
-        setError((e && e.message) ? e.message : 'Missing or insufficient permissions.');
-      });
-
     setAccordion(false);
     startProgressListener(user);
+
+    if ((user.email || '').toLowerCase() !== adminEmail.toLowerCase()) {
+      writePublicEmailOnce(user);
+    }
+
     enforceOrder();
-    scheduleAutoRedirectIfFreshLogin();
   }
 
-  window.DD_setMembersError = function (t) { setError(t); };
+  // For quick testing in console
+  window.DD_setMembersError = function (t) { ensureInjectedUI(); setError(t); };
 
   auth.onAuthStateChanged(function (user) {
     if (!user) return showLogin();
@@ -411,6 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var email = emailInput ? String(emailInput.value || '').trim() : '';
       var pass = passInput ? String(passInput.value || '') : '';
 
+      ensureInjectedUI();
       setError('');
 
       if (!email || !pass) {
@@ -418,12 +375,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      try { sessionStorage.setItem(LOGIN_REDIRECT_FLAG, '1'); } catch (e) {}
-
       auth.signInWithEmailAndPassword(email, pass)
         .catch(function (e) {
-          try { sessionStorage.removeItem(LOGIN_REDIRECT_FLAG); } catch (e2) {}
-          setError(e.message || 'Could not log in.');
+          setError(e && e.message ? e.message : 'Could not log in.');
         });
     });
   }
@@ -431,6 +385,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (resetLink) {
     resetLink.addEventListener('click', function () {
       var email = emailInput ? String(emailInput.value || '').trim() : '';
+      ensureInjectedUI();
+
       if (!email) {
         setError('Please enter your email first.');
         return;
@@ -438,13 +394,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       auth.sendPasswordResetEmail(email)
         .then(function () { setError(''); })
-        .catch(function (e) { setError(e.message || 'Unable to send reset email.'); });
+        .catch(function (e) { setError(e && e.message ? e.message : 'Unable to send reset email.'); });
     });
   }
 
   if (changePwBtn) {
     changePwBtn.addEventListener('click', function () {
       var u = auth.currentUser;
+      ensureInjectedUI();
 
       if (!u || !u.email) {
         setError('Please log out and use the reset link.');
@@ -453,14 +410,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
       auth.sendPasswordResetEmail(u.email)
         .then(function () { setError(''); })
-        .catch(function (e) { setError(e.message || 'Unable to send reset email.'); });
+        .catch(function (e) { setError(e && e.message ? e.message : 'Unable to send reset email.'); });
     });
   }
 
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
       stopProgressListener();
-      clearRedirectTimer();
+      didWritePublicEmail = false;
       auth.signOut();
     });
   }
