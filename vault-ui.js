@@ -1,7 +1,3 @@
-// vault-ui.js
-// Members page UI (login/account) + optional progress accordion
-// Fix: Contact Support floating (Squarespace DOM) + reliable in-card error line
-
 document.addEventListener('DOMContentLoaded', function () {
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
@@ -83,8 +79,6 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.textContent = 'You are logged in as ' + (email || 'member');
   }
 
-  // IMPORTANT: show error in BOTH the injected line and the legacy message element
-  // This avoids any Squarespace CSS/display quirks.
   function setError(text) {
     var t = String(text || '').trim();
 
@@ -253,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (accountTextEl) accountTextEl.style.display = 'none';
 
-    // Keep legacy message element, but we control it (so don't hide it)
     if (legacyMsgEl) {
       legacyMsgEl.style.display = 'none';
       legacyMsgEl.style.marginTop = '0';
@@ -272,7 +265,6 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.style.margin = '0';
     loggedInP.style.textAlign = 'center';
 
-    // Error line directly under logged-in line
     errorP = document.createElement('p');
     errorP.className = 'p2';
     errorP.style.margin = '8px 0 0 0';
@@ -392,7 +384,6 @@ document.addEventListener('DOMContentLoaded', function () {
     scheduleAutoRedirectIfFreshLogin();
   }
 
-  // Expose a manual test hook (remove later if you want)
   window.DD_setMembersError = function (t) { ensureInjectedUI(); setError(t); };
 
   auth.onAuthStateChanged(function (user) {
