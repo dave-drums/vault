@@ -101,13 +101,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var html = '';
 
-    // Online card
     html += '<div style="margin:0 0 18px 0;padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
     html += '<h4 class="members-title" style="margin:0 0 10px 0;">CURRENTLY ONLINE</h4>';
     html += '<div style="font-size:14px;line-height:1.5;word-break:break-word;">' + onlineText + '</div>';
     html += '</div>';
 
-    // Student list card
     html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
     html += '<h4 class="members-title" style="margin:0 0 12px 0;">STUDENT LIST</h4>';
     html += '<div style="overflow-x:auto;">';
@@ -147,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function () {
         html += '</td>';
         html += '</tr>';
 
-        // hidden editor row
         html += '<tr class="pv-editor-row" data-uid="' + uid + '" style="display:none;background:#fafafa;">';
         html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
         html += '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">';
