@@ -1,8 +1,14 @@
+// vault-ui.js
+// Members page UI (login/account) + optional progress accordion
+// Fix: Contact Support button keeps floating above because Squarespace places it in a different wrapper.
+// Solution: remove/hide ALL existing "Contact Support" buttons/links and inject our own in the correct spot.
+
 document.addEventListener('DOMContentLoaded', function () {
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
   var auth = firebase.auth();
   var db = firebase.firestore();
+
   var adminEmail = 'info@davedrums.com.au';
 
   var loginBox = document.getElementById('members-login');
@@ -16,8 +22,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var changePwBtn = document.getElementById('change-password-btn');
   var logoutBtn = document.getElementById('logout-btn');
-  var contactBtn = document.getElementById('contact-support-btn');
 
+  // We will IGNORE any existing contact button block and inject our own
+  var CONTACT_TEXT = 'Contact Support';
+  var CONTACT_HREF = '/contact'; // change if your contact URL differs
+
+  // Original elements (hide to avoid layout fights)
   var accountTextEl = document.getElementById('members-account-text');
   var legacyMsgEl = document.getElementById('members-message');
 
@@ -30,9 +40,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var openVaultBtn = null;
   var myProgressBtn = null;
-  var progressBox = document.getElementById('members-progress');
+  var progressBox = null;
 
+  var contactBtn = null; // injected contact
   var isAccordionOpen = false;
+
   var unsubProgress = null;
   var hasProgressData = false;
 
@@ -85,11 +97,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function ensureProgressStyles() {
     if (document.getElementById('members-progress-style')) return;
 
-    var css = ''
-      + '#members-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px;}'
-      + '.members-prog-card{padding:14px;border:1px solid rgba(0,0,0,0.12);border-radius:12px;background:#fff;}'
-      + '.members-prog-label{margin:0 0 6px 0;opacity:.75;}'
-      + '.members-prog-value{margin:0;}';
+    var css =
+      '#members-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px;}' +
+      '.members-prog-card{padding:14px;border:1px solid rgba(0,0,0,0.12);border-radius:12px;background:#fff;}' +
+      '.members-prog-label{margin:0 0 6px 0;opacity:.75;}' +
+      '.members-prog-value{margin:0;}';
 
     var style = document.createElement('style');
     style.id = 'members-progress-style';
@@ -98,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function esc(s) {
-    return String(s || '').replace(/[&<>"']/g, function (c) {
-      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    return String(s || '').replace(/[&<>\"']/g, function (c) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;' })[c];
     });
   }
 
@@ -108,11 +120,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function card(label, value) {
       var v = value ? esc(value) : '-';
-      return ''
-        + '<div class="members-prog-card">'
-        +   '<p class="p2 members-prog-label">' + label + '</p>'
-        +   '<h3 class="members-prog-value">' + v + '</h3>'
-        + '</div>';
+      return (
+        '<div class="members-prog-card">' +
+          '<p class="p2 members-prog-label">' + label + '</p>' +
+          '<h3 class="members-prog-value">' + v + '</h3>' +
+        '</div>'
+      );
     }
 
     if (!progressBox) {
@@ -122,16 +135,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     progressBox.innerHTML =
-      '<div id="members-progress-grid">'
-        + card('Groove Studies', values.grooves)
-        + card('Fill Studies', values.fills)
-        + card('Stick Studies', values.hands)
-        + card('Foot Control', values.feet)
-      + '</div>';
+      '<div id="members-progress-grid">' +
+        card('Groove Studies', values.grooves) +
+        card('Fill Studies', values.fills) +
+        card('Stick Studies', values.hands) +
+        card('Foot Control', values.feet) +
+      '</div>';
   }
 
   function findBaseButtonClass() {
-    var el = contactBtn || changePwBtn || logoutBtn;
+    var el = changePwBtn || logoutBtn;
     return el ? (el.className || '') : '';
   }
 
@@ -154,10 +167,22 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function detectUiWrap() {
+    // Use the existing action stack parent (same as Logout/Change Password)
     if (logoutBtn && logoutBtn.parentNode) return logoutBtn.parentNode;
     if (changePwBtn && changePwBtn.parentNode) return changePwBtn.parentNode;
-    if (contactBtn && contactBtn.parentNode) return contactBtn.parentNode;
     return accountBox || document.body;
+  }
+
+  function removeAllContactSupportButtons() {
+    // Remove any <a> or <button> that reads "Contact Support" (case-insensitive)
+    var nodes = document.querySelectorAll('a,button');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var txt = (el.textContent || '').trim().toLowerCase();
+      if (txt === CONTACT_TEXT.toLowerCase()) {
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+      }
+    }
   }
 
   function removeDuplicateVaultButtons() {
@@ -221,11 +246,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     uiWrap = detectUiWrap();
 
+    // Hide legacy display elements
     if (accountTextEl) accountTextEl.style.display = 'none';
     if (legacyMsgEl) legacyMsgEl.style.display = 'none';
 
+    // Normalise logout label
     if (logoutBtn) logoutBtn.textContent = 'Logout';
 
+    // Remove any existing Contact Support buttons anywhere on the page
+    removeAllContactSupportButtons();
+
+    // Header block inside uiWrap
     headerWrap = document.createElement('div');
     headerWrap.id = 'members-header-wrap';
     headerWrap.style.width = '100%';
@@ -245,6 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
     headerWrap.appendChild(loggedInP);
     headerWrap.appendChild(errorP);
 
+    // Buttons we control
     openVaultBtn = createNativeButton('Open Practice Vault', 'open-vault-btn');
     openVaultBtn.style.background = '#06b3fd';
     openVaultBtn.style.borderColor = 'transparent';
@@ -252,24 +284,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     myProgressBtn = createNativeButton('My Progress', 'my-progress-btn');
 
+    contactBtn = createNativeButton(CONTACT_TEXT, 'contact-support-btn-injected');
+
     matchLogoutRounding(openVaultBtn);
     matchLogoutRounding(myProgressBtn);
+    matchLogoutRounding(contactBtn);
 
-    if (!progressBox) {
-      progressBox = document.createElement('div');
-      progressBox.id = 'members-progress';
-    }
+    // Progress container
+    progressBox = document.createElement('div');
+    progressBox.id = 'members-progress';
     progressBox.style.display = 'none';
 
+    // Add into stack
     uiWrap.appendChild(headerWrap);
     uiWrap.appendChild(openVaultBtn);
     uiWrap.appendChild(myProgressBtn);
     uiWrap.appendChild(progressBox);
+    uiWrap.appendChild(contactBtn);
 
+    // Remove duplicates in stack from page markup
     removeDuplicateVaultButtons();
 
     openVaultBtn.addEventListener('click', function () { window.location.href = '/vault'; });
     myProgressBtn.addEventListener('click', function () { setAccordion(!isAccordionOpen); });
+    contactBtn.addEventListener('click', function () { window.location.href = CONTACT_HREF; });
 
     myProgressBtn.style.display = 'none';
     setAccordion(false);
@@ -338,14 +376,15 @@ document.addEventListener('DOMContentLoaded', function () {
     setLoggedInText(user.email || '');
     setError('');
 
-    var pubRef = db.collection('users_public').doc(user.uid);
-    pubRef.set({ email: user.email || '' }, { merge: true }).catch(function (e) {
-      setError(e && e.message ? e.message : 'Missing or insufficient permissions.');
-    });
+    // Ensure users_public exists with email only (no progress defaults)
+    db.collection('users_public').doc(user.uid)
+      .set({ email: user.email || '' }, { merge: true })
+      .catch(function (e) {
+        setError((e && e.message) ? e.message : 'Missing or insufficient permissions.');
+      });
 
     setAccordion(false);
     startProgressListener(user);
-
     enforceOrder();
     scheduleAutoRedirectIfFreshLogin();
   }
@@ -360,8 +399,9 @@ document.addEventListener('DOMContentLoaded', function () {
       var email = emailInput ? String(emailInput.value || '').trim() : '';
       var pass = passInput ? String(passInput.value || '') : '';
 
+      ensureInjectedUI();
+
       if (!email || !pass) {
-        ensureInjectedUI();
         setError('Please enter email and password.');
         return;
       }
@@ -371,7 +411,6 @@ document.addEventListener('DOMContentLoaded', function () {
       auth.signInWithEmailAndPassword(email, pass)
         .catch(function (e) {
           try { sessionStorage.removeItem(LOGIN_REDIRECT_FLAG); } catch (e2) {}
-          ensureInjectedUI();
           setError(e.message || 'Could not log in.');
         });
     });
@@ -380,28 +419,32 @@ document.addEventListener('DOMContentLoaded', function () {
   if (resetLink) {
     resetLink.addEventListener('click', function () {
       var email = emailInput ? String(emailInput.value || '').trim() : '';
+      ensureInjectedUI();
+
       if (!email) {
-        ensureInjectedUI();
         setError('Please enter your email first.');
         return;
       }
+
       auth.sendPasswordResetEmail(email)
-        .then(function () { ensureInjectedUI(); setError(''); })
-        .catch(function (e) { ensureInjectedUI(); setError(e.message || 'Unable to send reset email.'); });
+        .then(function () { setError(''); })
+        .catch(function (e) { setError(e.message || 'Unable to send reset email.'); });
     });
   }
 
   if (changePwBtn) {
     changePwBtn.addEventListener('click', function () {
       var u = auth.currentUser;
+      ensureInjectedUI();
+
       if (!u || !u.email) {
-        ensureInjectedUI();
         setError('Please log out and use the reset link.');
         return;
       }
+
       auth.sendPasswordResetEmail(u.email)
-        .then(function () { ensureInjectedUI(); setError(''); })
-        .catch(function (e) { ensureInjectedUI(); setError(e.message || 'Unable to send reset email.'); });
+        .then(function () { setError(''); })
+        .catch(function (e) { setError(e.message || 'Unable to send reset email.'); });
     });
   }
 
