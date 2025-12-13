@@ -1,447 +1,193 @@
-/*!
- * vault-render.js (Dave Drums – Practice Vault)
- * Identifier-driven renderer with full placement control.
- *
- * Supported identifiers (must be at line start):
- *  V> <bunny_video_id>
- *  G> <groovescribe_url_or_query>
- *  T> <text...>          (collects following lines until next identifier; YouTube link line becomes YT bubble)
- *  A> <name> | <url>     (preferred) OR A> <name> <url>
- *  BR> <number>          (vertical space in rem)
- *  H> <heading>
- *  HR>
- *
- * Config (optional) via window.VAULT_CONFIG:
- *  bunnyLibraryId, grooveOrigin, grooveEmbedPath, youtubeLogoSrc, debug
- */
-
 (function(){
-  "use strict";
-  if (window.__VAULT_RENDERER_LOADED__) return;
-  window.__VAULT_RENDERER_LOADED__ = true;
 
-  var CFG = window.VAULT_CONFIG || {};
-  var BUNNY_LIBRARY_ID = CFG.bunnyLibraryId || "556221";
-  var GROOVE_ORIGIN = CFG.grooveOrigin || "https://groove.davedrums.com.au";
-  var GROOVE_EMBED_PATH = CFG.grooveEmbedPath || "/GrooveEmbed.html";
-  var YT_LOGO_SRC = CFG.youtubeLogoSrc || "/s/youtube-logo.png";
-  var DEBUG = !!CFG.debug;
+/* ---------- CONFIG ---------- */
+const CFG = window.VAULT_CONFIG || {};
+const BUNNY_LIB = CFG.bunnyLibraryId || "";
+const GROOVE_ORIGIN = CFG.grooveOrigin || "";
+const GROOVE_EMBED = CFG.grooveEmbedPath || "/GrooveEmbed.html";
+const YT_LOGO = CFG.youtubeLogoSrc || "";
 
-  var ID_RE = /^(V|G|T|A|BR|H|HR)>\s*(.*)$/;
+/* ---------- UTIL ---------- */
+function parseBold(text){
+  return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
 
-  function log(){
-    if(!DEBUG) return;
-    try{ console.log.apply(console, arguments); }catch(e){}
-  }
-
-  function hasMarkers(text){
-    return /(^|\n)\s*(V>|G>|T>|A>|BR>|H>|HR>)/.test(text || "");
-  }
-
-  /* ---------- YouTube helpers ---------- */
-  function isYouTubeLine(txt){
-    if(!txt) return false;
-    return /youtu\.?be|youtube\.com/i.test(txt) || (/^https?:\/\//i.test(txt) && txt.indexOf("youtu") !== -1);
-  }
-
-  function convertYouTubeUrlToEmbed(originalUrl){
-    try{
-      var urlObj = new URL(originalUrl);
-      var host = (urlObj.hostname || "").toLowerCase();
-      var videoId = null;
-
-      if(host.indexOf("youtu.be") !== -1){
-        videoId = (urlObj.pathname || "").replace("/","").split("/")[0];
-      }else if(host.indexOf("youtube.com") !== -1){
-        videoId = urlObj.searchParams.get("v");
-      }
-      if(!videoId) return null;
-      return "https://www.youtube.com/embed/" + videoId;
-    }catch(e){
-      return null;
+/* ---------- YOUTUBE ---------- */
+function ytToEmbed(url){
+  try{
+    const u = new URL(url);
+    if(u.hostname.includes("youtu.be")){
+      return "https://www.youtube.com/embed/" + u.pathname.slice(1);
     }
-  }
-
-  function openYouTubeLightbox(originalUrl){
-    var embedUrl = convertYouTubeUrlToEmbed(originalUrl);
-    if(!embedUrl){
-      window.open(originalUrl, "_blank");
-      return;
+    if(u.hostname.includes("youtube.com")){
+      return "https://www.youtube.com/embed/" + u.searchParams.get("v");
     }
+  }catch(e){}
+  return null;
+}
 
-    var overlay = document.createElement("div");
-    overlay.className = "vault-yt-overlay";
+function openYT(url){
+  const embed = ytToEmbed(url);
+  if(!embed) return window.open(url,"_blank");
 
-    var inner = document.createElement("div");
-    inner.className = "vault-yt-inner";
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed; inset:0;
+    background:rgba(0,0,0,.7);
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:1rem;
+  `;
 
-    var closeBtn = document.createElement("button");
-    closeBtn.className = "vault-yt-close";
-    closeBtn.innerHTML = "&times;";
-    closeBtn.addEventListener("click", function(){
-      if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    });
+  const box = document.createElement("div");
+  box.style.cssText = `
+    width:100%;
+    max-width:900px;
+    background:#000;
+    border-radius:12px;
+    overflow:hidden;
+    position:relative;
+  `;
 
-    var wrap = document.createElement("div");
-    wrap.className = "vault-yt-iframe-wrap";
+  const close = document.createElement("button");
+  close.textContent = "×";
+  close.style.cssText = `
+    position:absolute;
+    top:6px;
+    right:10px;
+    font-size:28px;
+    background:none;
+    color:#fff;
+    border:0;
+    cursor:pointer;
+    z-index:2;
+  `;
+  close.onclick = ()=>document.body.removeChild(overlay);
 
-    var iframe = document.createElement("iframe");
-    iframe.src = embedUrl + (embedUrl.indexOf("?") === -1 ? "?rel=0" : "&rel=0");
-    iframe.setAttribute("allowfullscreen", "true");
-    iframe.setAttribute("allow", "accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;");
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:relative;padding-top:56.25%;";
 
-    wrap.appendChild(iframe);
-    inner.appendChild(closeBtn);
-    inner.appendChild(wrap);
-    overlay.appendChild(inner);
-    document.body.appendChild(overlay);
+  const iframe = document.createElement("iframe");
+  iframe.src = embed + "?rel=0&autoplay=1";
+  iframe.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:0;";
+  iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+  iframe.allowFullscreen = true;
 
-    overlay.addEventListener("click", function(e){
-      if(e.target === overlay && overlay.parentNode){
-        overlay.parentNode.removeChild(overlay);
-      }
-    });
+  wrap.appendChild(iframe);
+  box.appendChild(close);
+  box.appendChild(wrap);
+  overlay.appendChild(box);
 
-    function escHandler(e){
-      if(e.key === "Escape"){
-        if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
-        document.removeEventListener("keydown", escHandler);
-      }
-    }
-    document.addEventListener("keydown", escHandler);
-  }
+  overlay.onclick = e=>{
+    if(e.target === overlay) document.body.removeChild(overlay);
+  };
 
-  /* ---------- Normalisers ---------- */
-  function normaliseGrooveUrl(input){
-    var u = (input || "").trim();
-    if(!u) return "";
+  document.body.appendChild(overlay);
+}
 
-    // Query-only form: ?TimeSig=...
-    if(u[0] === "?"){
-      return GROOVE_ORIGIN + GROOVE_EMBED_PATH + u;
-    }
+/* ---------- RENDER ---------- */
+document.addEventListener("DOMContentLoaded",()=>{
 
-    // If it's a full URL to your groove host root, convert to GrooveEmbed.html
-    try{
-      var parsed = new URL(u);
-      if(parsed.hostname === "groove.davedrums.com.au" && (parsed.pathname === "/" || parsed.pathname === "")){
-        return GROOVE_ORIGIN + GROOVE_EMBED_PATH + parsed.search;
-      }
-    }catch(e){
-      // not a URL, leave as-is (could be relative)
-    }
+  document.querySelectorAll(".sqs-block-code,.sqs-block-markdown").forEach(block=>{
+    const src = (block.querySelector(".sqs-block-content")||block).textContent.trim();
+    if(!src) return;
 
-    return u;
-  }
+    const lines = src.split(/\r?\n/);
+    const out = document.createElement("div");
+    out.className = "vault-seq";
 
-  function bunnyVideoUrl(id){
-    return (
-      "https://iframe.mediadelivery.net/embed/" +
-      encodeURIComponent(BUNNY_LIBRARY_ID) + "/" +
-      encodeURIComponent(id) +
-      "?autoplay=false&loop=false&muted=false&preload=false&responsive=true"
-    );
-  }
+    let i = 0;
+    while(i < lines.length){
+      const line = lines[i].trim();
 
-  function parseAudioLine(rest){
-    // Preferred: Name | URL
-    var s = (rest || "").trim();
-    if(!s) return { name:"", url:"" };
-
-    var pipeIdx = s.indexOf("|");
-    if(pipeIdx !== -1){
-      var name = s.slice(0, pipeIdx).trim();
-      var url = s.slice(pipeIdx + 1).trim();
-      return { name:name, url:url };
-    }
-
-    // Fallback: last token that looks like a URL is the URL, everything before is name
-    var parts = s.split(/\s+/);
-    var url = "";
-    for(var i=parts.length-1;i>=0;i--){
-      if(/^https?:\/\//i.test(parts[i])){
-        url = parts[i];
-        parts.splice(i, 1);
-        break;
-      }
-    }
-    return { name: parts.join(" ").trim(), url: (url || "").trim() };
-  }
-
-  /* ---------- Tokeniser ---------- */
-  function tokenise(rawText){
-    var lines = (rawText || "").split(/\r?\n/);
-    var tokens = [];
-
-    for(var i=0;i<lines.length;i++){
-      var raw = lines[i] || "";
-      var line = raw.trim();
-      if(!line) continue;
-
-      var m = line.match(ID_RE);
-      if(!m) continue;
-
-      var tag = m[1];
-      var rest = (m[2] || "").trim();
-
-      if(tag === "HR"){
-        tokens.push({ type:"hr" });
-        continue;
+      /* VIDEO */
+      if(line.startsWith("V>")){
+        const id = line.replace("V>","").trim();
+        const wrap = document.createElement("div");
+        wrap.className = "vault-video-wrapper";
+        wrap.innerHTML = `
+          <div class="vault-video-embed">
+            <iframe src="https://iframe.mediadelivery.net/embed/${BUNNY_LIB}/${id}?autoplay=false"
+              allowfullscreen
+              allow="autoplay;encrypted-media;picture-in-picture">
+            </iframe>
+          </div>`;
+        out.appendChild(wrap);
+        i++; continue;
       }
 
-      if(tag === "BR"){
-        var n = parseFloat(rest);
-        if(!isFinite(n)) n = 1;
-        tokens.push({ type:"br", rem:n });
-        continue;
-      }
-
-      if(tag === "H"){
-        tokens.push({ type:"h", text:rest });
-        continue;
-      }
-
-      if(tag === "V"){
-        if(!rest) continue;
-        tokens.push({ type:"video", id:rest });
-        continue;
-      }
-
-      if(tag === "G"){
-        if(!rest) continue;
-        tokens.push({ type:"groove", url:rest });
-        continue;
-      }
-
-      if(tag === "A"){
-        var au = parseAudioLine(rest);
-        if(!au.url) continue;
-        tokens.push({ type:"audio", name:au.name, url:au.url });
-        continue;
-      }
-
-      if(tag === "T"){
-        // Collect multi-line text until the next identifier
-        var textLines = [];
-        var ytLine = null;
-
-        if(rest) textLines.push(rest);
-
-        var j = i + 1;
-        while(j < lines.length){
-          var nxtRaw = lines[j] || "";
-          var nxt = nxtRaw.trim();
-
-          if(nxt && ID_RE.test(nxt)) break; // next identifier
-
-          if(nxt === ""){
-            // preserve blank lines inside bubble
-            textLines.push("");
-            j++;
-            continue;
-          }
-
-          if(isYouTubeLine(nxt) && !ytLine){
-            ytLine = nxt;
-          }else{
-            textLines.push(nxtRaw.replace(/\s+$/,""));
-          }
-          j++;
+      /* TEXT */
+      if(line.startsWith("T>")){
+        const texts = [];
+        let yt = null;
+        i++;
+        while(i < lines.length && lines[i].trim() && !/^[A-Z]{1,2}>/.test(lines[i])){
+          const l = lines[i].trim();
+          if(/youtube\.com|youtu\.be/.test(l)) yt = l;
+          else texts.push(l);
+          i++;
         }
 
-        tokens.push({ type:"text", lines:textLines, yt:ytLine });
-        i = j - 1;
-        continue;
-      }
-    }
+        if(yt){
+          const row = document.createElement("div");
+          row.className = "vault-info-row";
 
-    return tokens;
-  }
+          const main = document.createElement("div");
+          main.className = "vault-info vault-info-main";
+          main.innerHTML = texts.map(t=>parseBold(t)).join("<br>");
 
-  /* ---------- Renderer ---------- */
-  function el(tag, cls){
-    var x = document.createElement(tag);
-    if(cls) x.className = cls;
-    return x;
-  }
+          const btn = document.createElement("button");
+          btn.className = "vault-info-yt";
+          btn.type = "button";
+          btn.onclick = ()=>openYT(yt);
+          btn.innerHTML = `<img src="${YT_LOGO}" class="vault-yt-logo" alt="YouTube">`;
 
-  function renderTokens(tokens){
-    var container = el("div", "vault-seq");
-
-    tokens.forEach(function(t){
-
-      if(t.type === "h"){
-        var h = el("div", "vault-heading");
-        h.textContent = t.text || "";
-        container.appendChild(h);
-        return;
-      }
-
-      if(t.type === "hr"){
-        container.appendChild(el("div", "vault-divider"));
-        return;
-      }
-
-      if(t.type === "br"){
-        var sp = el("div", "vault-spacer");
-        sp.style.height = (t.rem || 1) + "rem";
-        container.appendChild(sp);
-        return;
-      }
-
-      if(t.type === "video"){
-        var vWrap = el("div", "vault-video-wrapper");
-        var vEmbed = el("div", "vault-video-embed");
-
-        var vIframe = document.createElement("iframe");
-        vIframe.src = bunnyVideoUrl(t.id);
-        vIframe.loading = "lazy";
-        vIframe.setAttribute("allowfullscreen", "true");
-        vIframe.setAttribute("allow", "accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;");
-
-        vEmbed.appendChild(vIframe);
-        vWrap.appendChild(vEmbed);
-        container.appendChild(vWrap);
-        return;
-      }
-
-      if(t.type === "groove"){
-        var gWrap = el("div", "vault-groove-only");
-        var player = el("div", "vault-groove-player");
-
-        var gsIframe = document.createElement("iframe");
-        gsIframe.src = normaliseGrooveUrl(t.url);
-        gsIframe.width = "100%";
-        gsIframe.height = "150";
-        gsIframe.loading = "lazy";
-        gsIframe.setAttribute("frameborder", "0");
-        gsIframe.setAttribute("allow", "autoplay");
-
-        player.appendChild(gsIframe);
-        gWrap.appendChild(player);
-        container.appendChild(gWrap);
-        return;
-      }
-
-      if(t.type === "text"){
-        if(t.yt){
-          var row = el("div", "vault-info-row");
-          var left = el("div", "vault-info vault-info-main");
-          (t.lines || []).forEach(function(line){
-            var d = document.createElement("div");
-            if(line === "") d.innerHTML = "&nbsp;";
-            else d.textContent = line;
-            left.appendChild(d);
-          });
-          row.appendChild(left);
-
-          var right = el("div", "vault-info vault-info-yt");
-          var a = document.createElement("a");
-          a.href = "javascript:void(0)";
-          a.addEventListener("click", function(){ openYouTubeLightbox(t.yt); });
-
-          var img = document.createElement("img");
-          img.src = YT_LOGO_SRC;
-          img.alt = "YouTube";
-          img.className = "vault-yt-logo";
-
-          a.appendChild(img);
-          right.appendChild(a);
-          row.appendChild(right);
-
-          container.appendChild(row);
+          row.appendChild(main);
+          row.appendChild(btn);
+          out.appendChild(row);
         }else{
-          var bubble = el("div", "vault-info vault-info-full");
-          (t.lines || []).forEach(function(line){
-            var d2 = document.createElement("div");
-            if(line === "") d2.innerHTML = "&nbsp;";
-            else d2.textContent = line;
-            bubble.appendChild(d2);
-          });
-          container.appendChild(bubble);
+          const box = document.createElement("div");
+          box.className = "vault-info vault-info-full";
+          box.innerHTML = texts.map(t=>parseBold(t)).join("<br>");
+          out.appendChild(box);
         }
-        return;
+        continue;
       }
 
-      if(t.type === "audio"){
-        var aWrap = el("div", "vault-audio-wrap");
-        var node = el("div", "vault-audio");
-        node.setAttribute("data-audio-title", (t.name || "").trim());
-        node.setAttribute("data-audio-src", (t.url || "").trim());
+      /* GROOVE */
+      if(line.startsWith("G>")){
+        const url = line.replace("G>","").trim();
+        const p = new URL(url);
+        const iframe = document.createElement("iframe");
+        iframe.src =
+          p.origin === GROOVE_ORIGIN && (p.pathname === "/" || !p.pathname)
+          ? GROOVE_ORIGIN + GROOVE_EMBED + p.search
+          : url;
 
-        var title = el("div", "vault-audio-title");
-        title.textContent = (t.name || "").trim() || "Audio";
-        node.appendChild(title);
-
-        var fallback = document.createElement("a");
-        fallback.className = "vault-audio-fallback";
-        fallback.href = t.url;
-        fallback.target = "_blank";
-        fallback.rel = "noopener";
-        fallback.textContent = "Open audio";
-        node.appendChild(fallback);
-
-        aWrap.appendChild(node);
-        container.appendChild(aWrap);
-
-        try{
-          if(window.VaultAudioPlayer && typeof window.VaultAudioPlayer.scan === "function"){
-            window.VaultAudioPlayer.scan();
-          }else if(typeof window.__vaultAudioScan === "function"){
-            window.__vaultAudioScan();
-          }
-        }catch(e){}
-
-        return;
+        const wrap = document.createElement("div");
+        wrap.className = "vault-groove-player";
+        wrap.appendChild(iframe);
+        out.appendChild(wrap);
+        i++; continue;
       }
-    });
 
-    return container;
-  }
-
-  /* ---------- Block processor ---------- */
-  function getBlockText(block){
-    var content = block.querySelector(".sqs-block-content") || block;
-    return (content.textContent || "").trim();
-  }
-
-  function runRenderer(){
-    var blocks = document.querySelectorAll(".sqs-block");
-    blocks.forEach(function(block){
-      if(block.__vaultProcessed) return;
-
-      var rawText = getBlockText(block);
-      if(!rawText || !hasMarkers(rawText)) return;
-
-      var tokens = tokenise(rawText);
-      if(!tokens.length) return;
-
-      log("[Vault] tokens:", tokens);
-
-      var container = renderTokens(tokens);
-      block.__vaultProcessed = true;
-      block.parentNode.replaceChild(container, block);
-    });
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", runRenderer);
-  }else{
-    runRenderer();
-  }
-  setTimeout(runRenderer, 600);
-  setTimeout(runRenderer, 2000);
-
-  /* ---------- GrooveScribe auto-resize via postMessage ---------- */
-  window.addEventListener("message", function(event){
-    if(event.origin !== GROOVE_ORIGIN) return;
-    var data = event.data || {};
-    if(data.type !== "grooveHeight") return;
-
-    document.querySelectorAll(".vault-groove-player iframe").forEach(function(iframe){
-      if(iframe.contentWindow === event.source){
-        iframe.style.height = data.height + "px";
+      /* SPACER */
+      if(line.startsWith("BR>")){
+        const n = parseFloat(line.replace("BR>","")) || 1;
+        const s = document.createElement("div");
+        s.className = "vault-spacer";
+        s.style.height = n + "rem";
+        out.appendChild(s);
+        i++; continue;
       }
-    });
+
+      i++;
+    }
+
+    block.parentNode.replaceChild(out, block);
   });
+});
+
 })();
