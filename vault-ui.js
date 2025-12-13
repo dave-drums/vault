@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function () {
   var auth = firebase.auth();
   var db = firebase.firestore();
   var adminEmail = 'info@davedrums.com.au';
+  function setNavLoginState(isLoggedIn) {
+    document.documentElement.classList.toggle('pv-logged-in', !!isLoggedIn);
+  }
 
   var loginBox = document.getElementById('members-login');
   var accountBox = document.getElementById('members-account');
@@ -40,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var unsubProgress = null;
   var hasProgressData = false;
 
-  // Prevent repeated writes + UI spam
   var didWritePublicEmail = false;
   var lastErrorText = '';
 
@@ -63,8 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setError(text) {
     var t = String(text || '').trim();
-
-    // De-dupe identical messages
     if (t === lastErrorText) return;
     lastErrorText = t;
 
@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
       errorLine.style.display = t ? 'block' : 'none';
     }
 
-    // Always suppress legacy message to avoid doubling
     if (legacyMsgEl) {
       legacyMsgEl.textContent = '';
       legacyMsgEl.style.display = 'none';
@@ -223,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.style.margin = '0';
     loggedInP.style.textAlign = 'center';
 
-    // Single error line
     errorLine = document.createElement('div');
     errorLine.id = 'dd-members-error';
     errorLine.className = 'p2';
@@ -317,16 +315,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     db.collection('users_public').doc(user.uid)
       .set({ email: user.email || '' }, { merge: true })
-      .catch(function (e) {
-        // allow a later retry, but don't hammer on every state callback
+      .catch(function () {
         didWritePublicEmail = false;
-        setError((e && e.message) ? e.message : 'Missing or insufficient permissions.');
       });
   }
 
   function showLogin() {
     stopProgressListener();
     didWritePublicEmail = false;
+    setNavLoginState(false);   // ✅ logged out
     if (loginBox) loginBox.style.display = 'block';
     if (accountBox) accountBox.style.display = 'none';
     setTitle('MEMBER LOGIN');
@@ -335,6 +332,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function showAccount(user) {
+    setNavLoginState(true);    // ✅ logged in
     if (loginBox) loginBox.style.display = 'none';
     if (accountBox) accountBox.style.display = 'block';
 
@@ -354,71 +352,21 @@ document.addEventListener('DOMContentLoaded', function () {
     enforceOrder();
   }
 
-  // For quick testing in console
-  window.DD_setMembersError = function (t) { ensureInjectedUI(); setError(t); };
-
   auth.onAuthStateChanged(function (user) {
+    setNavLoginState(!!user);  
     if (!user) return showLogin();
     showAccount(user);
   });
+  document.addEventListener('click', function (e) {
+    var link = e.target.closest('a[href="/logout"]');
+    if (!link) return;
 
-  if (loginBtn) {
-    loginBtn.addEventListener('click', function () {
-      var email = emailInput ? String(emailInput.value || '').trim() : '';
-      var pass = passInput ? String(passInput.value || '') : '';
+    e.preventDefault();
+    stopProgressListener();
+    didWritePublicEmail = false;
 
-      ensureInjectedUI();
-      setError('');
-
-      if (!email || !pass) {
-        setError('Please enter email and password.');
-        return;
-      }
-
-      auth.signInWithEmailAndPassword(email, pass)
-        .catch(function (e) {
-          setError(e && e.message ? e.message : 'Could not log in.');
-        });
+    auth.signOut().then(function () {
+      window.location.href = '/';
     });
-  }
-
-  if (resetLink) {
-    resetLink.addEventListener('click', function () {
-      var email = emailInput ? String(emailInput.value || '').trim() : '';
-      ensureInjectedUI();
-
-      if (!email) {
-        setError('Please enter your email first.');
-        return;
-      }
-
-      auth.sendPasswordResetEmail(email)
-        .then(function () { setError(''); })
-        .catch(function (e) { setError(e && e.message ? e.message : 'Unable to send reset email.'); });
-    });
-  }
-
-  if (changePwBtn) {
-    changePwBtn.addEventListener('click', function () {
-      var u = auth.currentUser;
-      ensureInjectedUI();
-
-      if (!u || !u.email) {
-        setError('Please log out and use the reset link.');
-        return;
-      }
-
-      auth.sendPasswordResetEmail(u.email)
-        .then(function () { setError(''); })
-        .catch(function (e) { setError(e && e.message ? e.message : 'Unable to send reset email.'); });
-    });
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function () {
-      stopProgressListener();
-      didWritePublicEmail = false;
-      auth.signOut();
-    });
-  }
+  });
 });
