@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var headerWrap = null;
   var loggedInP = null;
-  var errorP = null;
+
+  // 🔥 New: ultra-reliable error line (never hidden, not dependent on Squarespace classes)
+  var errorLine = null;
 
   var openVaultBtn = null;
   var myProgressBtn = null;
@@ -82,16 +84,23 @@ document.addEventListener('DOMContentLoaded', function () {
   function setError(text) {
     var t = String(text || '').trim();
 
-    if (errorP) {
-      errorP.textContent = t;
-      errorP.style.display = t ? 'block' : 'none';
+    // Always ensure UI exists before we try to show an error
+    ensureInjectedUI();
+
+    // New reliable line
+    if (errorLine) {
+      errorLine.textContent = t;
+      errorLine.style.display = t ? 'block' : 'none';
     }
 
+    // Legacy fallback (some layouts still show it)
     if (legacyMsgEl) {
       legacyMsgEl.textContent = t;
       legacyMsgEl.style.display = t ? 'block' : 'none';
       legacyMsgEl.style.color = '#c00';
       legacyMsgEl.style.marginTop = t ? '10px' : '0';
+      legacyMsgEl.style.visibility = 'visible';
+      legacyMsgEl.style.opacity = '1';
     }
   }
 
@@ -247,9 +256,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (accountTextEl) accountTextEl.style.display = 'none';
 
+    // Don’t hide legacy message permanently — keep it available as a fallback
     if (legacyMsgEl) {
-      legacyMsgEl.style.display = 'none';
       legacyMsgEl.style.marginTop = '0';
+      legacyMsgEl.style.display = 'none';
     }
 
     if (logoutBtn) logoutBtn.textContent = 'Logout';
@@ -265,15 +275,20 @@ document.addEventListener('DOMContentLoaded', function () {
     loggedInP.style.margin = '0';
     loggedInP.style.textAlign = 'center';
 
-    errorP = document.createElement('p');
-    errorP.className = 'p2';
-    errorP.style.margin = '8px 0 0 0';
-    errorP.style.textAlign = 'center';
-    errorP.style.color = '#c00';
-    errorP.style.display = 'none';
+    errorLine = document.createElement('div');
+    errorLine.id = 'dd-members-error';
+    errorLine.style.display = 'none';
+    errorLine.style.margin = '8px 0 0 0';
+    errorLine.style.textAlign = 'center';
+    errorLine.style.color = '#c00';
+    errorLine.style.fontSize = 'inherit';
+    errorLine.style.lineHeight = 'inherit';
+    errorLine.style.fontWeight = 'inherit';
+    errorLine.style.visibility = 'visible';
+    errorLine.style.opacity = '1';
 
     headerWrap.appendChild(loggedInP);
-    headerWrap.appendChild(errorP);
+    headerWrap.appendChild(errorLine);
 
     openVaultBtn = createNativeButton('Open Practice Vault', 'open-vault-btn');
     openVaultBtn.style.background = '#06b3fd';
@@ -384,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
     scheduleAutoRedirectIfFreshLogin();
   }
 
-  window.DD_setMembersError = function (t) { ensureInjectedUI(); setError(t); };
+  window.DD_setMembersError = function (t) { setError(t); };
 
   auth.onAuthStateChanged(function (user) {
     if (!user) return showLogin();
@@ -396,7 +411,6 @@ document.addEventListener('DOMContentLoaded', function () {
       var email = emailInput ? String(emailInput.value || '').trim() : '';
       var pass = passInput ? String(passInput.value || '') : '';
 
-      ensureInjectedUI();
       setError('');
 
       if (!email || !pass) {
@@ -417,8 +431,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (resetLink) {
     resetLink.addEventListener('click', function () {
       var email = emailInput ? String(emailInput.value || '').trim() : '';
-      ensureInjectedUI();
-
       if (!email) {
         setError('Please enter your email first.');
         return;
@@ -433,7 +445,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (changePwBtn) {
     changePwBtn.addEventListener('click', function () {
       var u = auth.currentUser;
-      ensureInjectedUI();
 
       if (!u || !u.email) {
         setError('Please log out and use the reset link.');
