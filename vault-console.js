@@ -20,6 +20,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var ONLINE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
+  // UI styles (admin)
+  (function(){
+    var css = `
+      .pv-student-header{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;}
+      .pv-add-btn{padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;}
+      .pv-add-btn:hover{background:#ededed;}
+      .pv-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);z-index:9999;padding:20px;box-sizing:border-box;}
+      .pv-modal-box{width:100%;max-width:520px;background:#f3f3f3;border-radius:15px;padding:18px 18px 16px 18px;box-shadow:0 10px 30px rgba(0,0,0,0.22);}
+      .pv-modal-box h3{margin:0 0 12px 0;}
+      .pv-modal-box label{display:block;margin:10px 0 6px 0;font-size:13px;opacity:.85;}
+      .pv-modal-box input{width:100%;box-sizing:border-box;padding:10px;border:1px solid rgba(0,0,0,0.18);border-radius:10px;}
+      .pv-modal-help{margin:10px 0 0 0;font-size:12.5px;opacity:.75;line-height:1.4;}
+      .pv-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;}
+      .pv-modal-actions button{padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font:inherit;}
+      .pv-modal-actions .pv-primary{background:#111;color:#fff;}
+      .pv-modal-actions .pv-primary:hover{background:#000;}
+      @media (max-width:520px){
+        .pv-modal-box{padding:16px;}
+      }
+    `;
+    var style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+  })();
+
+
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, function (c) {
       return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
@@ -107,11 +133,14 @@ document.addEventListener('DOMContentLoaded', function () {
     html += '</div>';
 
     html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<h4 class="members-title" style="margin:0 0 12px 0;">STUDENT LIST</h4>';
+    html += '<div class="pv-student-header">';
+    html += '  <h4 class="members-title" style="margin:0;">STUDENT LIST</h4>';
+    html += '  <button type="button" id="pv-add-user" class="pv-add-btn">Add user</button>';
+    html += '</div>';
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th><th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Name</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Joined</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
@@ -120,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
-      html += '<tr><td colspan="6" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
+      html += '<tr><td colspan="7" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
     } else {
       users.forEach(function (u) {
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
@@ -135,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         html += '<tr>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + (isOnline ? '🥁 ' : '') + email + '</td>';
+        html += '<td style=\"padding:8px;border-bottom:1px solid #f0f0f0;\">' + escapeHtml((u.name || '').trim()) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + formatDateOnly(u.joinedAt) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + lastLoginText + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
@@ -146,8 +176,20 @@ document.addEventListener('DOMContentLoaded', function () {
         html += '</tr>';
 
         html += '<tr class="pv-editor-row" data-uid="' + uid + '" style="display:none;background:#fafafa;">';
-        html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
-        html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end;">';
+        html += '<td colspan="7" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;align-items:end;">';
+
+
+        function nameBlock(label, key, placeholder) {
+          return (
+            '<div style="display:flex;flex-direction:column;gap:6px;min-width:120px;flex:1;">' +
+              '<div style="font-size:12px;opacity:.75;">' + label + '</div>' +
+              '<input type="text" class="pv-name" data-uid="' + uid + '" data-key="' + key + '" ' +
+              'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;" ' +
+              'placeholder="' + (placeholder || '') + '">' +
+            '</div>'
+          );
+        }
 
         function inputBlock(label, key) {
           return (
@@ -160,6 +202,8 @@ document.addEventListener('DOMContentLoaded', function () {
           );
         }
 
+        html += nameBlock('First name', 'firstName', '');
+        html += nameBlock('Last name', 'lastName', '');
         html += inputBlock('Groove Studies', 'grooves');
         html += inputBlock('Fill Studies', 'fills');
         html += inputBlock('Stick Studies', 'hands');
@@ -201,11 +245,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setMsg(uid, 'Loading…', false);
 
-    db.collection('users_public').doc(uid).get().then(function (snap) {
-      var data = snap.exists ? (snap.data() || {}) : {};
-      var p = data.progress || {};
+    Promise.all([
+      db.collection('users_public').doc(uid).get(),
+      db.collection('users_admin').doc(uid).get()
+    ]).then(function (res) {
+      var pubSnap = res[0];
+      var admSnap = res[1];
 
-      var map = {
+      var pub = pubSnap.exists ? (pubSnap.data() || {}) : {};
+      var p = pub.progress || {};
+
+      var progMap = {
         grooves: p.grooves || '',
         fills: p.fills || '',
         hands: p.hands || '',
@@ -214,12 +264,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
       rootEl.querySelectorAll('.pv-prog[data-uid="' + uid + '"]').forEach(function (inp) {
         var key = inp.getAttribute('data-key');
-        inp.value = map[key] || '';
+        inp.value = progMap[key] || '';
+      });
+
+      var adm = admSnap.exists ? (admSnap.data() || {}) : {};
+      var nameMap = {
+        firstName: adm.firstName || '',
+        lastName: adm.lastName || ''
+      };
+
+      rootEl.querySelectorAll('.pv-name[data-uid="' + uid + '"]').forEach(function (inp) {
+        var key = inp.getAttribute('data-key');
+        inp.value = (nameMap[key] || '').trim();
       });
 
       setMsg(uid, '', false);
     }).catch(function (e) {
-      setMsg(uid, (e && e.message) ? e.message : 'Could not load progress.', true);
+      setMsg(uid, (e && e.message) ? e.message : 'Could not load student data.', true);
     });
   }
 
@@ -237,6 +298,13 @@ document.addEventListener('DOMContentLoaded', function () {
       if (val) p[key] = val;
     });
 
+    var n = {};
+    rootEl.querySelectorAll('.pv-name[data-uid="' + uid + '"]').forEach(function (inp) {
+      var key = inp.getAttribute('data-key');
+      var val = String(inp.value || '').trim();
+      if (val) n[key] = val;
+    });
+
     setMsg(uid, 'Saving…', false);
 
     var update = Object.keys(p).length
@@ -251,7 +319,70 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+
+  function openAddUserModal() {
+    var overlay = document.createElement('div');
+    overlay.className = 'pv-modal';
+    overlay.innerHTML =
+      '<div class="pv-modal-box">' +
+        '<h3 style="margin:0 0 8px 0;">Add user</h3>' +
+        '<label>Email</label>' +
+        '<input type="email" id="pv-new-email" placeholder="name@example.com">' +
+        '<label>First name</label>' +
+        '<input type="text" id="pv-new-first" placeholder="">' +
+        '<label>Last name</label>' +
+        '<input type="text" id="pv-new-last" placeholder="">' +
+        '<label>Password</label>' +
+        '<input type="password" id="pv-new-pass" placeholder="(set in Firebase Auth)">' +
+        '<div class="pv-modal-help">Note: This does not create the Firebase Auth account. Create the account in Firebase Authentication first. This form stages the student name so it can be applied on first login.</div>' +
+        '<div class="pv-modal-actions">' +
+          '<button type="button" id="pv-new-cancel">Cancel</button>' +
+          '<button type="button" class="pv-primary" id="pv-new-save">Save</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    function close() { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }
+
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) close();
+    });
+
+    overlay.querySelector('#pv-new-cancel').addEventListener('click', close);
+
+    overlay.querySelector('#pv-new-save').addEventListener('click', function () {
+      var email = String(overlay.querySelector('#pv-new-email').value || '').trim().toLowerCase();
+      var firstName = String(overlay.querySelector('#pv-new-first').value || '').trim();
+      var lastName = String(overlay.querySelector('#pv-new-last').value || '').trim();
+
+      if (!email || !firstName || !lastName) {
+        alert('Please fill Email, First name, and Last name.');
+        return;
+      }
+
+      db.collection('users_admin_email').doc(email).set({
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        name: (firstName + ' ' + lastName).trim(),
+        createdByAdmin: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).then(function () {
+        close();
+        // refresh list
+        loadOnce().catch(function(){});
+      }).catch(function (e) {
+        alert((e && e.message) ? e.message : 'Could not save.');
+      });
+    });
+  }
+
+
   function bindEditorHandlers() {
+    var addBtn = rootEl.querySelector('#pv-add-user');
+    if (addBtn) addBtn.addEventListener('click', openAddUserModal);
+
     rootEl.querySelectorAll('.pv-edit-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         openEditor(btn.getAttribute('data-uid'));
@@ -287,6 +418,9 @@ document.addEventListener('DOMContentLoaded', function () {
           joinedAt: d.joinedAt || null,
           lastLogin: d.lastLogin || null,
           lastActive: d.lastActive || null,
+          name: d.name || ((d.firstName || '') + ' ' + (d.lastName || '')).trim(),
+          firstName: d.firstName || '',
+          lastName: d.lastName || '',
           lastDeviceEmoji: d.lastDeviceEmoji || '',
           totalSeconds: d.totalSeconds || 0,
           loginCount: d.loginCount || 0
@@ -319,4 +453,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 15000);
   });
 });
-
