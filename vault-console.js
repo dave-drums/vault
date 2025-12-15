@@ -1,3 +1,24 @@
+
+function pvGetFontBaseEl(){
+  return (
+    document.getElementById('vault-admin-root') ||
+    document.querySelector('.sqs-block-content') ||
+    document.querySelector('.sqs-layout') ||
+    document.body
+  );
+}
+function pvApplyFontFromBase(el){
+  var baseEl = pvGetFontBaseEl();
+  var cs = window.getComputedStyle(baseEl);
+  // Prefer the shorthand 'font' if available, it captures family/size/weight/line-height
+  if (cs.font && cs.font !== 'normal') el.style.font = cs.font;
+  el.style.fontFamily = cs.fontFamily;
+  el.style.fontSize = cs.fontSize;
+  el.style.fontWeight = cs.fontWeight;
+  el.style.lineHeight = cs.lineHeight;
+  el.style.color = cs.color;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
     var root0 = document.getElementById('vault-admin-root');
@@ -28,92 +49,181 @@ function randomToken(len) {
   }
 }
 
-function openAddUserModal() {
+function openAddUserModal(){
   var overlay = document.createElement('div');
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-modal','true');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
 
   var box = document.createElement('div');
-  
   box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
 
-  // Copy site font styles from the Vault admin container (Squarespace fonts are often set on wrappers, not <body>)
-  var baseEl = document.getElementById('vault-admin-root') || document.body;
-  var cs = window.getComputedStyle(baseEl);
-  box.style.fontFamily = cs.fontFamily;
-  box.style.fontSize = cs.fontSize;
-  box.style.fontWeight = cs.fontWeight;
-  box.style.lineHeight = cs.lineHeight;
-  box.style.color = cs.color;
-box.style.cssText = 'width:100%;max-width:520px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
+  pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;">Add user</h3>' +
-    '<div style="color:#111;">' +
-    '<div style="margin:0 0 12px 0;opacity:.8;line-height:1.4;">Creates an invite link (expires in 7 days). The student sets their name and password on the create account page.</div>' +
-    '<label style="display:block;margin:0 0 6px 0;">Email</label>' +
-    '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
+    '<h3 style="margin:0 0 12px 0;color:#111;font:inherit;">Add user</h3>' +
+    '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font:inherit;">Create an invite link (expires in 7 days)</div>' +
+    '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;">Email</label>' +
+    '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;font:inherit;">' +
 
-    '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;"></div>' +
+    '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;color:#111;font:inherit;"></div>' +
 
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
-      '<button id="pv-invite-cancel" style="padding:10px 12px;border-radius:6px;border:1px solid #ccc;background:#f4f4f4;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
-      '<button id="pv-invite-create" style="padding:10px 12px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;font-size:14px;">Create invite</button>' +
+      '<button id="pv-invite-cancel" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
+      '<button id="pv-invite-create" style="padding:6px 10px;border-radius:6px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;font:inherit;font-size:14px;">Create invite</button>' +
     '</div>' +
-    '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;"></div>';
-  + '</div>';
-
+    '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;font:inherit;"></div>';
 
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  function close() { overlay.remove(); }
-  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
-  box.querySelector('#pv-invite-cancel').addEventListener('click', close);
+  function close(){ overlay.remove(); }
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
 
-  box.querySelector('#pv-invite-create').addEventListener('click', function () {
-    var btn = this;
-    var msg = box.querySelector('#pv-invite-msg');
-    var out = box.querySelector('#pv-invite-out');
-    msg.textContent = '';
-    out.style.display = 'none';
-    out.textContent = '';
+  var cancelBtn = box.querySelector('#pv-invite-cancel');
+  if (cancelBtn) cancelBtn.addEventListener('click', close);
 
-    var email = String(box.querySelector('#pv-invite-email').value || '').trim().toLowerCase();
-    if (!email) {
-      msg.textContent = 'Please enter an email address.';
+  var createBtn = box.querySelector('#pv-invite-create');
+  var emailEl = box.querySelector('#pv-invite-email');
+  var outEl = box.querySelector('#pv-invite-out');
+  var msgEl = box.querySelector('#pv-invite-msg');
+
+  function setMsg(t){ msgEl.textContent = t || ''; }
+
+  if (createBtn) createBtn.addEventListener('click', function(){
+    setMsg('');
+    var email = (emailEl && emailEl.value || '').trim().toLowerCase();
+    if (!email) { setMsg('Enter an email.'); return; }
+
+    createBtn.disabled = true;
+    createInvite(email).then(function(res){
+      createBtn.disabled = false;
+      if (!res || !res.link) { setMsg('Could not create invite. Please try again.'); return; }
+      outEl.style.display = 'block';
+      outEl.innerHTML =
+        '<div style="font-weight:600;margin:0 0 6px 0;font:inherit;">Invite link</div>' +
+        '<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">' +
+          '<div style="word-break:break-word;flex:1;font:inherit;">' + escapeHtml(res.link) + '</div>' +
+          '<button id="pv-invite-copy" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;white-space:nowrap;">Copy</button>' +
+        '</div>';
+      var copyBtn = box.querySelector('#pv-invite-copy');
+      if (copyBtn) copyBtn.addEventListener('click', function(){
+        copyText(res.link).catch(function(){});
+      });
+    }).catch(function(err){
+      createBtn.disabled = false;
+      setMsg('Could not create invite. Please try again.');
+      try { console.warn(err); } catch(e){}
+    });
+  });
+}
+
+
+function openInvitesModal(){
+  var overlay = document.createElement('div');
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
+
+  var box = document.createElement('div');
+  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
+
+  pvApplyFontFromBase(box);
+
+  box.innerHTML =
+    '<h3 style="margin:0 0 12px 0;color:#111;font:inherit;">Invites</h3>' +
+    '<div id="pv-invites-list" style="margin-top:10px;font:inherit;"></div>' +
+    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
+      '<button id="pv-invites-close" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
+    '</div>';
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function close(){ overlay.remove(); }
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
+  box.querySelector('#pv-invites-close').addEventListener('click', close);
+
+  var listEl = box.querySelector('#pv-invites-list');
+  listEl.innerHTML = '<div style="opacity:.8;font:inherit;">Loading…</div>';
+
+  db.collection(INVITES_COL).get().then(function(snap){
+    var now = Date.now();
+    var items = [];
+    snap.forEach(function(doc){
+      var d = doc.data() || {};
+      var expMs = (d.expiresAt && d.expiresAt.toDate) ? d.expiresAt.toDate().getTime() : 0;
+      if (d.used) return;
+      if (expMs && expMs < now) return;
+      items.push({
+        token: doc.id,
+        email: String(d.email || '').trim(),
+        expiresAt: d.expiresAt || null,
+        createdAt: d.createdAt || null
+      });
+    });
+
+    items.sort(function(a,b){
+      var aT = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime() : 0;
+      var bT = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime() : 0;
+      return bT - aT;
+    });
+
+    if (!items.length) {
+      listEl.innerHTML = '<div style="opacity:.8;font:inherit;">No active invites.</div>';
       return;
     }
 
-    btn.disabled = true;
+    var html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font:inherit;font-size:14px;">' +
+      '<thead><tr>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;">Email</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;">Expires</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;">Link</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;"></th>' +
+      '</tr></thead><tbody>';
 
-    createInvite(email).then(function (inviteLink) {
-      out.style.display = 'block';
-      out.innerHTML =
-        '<div style="font-weight:700;margin-bottom:6px;">Invite link</div>' +
-        '<div style="font-size:14px;">' + escapeHtml(inviteLink) + '</div>' +
-        '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">' +
-          '<button id="pv-copy-invite" style="padding:8px 10px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer;font:inherit;font-size:14px;">Copy</button>' +
-        '</div>';
+    items.forEach(function(it){
+      var link = CREATE_ACCOUNT_URL_BASE + it.token;
+      html += '<tr>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font:inherit;">' + escapeHtml(it.email || '-') + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font:inherit;">' + formatDateOnly(it.expiresAt) + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;word-break:break-all;font:inherit;">' + escapeHtml(link) + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;text-align:right;font:inherit;">' +
+          '<button class="pv-invite-copy" data-link="' + escapeHtml(link) + '" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Copy</button> ' +
+          '<button class="pv-invite-revoke" data-token="' + escapeHtml(it.token) + '" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Revoke</button>' +
+        '</td>' +
+      '</tr>';
+    });
 
-      out.querySelector('#pv-copy-invite').addEventListener('click', function () {
-        copyText(inviteLink).then(function () {
-          msg.style.color = '#111';
-          msg.textContent = 'Copied.';
-          setTimeout(function(){ msg.textContent=''; msg.style.color='#c00'; }, 1500);
+    html += '</tbody></table></div>';
+    listEl.innerHTML = html;
+
+    listEl.querySelectorAll('.pv-invite-copy').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var link = btn.getAttribute('data-link') || '';
+        copyText(link).catch(function(){});
+      });
+    });
+
+    listEl.querySelectorAll('.pv-invite-revoke').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tok = btn.getAttribute('data-token');
+        if (!tok) return;
+        btn.disabled = true;
+        db.collection(INVITES_COL).doc(tok).set(
+          { used: true, revokedAt: firebase.firestore.FieldValue.serverTimestamp() },
+          { merge:true }
+        ).then(function(){
+          close();
+          openInvitesModal();
         }).catch(function(){
-          msg.textContent = 'Copy failed. Select and copy manually.';
+          btn.disabled = false;
         });
       });
-
-      btn.disabled = false;
-
-    }).catch(function (err) {
-      console.error(err);
-      msg.textContent = 'Could not create invite. Please try again.';
-      btn.disabled = false;
     });
+
+  }).catch(function(){
+    listEl.innerHTML = '<div style="color:#c00;font:inherit;">Could not load invites.</div>';
   });
 }
 
@@ -258,7 +368,7 @@ function escapeHtml(str) {
     html += '</div>';
 
     html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;"><h4 class="members-title" style="margin:0;">STUDENT LIST</h4><button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button></div>';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;"><h4 class="members-title" style="margin:0;">STUDENT LIST</h4><div style="display:flex;gap:10px;align-items:center;"><button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button><button id="pv-invites-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Invites</button></div></div>';
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
@@ -267,7 +377,7 @@ function escapeHtml(str) {
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Progress</th>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">&nbsp;</th>';
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
@@ -286,7 +396,7 @@ function escapeHtml(str) {
 
         html += '<tr>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + (isOnline ? '🥁 ' : '') + email + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.displayName || '-') + '</td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.fullName || '-') + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + formatDateOnly(u.joinedAt) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + lastLoginText + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
@@ -306,14 +416,14 @@ function escapeHtml(str) {
             '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
               '<div style="font-size:12px;opacity:.75;">' + label + '</div>' +
               '<input type="text" class="pv-name" data-uid="' + uid + '" data-key="' + key + '" ' +
-              'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;width:100%;box-sizing:border-box;" ' +
+              'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;" ' +
               'placeholder="">' +
             '</div>'
           );
         }
 
         html += nameInputBlock('First name', 'firstName');
-        html += nameInputBlock('Surname (can be 1 letter)', 'lastName');
+        html += nameInputBlock('Surname', 'lastName');
 
 
         function inputBlock(label, key) {
@@ -321,7 +431,7 @@ function escapeHtml(str) {
             '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
               '<div style="font-size:12px;opacity:.75;">' + label + '</div>' +
               '<input type="text" class="pv-prog" data-uid="' + uid + '" data-key="' + key + '" ' +
-              'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;width:100%;box-sizing:border-box;" ' +
+              'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;" ' +
               'placeholder="(leave blank if not used)">' +
             '</div>'
           );
@@ -333,8 +443,8 @@ function escapeHtml(str) {
         html += inputBlock('Foot Control', 'feet');
 
         html += '<div style="display:flex;gap:8px;">';
-        html += '  <button type="button" class="pv-save-btn" data-uid="' + uid + '" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#111;color:#fff;cursor:pointer;">Save</button>';
-        html += '  <button type="button" class="pv-cancel-btn" data-uid="' + uid + '" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Close</button>';
+        html += '  <button type="button" class="pv-save-btn" data-uid="' + uid + '" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#111;color:#fff;cursor:pointer;">Save</button>';
+        html += '  <button type="button" class="pv-cancel-btn" data-uid="' + uid + '" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Close</button>';
         html += '</div>';
 
         html += '</div>';
@@ -466,7 +576,7 @@ function escapeHtml(str) {
         var row = editBtn.closest('tr');
         if (row && row.children && row.children.length >= 2) {
           // Account is 0, Name is 1
-          row.children[1].textContent = displayName || '-';
+          row.children[1].textContent = ((firstName + ' ' + lastName).trim()) || '-';
         }
       }
     }).catch(function (e) {
@@ -500,7 +610,15 @@ if (addBtn) {
 }
 
 
-  }
+  
+
+var invitesBtn = rootEl.querySelector('#pv-invites-btn');
+if (invitesBtn) {
+  invitesBtn.addEventListener('click', function () {
+    openInvitesModal();
+  });
+}
+}
 
   function loadOnce() {
     return Promise.all([
@@ -527,6 +645,7 @@ if (addBtn) {
         users.push({
           uid: doc.id,
           email: email,
+          fullName: (String(d.name || '').trim() || (String(d.firstName || '').trim() + ' ' + String(d.lastName || '').trim()).trim()),
           displayName: p.displayName || '',
           joinedAt: p.joined || d.joinedAt || null,
           lastLogin: d.lastLogin || null,
@@ -564,3 +683,5 @@ if (addBtn) {
     }, 15000);
   });
 });
+
+
