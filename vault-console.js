@@ -37,24 +37,20 @@ function openAddUserModal() {
   var box = document.createElement('div');
   box.style.cssText = 'width:100%;max-width:520px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
 
-  box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;">Add user</h3>' +
-    '<div style="color:#111;">' +
-    '<div style="margin:0 0 12px 0;opacity:.8;line-height:1.4;">Creates an invite link (expires in 7 days). The student sets their name and password on the create account page.</div>' +
-    '<label style="display:block;margin:0 0 6px 0;">Email</label>' +
+    box.innerHTML =
+    '<h3 style="margin:0 0 12px 0;color:#111;">Add user</h3>' +
+    '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;" class="p3">Create an invite link (expires in 7 days)</div>' +
+    '<label style="display:block;margin:0 0 6px 0;color:#111;" class="p3">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
 
-    '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;"></div>' +
+    '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;color:#111;"></div>' +
 
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
-      '<button id="pv-invite-cancel" style="padding:10px 12px;border-radius:6px;border:1px solid #ccc;background:#f4f4f4;cursor:pointer;font:inherit;">Close</button>' +
-      '<button id="pv-invite-create" style="padding:10px 12px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;">Create invite</button>' +
+      '<button id="pv-invite-cancel" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font:inherit;">Close</button>' +
+      '<button id="pv-invite-create" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#111;color:#fff;cursor:pointer;font:inherit;">Create invite</button>' +
     '</div>' +
     '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;"></div>';
-  + '</div>';
-
-
-  overlay.appendChild(box);
+overlay.appendChild(box);
   document.body.appendChild(overlay);
 
   function close() { overlay.remove(); }
@@ -103,6 +99,108 @@ function openAddUserModal() {
       msg.textContent = 'Could not create invite. Please try again.';
       btn.disabled = false;
     });
+  });
+}
+
+
+function openInvitesModal() {
+  var overlay = document.createElement('div');
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
+
+  var box = document.createElement('div');
+  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;';
+
+  box.innerHTML =
+    '<h3 style="margin:0 0 12px 0;color:#111;">Invites</h3>' +
+    '<div id="pv-invites-list" style="margin-top:10px;"></div>' +
+    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
+      '<button id="pv-invites-close" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font:inherit;">Close</button>' +
+    '</div>';
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function close(){ overlay.remove(); }
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
+  box.querySelector('#pv-invites-close').addEventListener('click', close);
+
+  var listEl = box.querySelector('#pv-invites-list');
+  listEl.innerHTML = '<div style="opacity:.8;">Loading…</div>';
+
+  db.collection(INVITES_COL).get().then(function(snap){
+    var now = Date.now();
+    var items = [];
+    snap.forEach(function(doc){
+      var d = doc.data() || {};
+      var expMs = (d.expiresAt && d.expiresAt.toDate) ? d.expiresAt.toDate().getTime() : 0;
+      var used = !!d.used;
+      if (used) return;
+      if (expMs && expMs < now) return;
+      items.push({
+        token: doc.id,
+        email: String(d.email || '').trim(),
+        expiresAt: d.expiresAt || null,
+        createdAt: d.createdAt || null
+      });
+    });
+
+    items.sort(function(a,b){
+      var aT = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime() : 0;
+      var bT = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime() : 0;
+      return bT - aT;
+    });
+
+    if (!items.length) {
+      listEl.innerHTML = '<div style="opacity:.8;">No active invites.</div>';
+      return;
+    }
+
+    var html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">' +
+      '<thead><tr>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Email</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Expires</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Link</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;"></th>' +
+      '</tr></thead><tbody>';
+
+    items.forEach(function(it){
+      var link = CREATE_ACCOUNT_URL_BASE + it.token;
+      html += '<tr>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(it.email || '-') + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatDateOnly(it.expiresAt) + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;word-break:break-all;">' + escapeHtml(link) + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;text-align:right;">' +
+          '<button class="pv-invite-copy" data-link="' + escapeHtml(link) + '" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Copy</button> ' +
+          '<button class="pv-invite-revoke" data-token="' + escapeHtml(it.token) + '" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Revoke</button>' +
+        '</td>' +
+      '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    listEl.innerHTML = html;
+
+    listEl.querySelectorAll('.pv-invite-copy').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var link = btn.getAttribute('data-link') || '';
+        copyText(link).catch(function(){});
+      });
+    });
+
+    listEl.querySelectorAll('.pv-invite-revoke').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tok = btn.getAttribute('data-token');
+        if (!tok) return;
+        btn.disabled = true;
+        db.collection(INVITES_COL).doc(tok).set({ used: true, revokedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+          .then(function(){ close(); openInvitesModal(); })
+          .catch(function(){ btn.disabled = false; });
+      });
+    });
+
+  }).catch(function(){
+    listEl.innerHTML = '<div style="color:#c00;">Could not load invites.</div>';
   });
 }
 
@@ -247,7 +345,7 @@ function escapeHtml(str) {
     html += '</div>';
 
     html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;"><h4 class="members-title" style="margin:0;">STUDENT LIST</h4><button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button></div>';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;"><h4 class="members-title" style="margin:0;">STUDENT LIST</h4><div style="display:flex;gap:10px;align-items:center;"><button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button><button id="pv-invites-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Invites</button></div></div>';
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
@@ -256,7 +354,7 @@ function escapeHtml(str) {
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Progress</th>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">&nbsp;</th>';
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
@@ -275,7 +373,7 @@ function escapeHtml(str) {
 
         html += '<tr>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + (isOnline ? '🥁 ' : '') + email + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.displayName || '-') + '</td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.fullName || '-') + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + formatDateOnly(u.joinedAt) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + lastLoginText + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
@@ -302,7 +400,7 @@ function escapeHtml(str) {
         }
 
         html += nameInputBlock('First name', 'firstName');
-        html += nameInputBlock('Surname (can be 1 letter)', 'lastName');
+        html += nameInputBlock('Surname', 'lastName');
 
 
         function inputBlock(label, key) {
@@ -455,7 +553,7 @@ function escapeHtml(str) {
         var row = editBtn.closest('tr');
         if (row && row.children && row.children.length >= 2) {
           // Account is 0, Name is 1
-          row.children[1].textContent = displayName || '-';
+          row.children[1].textContent = ((firstName + ' ' + lastName).trim()) || '-';
         }
       }
     }).catch(function (e) {
@@ -489,7 +587,15 @@ if (addBtn) {
 }
 
 
-  }
+  
+
+var invitesBtn = rootEl.querySelector('#pv-invites-btn');
+if (invitesBtn) {
+  invitesBtn.addEventListener('click', function () {
+    openInvitesModal();
+  });
+}
+}
 
   function loadOnce() {
     return Promise.all([
@@ -516,6 +622,7 @@ if (addBtn) {
         users.push({
           uid: doc.id,
           email: email,
+          fullName: (String(d.name || '').trim() || (String(d.firstName || '').trim() + ' ' + String(d.lastName || '').trim()).trim()),
           displayName: p.displayName || '',
           joinedAt: p.joined || d.joinedAt || null,
           lastLogin: d.lastLogin || null,
