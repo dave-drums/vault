@@ -23,7 +23,7 @@
       window.addEventListener(evt, markActivity, { passive:true });
     });
 
-    function adminRef(uid){ return db.collection('users_admin').doc(uid); }
+    function adminRef(uid){ return db.collection('users_private').doc(uid); }
 
     function ensureJoinedAt(uid){
       var ref = adminRef(uid);
@@ -84,3 +84,4 @@
     });
   });
 })();
+
