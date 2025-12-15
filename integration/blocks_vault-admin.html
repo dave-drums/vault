@@ -1,12 +1,6 @@
 <!-- WHERE: /vault-admin → Code Block -->
-<!-- PURPOSE: Admin app mount point -->
-
-<!-- WHERE: /vault-admin → Code Block -->
 <!-- PURPOSE: Pre-auth + pre-mount admin placeholder -->
 
-<!-- WHERE: /vault-admin → Code Block -->
-<!-- PURPOSE: Pre-auth + pre-mount admin placeholder -->
-<!-- UPDATED: 2025-12-15 -->
 
 <style>
 #vault-admin-root{
@@ -18,8 +12,6 @@
   box-sizing: border-box;
   text-align: center;
   color: #111;
-
-  /* Updated shadow to match member login card */
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.08),
     0 6px 12px rgba(0, 0, 0, 0.04);
@@ -39,17 +31,6 @@
 #vault-admin-root .admin-sub{
   font-size: .95rem;
   opacity: .7;
-}
-
-/* Gentle pulse while waiting for auth */
-@keyframes adminGatePulse{
-  0%{ opacity: .6; }
-  50%{ opacity: .95; }
-  100%{ opacity: .6; }
-}
-
-#vault-admin-root{
-  animation: adminGatePulse 1.6s ease-in-out infinite;
 }
 </style>
 
