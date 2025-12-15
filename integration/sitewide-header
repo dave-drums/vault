@@ -1,0 +1,122 @@
+<!-- WHERE: Squarespace → Settings → Advanced → Code Injection → HEADER -->
+<!-- PURPOSE: Firebase compat scripts + init, Vault renderer config + styling -->
+
+<!-- Firebase core (global) -->
+<script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-functions-compat.js"></script>
+
+<script>
+  /* Firebase init */
+  window.VAULT_FIREBASE_CONFIG = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(window.VAULT_FIREBASE_CONFIG);
+  }
+</script>
+
+<script>
+  /* Vault config used by vault-render.js */
+  window.VAULT_CONFIG = window.VAULT_CONFIG || {};
+  window.VAULT_CONFIG.githubBase = "https://dave-drums.github.io";
+  window.VAULT_CONFIG.vaultPath = "/vault";
+</script>
+
+<script src="https://dave-drums.github.io/vault/vault-render.js" defer></script>
+
+<style>
+/* =============== VAULT RENDER STYLING =============== */
+
+:root{
+  --vault-bubble-bg:#f0f0f0; /* matches GS toolbar */
+}
+
+/* ---------- Grooves: text + GrooveScribe ---------- */
+
+.vault-wrapper{
+  width:100%;
+  max-width:100%;
+  margin:2rem 0 6rem 0;
+}
+
+.vault-exercise{
+  padding:1.5rem 2rem;
+  background:var(--vault-bubble-bg);
+  border-radius:12px;
+  text-align:center;
+  font-size:inherit;
+  line-height:1.5;
+  box-sizing:border-box;
+  color:#111111 !important;
+}
+
+.vault-groove-player{
+  width:100% !important;
+  max-width:100% !important;
+  margin:1.5rem 0 0 0;
+  padding:1.5rem 2rem;
+  background:var(--vault-bubble-bg);
+  border-radius:12px;
+  box-sizing:border-box;
+}
+
+.vault-groove-player iframe{
+  width:100% !important;
+  max-width:100% !important;
+  border:0 !important;
+  display:block;
+}
+
+/* ---------- Video bubble ---------- */
+
+.vault-video{
+  width:100%;
+  max-width:100%;
+  margin:1.5rem 0 0 0;
+  padding:1.5rem 2rem;
+  background:var(--vault-bubble-bg);
+  border-radius:12px;
+  box-sizing:border-box;
+}
+
+.vault-video iframe{
+  width:100% !important;
+  max-width:100% !important;
+  border:0 !important;
+  display:block;
+}
+
+/* ---------- Generic text bubble ---------- */
+
+.vault-bubble{
+  width:100%;
+  max-width:100%;
+  margin:1.5rem 0 0 0;
+  padding:1.5rem 2rem;
+  background:var(--vault-bubble-bg);
+  border-radius:12px;
+  box-sizing:border-box;
+}
+
+/* ---------- Responsive tweaks ---------- */
+
+@media (max-width:640px){
+  .vault-exercise,
+  .vault-groove-player,
+  .vault-video,
+  .vault-bubble{
+    padding:1.2rem 1.1rem;
+    border-radius:12px;
+  }
+}
+
+/* =============== /VAULT RENDER STYLING =============== */
+</style>
