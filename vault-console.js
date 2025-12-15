@@ -39,6 +39,7 @@ function openAddUserModal() {
 
   box.innerHTML =
     '<h3 style="margin:0 0 12px 0;">Add user</h3>' +
+    '<div style="color:#111;">' +
     '<div style="margin:0 0 12px 0;opacity:.8;line-height:1.4;">Creates an invite link (expires in 7 days). The student sets their name and password on the create account page.</div>' +
     '<label style="display:block;margin:0 0 6px 0;">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
@@ -50,6 +51,8 @@ function openAddUserModal() {
       '<button id="pv-invite-create" style="padding:10px 12px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;">Create invite</button>' +
     '</div>' +
     '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;"></div>';
+  + '</div>';
+
 
   overlay.appendChild(box);
   document.body.appendChild(overlay);
@@ -464,3 +467,4 @@ if (addBtn) {
     }, 15000);
   });
 });
+
