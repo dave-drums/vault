@@ -31,3 +31,8 @@ It is not a replacement for Firebase Security Rules.
 - Always assume Firebase Security Rules are the source of truth.
 - Client-side checks are for UX only and must not be relied on for enforcement.
 - Do not infer roles by inspecting arbitrary fields or emails.
+
+  ## When rules change (quick checklist)
+- Update this file if role logic or read/write access changes.
+- If any client assumptions changed, update the relevant /vault/*.js code.
+- If access failures are expected (permission-denied), ensure the UI handles it cleanly.
