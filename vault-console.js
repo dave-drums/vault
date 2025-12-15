@@ -35,12 +35,12 @@ function openAddUserModal() {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:520px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
+  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;font-family:inherit;font-size:14px;line-height:1.4;';
 
     box.innerHTML =
     '<h3 style="margin:0 0 12px 0;color:#111;">Add user</h3>' +
-    '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;" class="p3">Create an invite link (expires in 7 days)</div>' +
-    '<label style="display:block;margin:0 0 6px 0;color:#111;" class="p3">Email</label>' +
+      '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font:inherit;font-size:14px;">Create an invite link (expires in 7 days)</div>' +
+      '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;font-size:14px;">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
 
     '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;color:#111;"></div>' +
@@ -110,7 +110,7 @@ function openInvitesModal() {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;';
+  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;font-family:inherit;font-size:14px;line-height:1.4;';
 
   box.innerHTML =
     '<h3 style="margin:0 0 12px 0;color:#111;">Invites</h3>' +
@@ -660,3 +660,4 @@ if (invitesBtn) {
     }, 15000);
   });
 });
+
