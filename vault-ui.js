@@ -17,9 +17,6 @@ var titleEl =
 
 var msgEl = document.getElementById('members-message');
 
-var accountTextEl =
-  document.getElementById('members-account-text');
-
 var emailInput =
   document.getElementById('auth-email') ||
   document.getElementById('members-email');
@@ -31,8 +28,8 @@ var passInput =
 var loginBtn = document.getElementById('login-btn');
 var resetLink = document.getElementById('reset-link');
 
-  var logoutBtn = document.getElementById('logout-btn');
-  var legacyChangePwBtn = document.getElementById('change-password-btn'); // from old layout
+var logoutBtn = document.getElementById('logout-btn');
+
 var btnRow = null;
 if (accountBox) {
   btnRow = accountBox.querySelector('.account-btn-row');
@@ -46,8 +43,18 @@ if (accountBox) {
   }
 }
 
+/* create account text AFTER btnRow exists */
+var accountTextEl = document.getElementById('members-account-text');
+if (!accountTextEl && accountBox) {
+  accountTextEl = document.createElement('div');
+  accountTextEl.id = 'members-account-text';
+  accountTextEl.style.marginBottom = '18px';
+  if (btnRow) accountBox.insertBefore(accountTextEl, btnRow);
+  else accountBox.appendChild(accountTextEl);
+}
 
-  function setTitle(t){ if (titleEl) titleEl.textContent = t; }
+function setTitle(t){ if (titleEl) titleEl.textContent = t; }
+
 
   function setMessage(text) {
     if (!msgEl) return;
@@ -159,9 +166,6 @@ if (accountBox) {
 
   function buildAccountButtons(user) {
     if (!btnRow) return;
-
-    // Remove legacy button at top of old layout
-    if (legacyChangePwBtn) legacyChangePwBtn.style.display = 'none';
 
     // Clear existing row buttons (but keep logout button, we'll re-append it)
     btnRow.innerHTML = '';
@@ -396,7 +400,8 @@ if (accountBox) {
   }
 
   if (resetLink) {
-    resetLink.addEventListener('click', function(){
+    resetLink.addEventListener('click', function(e){
+      e.preventDefault();
       clearMessage();
       var email = emailInput ? String(emailInput.value || '').trim() : '';
       if (!email) {
@@ -418,4 +423,5 @@ if (accountBox) {
     });
   }
 });
+
 
