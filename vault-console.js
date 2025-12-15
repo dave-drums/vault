@@ -251,7 +251,7 @@ function escapeHtml(str) {
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th><th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Name</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Joined</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
@@ -260,7 +260,7 @@ function escapeHtml(str) {
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
-      html += '<tr><td colspan="6" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
+      html += '<tr><td colspan="7" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
     } else {
       users.forEach(function (u) {
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
@@ -275,6 +275,7 @@ function escapeHtml(str) {
 
         html += '<tr>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + (isOnline ? '🥁 ' : '') + email + '</td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.displayName || '-') + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + formatDateOnly(u.joinedAt) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + lastLoginText + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
@@ -286,8 +287,23 @@ function escapeHtml(str) {
         html += '</tr>';
 
         html += '<tr class="pv-editor-row" data-uid="' + uid + '" style="display:none;background:#fafafa;">';
-        html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
-        html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end;">';
+        html += '<td colspan="7" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
+        html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;">';
+
+        function nameInputBlock(label, key) {
+          return (
+            '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
+              '<div style="font-size:12px;opacity:.75;">' + label + '</div>' +
+              '<input type="text" class="pv-name" data-uid="' + uid + '" data-key="' + key + '" ' +
+              'style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;" ' +
+              'placeholder="">' +
+            '</div>'
+          );
+        }
+
+        html += nameInputBlock('First name', 'firstName');
+        html += nameInputBlock('Last name', 'lastName');
+
 
         function inputBlock(label, key) {
           return (
@@ -341,9 +357,17 @@ function escapeHtml(str) {
 
     setMsg(uid, 'Loading…', false);
 
-    db.collection('users_public').doc(uid).get().then(function (snap) {
-      var data = snap.exists ? (snap.data() || {}) : {};
+    Promise.all([
+      db.collection('users_public').doc(uid).get(),
+      db.collection('users_admin').doc(uid).get()
+    ]).then(function (snaps) {
+      var pubSnap = snaps[0];
+      var admSnap = snaps[1];
+
+      var data = pubSnap.exists ? (pubSnap.data() || {}) : {};
       var p = data.progress || {};
+
+      var adminData = admSnap.exists ? (admSnap.data() || {}) : {};
 
       var map = {
         grooves: p.grooves || '',
@@ -355,6 +379,15 @@ function escapeHtml(str) {
       rootEl.querySelectorAll('.pv-prog[data-uid="' + uid + '"]').forEach(function (inp) {
         var key = inp.getAttribute('data-key');
         inp.value = map[key] || '';
+      });
+
+      // Populate name fields
+      var firstName = String(adminData.firstName || '').trim();
+      var lastName = String(adminData.lastName || '').trim();
+      rootEl.querySelectorAll('.pv-name[data-uid="' + uid + '"]').forEach(function (inp) {
+        var key = inp.getAttribute('data-key');
+        if (key === 'firstName') inp.value = firstName;
+        if (key === 'lastName') inp.value = lastName;
       });
 
       setMsg(uid, '', false);
@@ -376,6 +409,58 @@ function escapeHtml(str) {
       var val = String(inp.value || '').trim();
       if (val) p[key] = val;
     });
+
+    var firstName = '';
+    var lastName = '';
+    rootEl.querySelectorAll('.pv-name[data-uid="' + uid + '"]').forEach(function (inp) {
+      var key = inp.getAttribute('data-key');
+      var val = String(inp.value || '').trim();
+      if (key === 'firstName') firstName = val;
+      if (key === 'lastName') lastName = val;
+    });
+
+    setMsg(uid, 'Saving…', false);
+
+    // Compute public-safe display name: "First L."
+    var displayName = firstName;
+    if (lastName) displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
+
+    var batch = db.batch();
+
+    // users_public: progress + displayName
+    var publicUpdate = Object.keys(p).length
+      ? { progress: p, displayName: displayName }
+      : { progress: firebase.firestore.FieldValue.delete(), displayName: displayName };
+
+    batch.set(db.collection('users_public').doc(uid), publicUpdate, { merge: true });
+
+    // users_admin: full name fields
+    batch.set(db.collection('users_admin').doc(uid), {
+      firstName: firstName,
+      lastName: lastName,
+      name: (firstName + ' ' + lastName).trim()
+    }, { merge: true });
+
+    batch.commit().then(function () {
+      // Update in-memory row display (no full reload needed)
+      rootEl.querySelectorAll('tr[data-uid="' + uid + '"]').forEach(function(){});
+      setMsg(uid, 'Saved.', false);
+      setTimeout(function () { setMsg(uid, '', false); }, 1500);
+
+      // Update the displayed name cell in the table
+      var nameCell = rootEl.querySelector('button.pv-edit-btn[data-uid="' + uid + '"]');
+      if (nameCell) {
+        // find the parent row and second cell (Name column)
+        var row = nameCell.closest('tr');
+        if (row && row.children && row.children.length >= 2) {
+          // Account is 0, Name is 1
+          row.children[1].textContent = displayName || '-';
+        }
+      }
+    }).catch(function (e) {
+      setMsg(uid, (e && e.message) ? e.message : 'Save failed.', true);
+    });
+  });
 
     setMsg(uid, 'Saving…', false);
 
@@ -444,6 +529,7 @@ if (addBtn) {
         users.push({
           uid: doc.id,
           email: email,
+          displayName: p.displayName || '',
           joinedAt: p.joined || d.joinedAt || null,
           lastLogin: d.lastLogin || null,
           lastActive: d.lastActive || null,
