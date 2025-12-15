@@ -1,0 +1,33 @@
+<!-- WHERE: /vault/* → Page Header Code Injection -->
+<!-- PURPOSE: Gate protected pages + auth redirect + metrics -->
+
+<script>
+  document.documentElement.dataset.protected = 'true';
+</script>
+
+<style>
+html[data-protected="true"] body{
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+</style>
+
+<script>
+  (function(){
+    function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+    ready(function(){
+      if(typeof firebase === 'undefined' || !firebase.auth) return;
+
+      firebase.auth().onAuthStateChanged(function(user){
+        if(!user){
+          var here = location.pathname + location.search + location.hash;
+          location.replace('/members?next=' + encodeURIComponent(here));
+          return;
+        }
+        document.body.style.opacity = '1';
+      });
+    });
+  })();
+</script>
+
+<script src="https://dave-drums.github.io/vault/vault-metrics.js" defer></script>
