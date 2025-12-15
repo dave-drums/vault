@@ -1,136 +1,86 @@
-document.addEventListener('DOMContentLoaded', function () {
-  if (document.body) document.body.style.opacity = '1';
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
-  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
-    return;
-  }
+    var auth = firebase.auth();
+    var db = firebase.firestore();
 
-  var auth = firebase.auth();
-  var db = firebase.firestore();
+    var HEARTBEAT_MS = 30 * 1000;
+    var IDLE_AFTER_MS = 2 * 60 * 1000;
 
-  var startTime = null;
-  var ended = false;
-  var userRef = null;
+    var lastActivity = Date.now();
+    var sessionStart = Date.now();
 
-  var idleMs = 10 * 60 * 1000;
-  var idleTimer = null;
-
-  function getDeviceType() {
-    try {
-      var ua = (navigator.userAgent || '').toLowerCase();
-      if (/ipad|tablet/.test(ua)) return 'tablet';
-      if (/mobi|iphone|android/.test(ua)) return 'mobile';
-      return 'desktop';
-    } catch (e) {
-      return 'other';
+    function isMobile(){
+      var ua = navigator.userAgent || '';
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
     }
-  }
+    function deviceEmoji(){ return isMobile() ? '📱' : '🖥️'; }
+    function deviceType(){ return isMobile() ? 'mobile' : 'desktop'; }
 
-  function deviceEmoji(type) {
-    if (type === 'mobile') return '📱';
-    if (type === 'tablet') return '📱';
-    if (type === 'desktop') return '🖥️';
-    return '❓';
-  }
-
-  function resetIdleTimer() {
-    if (ended && auth.currentUser && userRef) {
-      ended = false;
-      startTime = Date.now();
-    }
-
-    if (idleTimer) clearTimeout(idleTimer);
-
-    idleTimer = setTimeout(function () {
-      endSession();
-    }, idleMs);
-  }
-
-  function hookActivityListeners() {
-    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (evt) {
-      window.addEventListener(evt, resetIdleTimer, { passive: true });
+    function markActivity(){ lastActivity = Date.now(); }
+    ['mousemove','mousedown','keydown','touchstart','scroll'].forEach(function(evt){
+      window.addEventListener(evt, markActivity, { passive:true });
     });
-    resetIdleTimer();
-  }
 
-  function setMerge(extra) {
-    if (!userRef || !auth.currentUser) return Promise.resolve();
+    function adminRef(uid){ return db.collection('users_admin').doc(uid); }
 
-    var data = {
-      email: auth.currentUser.email || '',
-      lastActive: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if (extra) {
-      for (var k in extra) {
-        if (Object.prototype.hasOwnProperty.call(extra, k)) {
-          data[k] = extra[k];
-        }
-      }
+    function ensureJoinedAt(uid){
+      var ref = adminRef(uid);
+      return ref.get().then(function(snap){
+        if (!snap.exists) return;
+        var d = snap.data() || {};
+        if (d.joinedAt) return;
+        return ref.set({ joinedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+      });
     }
 
-    return userRef.set(data, { merge: true });
-  }
-
-  function ensureJoinedAtOnce() {
-    if (!userRef) return Promise.resolve();
-
-    return userRef.get().then(function (snap) {
-      var d = snap.exists ? (snap.data() || {}) : {};
-      if (!d.joinedAt) {
-        return userRef.set(
-          { joinedAt: firebase.firestore.FieldValue.serverTimestamp() },
-          { merge: true }
-        );
-      }
-    });
-  }
-
-  function bumpLoginCountAndDevice() {
-    if (!userRef) return Promise.resolve();
-
-    var type = getDeviceType();
-
-    return userRef.set({
-      lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-      loginCount: firebase.firestore.FieldValue.increment(1),
-      lastDeviceType: type,
-      lastDeviceEmoji: deviceEmoji(type)
-    }, { merge: true });
-  }
-
-  function endSession() {
-    if (!auth.currentUser || !userRef || ended) return;
-    ended = true;
-
-    if (idleTimer) {
-      clearTimeout(idleTimer);
-      idleTimer = null;
+    function onLogin(uid){
+      return adminRef(uid).set({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+        loginCount: firebase.firestore.FieldValue.increment(1),
+        lastDeviceType: deviceType(),
+        lastDeviceEmoji: deviceEmoji()
+      }, { merge:true });
     }
 
-    var durSec = Math.round((Date.now() - startTime) / 1000);
-    if (durSec < 0) durSec = 0;
+    function heartbeat(uid){
+      if ((Date.now() - lastActivity) > IDLE_AFTER_MS) return Promise.resolve();
+      return adminRef(uid).set({
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge:true });
+    }
 
-    setMerge({
-      totalSeconds: firebase.firestore.FieldValue.increment(durSec)
-    }).catch(function () {});
-  }
+    function flushSeconds(uid){
+      var seconds = Math.max(0, Math.round((Date.now() - sessionStart) / 1000));
+      if (!seconds) return Promise.resolve();
+      sessionStart = Date.now();
+      return adminRef(uid).set({
+        totalSeconds: firebase.firestore.FieldValue.increment(seconds)
+      }, { merge:true });
+    }
 
-  auth.onAuthStateChanged(function (user) {
-    if (!user) return;
+    auth.onAuthStateChanged(function(user){
+      if (!user) return;
 
-    userRef = db.collection('users_admin').doc(user.uid);
-    startTime = Date.now();
-    ended = false;
+      sessionStart = Date.now();
+      markActivity();
 
-    setMerge({}).catch(function () {});
-    ensureJoinedAtOnce().catch(function () {});
-    bumpLoginCountAndDevice().catch(function () {});
-    hookActivityListeners();
+      ensureJoinedAt(user.uid).then(function(){ return onLogin(user.uid); }).catch(function(){});
 
-    window.addEventListener('beforeunload', endSession);
-    document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'hidden') endSession();
+      var hb = setInterval(function(){ heartbeat(user.uid).catch(function(){}); }, HEARTBEAT_MS);
+
+      function end(){
+        try { clearInterval(hb); } catch(e){}
+        flushSeconds(user.uid).catch(function(){});
+      }
+
+      window.addEventListener('beforeunload', end);
+      document.addEventListener('visibilitychange', function(){
+        if (document.visibilityState === 'hidden') end();
+        if (document.visibilityState === 'visible') { sessionStart = Date.now(); markActivity(); }
+      });
     });
   });
-});
+})();
