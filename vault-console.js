@@ -30,15 +30,23 @@ function randomToken(len) {
 
 function openAddUserModal() {
   var overlay = document.createElement('div');
-  overlay.setAttribute('role', 'dialog');
+overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;font-family:inherit;font-size:14px;line-height:1.4;';
 
-    box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;color:#111;">Add user</h3>' +
+    
+  // Copy site font styles from the Vault admin container (Squarespace fonts are often set on wrappers, not <body>)
+  var baseEl = document.getElementById('vault-admin-root') || document.body;
+  var cs = window.getComputedStyle(baseEl);
+  box.style.fontFamily = cs.fontFamily;
+  box.style.fontSize = cs.fontSize;
+  box.style.fontWeight = cs.fontWeight;
+  box.style.lineHeight = cs.lineHeight;
+  box.style.color = cs.color;
+box.innerHTML =
+    '<h3 style="margin:0 0 12px 0;color:#111;font:inherit;">Add user</h3>' +
       '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font:inherit;font-size:14px;">Create an invite link (expires in 7 days)</div>' +
       '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;font-size:14px;">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
@@ -105,15 +113,23 @@ overlay.appendChild(box);
 
 function openInvitesModal() {
   var overlay = document.createElement('div');
-  overlay.setAttribute('role', 'dialog');
+overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;font-family:inherit;font-size:14px;line-height:1.4;';
 
-  box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;color:#111;">Invites</h3>' +
+  
+  // Copy site font styles from the Vault admin container (Squarespace fonts are often set on wrappers, not <body>)
+  var baseEl = document.getElementById('vault-admin-root') || document.body;
+  var cs = window.getComputedStyle(baseEl);
+  box.style.fontFamily = cs.fontFamily;
+  box.style.fontSize = cs.fontSize;
+  box.style.fontWeight = cs.fontWeight;
+  box.style.lineHeight = cs.lineHeight;
+  box.style.color = cs.color;
+box.innerHTML =
+    '<h3 style="margin:0 0 12px 0;color:#111;font:inherit;">Invites</h3>' +
     '<div id="pv-invites-list" style="margin-top:10px;"></div>' +
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
       '<button id="pv-invites-close" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;font:inherit;">Close</button>' +
@@ -159,10 +175,10 @@ function openInvitesModal() {
 
     var html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:14px;">' +
       '<thead><tr>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Email</th>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Expires</th>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Link</th>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;"></th>' +
+        '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Email</th>' +
+        '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Expires</th>' +
+        '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Link</th>' +
+        '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;"></th>' +
       '</tr></thead><tbody>';
 
     items.forEach(function(it){
@@ -349,12 +365,12 @@ function escapeHtml(str) {
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th><th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Name</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Joined</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">&nbsp;</th>';
+    html += '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th><th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Name</th>';
+    html += '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Joined</th>';
+    html += '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
+    html += '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
+    html += '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
+    html += '<th style="font:inherit;text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">&nbsp;</th>';
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
@@ -660,4 +676,5 @@ if (invitesBtn) {
     }, 15000);
   });
 });
+
 
