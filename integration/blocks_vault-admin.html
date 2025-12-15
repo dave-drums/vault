@@ -1,4 +1,53 @@
 <!-- WHERE: /vault-admin → Code Block -->
 <!-- PURPOSE: Admin app mount point -->
 
-<div id="vault-admin-root">Loading admin data…</div>
+<!-- WHERE: /vault-admin → Code Block -->
+<!-- PURPOSE: Pre-auth + pre-mount admin placeholder -->
+
+<style>
+#vault-admin-root{
+  max-width: 640px;
+  margin: 120px auto;
+  padding: 40px 36px;
+  background: #f3f3f3;
+  border-radius: 18px;
+  box-sizing: border-box;
+  box-shadow: 0 12px 32px rgba(0,0,0,.10);
+  text-align: center;
+  color: #111;
+}
+
+#vault-admin-root .admin-icon{
+  font-size: 2.4rem;
+  margin-bottom: 14px;
+}
+
+#vault-admin-root .admin-title{
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+#vault-admin-root .admin-sub{
+  font-size: .95rem;
+  opacity: .75;
+}
+
+/* Gentle pulse while waiting for auth */
+@keyframes adminGatePulse{
+  0%{ opacity: .55; }
+  50%{ opacity: .9; }
+  100%{ opacity: .55; }
+}
+
+#vault-admin-root{
+  animation: adminGatePulse 1.6s ease-in-out infinite;
+}
+</style>
+
+<div id="vault-admin-root">
+  <div class="admin-icon">🔐</div>
+  <div class="admin-title">Admin Console</div>
+  <div class="admin-sub">Verifying access…</div>
+</div>
+
