@@ -1,0 +1,15 @@
+<!-- WHERE: /vault-admin → Page Header Code Injection -->
+<!-- PURPOSE: Admin gate + admin console loader -->
+
+<script>
+  document.documentElement.dataset.protected = 'true';
+</script>
+
+<style>
+html[data-protected="true"] body{
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+</style>
+
+<script src="https://dave-drums.github.io/vault/vault-console.js" defer></script>
