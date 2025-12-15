@@ -621,26 +621,46 @@ if (pendingBtn) {
 
   }
 
-  function loadOnce() {
-    return db.collection('users_admin').get().then(function (snap) {
-      var users = [];
-      snap.forEach(function (doc) {
-        var d = doc.data() || {};
-        var email = String(d.email || '').trim();
+  
+function loadOnce() {
+  Promise.all([
+    db.collection('users_admin').get(),
+    db.collection('users_public').get()
+  ]).then(function(results){
+    var adminSnap = results[0];
+    var publicSnap = results[1];
 
-        if (email.toLowerCase() === adminEmail.toLowerCase()) return;
-        if (!email) return;
+    var publicByUid = {};
+    publicSnap.forEach(function(doc){
+      publicByUid[doc.id] = doc.data() || {};
+    });
 
-        users.push({
-          uid: doc.id,
-          email: email,
-          joinedAt: d.joinedAt || null,
-          lastLogin: d.lastLogin || null,
-          lastActive: d.lastActive || null,
-          lastDeviceEmoji: d.lastDeviceEmoji || '',
-          totalSeconds: d.totalSeconds || 0,
-          loginCount: d.loginCount || 0
-        });
+    users = [];
+
+    adminSnap.forEach(function(doc){
+      var d = doc.data() || {};
+      var p = publicByUid[doc.id] || {};
+
+      users.push({
+        uid: doc.id,
+        email: d.email || p.email || '',
+        firstName: d.firstName || '',
+        lastName: d.lastName || '',
+        name: d.name || ((d.firstName || '') + ' ' + (d.lastName || '')).trim(),
+        role: d.role || 'student',
+        joined: p.joined || d.joinedAt || null,
+        lastLogin: d.lastLogin || null,
+        lastActive: d.lastActive || null,
+        totalSeconds: d.totalSeconds || 0,
+        loginCount: d.loginCount || 0,
+        lastDeviceEmoji: d.lastDeviceEmoji || ''
+      });
+    });
+
+    render();
+  });
+}
+);
       });
       render(users);
     });
@@ -669,3 +689,4 @@ if (pendingBtn) {
     }, 15000);
   });
 });
+
