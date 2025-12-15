@@ -11,18 +11,41 @@ document.addEventListener('DOMContentLoaded', function () {
   var loginBox = document.getElementById('members-login');
   var accountBox = document.getElementById('members-account');
 
-  var titleEl = document.getElementById('members-title');
-  var msgEl = document.getElementById('members-message');
-  var accountTextEl = document.getElementById('members-account-text');
+var titleEl =
+  document.getElementById('members-title') ||
+  document.querySelector('.members-title');
 
-  var emailInput = document.getElementById('auth-email');
-  var passInput = document.getElementById('auth-password');
-  var loginBtn = document.getElementById('login-btn');
-  var resetLink = document.getElementById('reset-link');
+var msgEl = document.getElementById('members-message');
+
+var accountTextEl =
+  document.getElementById('members-account-text');
+
+var emailInput =
+  document.getElementById('auth-email') ||
+  document.getElementById('members-email');
+
+var passInput =
+  document.getElementById('auth-password') ||
+  document.getElementById('members-pass');
+
+var loginBtn = document.getElementById('login-btn');
+var resetLink = document.getElementById('reset-link');
 
   var logoutBtn = document.getElementById('logout-btn');
   var legacyChangePwBtn = document.getElementById('change-password-btn'); // from old layout
-  var btnRow = accountBox ? accountBox.querySelector('.account-btn-row') : null;
+var btnRow = null;
+if (accountBox) {
+  btnRow = accountBox.querySelector('.account-btn-row');
+  if (!btnRow) {
+    btnRow = document.createElement('div');
+    btnRow.className = 'account-btn-row';
+    btnRow.style.display = 'grid';
+    btnRow.style.gap = '10px';
+    btnRow.style.marginTop = '16px';
+    accountBox.insertBefore(btnRow, logoutBtn || null);
+  }
+}
+
 
   function setTitle(t){ if (titleEl) titleEl.textContent = t; }
 
@@ -395,3 +418,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
