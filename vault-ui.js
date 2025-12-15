@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Prevent repeated writes + UI spam
   var didWritePublicEmail = false;
+  var didAutoHealAdminDoc = false;
   var lastErrorText = '';
 
   function setTitle(t) {
@@ -320,8 +321,41 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(function (e) {
         // allow a later retry, but don't hammer on every state callback
         didWritePublicEmail = false;
+    didAutoHealAdminDoc = false;
         setError((e && e.message) ? e.message : 'Missing or insufficient permissions.');
       });
+  }
+
+
+  // Auto-heal legacy accounts: ensure users_admin/{uid} exists after login
+  function ensureUsersAdminDoc(user) {
+    if (didAutoHealAdminDoc) return;
+    didAutoHealAdminDoc = true;
+
+    if (!user || !user.uid) return;
+
+    // Never touch the admin account
+    if ((user.email || '').toLowerCase() === adminEmail.toLowerCase()) return;
+
+    var ref = db.collection('users_admin').doc(user.uid);
+
+    ref.get().then(function (snap) {
+      if (snap.exists) return;
+
+      return ref.set({
+        email: (user.email || '').toLowerCase(),
+        firstName: '',
+        lastName: '',
+        name: '',
+        role: 'student',
+        createdViaInvite: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        autoHealed: true
+      }, { merge: true });
+    }).catch(function (e) {
+      // Don't block login UI if this fails
+      console.error(e);
+    });
   }
 
   function showLogin() {
@@ -349,6 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if ((user.email || '').toLowerCase() !== adminEmail.toLowerCase()) {
       writePublicEmailOnce(user);
+      ensureUsersAdminDoc(user);
     }
 
     enforceOrder();
@@ -418,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
     logoutBtn.addEventListener('click', function () {
       stopProgressListener();
       didWritePublicEmail = false;
+      didAutoHealAdminDoc = false;
       auth.signOut();
     });
   }
