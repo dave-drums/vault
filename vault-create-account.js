@@ -185,7 +185,8 @@
 
         batch.set(publicRef, {
           joined: nowServer,
-          progress: {}
+          progress: {},
+          displayName: `${firstName} ${(lastName || '').trim().charAt(0).toUpperCase()}${lastName ? '.' : ''}`.trim()
         }, { merge: true });
 
         batch.set(inviteRef, {
