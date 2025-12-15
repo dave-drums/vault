@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var auth = firebase.auth();
   var db = firebase.firestore();
-  var adminEmail = 'info@davedrums.com.au';
 
   var startTime = null;
   var ended = false;
@@ -79,7 +78,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return userRef.get().then(function (snap) {
       var d = snap.exists ? (snap.data() || {}) : {};
       if (!d.joinedAt) {
-        return userRef.set({ joinedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        return userRef.set(
+          { joinedAt: firebase.firestore.FieldValue.serverTimestamp() },
+          { merge: true }
+        );
       }
     });
   }
@@ -117,28 +119,18 @@ document.addEventListener('DOMContentLoaded', function () {
   auth.onAuthStateChanged(function (user) {
     if (!user) return;
 
-    if ((user.email || '').toLowerCase() === adminEmail.toLowerCase()) {
-      return;
-    }
-
     userRef = db.collection('users_admin').doc(user.uid);
     startTime = Date.now();
     ended = false;
 
     setMerge({}).catch(function () {});
-
     ensureJoinedAtOnce().catch(function () {});
     bumpLoginCountAndDevice().catch(function () {});
-
-    setMerge({}).catch(function () {});
     hookActivityListeners();
 
     window.addEventListener('beforeunload', endSession);
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'hidden') {
-        endSession();
-      }
+      if (document.visibilityState === 'hidden') endSession();
     });
   });
 });
-
