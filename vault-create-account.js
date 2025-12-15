@@ -2,6 +2,7 @@
    Invite-only account creation for Dave Drums Practice Vault
    - No Cloud Functions required
    - Uses Firestore invite token + client-side Firebase Auth sign-up
+   - Writes users_admin + users_public + marks invite used in a single batch
 */
 
 (function () {
@@ -10,17 +11,15 @@
   const AUTH = firebase.auth();
   const DB = firebase.firestore();
 
-  // Keep this in sync with the admin-side invite generator.
+  // Must match the admin-side invite generator
   const INVITES_COL = "vault_invites";
 
-  // Pages
   const MEMBERS_URL = "/members";
 
-  // Elements
   const root = document.getElementById("vault-create-account-root");
   if (!root) return;
 
-  // Show page once JS is running (your page injection sets opacity:0)
+  // Your page injection sets opacity:0 – reveal once JS is running
   try { document.documentElement.dataset.protected = "false"; } catch(e) {}
   try { document.body.style.opacity = "1"; } catch(e) {}
 
@@ -29,7 +28,7 @@
   const token = new URLSearchParams(window.location.search).get("t");
 
   if (!token) {
-    renderMessage("Missing invite link token. Please use the link from your welcome email.");
+    renderMessage("Missing invite token. Please use the link from your welcome email.");
     return;
   }
 
@@ -56,7 +55,7 @@
         return;
       }
 
-      // Optional expiry: store expiresAt as Firestore Timestamp
+      // Expiry support: store expiresAt as Firestore Timestamp
       if (invite.expiresAt && typeof invite.expiresAt.toDate === "function") {
         const expiresMs = invite.expiresAt.toDate().getTime();
         if (Date.now() > expiresMs) {
@@ -68,8 +67,8 @@
       renderForm({ token, email });
 
     } catch (err) {
-      renderMessage("Could not load invite details. Please try again.");
       console.error(err);
+      renderMessage("Could not load invite details. Please try again.");
     }
   })();
 
@@ -136,14 +135,45 @@
         return;
       }
 
+      // Safety: re-check invite still valid right before create
+      let inviteData;
       try {
-        const cred = await AUTH.createUserWithEmailAndPassword(email, password);
-        const user = cred.user;
+        const snap = await DB.collection(INVITES_COL).doc(token).get();
+        if (!snap.exists) {
+          msg.textContent = "Invite link is invalid. Please request a new invite link.";
+          btn.disabled = false;
+          return;
+        }
+        inviteData = snap.data() || {};
+        if (inviteData.used === true) {
+          msg.innerHTML = 'This invite link has already been used. <a href="' + MEMBERS_URL + '">Go to login</a>.';
+          btn.disabled = false;
+          return;
+        }
+      } catch (e) {
+        msg.textContent = "Could not verify invite. Please try again.";
+        btn.disabled = false;
+        return;
+      }
 
-        const uid = user.uid;
+      let createdUser = null;
+
+      try {
+        // 1) Create Auth account (signs them in)
+        const cred = await AUTH.createUserWithEmailAndPassword(email, password);
+        createdUser = cred.user;
+
+        const uid = createdUser.uid;
         const nowServer = firebase.firestore.FieldValue.serverTimestamp();
 
-        await DB.collection("users_admin").doc(uid).set({
+        // 2) Firestore batch: users_admin + users_public + mark invite used
+        const batch = DB.batch();
+
+        const adminRef = DB.collection("users_admin").doc(uid);
+        const publicRef = DB.collection("users_public").doc(uid);
+        const inviteRef = DB.collection(INVITES_COL).doc(token);
+
+        batch.set(adminRef, {
           email,
           firstName,
           lastName,
@@ -153,21 +183,33 @@
           createdAt: nowServer
         }, { merge: true });
 
-        await DB.collection("users_public").doc(uid).set({
+        batch.set(publicRef, {
           joined: nowServer,
           progress: {}
         }, { merge: true });
 
-        await DB.collection(INVITES_COL).doc(token).set({
+        batch.set(inviteRef, {
           used: true,
           usedAt: nowServer,
           uid
         }, { merge: true });
 
+        await batch.commit();
+
+        // 3) Redirect to members (already signed in)
         window.location.href = MEMBERS_URL;
 
       } catch (err) {
         console.error(err);
+
+        // Attempt to clean up the auth user we just created if Firestore fails
+        try {
+          if (createdUser && typeof createdUser.delete === "function") {
+            await createdUser.delete();
+          }
+        } catch (cleanupErr) {
+          console.error("Cleanup failed:", cleanupErr);
+        }
 
         const code = (err && err.code) ? String(err.code) : "";
         if (code.includes("email-already-in-use")) {
@@ -176,6 +218,8 @@
           msg.textContent = "That password is too weak. Please choose a stronger password.";
         } else if (code.includes("invalid-email")) {
           msg.textContent = "That email address looks invalid.";
+        } else if (code.includes("permission-denied")) {
+          msg.textContent = "Account created, but setup was blocked. Please contact support.";
         } else {
           msg.textContent = "Could not create account. Please try again.";
         }
