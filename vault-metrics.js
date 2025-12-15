@@ -68,26 +68,16 @@
       markActivity();
 
       ensureJoinedAt(user.uid)
-  .then(function(){ return onLogin(user.uid); })
-  .catch(function(e){
-    console.log('metrics ensureJoinedAt/onLogin failed', e && (e.code || e.message) || e);
-  });
+      .catch(function(){})
+      .then(function(){ return onLogin(user.uid); })
+      .catch(function(){});
 
-
-      var hb = setInterval(function(){
-  heartbeat(user.uid).catch(function(e){
-    console.log('metrics heartbeat failed', e && (e.code || e.message) || e);
-  });
-}, HEARTBEAT_MS);
-
+      var hb = setInterval(function(){ heartbeat(user.uid).catch(function(){}); }, HEARTBEAT_MS);
 
       function end(){
-  try { clearInterval(hb); } catch(e){}
-  flushSeconds(user.uid).catch(function(e){
-    console.log('metrics flushSeconds failed', e && (e.code || e.message) || e);
-  });
-}
-
+        try { clearInterval(hb); } catch(e){}
+        flushSeconds(user.uid).catch(function(){});
+      }
 
       window.addEventListener('beforeunload', end);
       document.addEventListener('visibilitychange', function(){
@@ -97,5 +87,3 @@
     });
   });
 })();
-
-
