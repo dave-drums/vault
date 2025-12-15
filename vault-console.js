@@ -38,20 +38,21 @@ function openAddUserModal() {
   box.style.cssText = 'width:100%;max-width:520px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
 
   box.innerHTML =
+    '<h3 style="margin:0 0 12px 0;">Add user</h3>' +
     '<div style="color:#111;">' +
-      '<h3 style="margin:0 0 12px 0;">Add user</h3>' +
-      '<div style="margin:0 0 12px 0;opacity:.8;line-height:1.4;">Creates an invite link (expires in 7 days). If a valid pending invite already exists for this email, it will reuse it. The student sets their name and password on the create account page.</div>' +
-      '<label style="display:block;margin:0 0 6px 0;">Email</label>' +
-      '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
+    '<div style="margin:0 0 12px 0;opacity:.8;line-height:1.4;">Creates an invite link (expires in 7 days). The student sets their name and password on the create account page.</div>' +
+    '<label style="display:block;margin:0 0 6px 0;">Email</label>' +
+    '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;">' +
 
-      '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;"></div>' +
+    '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;"></div>' +
 
-      '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
-        '<button id="pv-invite-cancel" style="padding:10px 12px;border-radius:6px;border:1px solid #ccc;background:#f4f4f4;cursor:pointer;font:inherit;">Close</button>' +
-        '<button id="pv-invite-create" style="padding:10px 12px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;">Create invite</button>' +
-      '</div>' +
-      '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;"></div>' +
-    '</div>';
+    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
+      '<button id="pv-invite-cancel" style="padding:10px 12px;border-radius:6px;border:1px solid #ccc;background:#f4f4f4;cursor:pointer;font:inherit;">Close</button>' +
+      '<button id="pv-invite-create" style="padding:10px 12px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;">Create invite</button>' +
+    '</div>' +
+    '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;"></div>';
+  + '</div>';
+
 
   overlay.appendChild(box);
   document.body.appendChild(overlay);
@@ -106,53 +107,18 @@ function openAddUserModal() {
 }
 
 function createInvite(email) {
-  // Duplicate-prevention:
-  // - If there's a valid pending invite for this email, reuse it
-  // - If the pending invite is expired, create a new one
-  // - If used, create a new one
-  var nowMs = Date.now();
+  var token = randomToken(16);
+  var expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  return db.collection(INVITES_COL)
-    .where('email', '==', email)
-    .limit(25)
-    .get()
-    .then(function (snap) {
-      var best = null;
-
-      snap.forEach(function (doc) {
-        var d = doc.data() || {};
-        if (d.used === true) return;
-
-        var expMs = 0;
-        try { expMs = d.expiresAt && d.expiresAt.toDate ? d.expiresAt.toDate().getTime() : 0; } catch (e) { expMs = 0; }
-        if (!expMs) return;
-
-        if (expMs <= nowMs) return; // expired
-
-        // Keep the farthest expiry (most future)
-        if (!best || expMs > best.expMs) {
-          best = { id: doc.id, expMs: expMs };
-        }
-      });
-
-      if (best && best.id) {
-        return CREATE_ACCOUNT_URL_BASE + best.id;
-      }
-
-      // Create a fresh invite
-      var token = randomToken(16);
-      var expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-      var ref = db.collection(INVITES_COL).doc(token);
-      return ref.set({
-        email: email,
-        used: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        expiresAt: firebase.firestore.Timestamp.fromDate(expires)
-      }).then(function () {
-        return CREATE_ACCOUNT_URL_BASE + token;
-      });
-    });
+  var ref = db.collection(INVITES_COL).doc(token);
+  return ref.set({
+    email: email,
+    used: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    expiresAt: firebase.firestore.Timestamp.fromDate(expires)
+  }).then(function () {
+    return CREATE_ACCOUNT_URL_BASE + token;
+  });
 }
 
 function copyText(text) {
@@ -183,161 +149,6 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
-
-/* ---------- Pending Invites modal ---------- */
-
-function openPendingInvitesModal() {
-  var overlay = document.createElement('div');
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
-
-  var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:820px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
-
-  box.innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
-      '<h3 style="margin:0;">Pending invites</h3>' +
-      '<button id="pv-pending-close" style="padding:8px 10px;border-radius:6px;border:1px solid #ccc;background:#f4f4f4;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
-    '</div>' +
-    '<div id="pv-pending-wrap" style="margin-top:14px;"></div>' +
-    '<div id="pv-pending-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;"></div>';
-
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  function close() { overlay.remove(); }
-  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
-  box.querySelector('#pv-pending-close').addEventListener('click', close);
-
-  var wrap = box.querySelector('#pv-pending-wrap');
-  var msg = box.querySelector('#pv-pending-msg');
-  msg.textContent = 'Loading…';
-  msg.style.color = '#111';
-
-  loadPendingInvites().then(function (rowsHtml) {
-    wrap.innerHTML = rowsHtml;
-    msg.textContent = '';
-    msg.style.color = '#c00';
-
-    // Bind copy/delete
-    wrap.querySelectorAll('[data-copy-link]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var link = btn.getAttribute('data-copy-link') || '';
-        copyText(link).then(function () {
-          msg.style.color = '#111';
-          msg.textContent = 'Copied.';
-          setTimeout(function(){ msg.textContent=''; msg.style.color='#c00'; }, 1500);
-        }).catch(function(){
-          msg.textContent = 'Copy failed. Select and copy manually.';
-        });
-      });
-    });
-
-    wrap.querySelectorAll('[data-del-token]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var token = btn.getAttribute('data-del-token');
-        if (!token) return;
-        btn.disabled = true;
-        db.collection(INVITES_COL).doc(token).delete().then(function(){
-          // refresh view quickly
-          openPendingInvitesModal();
-          close();
-        }).catch(function(e){
-          console.error(e);
-          msg.textContent = (e && e.message) ? e.message : 'Delete failed.';
-          btn.disabled = false;
-        });
-      });
-    });
-
-  }).catch(function (e) {
-    console.error(e);
-    msg.style.color = '#c00';
-    msg.textContent = (e && e.message) ? e.message : 'Could not load invites.';
-  });
-}
-
-function loadPendingInvites() {
-  var nowMs = Date.now();
-
-  return db.collection(INVITES_COL)
-    .orderBy('createdAt', 'desc')
-    .limit(200)
-    .get()
-    .then(function (snap) {
-      var rows = [];
-      snap.forEach(function (doc) {
-        var d = doc.data() || {};
-        var email = String(d.email || '').trim();
-        if (!email) return;
-
-        var used = d.used === true;
-        var expMs = 0;
-        try { expMs = d.expiresAt && d.expiresAt.toDate ? d.expiresAt.toDate().getTime() : 0; } catch (e) { expMs = 0; }
-        var expired = expMs ? (expMs <= nowMs) : false;
-
-        var status = used ? 'Used' : (expired ? 'Expired' : 'Pending');
-        var statusBg = used ? '#f3f3f3' : (expired ? '#fff3cd' : '#e8f7ff');
-        var link = CREATE_ACCOUNT_URL_BASE + doc.id;
-
-        // We show all, but visually emphasise pending
-        rows.push({
-          id: doc.id,
-          email: email,
-          createdAt: d.createdAt || null,
-          expiresAt: d.expiresAt || null,
-          status: status,
-          statusBg: statusBg,
-          link: link,
-          canDelete: true,
-          isPending: (!used && !expired)
-        });
-      });
-
-      // Pending first, then expired, then used
-      rows.sort(function (a, b) {
-        var aRank = a.status === 'Pending' ? 0 : (a.status === 'Expired' ? 1 : 2);
-        var bRank = b.status === 'Pending' ? 0 : (b.status === 'Expired' ? 1 : 2);
-        if (aRank !== bRank) return aRank - bRank;
-        return (tsToMs(b.createdAt) - tsToMs(a.createdAt));
-      });
-
-      if (!rows.length) {
-        return '<div style="opacity:.75;">No invites found.</div>';
-      }
-
-      var html = '';
-      html += '<div style="overflow-x:auto;">';
-      html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
-      html += '<thead><tr>';
-      html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Email</th>';
-      html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Created</th>';
-      html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Expires</th>';
-      html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Status</th>';
-      html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Actions</th>';
-      html += '</tr></thead><tbody>';
-
-      rows.forEach(function (r) {
-        html += '<tr>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(r.email) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatTs(r.createdAt) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatTs(r.expiresAt) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' +
-          '<span style="display:inline-block;padding:4px 8px;border-radius:999px;background:' + r.statusBg + ';border:1px solid rgba(0,0,0,0.08);">' + r.status + '</span>' +
-        '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' +
-          '<button type="button" data-copy-link="' + escapeHtml(r.link) + '" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Copy link</button>' +
-          '<button type="button" data-del-token="' + escapeHtml(r.id) + '" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;margin-left:8px;">Delete</button>' +
-        '</td>';
-        html += '</tr>';
-      });
-
-      html += '</tbody></table></div>';
-      return html;
-    });
-}
-
 
 
   function showBody() {
@@ -436,13 +247,7 @@ function loadPendingInvites() {
     html += '</div>';
 
     html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;">' +
-      '<h4 class="members-title" style="margin:0;">STUDENT LIST</h4>' +
-      '<div style="display:flex;gap:10px;align-items:center;">' +
-        '<button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button>' +
-        '<button id="pv-pending-invites-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Pending Invites</button>' +
-      '</div>' +
-    '</div>';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;"><h4 class="members-title" style="margin:0;">STUDENT LIST</h4><button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button></div>';
     html += '<div style="overflow-x:auto;">';
     html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
     html += '<thead><tr>';
@@ -612,56 +417,42 @@ if (addBtn) {
 }
 
 
-var pendingBtn = rootEl.querySelector('#pv-pending-invites-btn');
-if (pendingBtn) {
-  pendingBtn.addEventListener('click', function () {
-    openPendingInvitesModal();
-  });
-}
-
   }
 
-  
-function loadOnce() {
-  Promise.all([
-    db.collection('users_admin').get(),
-    db.collection('users_public').get()
-  ]).then(function(results){
-    var adminSnap = results[0];
-    var publicSnap = results[1];
+  function loadOnce() {
+    return Promise.all([
+      db.collection('users_admin').get(),
+      db.collection('users_public').get()
+    ]).then(function (results) {
+      var adminSnap = results[0];
+      var publicSnap = results[1];
 
-    var publicByUid = {};
-    publicSnap.forEach(function(doc){
-      publicByUid[doc.id] = doc.data() || {};
-    });
-
-    users = [];
-
-    adminSnap.forEach(function(doc){
-      var d = doc.data() || {};
-      var p = publicByUid[doc.id] || {};
-
-      users.push({
-        uid: doc.id,
-        email: d.email || p.email || '',
-        firstName: d.firstName || '',
-        lastName: d.lastName || '',
-        name: d.name || ((d.firstName || '') + ' ' + (d.lastName || '')).trim(),
-        role: d.role || 'student',
-        joined: p.joined || d.joinedAt || null,
-        lastLogin: d.lastLogin || null,
-        lastActive: d.lastActive || null,
-        totalSeconds: d.totalSeconds || 0,
-        loginCount: d.loginCount || 0,
-        lastDeviceEmoji: d.lastDeviceEmoji || ''
+      var publicByUid = {};
+      publicSnap.forEach(function (doc) {
+        publicByUid[doc.id] = doc.data() || {};
       });
-    });
 
-    render();
-  });
-}
-);
+      var users = [];
+      adminSnap.forEach(function (doc) {
+        var d = doc.data() || {};
+        var p = publicByUid[doc.id] || {};
+        var email = String(d.email || p.email || '').trim();
+
+        if (email.toLowerCase() === adminEmail.toLowerCase()) return;
+        if (!email) return;
+
+        users.push({
+          uid: doc.id,
+          email: email,
+          joinedAt: p.joined || d.joinedAt || null,
+          lastLogin: d.lastLogin || null,
+          lastActive: d.lastActive || null,
+          lastDeviceEmoji: d.lastDeviceEmoji || '',
+          totalSeconds: d.totalSeconds || 0,
+          loginCount: d.loginCount || 0
+        });
       });
+
       render(users);
     });
   }
@@ -689,4 +480,3 @@ function loadOnce() {
     }, 15000);
   });
 });
-
