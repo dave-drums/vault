@@ -67,10 +67,7 @@
       sessionStart = Date.now();
       markActivity();
 
-      ensureJoinedAt(user.uid)
-      .catch(function(){})
-      .then(function(){ return onLogin(user.uid); })
-      .catch(function(){});
+onLogin(user.uid).catch(function(){});
 
       var hb = setInterval(function(){ heartbeat(user.uid).catch(function(){}); }, HEARTBEAT_MS);
 
@@ -87,3 +84,4 @@
     });
   });
 })();
+
