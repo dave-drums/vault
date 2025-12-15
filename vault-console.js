@@ -302,7 +302,7 @@ function escapeHtml(str) {
         }
 
         html += nameInputBlock('First name', 'firstName');
-        html += nameInputBlock('Last name', 'lastName');
+        html += nameInputBlock('Surname (can be 1 letter)', 'lastName');
 
 
         function inputBlock(label, key) {
@@ -418,6 +418,11 @@ function escapeHtml(str) {
       if (key === 'firstName') firstName = val;
       if (key === 'lastName') lastName = val;
     });
+
+    if (!firstName || !lastName) {
+      setMsg(uid, 'Please enter first name and surname (surname can be one letter).', true);
+      return;
+    }
 
     setMsg(uid, 'Saving…', false);
 
