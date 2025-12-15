@@ -426,9 +426,8 @@ function escapeHtml(str) {
 
     setMsg(uid, 'Saving…', false);
 
-    // Compute public-safe display name: "First L."
-    var displayName = firstName;
-    if (lastName) displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
+    // Public-safe display name: "First L."
+    var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
 
     var batch = db.batch();
 
@@ -447,16 +446,13 @@ function escapeHtml(str) {
     }, { merge: true });
 
     batch.commit().then(function () {
-      // Update in-memory row display (no full reload needed)
-      rootEl.querySelectorAll('tr[data-uid="' + uid + '"]').forEach(function(){});
       setMsg(uid, 'Saved.', false);
       setTimeout(function () { setMsg(uid, '', false); }, 1500);
 
       // Update the displayed name cell in the table
-      var nameCell = rootEl.querySelector('button.pv-edit-btn[data-uid="' + uid + '"]');
-      if (nameCell) {
-        // find the parent row and second cell (Name column)
-        var row = nameCell.closest('tr');
+      var editBtn = rootEl.querySelector('button.pv-edit-btn[data-uid="' + uid + '"]');
+      if (editBtn) {
+        var row = editBtn.closest('tr');
         if (row && row.children && row.children.length >= 2) {
           // Account is 0, Name is 1
           row.children[1].textContent = displayName || '-';
@@ -465,23 +461,9 @@ function escapeHtml(str) {
     }).catch(function (e) {
       setMsg(uid, (e && e.message) ? e.message : 'Save failed.', true);
     });
-  });
-
-    setMsg(uid, 'Saving…', false);
-
-    var update = Object.keys(p).length
-      ? { progress: p }
-      : { progress: firebase.firestore.FieldValue.delete() };
-
-    db.collection('users_public').doc(uid).set(update, { merge: true }).then(function () {
-      setMsg(uid, 'Saved.', false);
-      setTimeout(function () { setMsg(uid, '', false); }, 1500);
-    }).catch(function (e) {
-      setMsg(uid, (e && e.message) ? e.message : 'Save failed.', true);
-    });
   }
 
-  function bindEditorHandlers() {
+function bindEditorHandlers() {
     rootEl.querySelectorAll('.pv-edit-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         openEditor(btn.getAttribute('data-uid'));
