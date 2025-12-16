@@ -12,7 +12,7 @@
   const DB = firebase.firestore();
 
   // Must match the admin-side invite generator
-  const INVITES_COL = "vault_invites";
+  const INVITES_COL = "invites";
 
   const MEMBERS_URL = "/members";
 
@@ -169,30 +169,37 @@
         // 2) Firestore batch: users_admin + users_public + mark invite used
         const batch = DB.batch();
 
-        const adminRef = DB.collection("users_admin").doc(uid);
-        const publicRef = DB.collection("users_public").doc(uid);
+        const userRef = DB.collection("users").doc(uid);
+        const metricsRef = userRef.collection("metrics").doc("stats");
         const inviteRef = DB.collection(INVITES_COL).doc(token);
 
-        batch.set(adminRef, {
+        // createdAt should reflect when the invite was generated (not first login)
+        const createdAt = (inviteData && inviteData.createdAt) ? inviteData.createdAt : nowServer;
+
+        const displayName = `${firstName} ${(lastName || '').trim().charAt(0).toUpperCase()}${lastName ? '.' : ''}`.trim();
+
+        batch.set(userRef, {
           email,
           firstName,
           lastName,
-          name: `${firstName} ${lastName}`.trim(),
-          role: "student",
+          displayName,
           createdViaInvite: true,
-          createdAt: nowServer
+          createdAt
         }, { merge: true });
 
-        batch.set(publicRef, {
-          joined: nowServer,
-          progress: {},
-          displayName: `${firstName} ${(lastName || '').trim().charAt(0).toUpperCase()}${lastName ? '.' : ''}`.trim()
+        // Initialise metrics doc used by vault-metrics.js / admin console
+        batch.set(metricsRef, {
+          loginCount: 0,
+          totalSeconds: 0,
+          lastLoginAt: null,
+          lastDeviceType: null,
+          lastDeviceEmoji: null
         }, { merge: true });
 
         batch.set(inviteRef, {
           used: true,
           usedAt: nowServer,
-          uid
+          usedBy: uid
         }, { merge: true });
 
         await batch.commit();
