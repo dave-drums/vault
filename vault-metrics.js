@@ -1,83 +1,101 @@
-(function(){
-  document.addEventListener('DOMContentLoaded', function(){
-    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
+(function () {
+  "use strict";
 
-    var auth = firebase.auth();
-    var db = firebase.firestore();
-    var F = firebase.firestore.FieldValue;
+  function safeNow() {
+    return Date.now();
+  }
 
-    var HEARTBEAT_MS = 30 * 1000;
-    var IDLE_AFTER_MS = 2 * 60 * 1000;
+  function getDeviceType() {
+    // Simple heuristic
+    var w = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    if (w <= 768) return "mobile";
+    return "desktop";
+  }
 
-    var lastActivity = Date.now();
-    var sessionStart = Date.now();
+  function getDeviceEmoji(type) {
+    if (type === "mobile") return "📱";
+    if (type === "desktop") return "🖥️";
+    return "💡";
+  }
 
-    function isMobile(){
-      var ua = navigator.userAgent || '';
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-    }
-    function deviceEmoji(){ return isMobile() ? '📱' : '🖥️'; }
-    function deviceType(){ return isMobile() ? 'mobile' : 'desktop'; }
+  function run() {
+    try {
+      if (document.documentElement.dataset.protected !== "true") return;
+      if (typeof firebase === "undefined" || !firebase.auth || !firebase.firestore) return;
 
-    function markActivity(){ lastActivity = Date.now(); }
-    ['mousemove','mousedown','keydown','touchstart','scroll'].forEach(function(evt){
-      window.addEventListener(evt, markActivity, { passive:true });
-    });
+      var auth = firebase.auth();
+      var db = firebase.firestore();
 
-    // New location: users/{uid}/metrics/stats
-    function metricsRef(uid){
-      return db.collection('users').doc(uid).collection('metrics').doc('stats');
-    }
+      var sessionStartMs = 0;
+      var committed = false;
 
-    function onLogin(uid){
-      return metricsRef(uid).set({
-        lastLoginAt: F.serverTimestamp(),
-        lastSeenAt: F.serverTimestamp(),
-        loginCount: F.increment(1),
-        lastDeviceType: deviceType(),
-        lastDeviceEmoji: deviceEmoji()
-      }, { merge:true });
-    }
-
-    function heartbeat(uid){
-      // every 30s, but only if they've been active recently
-      if ((Date.now() - lastActivity) > IDLE_AFTER_MS) return Promise.resolve();
-      return metricsRef(uid).set({
-        lastSeenAt: F.serverTimestamp()
-      }, { merge:true });
-    }
-
-    function flushSeconds(uid){
-      var seconds = Math.max(0, Math.round((Date.now() - sessionStart) / 1000));
-      if (!seconds) return Promise.resolve();
-      sessionStart = Date.now();
-      return metricsRef(uid).set({
-        totalSeconds: F.increment(seconds)
-      }, { merge:true });
-    }
-
-    auth.onAuthStateChanged(function(user){
-      if (!user) return;
-
-      sessionStart = Date.now();
-      markActivity();
-
-      onLogin(user.uid).catch(function(){});
-
-      var hb = setInterval(function(){
-        heartbeat(user.uid).catch(function(){});
-      }, HEARTBEAT_MS);
-
-      function end(){
-        try { clearInterval(hb); } catch(e){}
-        flushSeconds(user.uid).catch(function(){});
+      function statsRef(uid) {
+        return db.collection("users").doc(uid).collection("metrics").doc("stats");
       }
 
-      window.addEventListener('beforeunload', end);
-      document.addEventListener('visibilitychange', function(){
-        if (document.visibilityState === 'hidden') end();
-        if (document.visibilityState === 'visible') { sessionStart = Date.now(); markActivity(); }
+      function commitSession(uid) {
+        if (!uid) return;
+        if (committed) return;
+
+        var nowMs = safeNow();
+        if (!sessionStartMs) sessionStartMs = nowMs;
+
+        var seconds = Math.max(0, Math.round((nowMs - sessionStartMs) / 1000));
+        if (seconds <= 0) {
+          committed = true;
+          return;
+        }
+
+        committed = true;
+
+        // Use increment so it’s safe with multiple tabs
+        statsRef(uid).set(
+          {
+            totalSeconds: firebase.firestore.FieldValue.increment(seconds)
+          },
+          { merge: true }
+        ).catch(function () {});
+      }
+
+      auth.onAuthStateChanged(function (user) {
+        if (!user) return;
+
+        sessionStartMs = safeNow();
+        committed = false;
+
+        var type = getDeviceType();
+        var emoji = getDeviceEmoji(type);
+
+        // Count a login once per page load/session
+        statsRef(user.uid).set(
+          {
+            lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+            loginCount: firebase.firestore.FieldValue.increment(1),
+            lastDeviceType: type,
+            lastDeviceEmoji: emoji
+          },
+          { merge: true }
+        ).catch(function () {});
+
+        // Commit time when leaving or hiding the page
+        window.addEventListener("beforeunload", function () {
+          commitSession(user.uid);
+        });
+
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "hidden") {
+            commitSession(user.uid);
+          }
+        });
       });
-    });
-  });
+    } catch (e) {
+      // no-op
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
 })();
