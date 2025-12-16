@@ -104,7 +104,7 @@
           <div class="vca-field">
             <label>Password</label>
             <input id="vca-pass" type="password" autocomplete="new-password">
-            <div class="vca-hint">Use at least 8 characters.</div>
+            <div class="vca-hint">Use at least 6 characters.</div>
           </div>
 
           <button id="vca-create" class="vca-btn">Create account</button>
@@ -135,8 +135,8 @@
         return;
       }
 
-      if (password.length < 8) {
-        msg.textContent = "Please use a password of at least 8 characters.";
+      if (password.length < 6) {
+        msg.textContent = "Please use a password of at least 6 characters.";
         btn.disabled = false;
         return;
       }
