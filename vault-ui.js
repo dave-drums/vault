@@ -280,13 +280,13 @@ document.addEventListener('DOMContentLoaded', function () {
         card.style.background = '#f9f9f9';
         
         var titleEl = document.createElement('div');
-        titleEl.style.fontSize = '12px';
+        titleEl.style.fontSize = '13px';
         titleEl.style.opacity = '0.75';
         titleEl.style.marginBottom = '6px';
         titleEl.textContent = title;
         
         var valueEl = document.createElement('div');
-        valueEl.style.fontSize = '16px';
+        valueEl.style.fontSize = '18px';
         valueEl.style.fontWeight = '600';
         valueEl.textContent = value || '-';
         
@@ -460,9 +460,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (logoutBtn) btnRow.appendChild(logoutBtn);
 
   }).catch(function(){
-    // If progress load fails, build UI anyway without My Progress button
-    // (Just copy the button building code here without the My Progress section)
-    // For now, keeping it simple - worst case they just don't see the button
   });
 }
 
@@ -578,5 +575,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
 
 
