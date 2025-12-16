@@ -4,6 +4,69 @@ document.addEventListener('DOMContentLoaded', function () {
   var auth = firebase.auth();
   var db = firebase.firestore();
 
+  // ------------------------------
+  // Login metrics (once per tab session)
+  // Prevents loginCount/lastLoginAt from incrementing on every refresh.
+  // ------------------------------
+  var LOGIN_MARK_KEY = 'vault_login_mark_v1';
+
+  function detectDevice(){
+    try {
+      var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+      var coarse = false;
+      try {
+        coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      } catch(_) {}
+
+      if (isTouch || coarse) return { type: 'mobile', emoji: '📱' };
+      return { type: 'desktop', emoji: '🖥️' };
+    } catch(e) {
+      return { type: 'other', emoji: '🧩' };
+    }
+  }
+
+  function markKeyForUser(uid){
+    return LOGIN_MARK_KEY + ':' + uid;
+  }
+
+  function hasMarkedLogin(uid){
+    try { return sessionStorage.getItem(markKeyForUser(uid)) === '1'; } catch(_) { return false; }
+  }
+
+  function markLogin(uid){
+    try { sessionStorage.setItem(markKeyForUser(uid), '1'); } catch(_) {}
+  }
+
+  function clearLoginMark(uid){
+    try { sessionStorage.removeItem(markKeyForUser(uid)); } catch(_) {}
+  }
+
+  function recordLoginOnce(user){
+    if (!user || !user.uid) return;
+    if (hasMarkedLogin(user.uid)) return;
+
+    markLogin(user.uid);
+
+    var device = detectDevice();
+    var now = firebase.firestore.FieldValue.serverTimestamp();
+
+    // Store user profile data in users/<uid>
+    var userDoc = db.collection('users').doc(user.uid);
+    userDoc.set({
+      email: user.email || null,
+      lastLoginAt: now
+    }, { merge: true }).catch(function(){});
+
+    // Store metrics in users/<uid>/metrics/stats
+    var statsDoc = userDoc.collection('metrics').doc('stats');
+    statsDoc.set({
+      lastLoginAt: now,
+      loginCount: firebase.firestore.FieldValue.increment(1),
+      lastDeviceType: device.type,
+      lastDeviceEmoji: device.emoji
+    }, { merge: true }).catch(function(){});
+  }
+
   // Edit these if your URLs differ
   var VAULT_URL = '/vault';
   var SUPPORT_URL = '/contact';
@@ -203,7 +266,7 @@ function setTitle(t){ if (titleEl) titleEl.textContent = t; }
     nameClose.addEventListener('click', function(){ namePanel.style.display = 'none'; });
 
     // preload existing name (blank if none)
-    db.collection('users_public').doc(user.uid).get().then(function(snap){
+    db.collection('users').doc(user.uid).get().then(function(snap){
       if (!snap.exists) return;
       var d = snap.data() || {};
       fn.value = String(d.firstName || '').trim();
@@ -222,7 +285,7 @@ function setTitle(t){ if (titleEl) titleEl.textContent = t; }
 
       var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
 
-      db.collection('users_public').doc(user.uid).set({
+      db.collection('users').doc(user.uid).set({
         firstName: firstName,
         lastName: lastName,
         displayName: displayName
@@ -378,7 +441,12 @@ function setTitle(t){ if (titleEl) titleEl.textContent = t; }
 
   // Auth wiring
   auth.onAuthStateChanged(function(user){
-    if (!user) return showLogin();
+    if (!user) {
+      try { sessionStorage.removeItem(LOGIN_MARK_KEY); } catch(e){}
+      return showLogin();
+    }
+    // record login (once per tab session)
+    recordLoginOnce(user);
     showAccount(user);
   });
 
@@ -419,6 +487,7 @@ function setTitle(t){ if (titleEl) titleEl.textContent = t; }
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function(){
       clearMessage();
+      try { sessionStorage.removeItem(LOGIN_MARK_KEY); } catch(e){}
       auth.signOut();
     });
   }
