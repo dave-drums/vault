@@ -253,7 +253,63 @@ document.addEventListener('DOMContentLoaded', function () {
       stylePrimaryBlue(openVault);
       btnRow.appendChild(openVault);
 
-      // 2) Change Name (accordion)
+        // 2) My Progress (accordion) - only show if progress exists
+  db.collection('users').doc(user.uid).collection('metrics').doc('progress').get().then(function(snap){
+    if (!snap.exists) return;
+    var prog = snap.data() || {};
+    if (!prog.grooves && !prog.fills && !prog.hands && !prog.feet) return;
+
+    var progBtn = mkAccountBtn('button', 'My Progress');
+    var progPanel = mkPanel();
+    progPanel.setAttribute('data-panel', 'true');
+
+    var grid = document.createElement('div');
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = '1fr 1fr';
+    grid.style.gap = '12px';
+    grid.style.marginBottom = '14px';
+
+    function mkCard(title, value){
+      var card = document.createElement('div');
+      card.style.padding = '12px';
+      card.style.border = '1px solid #ddd';
+      card.style.borderRadius = '8px';
+      card.style.background = '#f9f9f9';
+      
+      var titleEl = document.createElement('div');
+      titleEl.style.fontSize = '12px';
+      titleEl.style.opacity = '0.75';
+      titleEl.style.marginBottom = '6px';
+      titleEl.textContent = title;
+      
+      var valueEl = document.createElement('div');
+      valueEl.style.fontSize = '16px';
+      valueEl.style.fontWeight = '600';
+      valueEl.textContent = value || '-';
+      
+      card.appendChild(titleEl);
+      card.appendChild(valueEl);
+      return card;
+    }
+
+    grid.appendChild(mkCard('Groove Studies', prog.grooves));
+    grid.appendChild(mkCard('Fill Studies', prog.fills));
+    grid.appendChild(mkCard('Stick Studies', prog.hands));
+    grid.appendChild(mkCard('Foot Control', prog.feet));
+
+    progPanel.appendChild(grid);
+
+    var progClose = mkInlineBtn('Close', false);
+    progClose.addEventListener('click', function(){ progPanel.style.display = 'none'; });
+    progPanel.appendChild(progClose);
+
+    progBtn.addEventListener('click', function(){ clearMessage(); togglePanel(progPanel, true); });
+
+    btnRow.appendChild(progBtn);
+    btnRow.appendChild(progPanel);
+  }).catch(function(){});
+
+      // 3) Change Name (accordion)
       var nameBtn = mkAccountBtn('button', 'Change Name');
       var namePanel = mkPanel();
       namePanel.setAttribute('data-panel', 'true');
@@ -314,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btnRow.appendChild(nameBtn);
       btnRow.appendChild(namePanel);
 
-      // 3) Change Password (accordion)
+      // 4) Change Password (accordion)
       var pwBtn = mkAccountBtn('button', 'Change Password');
       var pwPanel = mkPanel();
       pwPanel.setAttribute('data-panel', 'true');
@@ -385,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btnRow.appendChild(pwBtn);
       btnRow.appendChild(pwPanel);
 
-      // 4) Change Email (modal)
+      // 5) Change Email (modal)
       var emailBtn = mkAccountBtn('button', 'Change Email');
       emailBtn.addEventListener('click', function(){
         clearMessage();
@@ -393,11 +449,11 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       btnRow.appendChild(emailBtn);
 
-      // 5) Contact Support
+      // 6) Contact Support
       var supportBtn = mkAccountBtn('a', 'Contact Support', SUPPORT_URL);
       btnRow.appendChild(supportBtn);
 
-      // 6) Logout (existing button, keep styling)
+      // 7) Logout (existing button, keep styling)
       if (logoutBtn) btnRow.appendChild(logoutBtn);
     }
 
@@ -513,3 +569,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
