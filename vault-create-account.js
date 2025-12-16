@@ -34,6 +34,12 @@
 
   (async function init() {
     try {
+      // Invite links should not work if already logged in
+      if (AUTH.currentUser) {
+        renderMessage('You are already logged in. Please log out, then open the invite link again. <a href="' + MEMBERS_URL + '">Go to members</a>.');
+        return;
+      }
+
       const inviteRef = DB.collection(INVITES_COL).doc(token);
       const inviteSnap = await inviteRef.get();
 
@@ -135,10 +141,12 @@
         return;
       }
 
+      const inviteRef = DB.collection(INVITES_COL).doc(token);
+
       // Safety: re-check invite still valid right before create
       let inviteData;
       try {
-        const snap = await DB.collection(INVITES_COL).doc(token).get();
+        const snap = await inviteRef.get();
         if (!snap.exists) {
           msg.textContent = "Invite link is invalid. Please request a new invite link.";
           btn.disabled = false;
@@ -149,6 +157,16 @@
           msg.innerHTML = 'This invite link has already been used. <a href="' + MEMBERS_URL + '">Go to login</a>.';
           btn.disabled = false;
           return;
+        }
+
+        // Expiry re-check
+        if (inviteData.expiresAt && typeof inviteData.expiresAt.toDate === "function") {
+          const expiresMs = inviteData.expiresAt.toDate().getTime();
+          if (Date.now() > expiresMs) {
+            msg.textContent = "This invite link has expired. Please request a new invite link.";
+            btn.disabled = false;
+            return;
+          }
         }
       } catch (e) {
         msg.textContent = "Could not verify invite. Please try again.";
@@ -167,22 +185,23 @@
         const nowServer = firebase.firestore.FieldValue.serverTimestamp();
 
         // 2) Firestore batch: users/{uid} + ensure metrics doc + mark invite used
-                const batch = DB.batch();
+        const batch = DB.batch();
 
-        const userRef = DB.collection('users').doc(uid);
-        const metricsRef = userRef.collection('metrics').doc('stats');
+        const userRef = DB.collection("users").doc(uid);
+        const metricsRef = userRef.collection("metrics").doc("stats");
 
-        const inviteCreatedAt = invite.createdAt || nowServer;
-        const ln = String(lastName || '').trim();
-        let displayName = String(firstName || '').trim();
-        if (ln) displayName += ' ' + ln.slice(0,1).toUpperCase() + '.';
+        const inviteCreatedAt = inviteData.createdAt || nowServer;
+
+        const ln = String(lastName || "").trim();
+        let displayName = String(firstName || "").trim();
+        if (ln) displayName += " " + ln.slice(0, 1).toUpperCase() + ".";
         displayName = displayName.trim();
 
         batch.set(userRef, {
           email,
           createdAt: inviteCreatedAt,
-          firstName: String(firstName || '').trim(),
-          lastName: String(lastName || '').trim(),
+          firstName: String(firstName || "").trim(),
+          lastName: String(lastName || "").trim(),
           displayName
         }, { merge: true });
 
@@ -192,19 +211,20 @@
         }, { merge: true });
 
         batch.set(inviteRef, {
-           used: true,
-           usedAt: nowServer,
-           usedByUid: uid
+          used: true,
+          usedAt: nowServer,
+          usedByUid: uid
         }, { merge: true });
 
         await batch.commit();
-// 3) Redirect to members (already signed in)
+
+        // 3) Redirect to members (already signed in)
         window.location.href = MEMBERS_URL;
 
       } catch (err) {
         console.error(err);
 
-        // Attempt to clean up the auth user we just created if Firestore fails
+        // Best-effort cleanup (may fail depending on auth settings)
         try {
           if (createdUser && typeof createdUser.delete === "function") {
             await createdUser.delete();
