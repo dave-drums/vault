@@ -104,7 +104,7 @@ function showBody(){
 }
 
 /* ---------- Invites ---------- */
-var INVITES_COL = 'vault_invites';
+var INVITES_COL = 'invites';
 var CREATE_ACCOUNT_URL_BASE = 'https://www.davedrums.com.au/create-account?t=';
 
 function randomToken(len){
@@ -340,12 +340,12 @@ document.addEventListener('DOMContentLoaded', function(){
     setMsg(uid, 'Loading…', false);
 
     Promise.all([
-      db.collection('users_public').doc(uid).get(),
-      db.collection('users_admin').doc(uid).get()
+      db.collection('users').doc(uid).get(),
+      db.collection('users').doc(uid).collection('metrics').doc('progress').get()
     ]).then(function(snaps){
-      var pub = snaps[0].exists ? (snaps[0].data() || {}) : {};
-      var adm = snaps[1].exists ? (snaps[1].data() || {}) : {};
-      var p = pub.progress || {};
+      var adm = snaps[0].exists ? (snaps[0].data() || {}) : {};
+      var pub = snaps[1].exists ? (snaps[1].data() || {}) : {};
+      var p = pub || {};
 
       rootEl.querySelectorAll('.pv-prog[data-uid="' + uid + '"]').forEach(function(inp){
         var key = inp.getAttribute('data-key');
@@ -401,16 +401,19 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var batch = db.batch();
 
-    var publicUpdate = Object.keys(p).length
-      ? { progress: p, displayName: displayName }
-      : { progress: firebase.firestore.FieldValue.delete(), displayName: displayName };
+    var progressUpdate = {
+      grooves: (p.grooves ? p.grooves : firebase.firestore.FieldValue.delete()),
+      fills: (p.fills ? p.fills : firebase.firestore.FieldValue.delete()),
+      hands: (p.hands ? p.hands : firebase.firestore.FieldValue.delete()),
+      feet: (p.feet ? p.feet : firebase.firestore.FieldValue.delete())
+    };
 
-    batch.set(db.collection('users_public').doc(uid), publicUpdate, { merge:true });
-    batch.set(db.collection('users_admin').doc(uid), {
+    batch.set(db.collection('users').doc(uid), {
       firstName: firstName,
       lastName: lastName,
-      name: (firstName + ' ' + lastName).trim()
+      displayName: displayName
     }, { merge:true });
+    batch.set(db.collection('users').doc(uid).collection('metrics').doc('progress'), progressUpdate, { merge:true });
 
     batch.commit().then(function(){
       setMsg(uid, 'Saved.', false);
@@ -556,45 +559,61 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function loadOnce(){
-    return Promise.all([
-      db.collection('users_admin').get(),
-      db.collection('users_public').get()
-    ]).then(function(results){
-      var adminSnap = results[0];
-      var publicSnap = results[1];
+  // Load users + per-user metrics/progress
+  db.collection('users').get().then(function(usersSnap){
+    var users = [];
+    usersSnap.forEach(function(d){
+      var data = d.data() || {};
+      users.push({
+        uid: d.id,
+        email: data.email || '',
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        displayName: data.displayName || '',
+        joinedAt: data.createdAt || null
+      });
+    });
 
-      var publicByUid = {};
-      publicSnap.forEach(function(doc){ publicByUid[doc.id] = doc.data() || {}; });
+    var statGets = users.map(function(u){
+      return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
+        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+    });
 
-      var users = [];
-      adminSnap.forEach(function(doc){
-        var d = doc.data() || {};
-        var pub = publicByUid[doc.id] || {};
-        var email = String(d.email || pub.email || '').trim();
+    var progGets = users.map(function(u){
+      return db.collection('users').doc(u.uid).collection('metrics').doc('progress').get()
+        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+    });
 
-        if (auth.currentUser && doc.id === auth.currentUser.uid) return;
-        if (!email) return;
+    return Promise.all([Promise.all(statGets), Promise.all(progGets)]).then(function(res){
+      var statsArr = res[0];
+      var progArr = res[1];
 
-        var first = String(d.firstName || '').trim();
-        var last  = String(d.lastName || '').trim();
-        var fullName = String(d.name || '').trim() || (first + ' ' + last).trim();
+      var statsByUid = {};
+      statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
 
-        users.push({
-          uid: doc.id,
-          email: email,
-          fullName: fullName,
-          joinedAt: pub.joinedAt || pub.joined || d.joinedAt || null,
-          lastLogin: d.lastLogin || null,
-          lastActive: d.lastActive || null,
-          lastDeviceEmoji: d.lastDeviceEmoji || '',
-          totalSeconds: d.totalSeconds || 0,
-          loginCount: d.loginCount || 0
-        });
+      var progByUid = {};
+      progArr.forEach(function(x){ progByUid[x.uid] = x.data || {}; });
+
+      users.forEach(function(u){
+        var st = statsByUid[u.uid] || {};
+        var pr = progByUid[u.uid] || {};
+
+        u.lastLogin = st.lastLoginAt || null;
+        u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
+        u.lastDeviceType = st.lastDeviceType || '';
+        u.lastDeviceEmoji = st.lastDeviceEmoji || '';
+        u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
+        u.totalSeconds = (typeof st.totalSeconds === 'number') ? st.totalSeconds : 0;
+        u.progress = pr || {};
       });
 
       render(users);
     });
-  }
+  }).catch(function(e){
+    console.error(e);
+    alert('Load error: ' + (e && e.message || e));
+  });
+}
 
   auth.onAuthStateChanged(function(user){
     showBody();
