@@ -177,6 +177,16 @@
       let createdUser = null;
 
       try {
+        // CRITICAL: Validate email match BEFORE creating Auth account
+        const inviteEmail = String(inviteData.email || "").trim().toLowerCase();
+        const inputEmail = email.toLowerCase();
+        
+        if (inviteEmail !== inputEmail) {
+          msg.textContent = "Email does not match invite. Please use " + inviteData.email;
+          btn.disabled = false;
+          return;
+        }
+
         // 1) Create Auth account (signs them in)
         const cred = await AUTH.createUserWithEmailAndPassword(email, password);
         createdUser = cred.user;
@@ -196,9 +206,9 @@
         let displayName = String(firstName || "").trim();
         if (ln) displayName += " " + ln.slice(0, 1).toUpperCase() + ".";
         displayName = displayName.trim();
-
-        batch.set(userRef, {
-          email,
+         
+         batch.set(userRef, {
+          email: email.toLowerCase(),
           createdAt: inviteCreatedAt,
           firstName: String(firstName || "").trim(),
           lastName: String(lastName || "").trim(),
@@ -224,15 +234,8 @@
       } catch (err) {
         console.error(err);
 
-        // Best-effort cleanup (may fail depending on auth settings)
-        try {
-          if (createdUser && typeof createdUser.delete === "function") {
-            await createdUser.delete();
-          }
-        } catch (cleanupErr) {
-          console.error("Cleanup failed:", cleanupErr);
-        }
-
+           // Note: Cannot delete Auth user from client-side if batch fails
+         
         const code = (err && err.code) ? String(err.code) : "";
         if (code.includes("email-already-in-use")) {
           msg.innerHTML = 'This email already has an account. <a href="' + MEMBERS_URL + '">Log in here</a>.';
