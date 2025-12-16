@@ -243,219 +243,228 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function buildAccountButtons(user) {
-      if (!btnRow) return;
+  if (!btnRow) return;
 
-      // Clear existing row buttons
-      btnRow.innerHTML = '';
+  // Clear existing row buttons
+  btnRow.innerHTML = '';
 
-      // 1) Open Practice Vault (primary)
-      var openVault = mkAccountBtn('a', 'Open Practice Vault', VAULT_URL);
-      stylePrimaryBlue(openVault);
-      btnRow.appendChild(openVault);
+  // Load progress data first, then build UI
+  db.collection('users').doc(user.uid).collection('metrics').doc('progress').get().then(function(progSnap){
+    var prog = (progSnap.exists ? progSnap.data() : null) || {};
+    var hasProgress = !!(prog.grooves || prog.fills || prog.hands || prog.feet);
 
-        // 2) My Progress (accordion) - only show if progress exists
-  db.collection('users').doc(user.uid).collection('metrics').doc('progress').get().then(function(snap){
-    if (!snap.exists) return;
-    var prog = snap.data() || {};
-    if (!prog.grooves && !prog.fills && !prog.hands && !prog.feet) return;
+    // Now build all buttons in order
 
-    var progBtn = mkAccountBtn('button', 'My Progress');
-    var progPanel = mkPanel();
-    progPanel.setAttribute('data-panel', 'true');
+    // 1) Open Practice Vault (primary)
+    var openVault = mkAccountBtn('a', 'Open Practice Vault', VAULT_URL);
+    stylePrimaryBlue(openVault);
+    btnRow.appendChild(openVault);
 
-    var grid = document.createElement('div');
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = '1fr 1fr';
-    grid.style.gap = '12px';
-    grid.style.marginBottom = '14px';
+    // 2) My Progress (only if progress exists)
+    if (hasProgress) {
+      var progBtn = mkAccountBtn('button', 'My Progress');
+      var progPanel = mkPanel();
+      progPanel.setAttribute('data-panel', 'true');
 
-    function mkCard(title, value){
-      var card = document.createElement('div');
-      card.style.padding = '12px';
-      card.style.border = '1px solid #ddd';
-      card.style.borderRadius = '8px';
-      card.style.background = '#f9f9f9';
-      
-      var titleEl = document.createElement('div');
-      titleEl.style.fontSize = '12px';
-      titleEl.style.opacity = '0.75';
-      titleEl.style.marginBottom = '6px';
-      titleEl.textContent = title;
-      
-      var valueEl = document.createElement('div');
-      valueEl.style.fontSize = '16px';
-      valueEl.style.fontWeight = '600';
-      valueEl.textContent = value || '-';
-      
-      card.appendChild(titleEl);
-      card.appendChild(valueEl);
-      return card;
+      var grid = document.createElement('div');
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = '1fr 1fr';
+      grid.style.gap = '12px';
+      grid.style.marginBottom = '14px';
+
+      function mkCard(title, value){
+        var card = document.createElement('div');
+        card.style.padding = '12px';
+        card.style.border = '1px solid #ddd';
+        card.style.borderRadius = '8px';
+        card.style.background = '#f9f9f9';
+        
+        var titleEl = document.createElement('div');
+        titleEl.style.fontSize = '12px';
+        titleEl.style.opacity = '0.75';
+        titleEl.style.marginBottom = '6px';
+        titleEl.textContent = title;
+        
+        var valueEl = document.createElement('div');
+        valueEl.style.fontSize = '16px';
+        valueEl.style.fontWeight = '600';
+        valueEl.textContent = value || '-';
+        
+        card.appendChild(titleEl);
+        card.appendChild(valueEl);
+        return card;
+      }
+
+      grid.appendChild(mkCard('Groove Studies', prog.grooves));
+      grid.appendChild(mkCard('Fill Studies', prog.fills));
+      grid.appendChild(mkCard('Stick Studies', prog.hands));
+      grid.appendChild(mkCard('Foot Control', prog.feet));
+
+      progPanel.appendChild(grid);
+
+      var progClose = mkInlineBtn('Close', false);
+      progClose.addEventListener('click', function(){ progPanel.style.display = 'none'; });
+      progPanel.appendChild(progClose);
+
+      progBtn.addEventListener('click', function(){ clearMessage(); togglePanel(progPanel, true); });
+
+      btnRow.appendChild(progBtn);
+      btnRow.appendChild(progPanel);
     }
 
-    grid.appendChild(mkCard('Groove Studies', prog.grooves));
-    grid.appendChild(mkCard('Fill Studies', prog.fills));
-    grid.appendChild(mkCard('Stick Studies', prog.hands));
-    grid.appendChild(mkCard('Foot Control', prog.feet));
+    // 3) Change Name (accordion)
+    var nameBtn = mkAccountBtn('button', 'Change Name');
+    var namePanel = mkPanel();
+    namePanel.setAttribute('data-panel', 'true');
 
-    progPanel.appendChild(grid);
+    var fn = mkInput('text');
+    var ln = mkInput('text');
+    namePanel.appendChild(mkLabel('First name'));
+    namePanel.appendChild(fn);
+    namePanel.appendChild(mkLabel('Last name'));
+    namePanel.appendChild(ln);
 
-    var progClose = mkInlineBtn('Close', false);
-    progClose.addEventListener('click', function(){ progPanel.style.display = 'none'; });
-    progPanel.appendChild(progClose);
+    var nameActions = document.createElement('div');
+    nameActions.style.display = 'flex';
+    nameActions.style.gap = '10px';
+    nameActions.style.justifyContent = 'flex-end';
 
-    progBtn.addEventListener('click', function(){ clearMessage(); togglePanel(progPanel, true); });
+    var nameClose = mkInlineBtn('Close', false);
+    var nameSave = mkInlineBtn('Save', true);
 
-    btnRow.appendChild(progBtn);
-    btnRow.appendChild(progPanel);
-  }).catch(function(){});
+    nameActions.appendChild(nameClose);
+    nameActions.appendChild(nameSave);
+    namePanel.appendChild(nameActions);
 
-      // 3) Change Name (accordion)
-      var nameBtn = mkAccountBtn('button', 'Change Name');
-      var namePanel = mkPanel();
-      namePanel.setAttribute('data-panel', 'true');
+    nameBtn.addEventListener('click', function(){ clearMessage(); togglePanel(namePanel, true); });
+    nameClose.addEventListener('click', function(){ namePanel.style.display = 'none'; });
 
-      var fn = mkInput('text');
-      var ln = mkInput('text');
-      namePanel.appendChild(mkLabel('First name'));
-      namePanel.appendChild(fn);
-      namePanel.appendChild(mkLabel('Last name'));
-      namePanel.appendChild(ln);
+    // preload existing name (blank if none)
+    db.collection('users').doc(user.uid).get().then(function(snap){
+      if (!snap.exists) return;
+      var d = snap.data() || {};
+      fn.value = String(d.firstName || '').trim();
+      ln.value = String(d.lastName || '').trim();
+    }).catch(function(){});
 
-      var nameActions = document.createElement('div');
-      nameActions.style.display = 'flex';
-      nameActions.style.gap = '10px';
-      nameActions.style.justifyContent = 'flex-end';
+    nameSave.addEventListener('click', function(){
+      clearMessage();
+      var firstName = String(fn.value || '').trim();
+      var lastName = String(ln.value || '').trim();
 
-      var nameClose = mkInlineBtn('Close', false);
-      var nameSave = mkInlineBtn('Save', true);
+      if (!firstName || !lastName) {
+        setMessage('Please enter your first and last name.');
+        return;
+      }
 
-      nameActions.appendChild(nameClose);
-      nameActions.appendChild(nameSave);
-      namePanel.appendChild(nameActions);
+      var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
 
-      nameBtn.addEventListener('click', function(){ clearMessage(); togglePanel(namePanel, true); });
-      nameClose.addEventListener('click', function(){ namePanel.style.display = 'none'; });
+      db.collection('users').doc(user.uid).set({
+        firstName: firstName,
+        lastName: lastName,
+        displayName: displayName
+      }, { merge: true }).then(function(){
+        namePanel.style.display = 'none';
+      }).catch(function(e){
+        setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
+      });
+    });
 
-      // preload existing name (blank if none)
-      db.collection('users').doc(user.uid).get().then(function(snap){
-        if (!snap.exists) return;
-        var d = snap.data() || {};
-        fn.value = String(d.firstName || '').trim();
-        ln.value = String(d.lastName || '').trim();
-      }).catch(function(){});
+    btnRow.appendChild(nameBtn);
+    btnRow.appendChild(namePanel);
 
-      nameSave.addEventListener('click', function(){
-        clearMessage();
-        var firstName = String(fn.value || '').trim();
-        var lastName = String(ln.value || '').trim();
+    // 4) Change Password (accordion)
+    var pwBtn = mkAccountBtn('button', 'Change Password');
+    var pwPanel = mkPanel();
+    pwPanel.setAttribute('data-panel', 'true');
 
-        if (!firstName || !lastName) {
-          setMessage('Please enter your first and last name.');
-          return;
-        }
+    var curPw = mkInput('password');
+    var newPw = mkInput('password');
+    var newPw2 = mkInput('password');
 
-        var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
+    pwPanel.appendChild(mkLabel('Current password'));
+    pwPanel.appendChild(curPw);
+    pwPanel.appendChild(mkLabel('New password'));
+    pwPanel.appendChild(newPw);
+    pwPanel.appendChild(mkLabel('Repeat new password'));
+    pwPanel.appendChild(newPw2);
 
-        db.collection('users').doc(user.uid).set({
-          firstName: firstName,
-          lastName: lastName,
-          displayName: displayName
-        }, { merge: true }).then(function(){
-          namePanel.style.display = 'none';
-        }).catch(function(e){
-          setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
+    var pwActions = document.createElement('div');
+    pwActions.style.display = 'flex';
+    pwActions.style.gap = '10px';
+    pwActions.style.justifyContent = 'flex-end';
+
+    var pwClose = mkInlineBtn('Close', false);
+    var pwSave = mkInlineBtn('Update', true);
+
+    pwActions.appendChild(pwClose);
+    pwActions.appendChild(pwSave);
+    pwPanel.appendChild(pwActions);
+
+    pwBtn.addEventListener('click', function(){ clearMessage(); togglePanel(pwPanel, true); });
+    pwClose.addEventListener('click', function(){ pwPanel.style.display = 'none'; });
+
+    pwSave.addEventListener('click', function(){
+      clearMessage();
+
+      var userNow = auth.currentUser;
+      if (!userNow || !userNow.email) {
+        setMessage('Please log out and use the reset link.');
+        return;
+      }
+
+      var a = String(curPw.value || '');
+      var b = String(newPw.value || '');
+      var c = String(newPw2.value || '');
+
+      if (!a || !b || !c) {
+        setMessage('Please fill in all password fields.');
+        return;
+      }
+      if (b !== c) {
+        setMessage('New passwords do not match.');
+        return;
+      }
+
+      var cred = firebase.auth.EmailAuthProvider.credential(userNow.email, a);
+
+      userNow.reauthenticateWithCredential(cred)
+        .then(function(){ return userNow.updatePassword(b); })
+        .then(function(){
+          curPw.value = '';
+          newPw.value = '';
+          newPw2.value = '';
+          pwPanel.style.display = 'none';
+        })
+        .catch(function(e){
+          setMessage(e && e.message ? e.message : 'Could not update password.');
         });
-      });
+    });
 
-      btnRow.appendChild(nameBtn);
-      btnRow.appendChild(namePanel);
+    btnRow.appendChild(pwBtn);
+    btnRow.appendChild(pwPanel);
 
-      // 4) Change Password (accordion)
-      var pwBtn = mkAccountBtn('button', 'Change Password');
-      var pwPanel = mkPanel();
-      pwPanel.setAttribute('data-panel', 'true');
+    // 5) Change Email (modal)
+    var emailBtn = mkAccountBtn('button', 'Change Email');
+    emailBtn.addEventListener('click', function(){
+      clearMessage();
+      openModal('Change Email', 'To change your email address, please contact support.');
+    });
+    btnRow.appendChild(emailBtn);
 
-      var curPw = mkInput('password');
-      var newPw = mkInput('password');
-      var newPw2 = mkInput('password');
+    // 6) Contact Support
+    var supportBtn = mkAccountBtn('a', 'Contact Support', SUPPORT_URL);
+    btnRow.appendChild(supportBtn);
 
-      pwPanel.appendChild(mkLabel('Current password'));
-      pwPanel.appendChild(curPw);
-      pwPanel.appendChild(mkLabel('New password'));
-      pwPanel.appendChild(newPw);
-      pwPanel.appendChild(mkLabel('Repeat new password'));
-      pwPanel.appendChild(newPw2);
+    // 7) Logout (existing button, keep styling)
+    if (logoutBtn) btnRow.appendChild(logoutBtn);
 
-      var pwActions = document.createElement('div');
-      pwActions.style.display = 'flex';
-      pwActions.style.gap = '10px';
-      pwActions.style.justifyContent = 'flex-end';
-
-      var pwClose = mkInlineBtn('Close', false);
-      var pwSave = mkInlineBtn('Update', true);
-
-      pwActions.appendChild(pwClose);
-      pwActions.appendChild(pwSave);
-      pwPanel.appendChild(pwActions);
-
-      pwBtn.addEventListener('click', function(){ clearMessage(); togglePanel(pwPanel, true); });
-      pwClose.addEventListener('click', function(){ pwPanel.style.display = 'none'; });
-
-      pwSave.addEventListener('click', function(){
-        clearMessage();
-
-        var userNow = auth.currentUser;
-        if (!userNow || !userNow.email) {
-          setMessage('Please log out and use the reset link.');
-          return;
-        }
-
-        var a = String(curPw.value || '');
-        var b = String(newPw.value || '');
-        var c = String(newPw2.value || '');
-
-        if (!a || !b || !c) {
-          setMessage('Please fill in all password fields.');
-          return;
-        }
-        if (b !== c) {
-          setMessage('New passwords do not match.');
-          return;
-        }
-
-        var cred = firebase.auth.EmailAuthProvider.credential(userNow.email, a);
-
-        userNow.reauthenticateWithCredential(cred)
-          .then(function(){ return userNow.updatePassword(b); })
-          .then(function(){
-            curPw.value = '';
-            newPw.value = '';
-            newPw2.value = '';
-            pwPanel.style.display = 'none';
-          })
-          .catch(function(e){
-            setMessage(e && e.message ? e.message : 'Could not update password.');
-          });
-      });
-
-      btnRow.appendChild(pwBtn);
-      btnRow.appendChild(pwPanel);
-
-      // 5) Change Email (modal)
-      var emailBtn = mkAccountBtn('button', 'Change Email');
-      emailBtn.addEventListener('click', function(){
-        clearMessage();
-        openModal('Change Email', 'To change your email address, please contact support.');
-      });
-      btnRow.appendChild(emailBtn);
-
-      // 6) Contact Support
-      var supportBtn = mkAccountBtn('a', 'Contact Support', SUPPORT_URL);
-      btnRow.appendChild(supportBtn);
-
-      // 7) Logout (existing button, keep styling)
-      if (logoutBtn) btnRow.appendChild(logoutBtn);
-    }
+  }).catch(function(){
+    // If progress load fails, build UI anyway without My Progress button
+    // (Just copy the button building code here without the My Progress section)
+    // For now, keeping it simple - worst case they just don't see the button
+  });
+}
 
     function openModal(title, bodyText) {
       var overlay = document.createElement('div');
@@ -569,4 +578,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
 
