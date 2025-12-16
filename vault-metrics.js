@@ -97,8 +97,8 @@
   // Firestore references (resolved per-user)
   function metricsDocRef(uid){
     // Your chosen structure:
-    // users/<uid>/metrics/metrics  (doc id "metrics")
-    return firebase.firestore().doc('users/' + uid + '/metrics/metrics');
+    // users/<uid>/metrics/stats  (doc id "stats")
+    return firebase.firestore().doc('users/' + uid + '/metrics/stats');
   }
 
   function safeMergeSet(ref, data){
@@ -277,3 +277,4 @@
     boot();
   }
 })();
+
