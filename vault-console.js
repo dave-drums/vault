@@ -558,19 +558,34 @@ document.addEventListener('DOMContentLoaded', function(){
     bindHandlers();
   }
 
-  function loadOnce(){
-  // Load users + per-user metrics/progress
-  db.collection('users').get().then(function(usersSnap){
+function loadOnce(){
+  // Load users + per-user metrics/progress + filter out admins
+  Promise.all([
+    db.collection('users').get(),
+    db.collection('admins').get()
+  ]).then(function(results){
+    var usersSnap = results[0];
+    var adminSnap = results[1];
+    
+    // Build admin UID lookup
+    var adminUids = {};
+    adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
+    
     var users = [];
     usersSnap.forEach(function(d){
       var data = d.data() || {};
+      
+      // Skip admins
+      if (adminUids[d.id]) return;
+      
       users.push({
         uid: d.id,
         email: data.email || '',
         firstName: data.firstName || '',
         lastName: data.lastName || '',
         displayName: data.displayName || '',
-        joinedAt: data.createdAt || null
+        joinedAt: data.createdAt || null,
+        fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
       });
     });
 
@@ -638,3 +653,4 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 })();
+
