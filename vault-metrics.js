@@ -4,6 +4,7 @@
 
     var auth = firebase.auth();
     var db = firebase.firestore();
+    var F = firebase.firestore.FieldValue;
 
     var HEARTBEAT_MS = 30 * 1000;
     var IDLE_AFTER_MS = 2 * 60 * 1000;
@@ -23,32 +24,26 @@
       window.addEventListener(evt, markActivity, { passive:true });
     });
 
-    function adminRef(uid){ return db.collection('users_private').doc(uid); }
-
-    function ensureJoinedAt(uid){
-      var ref = adminRef(uid);
-      return ref.get().then(function(snap){
-        if (!snap.exists) return;
-        var d = snap.data() || {};
-        if (d.joinedAt) return;
-        return ref.set({ joinedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
-      });
+    // New location: users/{uid}/metrics/stats
+    function metricsRef(uid){
+      return db.collection('users').doc(uid).collection('metrics').doc('stats');
     }
 
     function onLogin(uid){
-      return adminRef(uid).set({
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-        lastActive: firebase.firestore.FieldValue.serverTimestamp(),
-        loginCount: firebase.firestore.FieldValue.increment(1),
+      return metricsRef(uid).set({
+        lastLoginAt: F.serverTimestamp(),
+        lastSeenAt: F.serverTimestamp(),
+        loginCount: F.increment(1),
         lastDeviceType: deviceType(),
         lastDeviceEmoji: deviceEmoji()
       }, { merge:true });
     }
 
     function heartbeat(uid){
+      // every 30s, but only if they've been active recently
       if ((Date.now() - lastActivity) > IDLE_AFTER_MS) return Promise.resolve();
-      return adminRef(uid).set({
-        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      return metricsRef(uid).set({
+        lastSeenAt: F.serverTimestamp()
       }, { merge:true });
     }
 
@@ -56,8 +51,8 @@
       var seconds = Math.max(0, Math.round((Date.now() - sessionStart) / 1000));
       if (!seconds) return Promise.resolve();
       sessionStart = Date.now();
-      return adminRef(uid).set({
-        totalSeconds: firebase.firestore.FieldValue.increment(seconds)
+      return metricsRef(uid).set({
+        totalSeconds: F.increment(seconds)
       }, { merge:true });
     }
 
@@ -67,9 +62,11 @@
       sessionStart = Date.now();
       markActivity();
 
-onLogin(user.uid).catch(function(){});
+      onLogin(user.uid).catch(function(){});
 
-      var hb = setInterval(function(){ heartbeat(user.uid).catch(function(){}); }, HEARTBEAT_MS);
+      var hb = setInterval(function(){
+        heartbeat(user.uid).catch(function(){});
+      }, HEARTBEAT_MS);
 
       function end(){
         try { clearInterval(hb); } catch(e){}
@@ -84,4 +81,3 @@ onLogin(user.uid).catch(function(){});
     });
   });
 })();
-
