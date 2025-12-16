@@ -2,7 +2,7 @@
    Invite-only account creation for Dave Drums Practice Vault
    - No Cloud Functions required
    - Uses Firestore invite token + client-side Firebase Auth sign-up
-   - Writes users_admin + users_public + marks invite used in a single batch
+   - Writes users/{uid} (+ creates users/{uid}/metrics/stats if missing) and marks invite used in a single batch
 */
 
 (function () {
@@ -166,45 +166,39 @@
         const uid = createdUser.uid;
         const nowServer = firebase.firestore.FieldValue.serverTimestamp();
 
-        // 2) Firestore batch: users_admin + users_public + mark invite used
-        const batch = DB.batch();
+        // 2) Firestore batch: users/{uid} + ensure metrics doc + mark invite used
+                const batch = DB.batch();
 
-        const userRef = DB.collection("users").doc(uid);
-        const metricsRef = userRef.collection("metrics").doc("stats");
-        const inviteRef = DB.collection(INVITES_COL).doc(token);
+        const userRef = DB.collection('users').doc(uid);
+        const metricsRef = userRef.collection('metrics').doc('stats');
 
-        // createdAt should reflect when the invite was generated (not first login)
-        const createdAt = (inviteData && inviteData.createdAt) ? inviteData.createdAt : nowServer;
-
-        const displayName = `${firstName} ${(lastName || '').trim().charAt(0).toUpperCase()}${lastName ? '.' : ''}`.trim();
+        const inviteCreatedAt = invite.createdAt || nowServer;
+        const ln = String(lastName || '').trim();
+        let displayName = String(firstName || '').trim();
+        if (ln) displayName += ' ' + ln.slice(0,1).toUpperCase() + '.';
+        displayName = displayName.trim();
 
         batch.set(userRef, {
           email,
-          firstName,
-          lastName,
-          displayName,
-          createdViaInvite: true,
-          createdAt
+          createdAt: inviteCreatedAt,
+          firstName: String(firstName || '').trim(),
+          lastName: String(lastName || '').trim(),
+          displayName
         }, { merge: true });
 
-        // Initialise metrics doc used by vault-metrics.js / admin console
+        // Ensure metrics doc exists (other counters are written by vault-metrics.js).
         batch.set(metricsRef, {
-          loginCount: 0,
-          totalSeconds: 0,
-          lastLoginAt: null,
-          lastDeviceType: null,
-          lastDeviceEmoji: null
+          createdAt: inviteCreatedAt
         }, { merge: true });
 
         batch.set(inviteRef, {
           used: true,
           usedAt: nowServer,
-          usedBy: uid
+          uid
         }, { merge: true });
 
         await batch.commit();
-
-        // 3) Redirect to members (already signed in)
+// 3) Redirect to members (already signed in)
         window.location.href = MEMBERS_URL;
 
       } catch (err) {
