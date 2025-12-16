@@ -59,10 +59,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Store metrics in users/<uid>/metrics/stats
     var statsDoc = userDoc.collection('metrics').doc('stats');
-    statsDoc.set({      loginCount: firebase.firestore.FieldValue.increment(1),
+    statsDoc.set({
+      loginCount: firebase.firestore.FieldValue.increment(1),
+      lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastDeviceType: device.type,
       lastDeviceEmoji: device.emoji
     }, { merge: true }).catch(function(){});
+
   }
 
   // Edit these if your URLs differ
@@ -532,5 +535,6 @@ const LOGIN_MARK_KEY = 'vault_login_mark'; // legacy (older builds)
     } catch(e){}
     sessionStorage.removeItem(LOGIN_MARK_KEY);
   }
+
 
 
