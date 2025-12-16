@@ -192,9 +192,9 @@
         }, { merge: true });
 
         batch.set(inviteRef, {
-          used: true,
-          usedAt: nowServer,
-          uid
+           used: true,
+           usedAt: nowServer,
+           usedByUid: uid
         }, { merge: true });
 
         await batch.commit();
