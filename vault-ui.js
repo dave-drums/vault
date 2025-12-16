@@ -53,15 +53,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Store user profile data in users/<uid>
     var userDoc = db.collection('users').doc(user.uid);
     userDoc.set({
-      email: user.email || null,
-      lastLoginAt: now
+      email: user.email || null
     }, { merge: true }).catch(function(){});
+
 
     // Store metrics in users/<uid>/metrics/stats
     var statsDoc = userDoc.collection('metrics').doc('stats');
-    statsDoc.set({
-      lastLoginAt: now,
-      loginCount: firebase.firestore.FieldValue.increment(1),
+    statsDoc.set({      loginCount: firebase.firestore.FieldValue.increment(1),
       lastDeviceType: device.type,
       lastDeviceEmoji: device.emoji
     }, { merge: true }).catch(function(){});
@@ -442,10 +440,16 @@ function setTitle(t){ if (titleEl) titleEl.textContent = t; }
   // Auth wiring
   auth.onAuthStateChanged(function(user){
     if (!user) {
-      try { sessionStorage.removeItem(LOGIN_MARK_KEY); } catch(e){}
+      try{
+        const prevUid = sessionStorage.getItem(LAST_UID_KEY);
+        if (prevUid) clearLoginMark(prevUid);
+        else clearAllLoginMarks();
+        sessionStorage.removeItem(LAST_UID_KEY);
+      } catch(e){}
       return showLogin();
     }
     // record login (once per tab session)
+    try{ sessionStorage.setItem(LAST_UID_KEY, user.uid); } catch(e){}
     recordLoginOnce(user);
     showAccount(user);
   });
@@ -487,10 +491,46 @@ function setTitle(t){ if (titleEl) titleEl.textContent = t; }
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function(){
       clearMessage();
-      try { sessionStorage.removeItem(LOGIN_MARK_KEY); } catch(e){}
+      try{
+        const u = auth.currentUser;
+        if (u) clearLoginMark(u.uid);
+        else clearAllLoginMarks();
+        sessionStorage.removeItem(LAST_UID_KEY);
+      } catch(e){}
       auth.signOut();
     });
   }
 });
+const LOGIN_MARK_KEY = 'vault_login_mark'; // legacy (older builds)
+  const LOGIN_MARK_PREFIX = 'vault_login_mark:'; // per-user
+  const LAST_UID_KEY = 'vault_last_uid';
+
+  function loginMarkKey(uid){
+    return LOGIN_MARK_PREFIX + uid;
+  }
+
+  function hasLoginMark(uid){
+    return !!sessionStorage.getItem(loginMarkKey(uid));
+  }
+
+  function setLoginMark(uid){
+    sessionStorage.setItem(loginMarkKey(uid), String(Date.now()));
+    sessionStorage.setItem(LAST_UID_KEY, uid);
+  }
+
+  function clearLoginMark(uid){
+    if (uid) sessionStorage.removeItem(loginMarkKey(uid));
+    sessionStorage.removeItem(LOGIN_MARK_KEY); // backward compat
+  }
+
+  function clearAllLoginMarks(){
+    try{
+      for (let i = sessionStorage.length - 1; i >= 0; i--){
+        const k = sessionStorage.key(i);
+        if (k && k.indexOf(LOGIN_MARK_PREFIX) === 0) sessionStorage.removeItem(k);
+      }
+    } catch(e){}
+    sessionStorage.removeItem(LOGIN_MARK_KEY);
+  }
 
 
