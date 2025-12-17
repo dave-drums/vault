@@ -416,8 +416,8 @@ document.addEventListener('DOMContentLoaded', function(){
     batch.set(db.collection('users').doc(uid).collection('metrics').doc('progress'), progressUpdate, { merge:true });
 
     batch.commit().then(function(){
-      setMsg(uid, 'Saved.', false);
-      setTimeout(function(){ setMsg(uid, '', false); }, 1500);
+      setMsg(uid, '', false);
+      window.VaultToast.success('Progress saved');
 
       var editBtn = rootEl.querySelector('.pv-edit-btn[data-uid="' + uid + '"]');
       if (editBtn) {
@@ -653,4 +653,5 @@ function loadOnce(){
   });
 });
 })();
+
 
