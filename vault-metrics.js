@@ -132,15 +132,22 @@
     return y + '-' + m + '-' + d;
   }
 
-  function recordDailyPractice(ref){
+  function recordDailyPractice(ref, seconds){
     var dateKey = getTodayDateKey();
     var dailyRef = ref.parent.doc('daily').collection('sessions').doc(dateKey);
     
-    // Set doc with merge to mark this day as practiced
-    return dailyRef.set({
+    // Set doc with merge to mark this day as practiced and accumulate time
+    var data = {
       practiced: true,
       lastSessionAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    };
+    
+    // Add time if provided
+    if (seconds && seconds > 0) {
+      data.totalSeconds = firebase.firestore.FieldValue.increment(seconds);
+    }
+    
+    return dailyRef.set(data, { merge: true });
   }
 
   function stopTimers(){
@@ -165,6 +172,8 @@
       try {
         var ref = metricsDocRef(user.uid);
         safeIncSeconds(ref, elapsedSeconds);
+        // Also add to daily total for graph
+        recordDailyPractice(ref, elapsedSeconds);
       } catch(e) {}
     }
   }
@@ -211,9 +220,11 @@
       var elapsedSeconds = clampToSeconds(t - lastTickAtMs);
       lastTickAtMs = t;
 
-      // Add time
+      // Add time to total stats
       try {
         safeIncSeconds(ref, elapsedSeconds);
+        // Also add to daily total for graph
+        recordDailyPractice(ref, elapsedSeconds);
       } catch(e) {}
 
     }, TICK_MS);
@@ -304,4 +315,3 @@
     boot();
   }
 })();
-
