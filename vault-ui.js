@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
       
       var quoteText = document.createElement('p');
       quoteText.className = 'p3';
-      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;';
+      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;font-size:14px;';
       
       // Get daily quote from VaultCues if available
       var dailyQuote = 'Practice makes progress';
@@ -1358,3 +1358,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
