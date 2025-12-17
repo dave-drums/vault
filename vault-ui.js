@@ -105,7 +105,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var logoutBtn = document.getElementById('logout-btn');
 
-    function setTitle(t){ if (titleEl) titleEl.textContent = t; }
+    function setTitle(t){ 
+      if (titleEl) {
+        titleEl.textContent = t;
+        titleEl.style.marginBottom = '24px'; // Increase gap below title
+      }
+    }
 
     function setMessage(text) {
       if (!msgEl) return;
@@ -269,26 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
       panel.className = 'tab-panel';
       panel.id = 'practice-panel';
 
-      // Daily quote
-      var quoteContainer = document.createElement('div');
-      quoteContainer.style.cssText = 'background:#f9f9f9;border-left:4px solid #06b3fd;padding:14px 18px;' +
-        'margin-bottom:20px;border-radius:6px;';
-      
-      var quoteText = document.createElement('p');
-      quoteText.className = 'p3';
-      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;font-size:14px;';
-      
-      // Get daily quote from VaultCues if available
-      var dailyQuote = 'Practice makes progress';
-      if (window.VaultCues && window.VaultCues.getDailyQuote) {
-        dailyQuote = window.VaultCues.getDailyQuote();
-      }
-      quoteText.textContent = '💡 ' + dailyQuote;
-      
-      quoteContainer.appendChild(quoteText);
-      panel.appendChild(quoteContainer);
-
-      // Continue Practice Buttons Row
+      // Continue Practice Buttons Row (FIRST)
       var btnRow = document.createElement('div');
       btnRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;';
       
@@ -309,6 +295,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Load last lesson data
       loadLastLesson(user, continueBtn);
+
+      // Daily quote (AFTER buttons)
+      var quoteContainer = document.createElement('div');
+      quoteContainer.style.cssText = 'background:#f9f9f9;border-left:4px solid #06b3fd;padding:14px 18px;' +
+        'margin-bottom:20px;border-radius:6px;';
+      
+      var quoteText = document.createElement('p');
+      quoteText.className = 'p3';
+      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;';
+      
+      // Get daily quote from VaultCues if available
+      var dailyQuote = 'Practice makes progress';
+      if (window.VaultCues && window.VaultCues.getDailyQuote) {
+        dailyQuote = window.VaultCues.getDailyQuote();
+      }
+      quoteText.textContent = '💡 ' + dailyQuote;
+      
+      quoteContainer.appendChild(quoteText);
+      panel.appendChild(quoteContainer);
 
       // My Progress dropdown
       var practiceSection = createDropdownSection('My Progress', function(){
@@ -674,9 +679,9 @@ document.addEventListener('DOMContentLoaded', function () {
       graphContainer.appendChild(canvasContainer);
       content.appendChild(graphContainer);
 
-      // Stats grid below graph
+      // Stats grid below graph (horizontal row)
       var grid = document.createElement('div');
-      grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;';
+      grid.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;';
 
       var stats = [
         { label: 'Days This Week', id: 'stat-days-week', value: '—', icon: '📅' },
@@ -686,25 +691,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
       stats.forEach(function(stat){
         var box = document.createElement('div');
-        box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px;' +
-          'text-align:center;';
+        box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 20px;' +
+          'display:flex;align-items:center;gap:12px;flex:1;min-width:0;';
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
-        iconEl.style.cssText = 'font-size:24px;margin-bottom:6px;';
+        iconEl.style.cssText = 'font-size:28px;flex-shrink:0;';
+
+        var textWrapper = document.createElement('div');
+        textWrapper.style.cssText = 'flex:1;min-width:0;';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;margin-bottom:4px;';
+        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;margin-bottom:2px;white-space:nowrap;';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
         var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:12px;color:#666;';
+        labelEl.style.cssText = 'font-size:12px;color:#666;white-space:nowrap;';
         labelEl.textContent = stat.label;
 
+        textWrapper.appendChild(valueEl);
+        textWrapper.appendChild(labelEl);
+
         box.appendChild(iconEl);
-        box.appendChild(valueEl);
-        box.appendChild(labelEl);
+        box.appendChild(textWrapper);
 
         grid.appendChild(box);
       });
@@ -792,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var dayOfMonth = d.getDate();
             var label = '';
             if (i === 29 || i === 0 || dayOfMonth % 5 === 0) {
-              label = (d.getMonth() + 1) + '/' + dayOfMonth;
+              label = dayOfMonth + '/' + (d.getMonth() + 1); // DD/MM format
             }
             labels.push(label);
             
@@ -1277,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'padding:18px;z-index:99999;';
 
       var box = document.createElement('div');
-      box.style.cssText = 'width:100%;max-width:420px;background:#fff;border-radius:10px;' +
+      box.style.cssText = 'width:100%;max-width:360px;background:#fff;border-radius:10px;' +
         'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;';
 
       var h = document.createElement('h3');
@@ -1287,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var p = document.createElement('p');
       p.className = 'p2';
       p.textContent = bodyText;
-      p.style.cssText = 'opacity:.9;line-height:1.5;margin:0 0 16px 0;';
+      p.style.cssText = 'line-height:1.5;margin:0 0 16px 0;';
 
       var actions = document.createElement('div');
       actions.style.cssText = 'display:flex;justify-content:flex-end;';
@@ -1358,4 +1368,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
-
