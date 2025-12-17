@@ -119,6 +119,30 @@
     });
   }
 
+  // --- Daily practice tracking (for "days practiced this week") ---
+  function getTodayDateKey(){
+    // Return YYYY-MM-DD in Brisbane timezone
+    var now = new Date();
+    var offset = 10 * 60; // Brisbane is UTC+10 (ignoring DST for simplicity)
+    var localMs = now.getTime() + (offset * 60 * 1000);
+    var localDate = new Date(localMs);
+    var y = localDate.getUTCFullYear();
+    var m = String(localDate.getUTCMonth() + 1).padStart(2, '0');
+    var d = String(localDate.getUTCDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function recordDailyPractice(ref){
+    var dateKey = getTodayDateKey();
+    var dailyRef = ref.parent.doc('daily').collection('sessions').doc(dateKey);
+    
+    // Set doc with merge to mark this day as practiced
+    return dailyRef.set({
+      practiced: true,
+      lastSessionAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+
   function stopTimers(){
     if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
     if (idleCheckTimer) { clearInterval(idleCheckTimer); idleCheckTimer = null; }
@@ -166,6 +190,9 @@
 
     // Ensure doc exists and record device info (cheap + useful)
     writeDeviceInfoOnce(ref);
+    
+    // Record that we practiced today (for "days practiced this week" stat)
+    recordDailyPractice(ref);
 
     // Tick: add elapsed seconds every 30 seconds
     tickTimer = setInterval(function(){
