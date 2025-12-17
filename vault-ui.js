@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
       el.textContent = text;
       el.style.cssText = 'display:block;padding:14px 20px;background:#06b3fd;border:1px solid #06b3fd;' +
         'border-radius:8px;color:#fff;font-weight:500;text-align:center;cursor:pointer;' +
-        'text-decoration:none;transition:all 0.2s ease;';
+        'text-decoration:none;transition:all 0.2s ease;line-height:1.4;box-sizing:border-box;';
 
       el.addEventListener('mouseenter', function(){
         el.style.background = '#0599dc';
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
       textarea.placeholder = 'Write your practice goals here...';
       textarea.maxLength = 250;
       textarea.style.cssText = 'width:100%;min-height:120px;padding:12px;border:1px solid #ddd;' +
-        'border-radius:6px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box;';
+        'border-radius:6px;font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box;';
 
       var footer = document.createElement('div');
       footer.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:8px;' +
@@ -692,22 +692,22 @@ document.addEventListener('DOMContentLoaded', function () {
       stats.forEach(function(stat){
         var box = document.createElement('div');
         box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 20px;' +
-          'display:flex;align-items:center;gap:12px;';
+          'display:flex;align-items:center;gap:16px;';
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
         iconEl.style.cssText = 'font-size:28px;flex-shrink:0;';
 
         var textWrapper = document.createElement('div');
-        textWrapper.style.cssText = 'flex:1;min-width:0;';
+        textWrapper.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;margin-bottom:2px;white-space:nowrap;';
+        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;white-space:nowrap;';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
         var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:12px;color:#666;white-space:nowrap;';
+        labelEl.style.cssText = 'font-size:14px;color:#666;white-space:nowrap;';
         labelEl.textContent = stat.label;
 
         textWrapper.appendChild(valueEl);
@@ -888,6 +888,7 @@ document.addEventListener('DOMContentLoaded', function () {
             y: {
               beginAtZero: true,
               ticks: {
+                maxTicksLimit: 5,
                 callback: function(value) {
                   return value + 'm';
                 },
@@ -957,20 +958,16 @@ document.addEventListener('DOMContentLoaded', function () {
       var emailText = document.createElement('p');
       emailText.className = 'p3';
       emailText.textContent = 'Logged in as ' + (user && user.email ? user.email : '');
-      emailText.style.cssText = 'margin:0 0 20px 0;color:#666;text-align:center;';
+      emailText.style.cssText = 'margin:0 0 20px 0;color:#666;text-align:center;font-size:15px;';
       panel.appendChild(emailText);
 
       // Button container
       var btnContainer = document.createElement('div');
       btnContainer.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
 
-      // Change Email (modal)
-      var emailBtn = mkAccountBtn('button', 'Change Email');
-      emailBtn.addEventListener('click', function(){
-        clearMessage();
-        openModal('Change Email', 'To change your email address, please contact support.');
-      });
-      btnContainer.appendChild(emailBtn);
+      // Change Email (dropdown)
+      var emailSection = createEmailSection(user);
+      btnContainer.appendChild(emailSection);
 
       // Change Name (dropdown)
       var nameSection = createNameSection(user);
@@ -1013,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', function () {
       el.className = 'account-btn';
       el.textContent = text;
       el.style.cssText = 'display:block;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;';
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
 
       if (tag === 'a') {
         el.href = href || '#';
@@ -1031,6 +1028,40 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       return el;
+    }
+
+    function createEmailSection(user){
+      var section = document.createElement('div');
+
+      var header = mkAccountBtn('button', 'Change Email');
+      
+      var panel = document.createElement('div');
+      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
+        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
+
+      var message = document.createElement('p');
+      message.style.cssText = 'margin:0;line-height:1.5;color:#333;font-size:15px;';
+      message.textContent = 'To change your email address, please contact support.';
+
+      panel.appendChild(message);
+
+      var isOpen = false;
+
+      header.addEventListener('click', function(){
+        if (isOpen) {
+          panel.style.display = 'none';
+          header.style.borderRadius = '8px';
+        } else {
+          panel.style.display = 'block';
+          header.style.borderRadius = '8px 8px 0 0';
+        }
+        isOpen = !isOpen;
+      });
+
+      section.appendChild(header);
+      section.appendChild(panel);
+
+      return section;
     }
 
     function createNameSection(user){
@@ -1245,7 +1276,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function mkLabel(text) {
       var l = document.createElement('label');
       l.textContent = text;
-      l.style.cssText = 'display:block;margin-bottom:6px;font-weight:500;';
+      l.style.cssText = 'display:block;margin-bottom:6px;font-weight:500;font-size:15px;';
       return l;
     }
 
@@ -1253,7 +1284,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var i = document.createElement('input');
       i.type = type;
       i.style.cssText = 'display:block;width:100%;box-sizing:border-box;padding:10px;' +
-        'border:1px solid #ccc;border-radius:6px;margin-bottom:14px;';
+        'border:1px solid #ccc;border-radius:6px;margin-bottom:14px;font-size:15px;';
       return i;
     }
 
@@ -1368,4 +1399,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
-
