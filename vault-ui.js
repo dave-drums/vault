@@ -291,9 +291,14 @@ document.addEventListener('DOMContentLoaded', function () {
       // Continue Practice Buttons Row
       var btnRow = document.createElement('div');
       btnRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;';
+      
+      // Stack on mobile
+      if (window.innerWidth <= 600) {
+        btnRow.style.gridTemplateColumns = '1fr';
+      }
 
       var vaultBtn = mkPrimaryBtn('Open Practice Vault', VAULT_URL);
-      var continueBtn = mkPrimaryBtn('Continue Last Lesson', '#', true); // Will update with real URL
+      var continueBtn = mkPrimaryBtn('Jump back into lesson', '#', true); // Will update with real URL
       continueBtn.id = 'continue-lesson-btn';
       continueBtn.style.background = '#06b3fd';
       continueBtn.style.borderColor = '#06b3fd';
@@ -374,7 +379,16 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = title.length > 25 ? title.substring(0, 25) + '...' : title;
+            
+            // Shorten title if needed for mobile
+            var displayTitle = title;
+            if (window.innerWidth <= 600 && title.length > 20) {
+              displayTitle = title.substring(0, 20) + '...';
+            } else if (title.length > 30) {
+              displayTitle = title.substring(0, 30) + '...';
+            }
+            
+            btnEl.textContent = 'Continue: ' + displayTitle;
             
             btnEl.onclick = function(){
               window.location.href = url;
@@ -768,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var emailText = document.createElement('p');
       emailText.className = 'p3';
       emailText.textContent = 'Logged in as ' + (user && user.email ? user.email : '');
-      emailText.style.cssText = 'margin:0 0 20px 0;color:#666;';
+      emailText.style.cssText = 'margin:0 0 20px 0;color:#666;text-align:center;';
       panel.appendChild(emailText);
 
       // Button container
@@ -857,11 +871,22 @@ document.addEventListener('DOMContentLoaded', function () {
       var fn = mkInput('text');
       var lnLabel = mkLabel('Last name');
       var ln = mkInput('text');
+      
+      var dnLabel = mkLabel('Display name');
+      var dn = mkInput('text');
+      dn.maxLength = 30;
+      
+      var dnHelper = document.createElement('div');
+      dnHelper.style.cssText = 'font-size:12px;color:#666;margin:-10px 0 14px 0;line-height:1.4;';
+      dnHelper.textContent = 'This name appears on your public comments. Max 30 characters.';
 
       panel.appendChild(fnLabel);
       panel.appendChild(fn);
       panel.appendChild(lnLabel);
       panel.appendChild(ln);
+      panel.appendChild(dnLabel);
+      panel.appendChild(dn);
+      panel.appendChild(dnHelper);
 
       var actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
@@ -898,19 +923,31 @@ document.addEventListener('DOMContentLoaded', function () {
         var d = snap.data() || {};
         fn.value = String(d.firstName || '').trim();
         ln.value = String(d.lastName || '').trim();
+        dn.value = String(d.displayName || '').trim();
       }).catch(function(){});
 
       saveBtn.addEventListener('click', function(){
         clearMessage();
         var firstName = String(fn.value || '').trim();
         var lastName = String(ln.value || '').trim();
+        var displayName = String(dn.value || '').trim();
 
         if (!firstName || !lastName) {
           setMessage('Please enter your first and last name.');
           return;
         }
-
-        var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
+        
+        if (!displayName) {
+          setMessage('Please enter a display name.');
+          return;
+        }
+        
+        // Validate display name (letters, numbers, spaces, underscore, hyphen only)
+        var validPattern = /^[a-zA-Z0-9 _-]+$/;
+        if (!validPattern.test(displayName)) {
+          setMessage('Display name can only contain letters, numbers, spaces, underscores, and hyphens.');
+          return;
+        }
 
         db.collection('users').doc(user.uid).set({
           firstName: firstName,
@@ -1075,14 +1112,14 @@ document.addEventListener('DOMContentLoaded', function () {
         'padding:18px;z-index:99999;';
 
       var box = document.createElement('div');
-      box.style.cssText = 'width:100%;max-width:520px;background:#fff;border-radius:10px;' +
+      box.style.cssText = 'width:100%;max-width:420px;background:#fff;border-radius:10px;' +
         'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;';
 
       var h = document.createElement('h3');
       h.textContent = title;
       h.style.cssText = 'margin:0 0 10px 0;';
 
-      var p = document.createElement('div');
+      var p = document.createElement('p');
       p.className = 'p2';
       p.textContent = bodyText;
       p.style.cssText = 'opacity:.9;line-height:1.5;margin:0 0 16px 0;';
