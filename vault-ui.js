@@ -269,12 +269,6 @@ document.addEventListener('DOMContentLoaded', function () {
       panel.className = 'tab-panel';
       panel.id = 'practice-panel';
 
-      // Title
-      var title = document.createElement('h3');
-      title.textContent = 'Practice';
-      title.style.cssText = 'margin:0 0 16px 0;font-size:24px;font-weight:600;';
-      panel.appendChild(title);
-
       // Daily quote
       var quoteContainer = document.createElement('div');
       quoteContainer.style.cssText = 'background:#f9f9f9;border-left:4px solid #06b3fd;padding:14px 18px;' +
@@ -282,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
       
       var quoteText = document.createElement('p');
       quoteText.className = 'p3';
-      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;';
+      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;';
       
       // Get daily quote from VaultCues if available
       var dailyQuote = 'Practice makes progress';
@@ -311,8 +305,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // Load last lesson data
       loadLastLesson(user, continueBtn);
 
-      // My Practice dropdown
-      var practiceSection = createDropdownSection('My Practice', function(){
+      // My Progress dropdown
+      var practiceSection = createDropdownSection('My Progress', function(){
         return createPracticeContent(user);
       });
       panel.appendChild(practiceSection);
@@ -490,31 +484,26 @@ document.addEventListener('DOMContentLoaded', function () {
       grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;';
 
       var areas = [
-        { label: 'Groove Studies', key: 'grooves', icon: '🎵' },
-        { label: 'Fill Studies', key: 'fills', icon: '🎶' },
-        { label: 'Stick Studies', key: 'hands', icon: '🥢' },
-        { label: 'Kick Studies', key: 'feet', icon: '👟' }
+        { label: 'Groove Studies', key: 'grooves' },
+        { label: 'Fill Studies', key: 'fills' },
+        { label: 'Stick Studies', key: 'hands' },
+        { label: 'Kick Studies', key: 'feet' }
       ];
 
       areas.forEach(function(area){
         var box = document.createElement('div');
-        box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px;' +
-          'text-align:center;min-height:80px;display:flex;flex-direction:column;justify-content:center;';
-
-        var iconEl = document.createElement('div');
-        iconEl.textContent = area.icon;
-        iconEl.style.cssText = 'font-size:28px;margin-bottom:8px;';
+        box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;' +
+          'text-align:center;min-height:70px;display:flex;flex-direction:column;justify-content:center;';
 
         var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:13px;font-weight:600;color:#333;margin-bottom:4px;';
+        labelEl.style.cssText = 'font-size:13px;font-weight:600;color:#333;margin-bottom:6px;';
         labelEl.textContent = area.label;
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:18px;font-weight:700;color:#06b3fd;';
+        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;';
         valueEl.textContent = '—';
         valueEl.id = 'progress-' + area.key;
 
-        box.appendChild(iconEl);
         box.appendChild(labelEl);
         box.appendChild(valueEl);
 
@@ -774,12 +763,6 @@ document.addEventListener('DOMContentLoaded', function () {
       var panel = document.createElement('div');
       panel.className = 'tab-panel';
       panel.id = 'profile-panel';
-
-      // Title
-      var title = document.createElement('h3');
-      title.textContent = 'Profile';
-      title.style.cssText = 'margin:0 0 16px 0;font-size:24px;font-weight:600;';
-      panel.appendChild(title);
 
       // Logged in as
       var emailText = document.createElement('p');
