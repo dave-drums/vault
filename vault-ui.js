@@ -679,9 +679,9 @@ document.addEventListener('DOMContentLoaded', function () {
       graphContainer.appendChild(canvasContainer);
       content.appendChild(graphContainer);
 
-      // Stats grid below graph (horizontal row)
+      // Stats grid below graph (vertical stack)
       var grid = document.createElement('div');
-      grid.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;';
+      grid.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
 
       var stats = [
         { label: 'Days This Week', id: 'stat-days-week', value: '—', icon: '📅' },
@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function () {
       stats.forEach(function(stat){
         var box = document.createElement('div');
         box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 20px;' +
-          'display:flex;align-items:center;gap:12px;flex:1;min-width:0;';
+          'display:flex;align-items:center;gap:12px;';
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
