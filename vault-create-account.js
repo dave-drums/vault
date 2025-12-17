@@ -228,8 +228,9 @@
 
         await batch.commit();
 
-        // 3) Redirect to members (already signed in)
-        window.location.href = MEMBERS_URL;
+// 3) Show success toast, then redirect
+window.VaultToast.success('Account created! Redirecting...');
+setTimeout(function(){ window.location.href = MEMBERS_URL; }, 1000);
 
       } catch (err) {
         console.error(err);
