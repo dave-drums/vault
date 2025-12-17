@@ -337,7 +337,9 @@ document.addEventListener('DOMContentLoaded', function () {
     namePanel.appendChild(nameActions);
 
     nameBtn.addEventListener('click', function(){ clearMessage(); togglePanel(namePanel, true); });
-    nameClose.addEventListener('click', function(){ namePanel.style.display = 'none'; });
+    nameClose.addEventListener('click', function(){ namePanel.style.display = 'none'; 
+                                                   window.VaultToast.success('Name updated');
+                                                  });
 
     // preload existing name (blank if none)
     db.collection('users').doc(user.uid).get().then(function(snap){
@@ -359,12 +361,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
 
-      db.collection('users').doc(user.uid).set({
+            db.collection('users').doc(user.uid).set({
         firstName: firstName,
         lastName: lastName,
         displayName: displayName
       }, { merge: true }).then(function(){
         namePanel.style.display = 'none';
+        window.VaultToast.success('Name updated');
       }).catch(function(e){
         setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
       });
@@ -402,7 +405,9 @@ document.addEventListener('DOMContentLoaded', function () {
     pwPanel.appendChild(pwActions);
 
     pwBtn.addEventListener('click', function(){ clearMessage(); togglePanel(pwPanel, true); });
-    pwClose.addEventListener('click', function(){ pwPanel.style.display = 'none'; });
+    pwClose.addEventListener('click', function(){ pwPanel.style.display = 'none'; 
+                                                 window.VaultToast.success('Password updated');
+                                                });
 
     pwSave.addEventListener('click', function(){
       clearMessage();
@@ -435,6 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
           newPw.value = '';
           newPw2.value = '';
           pwPanel.style.display = 'none';
+          window.VaultToast.success('Password updated');
         })
         .catch(function(e){
           setMessage(e && e.message ? e.message : 'Could not update password.');
@@ -569,12 +575,14 @@ document.addEventListener('DOMContentLoaded', function () {
           else clearAllLoginMarks();
         } catch(_){}
         auth.signOut();
+        window.VaultToast.info('Logged out');
       });
     }
   } // end start()
 
   start();
 });
+
 
 
 
