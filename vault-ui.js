@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
       textarea.placeholder = 'Write your practice goals here...';
       textarea.maxLength = 250;
       textarea.style.cssText = 'width:100%;min-height:120px;padding:12px;border:1px solid #ddd;' +
-        'border-radius:6px;font-family:inherit;font-size:14px;resize:vertical;box-sizing:border-box;';
+        'border-radius:6px;font-family:inherit;font-size:13px;resize:vertical;box-sizing:border-box;';
 
       var footer = document.createElement('div');
       footer.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:8px;' +
@@ -1368,3 +1368,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
