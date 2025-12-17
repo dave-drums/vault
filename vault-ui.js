@@ -654,6 +654,27 @@ document.addEventListener('DOMContentLoaded', function () {
     function createStatsContent(user){
       var content = document.createElement('div');
 
+      // 30-day practice graph
+      var graphContainer = document.createElement('div');
+      graphContainer.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;';
+      
+      var graphTitle = document.createElement('div');
+      graphTitle.style.cssText = 'font-size:14px;font-weight:600;color:#333;margin-bottom:12px;text-align:center;';
+      graphTitle.textContent = 'Last 30 Days';
+      
+      var canvasContainer = document.createElement('div');
+      canvasContainer.style.cssText = 'position:relative;height:200px;';
+      
+      var canvas = document.createElement('canvas');
+      canvas.id = 'practice-chart';
+      canvas.style.cssText = 'max-width:100%;';
+      
+      canvasContainer.appendChild(canvas);
+      graphContainer.appendChild(graphTitle);
+      graphContainer.appendChild(canvasContainer);
+      content.appendChild(graphContainer);
+
+      // Stats grid below graph
       var grid = document.createElement('div');
       grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;';
 
@@ -690,13 +711,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       content.appendChild(grid);
 
-      // Load stats
-      loadStats(user);
+      // Load stats and render chart
+      loadStatsAndChart(user, canvas);
 
       return content;
     }
 
-    function loadStats(user){
+    function loadStatsAndChart(user, canvas){
       if (!user) return;
 
       // Load main stats
@@ -727,6 +748,150 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Load days practiced this week
       loadDaysThisWeek(user);
+      
+      // Load and render 30-day chart
+      load30DayChart(user, canvas);
+    }
+
+    function load30DayChart(user, canvas){
+      if (!user || !canvas) return;
+      
+      // Get date 30 days ago
+      var today = new Date();
+      var thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(today.getDate() - 29); // -29 to include today = 30 days total
+      
+      // Query last 30 days of practice sessions
+      db.collection('users').doc(user.uid).collection('metrics')
+        .doc('daily').collection('sessions')
+        .where('lastSessionAt', '>=', firebase.firestore.Timestamp.fromDate(thirtyDaysAgo))
+        .get()
+        .then(function(snap){
+          // Build data structure: date -> minutes
+          var dataByDate = {};
+          snap.forEach(function(doc){
+            var data = doc.data();
+            var seconds = data.totalSeconds || 0;
+            var minutes = Math.round(seconds / 60);
+            dataByDate[doc.id] = minutes; // doc.id is YYYY-MM-DD
+          });
+          
+          // Build arrays for chart (last 30 days)
+          var labels = [];
+          var dataPoints = [];
+          
+          for (var i = 29; i >= 0; i--) {
+            var d = new Date(today);
+            d.setDate(today.getDate() - i);
+            
+            var dateKey = d.getFullYear() + '-' + 
+              String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+              String(d.getDate()).padStart(2, '0');
+            
+            // Label: show date every 5 days, otherwise empty
+            var dayOfMonth = d.getDate();
+            var label = '';
+            if (i === 29 || i === 0 || dayOfMonth % 5 === 0) {
+              label = (d.getMonth() + 1) + '/' + dayOfMonth;
+            }
+            labels.push(label);
+            
+            dataPoints.push(dataByDate[dateKey] || 0);
+          }
+          
+          // Render chart with Chart.js
+          renderPracticeChart(canvas, labels, dataPoints);
+        })
+        .catch(function(e){
+          console.error('Failed to load chart data:', e);
+        });
+    }
+
+    function renderPracticeChart(canvas, labels, dataPoints){
+      // Check if Chart.js is loaded
+      if (typeof Chart === 'undefined') {
+        var msg = document.createElement('div');
+        msg.style.cssText = 'text-align:center;padding:40px;color:#999;';
+        msg.textContent = 'Chart library not loaded. Add Chart.js to page.';
+        canvas.parentNode.replaceChild(msg, canvas);
+        return;
+      }
+      
+      var ctx = canvas.getContext('2d');
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Minutes',
+            data: dataPoints,
+            backgroundColor: '#06b3fd',
+            borderColor: '#06b3fd',
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                title: function(items) {
+                  // Show full date on hover
+                  var index = items[0].dataIndex;
+                  var today = new Date();
+                  var d = new Date(today);
+                  d.setDate(today.getDate() - (29 - index));
+                  return d.toLocaleDateString('en-AU', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                  });
+                },
+                label: function(context) {
+                  var mins = context.parsed.y;
+                  if (mins === 0) return 'No practice';
+                  if (mins < 60) return mins + ' min';
+                  var hrs = Math.floor(mins / 60);
+                  var rem = mins % 60;
+                  return rem === 0 ? hrs + ' hrs' : hrs + ' hrs ' + rem + ' min';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                font: {
+                  size: 10
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return value + 'm';
+                },
+                font: {
+                  size: 10
+                }
+              },
+              grid: {
+                color: '#f0f0f0'
+              }
+            }
+          }
+        }
+      });
     }
 
     function loadDaysThisWeek(user){
