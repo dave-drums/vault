@@ -358,7 +358,8 @@
     });
   });
 
-  // Expose run() globally so it can be called after dynamic content injection
+  // Expose for dynamic content
   window.vaultRender = run;
+  window.vaultParse = { tokenise: tokenise, render: render };
 
 })();
