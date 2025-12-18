@@ -602,7 +602,6 @@ document.addEventListener('DOMContentLoaded', function(){
     var invitesBtn = rootEl.querySelector('#pv-invites-btn');
     if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
   }
-  }
 
   function render(users){
     var nowMs = Date.now();
