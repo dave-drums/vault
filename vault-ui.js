@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function showAccount(user){
       if (loginBox) loginBox.style.display = 'none';
       if (accountBox) accountBox.style.display = 'block';
-      setTitle('ACCOUNT');
+      setTitle('MY ACCOUNT');
       clearMessage();
 
       buildTabbedAccount(user);
@@ -1452,3 +1452,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
