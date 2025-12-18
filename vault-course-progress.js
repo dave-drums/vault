@@ -2,7 +2,7 @@
    Handles all course progress features:
    - Course config (bundled)
    - Progress bars on course index pages
-   - Tickboxes on course index pages
+   - Status circles on course index pages
    - Completion buttons on single lesson pages
    - Active course tracking
 */
@@ -90,7 +90,7 @@
   }
 
   /* ============================================
-     COURSE INDEX PAGE: Progress Bar + Tickboxes
+     COURSE INDEX PAGE: Progress Bar + Status Circles
      ============================================ */
 
   function initCourseIndexPage(){
@@ -138,7 +138,7 @@
         }
 
         renderProgressBar(completed, courseConfig.lessons);
-        renderTickboxes(uid, courseId, completed, courseConfig.lessons);
+        renderStatusCircles(uid, courseId, completed, courseConfig.lessons);
       })
       .catch(function(e){
         console.error('Failed to load course progress:', e);
@@ -165,35 +165,43 @@
     }
   }
 
-  function renderTickboxes(uid, courseId, completed, lessons){
+  function renderStatusCircles(uid, courseId, completed, lessons){
     db.collection('users').doc(uid).get().then(function(userSnap){
       var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
 
       lessons.forEach(function(lessonId){
-        var tickbox = document.querySelector('[data-lesson="' + lessonId + '"]');
-        if (!tickbox) return;
+        // Find lesson item by data-lesson attribute
+        var lessonItem = document.querySelector('[data-lesson="' + lessonId + '"]');
+        if (!lessonItem) return;
+
+        // Find status circle within the lesson item
+        var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
+        if (!statusCircle) return;
 
         var isCompleted = completed[lessonId] === true;
         
+        // Update visual state
         if (isCompleted) {
-          tickbox.classList.add('completed');
-          tickbox.setAttribute('aria-checked', 'true');
-          tickbox.checked = true;
+          statusCircle.classList.remove('incomplete');
+          statusCircle.classList.add('completed');
         } else {
-          tickbox.classList.remove('completed');
-          tickbox.setAttribute('aria-checked', 'false');
-          tickbox.checked = false;
+          statusCircle.classList.remove('completed');
+          statusCircle.classList.add('incomplete');
         }
 
+        // Add click handler if user can self-progress
         if (canSelfProgress) {
-          tickbox.style.cursor = 'pointer';
-          tickbox.disabled = false;
-          tickbox.onclick = function(){
-            toggleCompletion(uid, courseId, lessonId, !isCompleted);
-          };
-        } else {
-          tickbox.disabled = true;
-          tickbox.style.cursor = 'not-allowed';
+          lessonItem.style.cursor = 'pointer';
+          
+          // Prevent default link behavior when clicking on the item
+          lessonItem.addEventListener('click', function(e){
+            // If clicking the status circle, toggle completion instead of navigating
+            if (e.target === statusCircle || statusCircle.contains(e.target)) {
+              e.preventDefault();
+              toggleCompletion(uid, courseId, lessonId, !isCompleted);
+            }
+            // Otherwise, allow normal link navigation
+          });
         }
       });
     });
