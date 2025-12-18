@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function () {
       stats.forEach(function(stat){
         var box = document.createElement('div');
         box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 20px;' +
-          'display:flex;align-items:center;gap:16px;';
+          'display:flex;align-items:center;gap:16px;justify-content:center;';
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
@@ -1292,9 +1292,9 @@ document.addEventListener('DOMContentLoaded', function () {
       var b = document.createElement('button');
       b.type = 'button';
       b.textContent = text;
-      b.style.cssText = 'padding:10px 16px;border-radius:6px;cursor:pointer;font:inherit;' +
+      b.style.cssText = 'padding:10px 16px;border-radius:6px;cursor:pointer;font:inherit;font-size:14px;' +
         'border:1px solid ' + (primary ? '#06b3fd' : '#ccc') + ';' +
-        'background:' + (primary ? '#06b3fd' : '#fff') + ';' +
+        'background:' + (primary ? '#06b3fd' : '#f3f3f3') + ';' +
         'color:' + (primary ? '#fff' : '#333') + ';transition:all 0.2s ease;';
       
       if (primary) {
