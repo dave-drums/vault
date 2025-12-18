@@ -1033,7 +1033,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function createEmailSection(user){
       var section = document.createElement('div');
 
-      var header = mkAccountBtn('button', 'Change Email');
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'account-btn';
+      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+      
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Change Email';
+      
+      var arrow = document.createElement('span');
+      arrow.textContent = '▼';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
+      
+      header.appendChild(titleSpan);
+      header.appendChild(arrow);
       
       var panel = document.createElement('div');
       panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
@@ -1051,9 +1065,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isOpen) {
           panel.style.display = 'none';
           header.style.borderRadius = '8px';
+          arrow.style.transform = 'rotate(0deg)';
         } else {
           panel.style.display = 'block';
           header.style.borderRadius = '8px 8px 0 0';
+          arrow.style.transform = 'rotate(180deg)';
         }
         isOpen = !isOpen;
       });
@@ -1067,7 +1083,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function createNameSection(user){
       var section = document.createElement('div');
 
-      var header = mkAccountBtn('button', 'Change Name');
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'account-btn';
+      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+      
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Change Name';
+      
+      var arrow = document.createElement('span');
+      arrow.textContent = '▼';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
+      
+      header.appendChild(titleSpan);
+      header.appendChild(arrow);
       
       var panel = document.createElement('div');
       panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
@@ -1110,9 +1140,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isOpen) {
           panel.style.display = 'none';
           header.style.borderRadius = '8px';
+          arrow.style.transform = 'rotate(0deg)';
         } else {
           panel.style.display = 'block';
           header.style.borderRadius = '8px 8px 0 0';
+          arrow.style.transform = 'rotate(180deg)';
         }
         isOpen = !isOpen;
       });
@@ -1120,6 +1152,7 @@ document.addEventListener('DOMContentLoaded', function () {
       closeBtn.addEventListener('click', function(){
         panel.style.display = 'none';
         header.style.borderRadius = '8px';
+        arrow.style.transform = 'rotate(0deg)';
         isOpen = false;
       });
 
@@ -1178,7 +1211,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function createPasswordSection(user){
       var section = document.createElement('div');
 
-      var header = mkAccountBtn('button', 'Change Password');
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'account-btn';
+      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+      
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Change Password';
+      
+      var arrow = document.createElement('span');
+      arrow.textContent = '▼';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
+      
+      header.appendChild(titleSpan);
+      header.appendChild(arrow);
       
       var panel = document.createElement('div');
       panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
@@ -1214,9 +1261,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isOpen) {
           panel.style.display = 'none';
           header.style.borderRadius = '8px';
+          arrow.style.transform = 'rotate(0deg)';
         } else {
           panel.style.display = 'block';
           header.style.borderRadius = '8px 8px 0 0';
+          arrow.style.transform = 'rotate(180deg)';
         }
         isOpen = !isOpen;
       });
@@ -1224,6 +1273,7 @@ document.addEventListener('DOMContentLoaded', function () {
       closeBtn.addEventListener('click', function(){
         panel.style.display = 'none';
         header.style.borderRadius = '8px';
+        arrow.style.transform = 'rotate(0deg)';
         isOpen = false;
       });
 
