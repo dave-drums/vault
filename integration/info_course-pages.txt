@@ -1,5 +1,5 @@
 <!-- WHERE: /vault/gs1 → Page Header Code Injection -->
-<!-- PURPOSE: Gate protected page + auth redirect + metrics -->
+<!-- PURPOSE: Gate protected page + auth redirect + metrics + progress tracking -->
 
 <script>
   document.documentElement.dataset.protected = 'true';
@@ -61,5 +61,6 @@ html[data-protected="true"] body {
 </script>
 
 <script src="https://dave-drums.github.io/vault/vault-metrics.js" defer></script>
-<script src="https://dave-drums.github.io/vault/vault-lessons.js"></script>
+<script src="https://dave-drums.github.io/vault/vault-lesson-tracking.js"></script>
+<script src="https://dave-drums.github.io/vault/vault-course-progress.js"></script>
 <script src="https://dave-drums.github.io/vault/vault-lesson-comments.js"></script>
