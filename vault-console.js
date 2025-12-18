@@ -244,215 +244,74 @@ function openInvitesModal(db){
   box.querySelector('#pv-invites-close').addEventListener('click', close);
 
   var listEl = box.querySelector('#pv-invites-list');
-  listEl.innerHTML = '<div style="opacity:.8;font:inherit;color:#111;">Loading…</div>';
 
-  db.collection(INVITES_COL).get().then(function(snap){
-    var now = Date.now();
-    var items = [];
+  db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(50).get()
+    .then(function(snap){
+      if (snap.empty) {
+        listEl.textContent = 'No invites yet.';
+        return;
+      }
 
-    snap.forEach(function(doc){
-      var d = doc.data() || {};
-      var expMs = (d.expiresAt && d.expiresAt.toDate) ? d.expiresAt.toDate().getTime() : 0;
-      if (d.used) return;
-      if (expMs && expMs < now) return;
-      items.push({ token: doc.id, email: String(d.email || '').trim(), expiresAt: d.expiresAt || null, createdAt: d.createdAt || null });
-    });
+      var tbl = '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
+                '<thead><tr>' +
+                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Email</th>' +
+                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Status</th>' +
+                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Created</th>' +
+                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Expires</th>' +
+                '</tr></thead><tbody>';
 
-    items.sort(function(a,b){
-      var aT = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime() : 0;
-      var bT = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime() : 0;
-      return bT - aT;
-    });
+      snap.forEach(function(doc){
+        var d = doc.data();
+        var email = d.email || '-';
+        var used = d.used === true;
+        var createdAt = d.createdAt ? formatDateOnly(d.createdAt) : '-';
+        var expiresAt = d.expiresAt ? formatDateOnly(d.expiresAt) : '-';
 
-    if (!items.length) {
-      listEl.innerHTML = '<div style="opacity:.8;font:inherit;color:#111;">No active invites.</div>';
-      return;
-    }
+        var status = used ? 'Used' : 'Active';
+        var statusColor = used ? '#999' : '#0a0';
 
-    var html =
-      '<div style="overflow-x:auto;">' +
-      '<table style="width:100%;border-collapse:collapse;font:inherit;font-size:14px;color:#111;">' +
-      '<thead><tr>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;">Email</th>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;">Expires</th>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;">Link</th>' +
-        '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;font:inherit;"></th>' +
-      '</tr></thead><tbody>';
-
-    items.forEach(function(it){
-      var link = CREATE_ACCOUNT_URL_BASE + it.token;
-      html +=
-        '<tr>' +
-          '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font:inherit;">' + escapeHtml(it.email || '-') + '</td>' +
-          '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;font:inherit;">' + formatDateOnly(it.expiresAt) + '</td>' +
-          '<td style="padding:8px;border-bottom:1px solid #f0f0f0;word-break:break-all;font:inherit;">' + escapeHtml(link) + '</td>' +
-          '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;text-align:right;font:inherit;">' +
-            '<button class="pv-invite-copy" data-link="' + escapeHtml(link) + '" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Copy</button> ' +
-            '<button class="pv-invite-revoke" data-token="' + escapeHtml(it.token) + '" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Revoke</button>' +
-          '</td>' +
-        '</tr>';
-    });
-
-    html += '</tbody></table></div>';
-    listEl.innerHTML = html;
-
-    listEl.querySelectorAll('.pv-invite-copy').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var link = btn.getAttribute('data-link') || '';
-        copyText(link).catch(function(){});
+        tbl += '<tr>';
+        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(email) + '</td>';
+        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;color:' + statusColor + ';">' + status + '</td>';
+        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + createdAt + '</td>';
+        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + expiresAt + '</td>';
+        tbl += '</tr>';
       });
-    });
 
-    listEl.querySelectorAll('.pv-invite-revoke').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var tok = btn.getAttribute('data-token');
-        if (!tok) return;
-        btn.disabled = true;
-        db.collection(INVITES_COL).doc(tok).set({ used: true, revokedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
-          .then(function(){ close(); openInvitesModal(db); })
-          .catch(function(){ btn.disabled = false; });
-      });
+      tbl += '</tbody></table>';
+      listEl.innerHTML = tbl;
+    })
+    .catch(function(){
+      listEl.textContent = 'Error loading invites.';
     });
-
-  }).catch(function(){
-    listEl.innerHTML = '<div style="color:#c00;font:inherit;">Could not load invites.</div>';
-  });
 }
 
-/* ---------- Main ---------- */
+var ONLINE_WINDOW_MS = 3 * 60 * 1000; // 3 minutes
+
+var db;
+var auth;
+var rootEl;
+
 document.addEventListener('DOMContentLoaded', function(){
-  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
-    var root0 = document.getElementById('vault-admin-root');
-    showBody();
-    if (root0) root0.textContent = 'Firebase not available.';
-    return;
-  }
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
-  var auth = firebase.auth();
-  var db = firebase.firestore();
-  var rootEl = document.getElementById('vault-admin-root');
-  if (!rootEl) { showBody(); return; }
-
-  rootEl.textContent = 'Loading admin data…';
-
-  var ONLINE_WINDOW_MS = 5 * 60 * 1000;
+  auth = firebase.auth();
+  db = firebase.firestore();
+  rootEl = document.getElementById('vault-admin-root');
+  if (!rootEl) return;
 
   function pvIsAdmin(user){
+    if (!user || !user.uid) return Promise.resolve(false);
     return db.collection('admins').doc(user.uid).get()
-      .then(function(s){ return s.exists; })
+      .then(function(doc){ return doc.exists; })
       .catch(function(){ return false; });
   }
 
-  function getMsgEl(uid){
-    return rootEl.querySelector('.pv-save-msg[data-uid="' + uid + '"]');
-  }
-  function setMsg(uid, text, isErr){
-    var el = getMsgEl(uid);
-    if (!el) return;
-    el.textContent = text || '';
-    el.style.color = isErr ? '#c00' : '#060';
-  }
-
-  function openEditor(uid){
-    var row = rootEl.querySelector('.pv-editor-row[data-uid="' + uid + '"]');
-    if (!row) return;
-    row.style.display = 'table-row';
-    setMsg(uid, 'Loading…', false);
-
-    Promise.all([
-      db.collection('users').doc(uid).get(),
-      db.collection('users').doc(uid).collection('metrics').doc('progress').get()
-    ]).then(function(snaps){
-      var adm = snaps[0].exists ? (snaps[0].data() || {}) : {};
-      var pub = snaps[1].exists ? (snaps[1].data() || {}) : {};
-      var p = pub || {};
-
-      rootEl.querySelectorAll('.pv-prog[data-uid="' + uid + '"]').forEach(function(inp){
-        var key = inp.getAttribute('data-key');
-        inp.value = String(p[key] || '');
-      });
-
-      var firstName = String(adm.firstName || '').trim();
-      var lastName  = String(adm.lastName || '').trim();
-
-      rootEl.querySelectorAll('.pv-name[data-uid="' + uid + '"]').forEach(function(inp){
-        var key = inp.getAttribute('data-key');
-        if (key === 'firstName') inp.value = firstName;
-        if (key === 'lastName') inp.value = lastName;
-      });
-
-      setMsg(uid, '', false);
-    }).catch(function(e){
-      setMsg(uid, (e && e.message) ? e.message : 'Could not load progress.', true);
-    });
-  }
-
-  function closeEditor(uid){
-    var row = rootEl.querySelector('.pv-editor-row[data-uid="' + uid + '"]');
-    if (row) row.style.display = 'none';
-    setMsg(uid, '', false);
-  }
-
-  function saveProgress(uid){
-    var p = {};
-    rootEl.querySelectorAll('.pv-prog[data-uid="' + uid + '"]').forEach(function(inp){
-      var key = inp.getAttribute('data-key');
-      var val = String(inp.value || '').trim();
-      if (val) p[key] = val;
-    });
-
-    var firstName = '';
-    var lastName = '';
-    rootEl.querySelectorAll('.pv-name[data-uid="' + uid + '"]').forEach(function(inp){
-      var key = inp.getAttribute('data-key');
-      var val = String(inp.value || '').trim();
-      if (key === 'firstName') firstName = val;
-      if (key === 'lastName') lastName = val;
-    });
-
-    if (!firstName || !lastName){
-      setMsg(uid, 'Please enter first name and surname.', true);
-      return;
-    }
-
-    setMsg(uid, 'Saving…', false);
-
-    var displayName = (firstName + ' ' + lastName.charAt(0).toUpperCase() + '.').trim();
-
-    var batch = db.batch();
-
-    var progressUpdate = {
-      grooves: (p.grooves ? p.grooves : firebase.firestore.FieldValue.delete()),
-      fills: (p.fills ? p.fills : firebase.firestore.FieldValue.delete()),
-      hands: (p.hands ? p.hands : firebase.firestore.FieldValue.delete()),
-      feet: (p.feet ? p.feet : firebase.firestore.FieldValue.delete())
-    };
-
-    batch.set(db.collection('users').doc(uid), {
-      firstName: firstName,
-      lastName: lastName,
-      displayName: displayName
-    }, { merge:true });
-    batch.set(db.collection('users').doc(uid).collection('metrics').doc('progress'), progressUpdate, { merge:true });
-
-    batch.commit().then(function(){
-      setMsg(uid, '', false);
-      window.VaultToast.success('Progress saved');
-
-      var editBtn = rootEl.querySelector('.pv-edit-btn[data-uid="' + uid + '"]');
-      if (editBtn) {
-        var tr = editBtn.closest('tr');
-        if (tr && tr.children && tr.children.length > 1) {
-          tr.children[1].textContent = (firstName + ' ' + lastName).trim();
-        }
-      }
-    }).catch(function(e){
-      setMsg(uid, (e && e.message) ? e.message : 'Save failed.', true);
-    });
+  function openProfileModal(db, student){
+    openUserDetailsModal(student.uid);
   }
 
   function openUserDetailsModal(uid){
-    // Find user data
     var userDoc = db.collection('users').doc(uid);
     var statsDoc = userDoc.collection('metrics').doc('stats');
     var progressDoc = userDoc.collection('metrics').doc('progress');
@@ -472,7 +331,6 @@ document.addEventListener('DOMContentLoaded', function(){
       var joinedAt = userData.createdAt;
       var lastLogin = statsData.lastLoginAt;
       
-      // Create modal
       var overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999;';
       
@@ -557,7 +415,6 @@ document.addEventListener('DOMContentLoaded', function(){
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
       
-      // Parse and populate birthdate fields
       var birthdate = userData.birthdate || '';
       if (birthdate) {
         var parts = birthdate.split('/');
@@ -568,7 +425,6 @@ document.addEventListener('DOMContentLoaded', function(){
         }
       }
       
-      // Function to calculate and display age
       function updateAge() {
         var day = modal.querySelector('#modal-dob-day').value.trim();
         var month = modal.querySelector('#modal-dob-month').value.trim();
@@ -600,15 +456,12 @@ document.addEventListener('DOMContentLoaded', function(){
         labelDiv.textContent = 'Date of Birth';
       }
       
-      // Add event listeners to DOB fields
       modal.querySelector('#modal-dob-day').addEventListener('input', updateAge);
       modal.querySelector('#modal-dob-month').addEventListener('input', updateAge);
       modal.querySelector('#modal-dob-year').addEventListener('input', updateAge);
       
-      // Calculate age on load if birthdate exists
       updateAge();
       
-      // Close handlers
       overlay.addEventListener('click', function(e){
         if (e.target === overlay) overlay.remove();
       });
@@ -617,16 +470,13 @@ document.addEventListener('DOMContentLoaded', function(){
         overlay.remove();
       });
       
-      // Save handler
       modal.querySelector('#modal-save').addEventListener('click', function(){
-        // Combine DOB fields
         var dobDay = modal.querySelector('#modal-dob-day').value.trim();
         var dobMonth = modal.querySelector('#modal-dob-month').value.trim();
         var dobYear = modal.querySelector('#modal-dob-year').value.trim();
         var birthdate = '';
         
         if (dobDay && dobMonth && dobYear) {
-          // Pad with zeros if needed
           dobDay = dobDay.padStart(2, '0');
           dobMonth = dobMonth.padStart(2, '0');
           birthdate = dobDay + '/' + dobMonth + '/' + dobYear;
@@ -654,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function(){
           notesDoc.set({ text: notesText, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
         ]).then(function(){
           overlay.remove();
-          loadOnce(); // Reload the table
+          loadOnce();
         }).catch(function(e){
           alert('Save failed: ' + (e.message || e));
         });
@@ -665,11 +515,212 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
+  /* ---------- NEW: Progress Modal ---------- */
+  function openProgressModal(db, uid, displayName){
+    var overlay = makeOverlay();
+
+    var box = document.createElement('div');
+    box.style.cssText = 'width:100%;max-width:600px;background:#fff;border-radius:12px;' +
+      'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;max-height:90vh;overflow-y:auto;';
+    pvApplyFontFromBase(box);
+
+    var header = document.createElement('h3');
+    header.textContent = 'Progress: ' + displayName;
+    header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:600;';
+    box.appendChild(header);
+
+    var selfProgressContainer = document.createElement('div');
+    selfProgressContainer.style.cssText = 'margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:8px;';
+    
+    var selfProgressLabel = document.createElement('label');
+    selfProgressLabel.style.cssText = 'display:flex;align-items:center;gap:10px;cursor:pointer;';
+    
+    var selfProgressCheckbox = document.createElement('input');
+    selfProgressCheckbox.type = 'checkbox';
+    selfProgressCheckbox.id = 'admin-self-progress';
+    selfProgressCheckbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+    
+    var selfProgressText = document.createElement('span');
+    selfProgressText.textContent = 'Allow self-progress (user can mark lessons complete)';
+    selfProgressText.style.cssText = 'font-size:14px;color:#333;';
+    
+    selfProgressLabel.appendChild(selfProgressCheckbox);
+    selfProgressLabel.appendChild(selfProgressText);
+    selfProgressContainer.appendChild(selfProgressLabel);
+    box.appendChild(selfProgressContainer);
+
+    db.collection('users').doc(uid).get().then(function(userSnap){
+      if (userSnap.exists) {
+        selfProgressCheckbox.checked = userSnap.data().selfProgress === true;
+      }
+    });
+
+    selfProgressCheckbox.addEventListener('change', function(){
+      db.collection('users').doc(uid).set({
+        selfProgress: selfProgressCheckbox.checked
+      }, { merge: true })
+      .then(function(){
+        window.VaultToast.success('Self-progress ' + (selfProgressCheckbox.checked ? 'enabled' : 'disabled'));
+      })
+      .catch(function(e){
+        console.error('Failed to update selfProgress:', e);
+        window.VaultToast.error('Failed to update');
+      });
+    });
+
+    var courseLabel = document.createElement('label');
+    courseLabel.textContent = 'Select Course:';
+    courseLabel.style.cssText = 'display:block;margin:0 0 6px 0;font-weight:600;color:#111;';
+    box.appendChild(courseLabel);
+
+    var courseSelect = document.createElement('select');
+    courseSelect.style.cssText = 'display:block;width:100%;padding:10px;border:1px solid #ccc;' +
+      'border-radius:6px;margin-bottom:16px;font:inherit;';
+    
+    var defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = '-- Choose a course --';
+    courseSelect.appendChild(defaultOption);
+
+    if (window.VAULT_COURSES) {
+      Object.keys(window.VAULT_COURSES).forEach(function(courseId){
+        var course = window.VAULT_COURSES[courseId];
+        var opt = document.createElement('option');
+        opt.value = courseId;
+        opt.textContent = course.name + ' (' + courseId + ')';
+        courseSelect.appendChild(opt);
+      });
+    }
+
+    box.appendChild(courseSelect);
+
+    var checklistContainer = document.createElement('div');
+    checklistContainer.id = 'admin-lesson-checklist';
+    checklistContainer.style.cssText = 'display:none;max-height:400px;overflow-y:auto;' +
+      'border:1px solid #ddd;border-radius:8px;padding:12px;background:#fafafa;';
+    box.appendChild(checklistContainer);
+
+    courseSelect.addEventListener('change', function(){
+      var courseId = courseSelect.value;
+      if (!courseId) {
+        checklistContainer.style.display = 'none';
+        return;
+      }
+
+      renderLessonChecklist(db, uid, courseId, checklistContainer);
+    });
+
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close';
+    closeBtn.type = 'button';
+    closeBtn.style.cssText = 'margin-top:16px;padding:10px 20px;border-radius:6px;border:1px solid #ccc;' +
+      'background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;';
+    closeBtn.addEventListener('click', function(){ overlay.remove(); });
+    box.appendChild(closeBtn);
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  }
+
+  function renderLessonChecklist(db, uid, courseId, container){
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Loading...</div>';
+    container.style.display = 'block';
+
+    var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
+    if (!courseConfig) {
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">Course not configured</div>';
+      return;
+    }
+
+    db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+      .then(function(snap){
+        var completed = {};
+        if (snap.exists) {
+          completed = snap.data().completed || {};
+        }
+
+        container.innerHTML = '';
+
+        var list = document.createElement('div');
+        list.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+        courseConfig.lessons.forEach(function(lessonId){
+          var item = document.createElement('label');
+          item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px;' +
+            'background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer;' +
+            'transition:all 0.2s ease;';
+          
+          item.addEventListener('mouseenter', function(){
+            item.style.background = '#f5f5f5';
+          });
+          item.addEventListener('mouseleave', function(){
+            item.style.background = '#fff';
+          });
+
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = completed[lessonId] === true;
+          checkbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+          
+          checkbox.addEventListener('change', function(){
+            toggleAdminCompletion(db, uid, courseId, lessonId, checkbox.checked);
+          });
+
+          var label = document.createElement('span');
+          label.textContent = 'Lesson ' + lessonId;
+          label.style.cssText = 'font-size:14px;color:#333;';
+
+          item.appendChild(checkbox);
+          item.appendChild(label);
+          list.appendChild(item);
+        });
+
+        container.appendChild(list);
+      })
+      .catch(function(e){
+        console.error('Failed to load progress:', e);
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">Error loading progress</div>';
+      });
+  }
+
+  function toggleAdminCompletion(db, uid, courseId, lessonId, newState){
+    var update = { completed: {} };
+    update.completed[lessonId] = newState;
+    update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+    db.collection('users').doc(uid).collection('progress').doc(courseId)
+      .set(update, { merge: true })
+      .then(function(){
+        window.VaultToast.success('Updated: Lesson ' + lessonId);
+      })
+      .catch(function(e){
+        console.error('Failed to update:', e);
+        window.VaultToast.error('Update failed');
+      });
+  }
+
   function bindHandlers(){
     rootEl.querySelectorAll('.pv-name-link').forEach(function(link){
       link.addEventListener('click', function(e){
         e.preventDefault();
         openUserDetailsModal(link.getAttribute('data-uid'));
+      });
+    });
+
+    rootEl.querySelectorAll('.pv-profile-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var uid = btn.getAttribute('data-uid');
+        openUserDetailsModal(uid);
+      });
+    });
+
+    rootEl.querySelectorAll('.pv-progress-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var uid = btn.getAttribute('data-uid');
+        var displayName = btn.getAttribute('data-name');
+        openProgressModal(db, uid, displayName);
       });
     });
 
@@ -720,10 +771,11 @@ document.addEventListener('DOMContentLoaded', function(){
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
+    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Actions</th>';
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
-      html += '<tr><td colspan="5" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
+      html += '<tr><td colspan="6" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
     } else {
       users.forEach(function(u){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
@@ -736,6 +788,10 @@ document.addEventListener('DOMContentLoaded', function(){
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + formatTs(u.lastLogin) + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatDuration(u.totalSeconds) + '</td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' +
+          '<button class="pv-profile-btn" data-uid="' + escapeHtml(u.uid) + '" style="padding:4px 10px;margin-right:6px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font-size:12px;">Profile</button>' +
+          '<button class="pv-progress-btn" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.email) + '" style="padding:4px 10px;border-radius:6px;border:1px solid #10b981;background:#10b981;color:#fff;cursor:pointer;font-size:12px;">Progress</button>' +
+        '</td>';
         html += '</tr>';
       });
     }
@@ -747,7 +803,6 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
 function loadOnce(){
-  // Load users + per-user metrics/progress + filter out admins
   Promise.all([
     db.collection('users').get(),
     db.collection('admins').get()
@@ -755,7 +810,6 @@ function loadOnce(){
     var usersSnap = results[0];
     var adminSnap = results[1];
     
-    // Build admin UID lookup
     var adminUids = {};
     adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
     
@@ -763,7 +817,6 @@ function loadOnce(){
     usersSnap.forEach(function(d){
       var data = d.data() || {};
       
-      // Skip admins
       if (adminUids[d.id]) return;
       
       users.push({
