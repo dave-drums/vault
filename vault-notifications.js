@@ -102,7 +102,7 @@
 
     const title = document.createElement('h3');
     title.textContent = 'Notifications';
-    title.style.cssText = 'margin:0;font-size:1.2rem;';
+    title.style.cssText = 'margin:0;';
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '×';
@@ -119,6 +119,7 @@
     content.style.cssText = 'flex:1;overflow-y:auto;padding:0;';
 
     const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'p3';
     loadingDiv.textContent = 'Loading notifications...';
     loadingDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#666;';
     content.appendChild(loadingDiv);
@@ -148,6 +149,7 @@
 
       if (snap.empty) {
         const empty = document.createElement('div');
+        empty.className = 'p3';
         empty.textContent = 'No notifications yet';
         empty.style.cssText = 'padding:40px 24px;text-align:center;color:#666;';
         contentDiv.appendChild(empty);
@@ -162,7 +164,12 @@
 
     } catch (e) {
       console.error('Error loading notifications:', e);
-      contentDiv.innerHTML = '<div style="padding:40px 24px;text-align:center;color:#c00;">Failed to load notifications</div>';
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'p3';
+      errorDiv.textContent = 'Failed to load notifications';
+      errorDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#c00;';
+      contentDiv.innerHTML = '';
+      contentDiv.appendChild(errorDiv);
     }
   }
 
@@ -185,18 +192,21 @@
       'gap:12px;margin-bottom:6px;';
 
     const fromName = document.createElement('div');
+    fromName.className = 'p3';
     fromName.textContent = notif.fromName || 'Someone';
-    fromName.style.cssText = 'font-weight:700;font-size:1rem;';
+    fromName.style.cssText = 'font-weight:700;';
 
     const time = document.createElement('div');
+    time.className = 'p3';
     time.textContent = formatTime(notif.createdAt);
-    time.style.cssText = 'font-size:0.85rem;color:#666;white-space:nowrap;';
+    time.style.cssText = 'color:#666;white-space:nowrap;opacity:0.8;';
 
     header.appendChild(fromName);
     header.appendChild(time);
 
     const message = document.createElement('div');
-    message.style.cssText = 'font-size:0.95rem;line-height:1.4;margin-bottom:6px;';
+    message.className = 'p3';
+    message.style.cssText = 'line-height:1.4;margin-bottom:6px;';
 
     if (notif.type === 'comment_reply') {
       message.textContent = 'replied to your comment';
@@ -205,12 +215,14 @@
     }
 
     const preview = document.createElement('div');
+    preview.className = 'p3';
     preview.textContent = '"' + (notif.commentText || '').slice(0, 100) + (notif.commentText?.length > 100 ? '...' : '') + '"';
-    preview.style.cssText = 'font-size:0.9rem;color:#666;font-style:italic;margin-bottom:8px;';
+    preview.style.cssText = 'color:#666;font-style:italic;margin-bottom:8px;';
 
     const lessonLink = document.createElement('div');
+    lessonLink.className = 'p3';
     lessonLink.textContent = '→ ' + (notif.lessonTitle || 'View lesson');
-    lessonLink.style.cssText = 'font-size:0.9rem;color:#06b3fd;font-weight:600;';
+    lessonLink.style.cssText = 'color:#06b3fd;font-weight:600;';
 
     item.appendChild(header);
     item.appendChild(message);
