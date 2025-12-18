@@ -105,18 +105,3 @@
     init();
   }
 })();
-```
-
----
-
-### 3. Update Your Lesson File Format
-
-Add titles to your lesson headers:
-```
-=== LESSON 1.01 | Introduction to Grooving ===
-T> Welcome to lesson 1!
-V> abc123
-
-=== LESSON 1.02 | Basic Patterns ===
-T> Let's learn patterns
-G> ?TimeSig=4/4&Div=8
