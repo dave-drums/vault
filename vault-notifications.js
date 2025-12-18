@@ -21,11 +21,12 @@
     const titleEl = document.querySelector('.members-title');
     if (!titleEl || titleEl.textContent !== 'ACCOUNT') return;
 
-    // Check if icon already exists
+    // Check if icons already exist
     if (document.getElementById('vault-notification-icon')) return;
 
     // Drum logo (left side, links to /vault)
     const drumContainer = document.createElement('div');
+    drumContainer.id = 'vault-drum-container';
     drumContainer.style.cssText = 'position:absolute;top:24px;left:24px;';
     
     const drumLink = document.createElement('a');
@@ -53,6 +54,7 @@
 
     // Notification icon (right side)
     const notifContainer = document.createElement('div');
+    notifContainer.id = 'vault-notification-container';
     notifContainer.style.cssText = 'position:absolute;top:24px;right:24px;';
     
     const icon = document.createElement('button');
@@ -172,7 +174,7 @@
     try {
       const snap = await db.collection('users').doc(uid).collection('notifications')
         .orderBy('createdAt', 'desc')
-        .limit(50)
+        .limit(3)
         .get();
 
       contentDiv.innerHTML = '';
@@ -190,6 +192,40 @@
         const item = createNotificationItem(notif, doc.id);
         contentDiv.appendChild(item);
       });
+      
+      // Add clear notifications button
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Clear Notifications';
+      clearBtn.style.cssText = 'width:calc(100% - 48px);margin:16px 24px;padding:10px;' +
+        'background:#f3f3f3;border:1px solid #ddd;border-radius:8px;cursor:pointer;' +
+        'font-size:13px;font-weight:600;color:#666;transition:all 0.2s ease;';
+      
+      clearBtn.addEventListener('mouseenter', () => {
+        clearBtn.style.background = '#e8e8e8';
+        clearBtn.style.borderColor = '#bbb';
+      });
+      clearBtn.addEventListener('mouseleave', () => {
+        clearBtn.style.background = '#f3f3f3';
+        clearBtn.style.borderColor = '#ddd';
+      });
+      
+      clearBtn.addEventListener('click', async () => {
+        if (confirm('Clear all notifications?')) {
+          clearBtn.disabled = true;
+          clearBtn.textContent = 'Clearing...';
+          
+          const allNotifs = await db.collection('users').doc(uid).collection('notifications').get();
+          const batch = db.batch();
+          allNotifs.docs.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          await batch.commit();
+          
+          contentDiv.innerHTML = '<div style="padding:40px 24px;text-align:center;color:#666;font-size:13px;">No notifications yet</div>';
+        }
+      });
+      
+      contentDiv.appendChild(clearBtn);
 
     } catch (e) {
       console.error('Error loading notifications:', e);
@@ -205,7 +241,7 @@
     const item = document.createElement('div');
     item.style.cssText = 'padding:16px 24px;border-bottom:1px solid #f0f0f0;' +
       'cursor:pointer;transition:background 0.2s ease;' +
-      (notif.read ? 'opacity:0.7;' : 'background:#f8f9fa;font-weight:500;');
+      (notif.read ? 'opacity:0.7;' : 'background:#f8f9fa;');
 
     item.addEventListener('mouseenter', () => {
       item.style.background = '#f0f0f0';
@@ -241,8 +277,11 @@
 
     const preview = document.createElement('div');
     
-    // Check if comment is deleted
-    if (notif.commentDeleted) {
+    // Check if comment is deleted or permanently removed
+    if (notif.commentPermanentlyRemoved) {
+      preview.textContent = '[Comment permanently removed]';
+      preview.style.cssText = 'color:#999;font-style:italic;margin-bottom:8px;font-size:12px;opacity:0.5;';
+    } else if (notif.commentDeleted) {
       preview.textContent = notif.deletedBy === 'admin' ? '[Comment deleted]' : '[Comment deleted by user]';
       preview.style.cssText = 'color:#999;font-style:italic;margin-bottom:8px;font-size:12px;opacity:0.7;';
     } else {
@@ -336,8 +375,11 @@
           unsubNotifications();
           unsubNotifications = null;
         }
-        const container = document.getElementById('vault-notification-container');
-        if (container) container.remove();
+        // Remove both icons when logged out
+        const drumContainer = document.getElementById('vault-drum-container');
+        const notifContainer = document.getElementById('vault-notification-container');
+        if (drumContainer) drumContainer.remove();
+        if (notifContainer) notifContainer.remove();
         return;
       }
 
