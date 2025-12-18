@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var device = String(u.lastDeviceEmoji || '').trim() || '❓';
 
         html += '<tr>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + (isOnline ? '🥁 ' : '') + escapeHtml(u.email) + '</td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;"><a href="#" class="pv-name-link" data-uid="' + escapeHtml(u.uid) + '" style="color:#06b3fd;text-decoration:none;cursor:pointer;">' + (isOnline ? '🥁 ' : '') + escapeHtml(u.email) + '</a></td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;"><a href="#" class="pv-name-link" data-uid="' + escapeHtml(u.uid) + '" style="color:#06b3fd;text-decoration:none;cursor:pointer;">' + escapeHtml(u.fullName || '-') + '</a></td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + formatTs(u.lastLogin) + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
