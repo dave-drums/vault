@@ -1,163 +1,65 @@
 <!-- WHERE: /vault/* → Code Block -->
 <!-- PURPOSE: Inject rendered lesson UI from master *.txt file (Firebase Storage) -->
 
-<div id="lesson-root"></div>
-
 <script>
-(function() {
-  firebase.auth().onAuthStateChanged(async function(user) {
-    if (!user) {
-      showError('You must be logged in to view lessons.');
-      return;
-    }
-    await loadLesson(user);
-  });
-  
-  async function loadLesson(user) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const course = urlParams.get('course');
-    const lesson = urlParams.get('lesson');
-    
-    const allowedCourses = [
-      'gs1', 'gs2', 'gs3', 'gs4',
-      'fs1', 'fs2', 'fs3', 'fs4',
-      'ss1', 'ss2', 'ss3', 'ss4',
-      'ks1', 'ks2', 'ks3'
-    ];
-    
-    if (!course || !lesson) {
-      showError('Missing required URL parameters: ?course=gs1&lesson=1.01');
-      return;
-    }
-    
-    if (!allowedCourses.includes(course)) {
-      showError(`Invalid course code: "${course}"`);
-      return;
-    }
-    
+  document.documentElement.dataset.protected = 'true';
+</script>
+<style>
+html[data-protected="true"] body {
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+</style>
+<script>
+(function(){
+  var revealed = false;
+  function reveal(){
+    if (revealed) return;
+    revealed = true;
+    if (document.body) document.body.style.opacity = '1';
+  }
+  function whenBodyReady(fn){
+    if (document.body) return fn();
+    var i = setInterval(function(){
+      if (document.body){
+        clearInterval(i);
+        fn();
+      }
+    }, 20);
+    setTimeout(function(){ clearInterval(i); }, 2000);
+  }
+  function redirectToMembers(){
+    var next = encodeURIComponent(location.pathname + location.search + location.hash);
+    location.href = '/members?next=' + next;
+  }
+  var failSafe = setTimeout(function(){
+    whenBodyReady(reveal);
+  }, 2500);
+  function run(){
     try {
-      const storage = firebase.storage();
-      const fileRef = storage.ref(`courses/${course}.txt`);
-      const downloadUrl = await fileRef.getDownloadURL();
-      const response = await fetch(downloadUrl);
-      
-      if (!response.ok) {
-        showError(`Failed to fetch ${course}.txt (HTTP ${response.status})`);
-        return;
-      }
-      
-      const fileContent = await response.text();
-      const extracted = extractLesson(fileContent, lesson);
-      
-      if (!extracted) {
-        const available = extractAllLessonIds(fileContent);
-        showError(`Lesson "${lesson}" not found. Available: ${available.join(', ')}`);
-        return;
-      }
-      
-      renderLesson(extracted.content, extracted.title);
-      
-    } catch (error) {
-      showError(`Error: ${error.message}`);
-      console.error(error);
-    }
-  }
-  
-  function extractAllLessonIds(content) {
-    content = content.replace(/\r\n/g, '\n');
-    const headerRegex = /^===\s*LESSON\s+([\d.]+)\s*(?:\|\s*(.+?))?\s*===\s*$/gm;
-    const ids = [];
-    let match;
-    while ((match = headerRegex.exec(content)) !== null) {
-      ids.push(match[1].trim());
-    }
-    return ids;
-  }
-  
-  function extractLesson(content, lessonId) {
-    content = content.replace(/\r\n/g, '\n');
-    const targetId = lessonId.trim();
-    
-    // Updated regex to capture optional title: === LESSON 1.01 | Lesson Title ===
-    const headerRegex = /^===\s*LESSON\s+([\d.]+)\s*(?:\|\s*(.+?))?\s*===\s*$/gm;
-    
-    const headers = [];
-    let match;
-    
-    while ((match = headerRegex.exec(content)) !== null) {
-      headers.push({
-        id: match[1].trim(),
-        title: match[2] ? match[2].trim() : null,
-        startPos: match.index,
-        headerEndPos: match.index + match[0].length
+      if (document.documentElement.dataset.protected !== 'true') return;
+      if (typeof firebase === 'undefined' || !firebase.auth) return;
+      firebase.auth().onAuthStateChanged(function(user){
+        clearTimeout(failSafe);
+        if (!user) {
+          redirectToMembers();
+          return;
+        }
+        whenBodyReady(reveal);
       });
-    }
-    
-    const targetIndex = headers.findIndex(h => h.id === targetId);
-    if (targetIndex === -1) return null;
-    
-    const targetHeader = headers[targetIndex];
-    const start = targetHeader.headerEndPos;
-    const end = headers[targetIndex + 1]?.startPos ?? content.length;
-    
-    const lessonContent = content.substring(start, end).trim();
-    
-    // Generate title from ID if not specified
-    const lessonTitle = targetHeader.title || `Lesson ${targetId}`;
-    
-    return {
-      content: lessonContent,
-      title: lessonTitle
-    };
-  }
-  
-  function renderLesson(content, title) {
-    // Wait for vault-render.js to be available
-    if (!window.vaultParse) {
-      setTimeout(function() { renderLesson(content, title); }, 100);
-      return;
-    }
-    
-    // Parse and render using vault-render.js functions
-    const tokens = window.vaultParse.tokenise(content);
-    const renderedDOM = window.vaultParse.render(tokens);
-    
-    // Inject the pre-rendered DOM
-    let root = document.getElementById('lesson-root');
-    if (!root) {
-      root = document.createElement('div');
-      root.id = 'lesson-root';
-      document.body.appendChild(root);
-    }
-    
-    root.innerHTML = '';
-    
-    // CRITICAL: Add H1 title FIRST for vault-lessons.js tracking
-    const h1 = document.createElement('h1');
-    h1.textContent = title;
-    h1.style.cssText = 'margin:0 0 2rem;font-size:2rem;';
-    root.appendChild(h1);
-    
-    // Then append rendered content
-    root.appendChild(renderedDOM);
-    
-    // Update document title
-    document.title = title + ' | Dave Drums';
-    
-    // Trigger audio player scan if present
-    if (window.VaultAudioPlayer?.scan) {
-      window.VaultAudioPlayer.scan();
+    } catch(e) {
+      clearTimeout(failSafe);
+      whenBodyReady(reveal);
     }
   }
-  
-  function showError(message) {
-    let root = document.getElementById('lesson-root');
-    if (!root) {
-      root = document.createElement('div');
-      root.id = 'lesson-root';
-      document.body.appendChild(root);
-    }
-    root.innerHTML = `<div style="padding:20px;border:2px solid #d00;background:#ffe;color:#d00;margin:20px;font-family:monospace;">${message}</div>`;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
   }
 })();
 </script>
+
+<script src="https://dave-drums.github.io/vault/vault-metrics.js" defer></script>
+<script src="https://dave-drums.github.io/vault/vault-lessons.js"></script>
+<script src="https://dave-drums.github.io/vault/vault-lesson-comments.js"></script>
