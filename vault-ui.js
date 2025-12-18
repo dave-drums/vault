@@ -1175,10 +1175,10 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         
-        // Validate display name (letters, numbers, spaces, underscore, hyphen only)
-        var validPattern = /^[a-zA-Z0-9 _-]+$/;
+        // Validate display name (letters, numbers, spaces, underscore, hyphen, apostrophe only)
+        var validPattern = /^[a-zA-Z0-9 _'\-]+$/;
         if (!validPattern.test(displayName)) {
-          setMessage('Display name can only contain letters, numbers, spaces, underscores, and hyphens.');
+          setMessage('Display name can only contain letters, numbers, spaces, underscores, hyphens, and apostrophes.');
           return;
         }
 
