@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
       
       var quoteText = document.createElement('p');
       quoteText.className = 'p3';
-      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;';
+      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;font-size:14px;';
       
       // Get daily quote from VaultCues if available
       var dailyQuote = 'Practice makes progress';
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function () {
       
       var arrow = document.createElement('span');
       arrow.textContent = '▼';
-      arrow.style.cssText = 'font-size:12px;transition:transform 0.2s ease;';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
       
       header.appendChild(titleSpan);
       header.appendChild(arrow);
@@ -696,18 +696,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
-        iconEl.style.cssText = 'font-size:28px;flex-shrink:0;';
+        iconEl.style.cssText = 'font-size:24px;flex-shrink:0;';
 
         var textWrapper = document.createElement('div');
         textWrapper.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;white-space:nowrap;';
+        valueEl.style.cssText = 'font-size:18px;font-weight:700;color:#06b3fd;white-space:nowrap;';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
         var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:14px;color:#666;white-space:nowrap;';
+        labelEl.style.cssText = 'font-size:13px;color:#666;white-space:nowrap;';
         labelEl.textContent = stat.label;
 
         textWrapper.appendChild(valueEl);
