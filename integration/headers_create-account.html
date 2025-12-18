@@ -2,13 +2,13 @@
 <!-- PURPOSE: Invite-only create account gate -->
 
 <script>
-  document.documentElement.dataset.protected = 'true';
+  document.documentElement.dataset.protected = 'invite';
 </script>
 
 <style>
-html[data-protected="true"] body{
-  opacity: 0;
-  transition: opacity .2s ease;
+html[data-protected="invite"] body{
+  opacity:0;
+  transition:opacity .2s ease;
 }
 </style>
 
