@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', function () {
         textWrapper.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:18px;font-weight:700;color:#06b3fd;white-space:nowrap;';
+        valueEl.style.cssText = 'font-size:16px;font-weight:700;color:#06b3fd;white-space:nowrap;';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
@@ -1130,12 +1130,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var isOpen = false;
 
+      // Function to load existing name data
+      function loadNameData(){
+        db.collection('users').doc(user.uid).get().then(function(snap){
+          if (!snap.exists) return;
+          var d = snap.data() || {};
+          fn.value = String(d.firstName || '').trim();
+          ln.value = String(d.lastName || '').trim();
+          dn.value = String(d.displayName || '').trim();
+        }).catch(function(){});
+      }
+
+      // Load on creation
+      loadNameData();
+
       header.addEventListener('click', function(){
         if (isOpen) {
           panel.style.display = 'none';
           header.style.borderRadius = '8px';
           arrow.style.transform = 'rotate(0deg)';
         } else {
+          // Reload data when opening
+          loadNameData();
           panel.style.display = 'block';
           header.style.borderRadius = '8px 8px 0 0';
           arrow.style.transform = 'rotate(180deg)';
@@ -1150,14 +1166,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isOpen = false;
       });
 
-      // Load existing name
-      db.collection('users').doc(user.uid).get().then(function(snap){
-        if (!snap.exists) return;
-        var d = snap.data() || {};
-        fn.value = String(d.firstName || '').trim();
-        ln.value = String(d.lastName || '').trim();
-        dn.value = String(d.displayName || '').trim();
-      }).catch(function(){});
+      // saveBtn click handler comes after this...
 
       saveBtn.addEventListener('click', function(){
         clearMessage();
