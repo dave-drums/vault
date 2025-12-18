@@ -490,59 +490,146 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function createPracticeContent(user){
-      var content = document.createElement('div');
+  var content = document.createElement('div');
 
-      // 2x2 grid of progress areas
-      var grid = document.createElement('div');
-      grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;';
+  // Load user's active courses first
+  db.collection('users').doc(user.uid).get()
+    .then(function(userSnap){
+      if (!userSnap.exists) {
+        content.textContent = 'No active courses found.';
+        return;
+      }
 
-      var areas = [
-        { label: 'Groove Studies', key: 'grooves' },
-        { label: 'Fill Studies', key: 'fills' },
-        { label: 'Stick Studies', key: 'hands' },
-        { label: 'Kick Studies', key: 'feet' }
-      ];
+      var userData = userSnap.data() || {};
+      var activeCourses = userData.activeCourses || {};
+      
+      // Load practice doc to get last lesson
+      return db.collection('users').doc(user.uid).collection('metrics').doc('practice').get()
+        .then(function(practiceSnap){
+          var lastLessonUrl = '';
+          if (practiceSnap.exists) {
+            lastLessonUrl = practiceSnap.data().lastLessonUrl || '';
+          }
 
-      areas.forEach(function(area){
-        var box = document.createElement('div');
-        box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;' +
-          'text-align:center;min-height:70px;display:flex;flex-direction:column;justify-content:center;';
-
-        var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:13px;font-weight:600;color:#333;margin-bottom:6px;';
-        labelEl.textContent = area.label;
-
-        var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:20px;font-weight:700;color:#06b3fd;';
-        valueEl.textContent = '—';
-        valueEl.id = 'progress-' + area.key;
-
-        box.appendChild(labelEl);
-        box.appendChild(valueEl);
-
-        grid.appendChild(box);
-      });
-
-      content.appendChild(grid);
-
-      // Load progress data
-      db.collection('users').doc(user.uid).collection('metrics').doc('progress').get()
-        .then(function(snap){
-          if (!snap.exists) return;
-          var data = snap.data() || {};
-          
-          areas.forEach(function(area){
-            var el = document.getElementById('progress-' + area.key);
-            if (el) {
-              var val = data[area.key];
-              el.textContent = val || '—';
+          // Extract course from last lesson URL
+          var lastActiveCourseId = null;
+          var lastActivePathway = null;
+          if (lastLessonUrl) {
+            var match = lastLessonUrl.match(/[?&]course=([^&]+)/);
+            if (match) {
+              lastActiveCourseId = match[1];
+              // Find pathway for this course
+              var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[lastActiveCourseId];
+              if (courseConfig) {
+                lastActivePathway = courseConfig.pathway;
+              }
             }
-          });
-        })
-        .catch(function(){});
+          }
 
-      return content;
+          renderPathwayCards(content, user.uid, activeCourses, lastActivePathway, lastActiveCourseId);
+        });
+    })
+    .catch(function(e){
+      console.error('Failed to load practice content:', e);
+      content.textContent = 'Error loading progress.';
+    });
+
+  return content;
+}
+
+function renderPathwayCards(container, uid, activeCourses, lastActivePathway, lastActiveCourseId){
+  var grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;';
+
+  var pathways = ['groove', 'fills', 'sticks', 'kicks'];
+  var pathwayConfig = {
+    groove: { label: 'Groove Studies', key: 'groove' },
+    fills: { label: 'Fill Studies', key: 'fills' },
+    sticks: { label: 'Stick Studies', key: 'sticks' },
+    kicks: { label: 'Kick Studies', key: 'kicks' }
+  };
+
+  pathways.forEach(function(pathway){
+    var config = pathwayConfig[pathway];
+    var courseId = activeCourses[pathway] || null;
+
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;' +
+      'min-height:100px;display:flex;flex-direction:column;justify-content:center;';
+
+    var labelEl = document.createElement('div');
+    labelEl.style.cssText = 'font-size:13px;font-weight:600;color:#333;margin-bottom:8px;text-align:center;';
+    labelEl.textContent = config.label;
+
+    var statusEl = document.createElement('div');
+    statusEl.style.cssText = 'font-size:11px;color:#666;text-align:center;margin-bottom:4px;';
+    
+    var progressEl = document.createElement('div');
+    progressEl.style.cssText = 'font-size:16px;font-weight:700;color:#06b3fd;text-align:center;margin-bottom:6px;';
+
+    var barContainer = document.createElement('div');
+    barContainer.style.cssText = 'width:100%;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;';
+    
+    var barFill = document.createElement('div');
+    barFill.style.cssText = 'height:100%;background:#06b3fd;transition:width 0.3s ease;width:0%;';
+    
+    barContainer.appendChild(barFill);
+
+    box.appendChild(labelEl);
+    box.appendChild(statusEl);
+    box.appendChild(progressEl);
+    box.appendChild(barContainer);
+
+    grid.appendChild(box);
+
+    // Load progress if course is active
+    if (courseId) {
+      statusEl.textContent = 'Last active: ' + courseId.toUpperCase();
+      
+      var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
+      if (courseConfig) {
+        loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill);
+      } else {
+        progressEl.textContent = '—';
+        statusEl.textContent = 'Course not configured';
+      }
+    } else {
+      statusEl.textContent = 'No active course';
+      progressEl.textContent = '—';
     }
+
+    // Highlight last active pathway
+    if (pathway === lastActivePathway) {
+      box.style.borderColor = '#06b3fd';
+      box.style.borderWidth = '2px';
+    }
+  });
+
+  container.appendChild(grid);
+}
+
+function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
+  db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+    .then(function(snap){
+      var completedCount = 0;
+      if (snap.exists) {
+        var completed = snap.data().completed || {};
+        courseConfig.lessons.forEach(function(lessonId){
+          if (completed[lessonId]) completedCount++;
+        });
+      }
+
+      var totalLessons = courseConfig.lessons.length;
+      var percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+      progressEl.textContent = completedCount + '/' + totalLessons;
+      barFill.style.width = percent + '%';
+    })
+    .catch(function(e){
+      console.error('Failed to load course progress:', e);
+      progressEl.textContent = '—';
+    });
+}
 
     function createGoalsContent(user){
       var content = document.createElement('div');
@@ -1452,4 +1539,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
   start();
 });
+
 
