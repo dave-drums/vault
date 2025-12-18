@@ -358,4 +358,6 @@
     });
   });
 
+  window.vaultRender = run;  // Added line for the new one-page lesson UI
+  
 })();
