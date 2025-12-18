@@ -158,14 +158,14 @@ function openAddUserModal(db){
   pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;color:#111;font:inherit;">Add user</h3>' +
-    '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font:inherit;">Create an invite link (expires in 7 days)</div>' +
+    '<h3 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:600;">Add user</h3>' +
+    '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font-size:15px;">Create an invite link (expires in 7 days)</div>' +
     '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;font:inherit;">' +
     '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;color:#111;font:inherit;"></div>' +
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
       '<button id="pv-invite-cancel" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
-      '<button id="pv-invite-create" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Create invite</button>' +
+      '<button id="pv-invite-create" style="padding:6px 10px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;font-size:14px;">Create Invite</button>' +
     '</div>' +
     '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;font:inherit;"></div>';
 
@@ -231,7 +231,7 @@ function openInvitesModal(db){
   pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;color:#111;font:inherit;">Invites</h3>' +
+    '<h3 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:600;">Invites</h3>' +
     '<div id="pv-invites-list" style="margin-top:10px;font:inherit;color:#111;"></div>' +
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
       '<button id="pv-invites-close" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
@@ -482,6 +482,7 @@ document.addEventListener('DOMContentLoaded', function(){
       
       modal.innerHTML = 
         '<h3 style="margin:0 0 20px 0;font-size:20px;">Student Details</h3>' +
+        '<div class="p2" style="margin:0 0 20px 0;padding-bottom:20px;border-bottom:1px solid #ddd;">👤 ' + escapeHtml(userData.email || '') + ' Information</div>' +
         
         '<div style="margin-bottom:16px;">' +
           '<div style="font-size:13px;color:#666;margin-bottom:4px;">Joined</div>' +
@@ -537,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function(){
         '</div>' +
         
         '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
-          '<button id="modal-cancel" style="padding:10px 20px;border:1px solid #ddd;background:#fff;border-radius:8px;cursor:pointer;font-size:14px;">Cancel</button>' +
+          '<button id="modal-cancel" style="padding:10px 20px;border:1px solid #ccc;background:#f3f3f3;border-radius:8px;cursor:pointer;font-size:14px;">Cancel</button>' +
           '<button id="modal-save" style="padding:10px 20px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;border-radius:8px;cursor:pointer;font-size:14px;">Save</button>' +
         '</div>';
       
@@ -594,22 +595,13 @@ document.addEventListener('DOMContentLoaded', function(){
         openUserDetailsModal(link.getAttribute('data-uid'));
       });
     });
-    
-    rootEl.querySelectorAll('.pv-edit-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){ openEditor(btn.getAttribute('data-uid')); });
-    });
-    rootEl.querySelectorAll('.pv-save-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){ saveProgress(btn.getAttribute('data-uid')); });
-    });
-    rootEl.querySelectorAll('.pv-cancel-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){ closeEditor(btn.getAttribute('data-uid')); });
-    });
 
     var addBtn = rootEl.querySelector('#pv-add-user-btn');
     if (addBtn) addBtn.addEventListener('click', function(){ openAddUserModal(db); });
 
     var invitesBtn = rootEl.querySelector('#pv-invites-btn');
     if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
+  }
   }
 
   function render(users){
@@ -652,11 +644,10 @@ document.addEventListener('DOMContentLoaded', function(){
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">&nbsp;</th>';
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
-      html += '<tr><td colspan="6" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
+      html += '<tr><td colspan="5" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
     } else {
       users.forEach(function(u){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
@@ -665,51 +656,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
         html += '<tr>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;"><a href="#" class="pv-name-link" data-uid="' + escapeHtml(u.uid) + '" style="color:#06b3fd;text-decoration:none;cursor:pointer;">' + (isOnline ? '🥁 ' : '') + escapeHtml(u.email) + '</a></td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;"><a href="#" class="pv-name-link" data-uid="' + escapeHtml(u.uid) + '" style="color:#06b3fd;text-decoration:none;cursor:pointer;">' + escapeHtml(u.fullName || '-') + '</a></td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.fullName || '-') + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + formatTs(u.lastLogin) + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatDuration(u.totalSeconds) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' +
-                  '<button type="button" class="pv-edit-btn" data-uid="' + escapeHtml(u.uid) + '" style="padding:6px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Edit</button>' +
-                  '<span class="pv-save-msg" data-uid="' + escapeHtml(u.uid) + '" style="margin-left:8px;font-size:13px;opacity:.85;"></span>' +
-                '</td>';
         html += '</tr>';
-
-        html += '<tr class="pv-editor-row" data-uid="' + escapeHtml(u.uid) + '" style="display:none;background:#fafafa;">';
-        html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
-        html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;">';
-
-        html += (
-          '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
-            '<div style="font-size:12px;opacity:.75;">First name</div>' +
-            '<input type="text" class="pv-name" data-uid="' + escapeHtml(u.uid) + '" data-key="firstName" style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;">' +
-          '</div>' +
-          '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
-            '<div style="font-size:12px;opacity:.75;">Surname</div>' +
-            '<input type="text" class="pv-name" data-uid="' + escapeHtml(u.uid) + '" data-key="lastName" style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;">' +
-          '</div>'
-        );
-
-        function inputBlock(label, key){
-          return (
-            '<div style="display:flex;flex-direction:column;gap:6px;min-width:90px;flex:1;">' +
-              '<div style="font-size:12px;opacity:.75;">' + label + '</div>' +
-              '<input type="text" class="pv-prog" data-uid="' + escapeHtml(u.uid) + '" data-key="' + key + '" style="padding:10px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;width:100%;box-sizing:border-box;" placeholder="(leave blank if not used)">' +
-            '</div>'
-          );
-        }
-
-        html += inputBlock('Groove Studies', 'grooves');
-        html += inputBlock('Fill Studies', 'fills');
-        html += inputBlock('Stick Studies', 'hands');
-        html += inputBlock('Foot Control', 'feet');
-
-        html += '<div style="display:flex;gap:8px;">' +
-                  '<button type="button" class="pv-save-btn" data-uid="' + escapeHtml(u.uid) + '" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#111;color:#fff;cursor:pointer;">Save</button>' +
-                  '<button type="button" class="pv-cancel-btn" data-uid="' + escapeHtml(u.uid) + '" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.12);background:#fff;cursor:pointer;">Close</button>' +
-                '</div>';
-
-        html += '</div></td></tr>';
       });
     }
 
