@@ -102,6 +102,12 @@
           </div>
 
           <div class="vca-field">
+            <label>Date of Birth (DD/MM/YYYY)</label>
+            <input id="vca-birthdate" type="text" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="bday">
+            <div class="vca-hint">Required for age verification.</div>
+          </div>
+
+          <div class="vca-field">
             <label>Password</label>
             <input id="vca-pass" type="password" autocomplete="new-password">
             <div class="vca-hint">Use at least 6 characters.</div>
@@ -127,10 +133,70 @@
 
       const firstName = (document.getElementById("vca-first").value || "").trim();
       const lastName = (document.getElementById("vca-last").value || "").trim();
+      const birthdate = (document.getElementById("vca-birthdate").value || "").trim();
       const password = (document.getElementById("vca-pass").value || "").trim();
 
+      // Check for emojis in names
+      const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu;
+      
       if (!firstName || !lastName) {
         msg.textContent = "Please enter your first and last name.";
+        btn.disabled = false;
+        return;
+      }
+
+      if (emojiRegex.test(firstName) || emojiRegex.test(lastName)) {
+        msg.textContent = "Names cannot contain emojis.";
+        btn.disabled = false;
+        return;
+      }
+
+      if (!birthdate) {
+        msg.textContent = "Please enter your date of birth.";
+        btn.disabled = false;
+        return;
+      }
+
+      // Validate birthdate format DD/MM/YYYY
+      const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+      const dateMatch = birthdate.match(datePattern);
+      
+      if (!dateMatch) {
+        msg.textContent = "Please enter birthdate as DD/MM/YYYY.";
+        btn.disabled = false;
+        return;
+      }
+
+      const day = parseInt(dateMatch[1], 10);
+      const month = parseInt(dateMatch[2], 10);
+      const year = parseInt(dateMatch[3], 10);
+
+      // Validate date
+      if (month < 1 || month > 12 || day < 1 || day > 31) {
+        msg.textContent = "Please enter a valid date.";
+        btn.disabled = false;
+        return;
+      }
+
+      const birthDate = new Date(year, month - 1, day);
+      if (birthDate.getDate() !== day || birthDate.getMonth() !== month - 1 || birthDate.getFullYear() !== year) {
+        msg.textContent = "Please enter a valid date.";
+        btn.disabled = false;
+        return;
+      }
+
+      // Check if date is in the future
+      if (birthDate > new Date()) {
+        msg.textContent = "Birthdate cannot be in the future.";
+        btn.disabled = false;
+        return;
+      }
+
+      // Check minimum age (must be at least 1 year old)
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      if (birthDate > oneYearAgo) {
+        msg.textContent = "You must be at least 1 year old to create an account.";
         btn.disabled = false;
         return;
       }
@@ -212,7 +278,8 @@
           createdAt: inviteCreatedAt,
           firstName: String(firstName || "").trim(),
           lastName: String(lastName || "").trim(),
-          displayName
+          displayName,
+          birthdate: birthdate
         }, { merge: true });
 
         // Ensure metrics doc exists (other counters are written by vault-metrics.js).
