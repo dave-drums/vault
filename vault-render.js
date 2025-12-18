@@ -358,6 +358,7 @@
     });
   });
 
-  window.vaultRender = run;  // Added line for the new one-page lesson UI
-  
+  // Expose run() globally so it can be called after dynamic content injection
+  window.vaultRender = run;
+
 })();
