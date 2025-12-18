@@ -510,6 +510,11 @@ document.addEventListener('DOMContentLoaded', function(){
           '</div>' +
         '</div>' +
         
+        '<div style="margin-bottom:16px;">' +
+          '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Date of Birth (DD/MM/YYYY)</label>' +
+          '<input type="text" id="modal-birthdate" value="' + escapeHtml(userData.birthdate || '') + '" placeholder="DD/MM/YYYY" maxlength="10" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
+        '</div>' +
+        
         '<div style="margin-bottom:4px;font-size:13px;color:#666;">Progress</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
           '<div>' +
@@ -559,7 +564,8 @@ document.addEventListener('DOMContentLoaded', function(){
         var updates = {
           displayName: modal.querySelector('#modal-username').value.trim(),
           firstName: modal.querySelector('#modal-firstname').value.trim(),
-          lastName: modal.querySelector('#modal-lastname').value.trim()
+          lastName: modal.querySelector('#modal-lastname').value.trim(),
+          birthdate: modal.querySelector('#modal-birthdate').value.trim()
         };
         
         var progressUpdates = {
