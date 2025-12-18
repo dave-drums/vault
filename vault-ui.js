@@ -274,22 +274,16 @@ document.addEventListener('DOMContentLoaded', function () {
       panel.className = 'tab-panel';
       panel.id = 'practice-panel';
 
-      // Continue Practice Buttons Row (FIRST)
+      // Continue Practice Button Row (FIRST)
       var btnRow = document.createElement('div');
-      btnRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;';
+      btnRow.style.cssText = 'display:block;margin-bottom:16px;';
       
-      // Stack on mobile
-      if (window.innerWidth <= 600) {
-        btnRow.style.gridTemplateColumns = '1fr';
-      }
-
-      var vaultBtn = mkPrimaryBtn('Open Practice Vault', VAULT_URL);
-      var continueBtn = mkPrimaryBtn('Jump back into lesson', '#', true); // Will update with real URL
+      var continueBtn = mkPrimaryBtn('Continue...', '#', true); // Will update with real URL
       continueBtn.id = 'continue-lesson-btn';
       continueBtn.style.background = '#06b3fd';
       continueBtn.style.borderColor = '#06b3fd';
+      continueBtn.style.width = '100%';
 
-      btnRow.appendChild(vaultBtn);
       btnRow.appendChild(continueBtn);
       panel.appendChild(btnRow);
 
