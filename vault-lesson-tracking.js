@@ -1,4 +1,4 @@
-/* vault-lessons.js
+/* vault-lesson-tracking.js
    Purpose: Automatically track when users view lessons in /vault/*
    - Tracks pages under /vault/ that are NOT the vault index page
    - Stores: lastLessonUrl (WITH params), lastLessonTitle, lastLessonViewedAt
