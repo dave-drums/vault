@@ -80,6 +80,26 @@ function statusDot(lastLoginTs, joinedAtTs){
   if (days < 30) return '🟡';
   return '🔴';
 }
+function formatRelativeTime(ts){
+  if (!ts || !ts.toDate) return '';
+  var ms = tsToMs(ts);
+  if (!ms) return '';
+  
+  var now = Date.now();
+  var diff = now - ms;
+  var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  var weeks = Math.floor(days / 7);
+  var months = Math.floor(days / 30);
+  var years = Math.floor(days / 365);
+  
+  if (days < 7) return '(' + days + ' day' + (days === 1 ? '' : 's') + ' ago)';
+  if (weeks < 4) return '(' + weeks + ' week' + (weeks === 1 ? '' : 's') + ' ago)';
+  if (months < 12) return '(' + months + ' month' + (months === 1 ? '' : 's') + ' ago)';
+  
+  var remainingMonths = months - (years * 12);
+  if (remainingMonths === 0) return '(' + years + ' year' + (years === 1 ? '' : 's') + ' ago)';
+  return '(' + years + ' year' + (years === 1 ? '' : 's') + ', ' + remainingMonths + ' month' + (remainingMonths === 1 ? '' : 's') + ' ago)';
+}
 function copyText(text){
   if (navigator.clipboard && navigator.clipboard.writeText) {
     return navigator.clipboard.writeText(text);
@@ -431,7 +451,150 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
+  function openUserDetailsModal(uid){
+    // Find user data
+    var userDoc = db.collection('users').doc(uid);
+    var statsDoc = userDoc.collection('metrics').doc('stats');
+    var progressDoc = userDoc.collection('metrics').doc('progress');
+    var notesDoc = userDoc.collection('admin').doc('notes');
+    
+    Promise.all([
+      userDoc.get(),
+      statsDoc.get(),
+      progressDoc.get(),
+      notesDoc.get()
+    ]).then(function(results){
+      var userData = results[0].exists ? results[0].data() : {};
+      var statsData = results[1].exists ? results[1].data() : {};
+      var progressData = results[2].exists ? results[2].data() : {};
+      var notesData = results[3].exists ? results[3].data() : {};
+      
+      var joinedAt = userData.createdAt;
+      var lastLogin = statsData.lastLoginAt;
+      
+      // Create modal
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999;';
+      
+      var modal = document.createElement('div');
+      modal.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);';
+      pvApplyFontFromBase(modal);
+      
+      modal.innerHTML = 
+        '<h3 style="margin:0 0 20px 0;font-size:20px;">Student Details</h3>' +
+        
+        '<div style="margin-bottom:16px;">' +
+          '<div style="font-size:13px;color:#666;margin-bottom:4px;">Joined</div>' +
+          '<div style="font-size:15px;">' + formatDateOnly(joinedAt) + ' <span style="color:#999;font-size:14px;">' + formatRelativeTime(joinedAt) + '</span></div>' +
+        '</div>' +
+        
+        '<div style="margin-bottom:16px;">' +
+          '<div style="font-size:13px;color:#666;margin-bottom:4px;">Last Login</div>' +
+          '<div style="font-size:15px;">' + formatTs(lastLogin) + ' <span style="color:#999;font-size:14px;">' + formatRelativeTime(lastLogin) + '</span></div>' +
+        '</div>' +
+        
+        '<div style="margin-bottom:16px;">' +
+          '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Username</label>' +
+          '<input type="text" id="modal-username" value="' + escapeHtml(userData.displayName || '') + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
+        '</div>' +
+        
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+          '<div>' +
+            '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">First Name</label>' +
+            '<input type="text" id="modal-firstname" value="' + escapeHtml(userData.firstName || '') + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
+          '</div>' +
+          '<div>' +
+            '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Last Name</label>' +
+            '<input type="text" id="modal-lastname" value="' + escapeHtml(userData.lastName || '') + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
+          '</div>' +
+        '</div>' +
+        
+        '<div style="margin-bottom:4px;font-size:13px;color:#666;">Progress</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+          '<div>' +
+            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Groove Studies</label>' +
+            '<input type="text" id="modal-grooves" value="' + escapeHtml(progressData.grooves || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
+          '</div>' +
+          '<div>' +
+            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Fill Studies</label>' +
+            '<input type="text" id="modal-fills" value="' + escapeHtml(progressData.fills || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+          '<div>' +
+            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Stick Studies</label>' +
+            '<input type="text" id="modal-hands" value="' + escapeHtml(progressData.hands || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
+          '</div>' +
+          '<div>' +
+            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Kick Studies</label>' +
+            '<input type="text" id="modal-feet" value="' + escapeHtml(progressData.feet || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
+          '</div>' +
+        '</div>' +
+        
+        '<div style="margin-bottom:20px;">' +
+          '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Notes</label>' +
+          '<textarea id="modal-notes" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:14px;resize:vertical;">' + escapeHtml(notesData.text || '') + '</textarea>' +
+        '</div>' +
+        
+        '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+          '<button id="modal-cancel" style="padding:10px 20px;border:1px solid #ddd;background:#fff;border-radius:8px;cursor:pointer;font-size:14px;">Cancel</button>' +
+          '<button id="modal-save" style="padding:10px 20px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;border-radius:8px;cursor:pointer;font-size:14px;">Save</button>' +
+        '</div>';
+      
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+      
+      // Close handlers
+      overlay.addEventListener('click', function(e){
+        if (e.target === overlay) overlay.remove();
+      });
+      
+      modal.querySelector('#modal-cancel').addEventListener('click', function(){
+        overlay.remove();
+      });
+      
+      // Save handler
+      modal.querySelector('#modal-save').addEventListener('click', function(){
+        var updates = {
+          displayName: modal.querySelector('#modal-username').value.trim(),
+          firstName: modal.querySelector('#modal-firstname').value.trim(),
+          lastName: modal.querySelector('#modal-lastname').value.trim()
+        };
+        
+        var progressUpdates = {
+          grooves: modal.querySelector('#modal-grooves').value.trim(),
+          fills: modal.querySelector('#modal-fills').value.trim(),
+          hands: modal.querySelector('#modal-hands').value.trim(),
+          feet: modal.querySelector('#modal-feet').value.trim()
+        };
+        
+        var notesText = modal.querySelector('#modal-notes').value.trim();
+        
+        Promise.all([
+          userDoc.set(updates, { merge: true }),
+          progressDoc.set(progressUpdates, { merge: true }),
+          notesDoc.set({ text: notesText, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+        ]).then(function(){
+          overlay.remove();
+          loadOnce(); // Reload the table
+        }).catch(function(e){
+          alert('Save failed: ' + (e.message || e));
+        });
+      });
+      
+    }).catch(function(e){
+      alert('Failed to load user data: ' + (e.message || e));
+    });
+  }
+
   function bindHandlers(){
+    rootEl.querySelectorAll('.pv-name-link').forEach(function(link){
+      link.addEventListener('click', function(e){
+        e.preventDefault();
+        openUserDetailsModal(link.getAttribute('data-uid'));
+      });
+    });
+    
     rootEl.querySelectorAll('.pv-edit-btn').forEach(function(btn){
       btn.addEventListener('click', function(){ openEditor(btn.getAttribute('data-uid')); });
     });
@@ -486,7 +649,6 @@ document.addEventListener('DOMContentLoaded', function(){
     html += '<thead><tr>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Name</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Joined</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
     html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
@@ -494,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function(){
     html += '</tr></thead><tbody>';
 
     if (!users.length) {
-      html += '<tr><td colspan="7" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
+      html += '<tr><td colspan="6" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
     } else {
       users.forEach(function(u){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
@@ -503,8 +665,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
         html += '<tr>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + (isOnline ? '🥁 ' : '') + escapeHtml(u.email) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.fullName || '-') + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + formatDateOnly(u.joinedAt) + '</td>';
+        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;"><a href="#" class="pv-name-link" data-uid="' + escapeHtml(u.uid) + '" style="color:#06b3fd;text-decoration:none;cursor:pointer;">' + escapeHtml(u.fullName || '-') + '</a></td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + formatTs(u.lastLogin) + ' ' + device + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
         html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatDuration(u.totalSeconds) + '</td>';
@@ -515,7 +676,7 @@ document.addEventListener('DOMContentLoaded', function(){
         html += '</tr>';
 
         html += '<tr class="pv-editor-row" data-uid="' + escapeHtml(u.uid) + '" style="display:none;background:#fafafa;">';
-        html += '<td colspan="7" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
+        html += '<td colspan="6" style="padding:12px 8px;border-bottom:1px solid #f0f0f0;">';
         html += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;">';
 
         html += (
@@ -653,5 +814,3 @@ function loadOnce(){
   });
 });
 })();
-
-
