@@ -86,6 +86,9 @@
     const user = auth.currentUser;
     if (!user) return;
 
+    // Mark all notifications as seen (clear badge)
+    markAllAsSeen(user.uid);
+
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;' +
       'background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;' +
@@ -102,7 +105,7 @@
 
     const title = document.createElement('h3');
     title.textContent = 'Notifications';
-    title.style.cssText = 'margin:0;';
+    title.style.cssText = 'margin:0;color:#111;';
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '×';
@@ -119,9 +122,8 @@
     content.style.cssText = 'flex:1;overflow-y:auto;padding:0;';
 
     const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'p3';
     loadingDiv.textContent = 'Loading notifications...';
-    loadingDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#666;';
+    loadingDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#666;font-size:13px;';
     content.appendChild(loadingDiv);
 
     popup.appendChild(header);
@@ -149,9 +151,8 @@
 
       if (snap.empty) {
         const empty = document.createElement('div');
-        empty.className = 'p3';
         empty.textContent = 'No notifications yet';
-        empty.style.cssText = 'padding:40px 24px;text-align:center;color:#666;';
+        empty.style.cssText = 'padding:40px 24px;text-align:center;color:#666;font-size:13px;';
         contentDiv.appendChild(empty);
         return;
       }
@@ -165,9 +166,8 @@
     } catch (e) {
       console.error('Error loading notifications:', e);
       const errorDiv = document.createElement('div');
-      errorDiv.className = 'p3';
       errorDiv.textContent = 'Failed to load notifications';
-      errorDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#c00;';
+      errorDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#c00;font-size:13px;';
       contentDiv.innerHTML = '';
       contentDiv.appendChild(errorDiv);
     }
@@ -192,21 +192,18 @@
       'gap:12px;margin-bottom:6px;';
 
     const fromName = document.createElement('div');
-    fromName.className = 'p3';
     fromName.textContent = notif.fromName || 'Someone';
-    fromName.style.cssText = 'font-weight:700;';
+    fromName.style.cssText = 'font-weight:700;color:#111;font-size:13px;';
 
     const time = document.createElement('div');
-    time.className = 'p3';
     time.textContent = formatTime(notif.createdAt);
-    time.style.cssText = 'color:#666;white-space:nowrap;opacity:0.8;';
+    time.style.cssText = 'color:#666;white-space:nowrap;opacity:0.8;font-size:12px;';
 
     header.appendChild(fromName);
     header.appendChild(time);
 
     const message = document.createElement('div');
-    message.className = 'p3';
-    message.style.cssText = 'line-height:1.4;margin-bottom:6px;';
+    message.style.cssText = 'line-height:1.4;margin-bottom:6px;color:#111;font-size:13px;';
 
     if (notif.type === 'comment_reply') {
       message.textContent = 'replied to your comment';
@@ -215,14 +212,12 @@
     }
 
     const preview = document.createElement('div');
-    preview.className = 'p3';
     preview.textContent = '"' + (notif.commentText || '').slice(0, 100) + (notif.commentText?.length > 100 ? '...' : '') + '"';
-    preview.style.cssText = 'color:#666;font-style:italic;margin-bottom:8px;';
+    preview.style.cssText = 'color:#666;font-style:italic;margin-bottom:8px;font-size:12px;';
 
     const lessonLink = document.createElement('div');
-    lessonLink.className = 'p3';
     lessonLink.textContent = '→ ' + (notif.lessonTitle || 'View lesson');
-    lessonLink.style.cssText = 'color:#06b3fd;font-weight:600;';
+    lessonLink.style.cssText = 'color:#06b3fd;font-weight:600;font-size:13px;';
 
     item.appendChild(header);
     item.appendChild(message);
@@ -267,6 +262,23 @@
       .doc(notifId)
       .update({ read: true })
       .catch(e => console.error('Error marking notification as read:', e));
+  }
+
+  function markAllAsSeen(uid){
+    // Mark all unread notifications as read when popup is opened
+    db.collection('users').doc(uid).collection('notifications')
+      .where('read', '==', false)
+      .get()
+      .then(snap => {
+        if (snap.empty) return;
+        
+        const batch = db.batch();
+        snap.docs.forEach(doc => {
+          batch.update(doc.ref, { read: true });
+        });
+        return batch.commit();
+      })
+      .catch(e => console.error('Error marking all as seen:', e));
   }
 
   function listenToNotifications(uid){
