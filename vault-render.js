@@ -358,8 +358,9 @@
     });
   });
 
-  // Expose for dynamic content
+  // Expose for static code blocks
   window.vaultRender = run;
+  // Expose for dynamic content pre-rendering
   window.vaultParse = { tokenise: tokenise, render: render };
 
 })();
