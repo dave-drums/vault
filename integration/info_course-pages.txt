@@ -1,0 +1,65 @@
+<!-- WHERE: /vault/gs1 → Page Header Code Injection -->
+<!-- PURPOSE: Gate protected page + auth redirect + metrics -->
+
+<script>
+  document.documentElement.dataset.protected = 'true';
+</script>
+<style>
+html[data-protected="true"] body {
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+</style>
+<script>
+(function(){
+  var revealed = false;
+  function reveal(){
+    if (revealed) return;
+    revealed = true;
+    if (document.body) document.body.style.opacity = '1';
+  }
+  function whenBodyReady(fn){
+    if (document.body) return fn();
+    var i = setInterval(function(){
+      if (document.body){
+        clearInterval(i);
+        fn();
+      }
+    }, 20);
+    setTimeout(function(){ clearInterval(i); }, 2000);
+  }
+  function redirectToMembers(){
+    var next = encodeURIComponent(location.pathname + location.search + location.hash);
+    location.href = '/members?next=' + next;
+  }
+  var failSafe = setTimeout(function(){
+    whenBodyReady(reveal);
+  }, 2500);
+  function run(){
+    try {
+      if (document.documentElement.dataset.protected !== 'true') return;
+      if (typeof firebase === 'undefined' || !firebase.auth) return;
+      firebase.auth().onAuthStateChanged(function(user){
+        clearTimeout(failSafe);
+        if (!user) {
+          redirectToMembers();
+          return;
+        }
+        whenBodyReady(reveal);
+      });
+    } catch(e) {
+      clearTimeout(failSafe);
+      whenBodyReady(reveal);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
+</script>
+
+<script src="https://dave-drums.github.io/vault/vault-metrics.js" defer></script>
+<script src="https://dave-drums.github.io/vault/vault-lessons.js"></script>
+<script src="https://dave-drums.github.io/vault/vault-lesson-comments.js"></script>

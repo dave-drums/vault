@@ -1,0 +1,164 @@
+<!-- WHERE: /members → Code Block -->
+<!-- PURPOSE: Login UI container + styling -->
+
+<style>
+#members-wrap{
+  max-width:480px;
+  margin:60px auto;
+  padding:32px;
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 8px 28px rgba(0,0,0,.18);
+}
+
+.members-title{
+  text-align:center;
+  margin:0 0 16px;
+}
+
+#members-message {
+  text-align: center;
+  margin-top: -8px;  
+  min-height: 0;     
+  color: #c00;
+  line-height: 1.4;
+}
+
+/* Hide both views by default; JS will show correct one */
+#members-login,
+#members-account{
+  display:none;
+}
+
+/* LOGIN */
+
+#members-login label{
+  display:block;
+  margin-bottom:6px;
+}
+
+#members-login input{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  margin-bottom:18px;
+}
+
+#login-btn{
+  width:100%;
+  padding:12px;
+  background:#06b3fd;
+  border-radius:6px;
+  border:1px solid #06b3fd;
+  color:#fff;
+  cursor:pointer;
+  font:inherit;
+}
+#login-btn:hover{
+  background:#0494d3;
+  border-color:#0494d3;
+}
+
+#reset-link{
+  display:block;
+  text-align:center;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+/* ACCOUNT */
+
+#members-account-text{
+  text-align:center;
+  margin:0 0 18px;
+}
+
+.account-btn-row{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  margin-top:20px;
+}
+
+.account-btn,
+#logout-btn{
+  display:block;
+  width:100%;
+  padding:12px;
+  border-radius:6px;
+  box-sizing:border-box;
+  border:1px solid #ccc;
+  background:#f4f4f4;
+  text-align:center;
+  text-decoration:none;
+  color:inherit;
+  font:inherit;
+}
+
+#logout-btn{
+  background:#333;
+  border-color:#333;
+  color:#fff;
+  cursor:pointer;
+}
+#logout-btn:hover{
+  background:#111;
+}
+</style>
+
+<div id="members-wrap">
+  <h3 id="members-title" class="members-title">MEMBER LOGIN</h3>
+  <div id="members-message"></div>
+
+  <!-- LOGIN VIEW -->
+  <div id="members-login">
+    <label>Email</label>
+    <input id="auth-email" type="email">
+
+    <label>Password</label>
+    <input id="auth-password" type="password">
+
+    <button id="login-btn">Login</button>
+
+    <span id="reset-link">Forgot your password?</span>
+  </div>
+
+  <!-- ACCOUNT VIEW -->
+  <div id="members-account">
+    <p id="members-account-text"></p>
+
+    <div class="account-btn-row">
+      <button class="account-btn" id="change-password-btn">Change Password</button>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </div>
+</div>
+
+
+
+- - - - - - - - - - -
+
+
+<!-- WHERE: /members → Page Header Code Injection -->
+<!-- PURPOSE: Members page UI logic -->
+
+<!-- Chart loader -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- Quotes file (load first) -->
+<script src="https://dave-drums.github.io/vault/vault-cues.js"></script>
+
+<!-- Metrics tracking -->
+<script src="https://dave-drums.github.io/vault/vault-metrics.js"></script>
+
+<!-- Lesson tracking -->
+<script src="https://dave-drums.github.io/vault/vault-lessons.js"></script>
+
+<!-- Notifications -->
+<script src="https://dave-drums.github.io/vault/vault-notifications.js"></script>
+
+<!-- UI -->
+<script src="https://dave-drums.github.io/vault/vault-ui.js"></script>

@@ -1,0 +1,42 @@
+<!-- Vault Audio Player -->
+<script src="https://dave-drums.github.io/vault/audio-player.js" defer></script>
+
+<!-- Plugin Lightbox -->
+<!-- <link href="/s/plugin-lightbox.css" rel="stylesheet">
+<!-- <script src="/s/plugin-lightbox.js"></script>
+<!-- <script>pluginLightbox({"preloadContent":"true","closeExisting":"true"});</script>
+<!-- end Plugin Lightbox -->
+
+<!-- Scroll to top -->
+<button id="scrolltopbutton" aria-label="Scroll to top">
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+    <path d="M6 14l6-6 6 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<script>
+(()=>{const b=document.getElementById("scrolltopbutton");if(!b)return;
+addEventListener("scroll",()=>b.style.display=pageYOffset>20?"block":"none",{passive:1});
+b.onclick=()=>{const y=pageYOffset,t=performance.now();
+requestAnimationFrame(function s(n){
+const p=Math.min((n-t)/300,1);
+scrollTo(0,y*(1-p));
+p<1&&requestAnimationFrame(s);
+});
+};
+})();
+</script>
+
+<script> document.documentElement.dataset.protected = 'true'; </script>
+
+<script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"284df2edf50b02c344140561163f3311"})});</script>
+
+<!-- Stop banner video from looping, will pause on last frame -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<!-- <script>
+<!-- jQuery(document).ready(function($){    
+  <!-- setTimeout( function() {
+       <!--  $('video').removeAttr('loop');
+    <!-- }, 5000);
+<!-- });
+<!-- </script>
