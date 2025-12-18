@@ -24,12 +24,10 @@
     // Check if icon already exists
     if (document.getElementById('vault-notification-icon')) return;
 
-    // Create container for both icons
-    const container = document.createElement('div');
-    container.id = 'vault-icon-container';
-    container.style.cssText = 'position:absolute;top:24px;display:flex;gap:12px;align-items:center;';
-
     // Drum logo (left side, links to /vault)
+    const drumContainer = document.createElement('div');
+    drumContainer.style.cssText = 'position:absolute;top:24px;left:24px;';
+    
     const drumLink = document.createElement('a');
     drumLink.href = '/vault';
     drumLink.style.cssText = 'display:block;width:40px;height:40px;border-radius:50%;' +
@@ -42,6 +40,7 @@
     drumImg.style.cssText = 'width:28px;height:28px;display:block;';
     
     drumLink.appendChild(drumImg);
+    drumContainer.appendChild(drumLink);
     
     drumLink.addEventListener('mouseenter', () => {
       drumLink.style.background = '#e8e8e8';
@@ -53,6 +52,9 @@
     });
 
     // Notification icon (right side)
+    const notifContainer = document.createElement('div');
+    notifContainer.style.cssText = 'position:absolute;top:24px;right:24px;';
+    
     const icon = document.createElement('button');
     icon.id = 'vault-notification-icon';
     icon.type = 'button';
@@ -80,34 +82,19 @@
       'padding:0 5px;box-shadow:0 2px 4px rgba(0,0,0,0.2);';
 
     icon.appendChild(badge);
-    
-    // Position on opposite sides
-    container.style.left = '24px';
-    container.style.right = 'auto';
-    
-    // Add drum on left, notification on right
-    container.appendChild(drumLink);
-    
-    // Spacer to push notification to the right
-    const spacer = document.createElement('div');
-    spacer.style.cssText = 'flex:1;';
-    container.appendChild(spacer);
-    
-    const notifWrapper = document.createElement('div');
-    notifWrapper.style.cssText = 'position:absolute;right:24px;';
-    notifWrapper.appendChild(icon);
+    notifContainer.appendChild(icon);
     
     // Insert into members-wrap
     const membersWrap = document.getElementById('members-wrap');
     if (membersWrap) {
       membersWrap.style.position = 'relative';
-      membersWrap.appendChild(container);
-      membersWrap.appendChild(notifWrapper);
+      membersWrap.appendChild(drumContainer);
+      membersWrap.appendChild(notifContainer);
     }
 
     icon.addEventListener('click', showNotificationPopup);
 
-    return { icon, badge, container };
+    return { icon, badge };
   }
 
   function updateBadge(count){
