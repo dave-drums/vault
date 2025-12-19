@@ -695,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function(){
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .set(update, { merge: true })
+      .update(update)
       .then(function(){
         checkbox.disabled = false;
         if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
@@ -704,10 +704,27 @@ document.addEventListener('DOMContentLoaded', function(){
         checkbox.checked = !newState;
         checkbox.disabled = false;
         console.error('Failed to update:', e);
-        if(window.VaultToast) {
-          window.VaultToast.error('Update failed: ' + e.message);
+        
+        // If document doesn't exist, create it first
+        if (e.code === 'not-found') {
+          var initialData = {
+            completed: {}
+          };
+          initialData.completed[lessonId] = newState;
+          initialData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+          
+          return db.collection('users').doc(uid).collection('progress').doc(courseId)
+            .set(initialData)
+            .then(function(){
+              checkbox.disabled = false;
+              if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+            });
         } else {
-          alert('Update failed: ' + e.message);
+          if(window.VaultToast) {
+            window.VaultToast.error('Update failed: ' + e.message);
+          } else {
+            alert('Update failed: ' + e.message);
+          }
         }
       });
   }
