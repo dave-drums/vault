@@ -689,14 +689,14 @@ document.addEventListener('DOMContentLoaded', function(){
       });
   }
 
-  function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
-    var completedPath = new firebase.firestore.FieldPath('completed', lessonId);
-    var update = {};
-    update[completedPath] = newState;
-    update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-
+function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
     db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .update(update)
+      .set({
+        completed: {
+          [lessonId]: newState
+        },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true })
       .then(function(){
         checkbox.disabled = false;
         if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
@@ -706,26 +706,10 @@ document.addEventListener('DOMContentLoaded', function(){
         checkbox.disabled = false;
         console.error('Failed to update:', e);
         
-        // If document doesn't exist, create it first
-        if (e.code === 'not-found') {
-          var initialData = {
-            completed: {}
-          };
-          initialData.completed[lessonId] = newState;
-          initialData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-          
-          return db.collection('users').doc(uid).collection('progress').doc(courseId)
-            .set(initialData)
-            .then(function(){
-              checkbox.disabled = false;
-              if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
-            });
+        if(window.VaultToast) {
+          window.VaultToast.error('Update failed: ' + e.message);
         } else {
-          if(window.VaultToast) {
-            window.VaultToast.error('Update failed: ' + e.message);
-          } else {
-            alert('Update failed: ' + e.message);
-          }
+          alert('Update failed: ' + e.message);
         }
       });
   }
@@ -925,4 +909,5 @@ function loadOnce(){
   });
 });
 })();
+
 
