@@ -286,20 +286,24 @@
 
     function getLessonTitle(){
       var title = '';
-      var h1 = document.querySelector('h1');
+      var h1 = document.querySelector('#lesson-content h1');
       if (h1 && h1.textContent) {
         title = h1.textContent.trim();
       }
       if (!title && document.title) {
-        title = document.title.split('|')[0].split('—')[0].split('-')[0].trim();
+        var titleParts = document.title.split('|');
+        if (titleParts.length > 1) {
+          // After render: "Start Here | Groove Studies 1"
+          title = titleParts[0].trim();
+        } else {
+          title = document.title.split('—')[0].split('-')[0].trim();
+        }
       }
       if (!title) {
-        var path = window.location.pathname;
-        var parts = path.split('/').filter(function(p){ return p.length > 0; });
-        if (parts.length > 1) {
-          title = parts[parts.length - 1]
-            .replace(/-/g, ' ')
-            .replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+        var params = getQueryParams();
+        var lessonId = params.lesson;
+        if (lessonId) {
+          title = 'Lesson ' + lessonId;
         }
       }
       return title || 'Untitled Lesson';
@@ -312,17 +316,28 @@
     function trackLessonView(){
       if (!currentUser || !isLessonPage()) return;
       
-      var practiceDoc = db.collection('users').doc(currentUser.uid).collection('metrics').doc('practice');
-      var lessonUrl = getFullLessonUrl();
-      var lessonTitle = getLessonTitle();
-      
-      practiceDoc.set({
-        lastLessonUrl: lessonUrl,
-        lastLessonTitle: lessonTitle,
-        lastLessonViewedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }).catch(function(e){
-        console.error('Failed to track lesson view:', e);
-      });
+      // Wait for h1 to be rendered by lesson_code_block
+      var attempts = 0;
+      var checkForTitle = function(){
+        attempts++;
+        var h1 = document.querySelector('#lesson-content h1');
+        if (h1 || attempts > 20) {
+          var practiceDoc = db.collection('users').doc(currentUser.uid).collection('metrics').doc('practice');
+          var lessonUrl = getFullLessonUrl();
+          var lessonTitle = getLessonTitle();
+          
+          practiceDoc.set({
+            lastLessonUrl: lessonUrl,
+            lastLessonTitle: lessonTitle,
+            lastLessonViewedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).catch(function(e){
+            console.error('Failed to track lesson view:', e);
+          });
+        } else {
+          setTimeout(checkForTitle, 100);
+        }
+      };
+      checkForTitle();
     }
 
     return {
