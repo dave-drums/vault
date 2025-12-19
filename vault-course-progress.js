@@ -1,14 +1,9 @@
-/* vault-course-progress.js - DEBUG VERSION */
+/* vault-course-progress.js - CLICK-FIX VERSION */
 
 (function(){
   'use strict';
 
-  console.log('[PROGRESS] Script loading...');
-
-  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
-    console.error('[PROGRESS] Firebase not available');
-    return;
-  }
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
   window.VAULT_COURSES = {
     'gs1': {
@@ -45,6 +40,18 @@
 
   var auth = firebase.auth();
   var db = firebase.firestore();
+  var currentUser = null;
+  var currentCourseId = null;
+
+  // Make toggle function globally accessible
+  window.vaultToggleLesson = function(lessonId, currentState){
+    console.log('[CLICK] vaultToggleLesson called:', lessonId, 'current:', currentState);
+    if (!currentUser || !currentCourseId) {
+      console.error('[CLICK] No user or course ID');
+      return;
+    }
+    toggleCompletion(currentUser.uid, currentCourseId, lessonId, !currentState);
+  };
 
   function getCourseIdFromUrl(){
     var path = window.location.pathname;
@@ -83,67 +90,52 @@
   function initCourseIndexPage(){
     if (!isCourseIndexPage()) return;
     
-    console.log('[PROGRESS] Initializing course index page');
-    
     try {
       var courseId = getCourseIdFromUrl();
-      console.log('[PROGRESS] Course ID:', courseId);
+      currentCourseId = courseId;
       
       var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
       if (!courseConfig) {
-        console.warn('[PROGRESS] No config found for course:', courseId);
+        console.warn('No config found for course:', courseId);
         return;
       }
 
       auth.onAuthStateChanged(function(user){
-        if (!user) {
-          console.log('[PROGRESS] No user logged in');
-          return;
-        }
-        console.log('[PROGRESS] User logged in:', user.uid);
+        if (!user) return;
+        currentUser = user;
         updateActiveCourse(user.uid, courseConfig.pathway, courseId);
         loadAndRenderProgress(user.uid, courseId, courseConfig);
       });
     } catch(e) {
-      console.error('[PROGRESS] Course index init failed:', e);
+      console.error('Course index init failed:', e);
     }
   }
 
   function updateActiveCourse(uid, pathway, courseId){
-    console.log('[PROGRESS] Updating active course:', pathway, courseId);
     var update = { activeCourses: {} };
     update.activeCourses[pathway] = courseId;
     db.collection('users').doc(uid).set(update, { merge: true })
-      .then(function(){ console.log('[PROGRESS] Active course updated'); })
-      .catch(function(e){ console.error('[PROGRESS] Failed to update active course:', e); });
+      .catch(function(e){ console.error('Failed to update active course:', e); });
   }
 
   function loadAndRenderProgress(uid, courseId, courseConfig){
-    console.log('[PROGRESS] Loading progress for:', uid, courseId);
-    
     db.collection('users').doc(uid).collection('progress').doc(courseId).get()
       .then(function(snap){
         var completed = {};
         if (snap.exists) {
           var data = snap.data() || {};
           completed = data.completed || {};
-          console.log('[PROGRESS] Loaded progress:', completed);
-        } else {
-          console.log('[PROGRESS] No progress document exists yet');
         }
         renderProgressBar(completed, courseConfig.lessons);
         renderStatusCircles(uid, courseId, completed, courseConfig.lessons);
       })
-      .catch(function(e){ console.error('[PROGRESS] Failed to load course progress:', e); });
+      .catch(function(e){ console.error('Failed to load course progress:', e); });
   }
 
   function renderProgressBar(completed, lessons){
     var progressBar = document.querySelector('.course-progress-bar');
     var progressText = document.querySelector('.course-progress-text');
-    if (!progressBar) {
-      console.warn('[PROGRESS] Progress bar element not found');
-      return;
-    }
+    if (!progressBar) return;
 
     var completedCount = 0;
     lessons.forEach(function(lessonId){
@@ -153,8 +145,6 @@
     var totalLessons = lessons.length;
     var percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
-    console.log('[PROGRESS] Progress:', completedCount, '/', totalLessons, '=', percent + '%');
-
     progressBar.style.width = percent + '%';
     if (progressText) {
       progressText.textContent = completedCount + '/' + totalLessons + ' (' + percent + '%)';
@@ -162,38 +152,20 @@
   }
 
   function renderStatusCircles(uid, courseId, completed, lessons){
-    console.log('[PROGRESS] Rendering status circles for', lessons.length, 'lessons');
-    
     db.collection('users').doc(uid).get().then(function(userSnap){
-      if (!userSnap.exists) {
-        console.error('[PROGRESS] User document does not exist!');
-        return;
-      }
-      
-      var userData = userSnap.data();
-      var canSelfProgress = userData.selfProgress === true;
-      console.log('[PROGRESS] selfProgress enabled:', canSelfProgress, 'userData:', userData);
+      var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
 
       lessons.forEach(function(lessonId){
         var lessonItem = document.querySelector('[data-lesson="' + lessonId + '"]');
-        if (!lessonItem) {
-          console.warn('[PROGRESS] Lesson item not found:', lessonId);
-          return;
-        }
+        if (!lessonItem) return;
 
         var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
         var lessonLink = lessonItem.querySelector('.gs1-lesson-link');
-        if (!statusCircle) {
-          console.warn('[PROGRESS] Status circle not found for:', lessonId);
-          return;
-        }
-        if (!lessonLink) {
-          console.warn('[PROGRESS] Lesson link not found for:', lessonId);
-          return;
-        }
+        if (!statusCircle || !lessonLink) return;
 
         var isCompleted = completed[lessonId] === true;
         
+        // Update visual state
         if (isCompleted) {
           statusCircle.classList.remove('incomplete');
           statusCircle.classList.add('completed');
@@ -202,91 +174,71 @@
           statusCircle.classList.add('incomplete');
         }
 
+        // Make clickable if user has permission
         if (canSelfProgress) {
           statusCircle.classList.add('clickable');
-          console.log('[PROGRESS] Made lesson clickable:', lessonId);
           
-          statusCircle.addEventListener('click', function(e){
+          // Store current state as data attribute
+          statusCircle.setAttribute('data-completed', isCompleted ? 'true' : 'false');
+          statusCircle.setAttribute('data-lesson-id', lessonId);
+          
+          // Use onclick attribute as fallback (most reliable)
+          statusCircle.onclick = function(e){
             e.preventDefault();
             e.stopPropagation();
-            console.log('[PROGRESS] Status circle clicked for:', lessonId, 'newState:', !isCompleted);
-            toggleCompletion(uid, courseId, lessonId, !isCompleted);
-          });
+            var lessonId = this.getAttribute('data-lesson-id');
+            var currentState = this.getAttribute('data-completed') === 'true';
+            console.log('[CLICK] Status circle clicked:', lessonId, 'completed:', currentState);
+            window.vaultToggleLesson(lessonId, currentState);
+          };
         }
         
-        lessonLink.addEventListener('click', function(){
-          var url = window.location.pathname + '?lesson=' + lessonId;
-          console.log('[PROGRESS] Lesson link clicked, navigating to:', url);
-          window.location.href = url;
-        });
+        // Make lesson text clickable to navigate
+        lessonLink.onclick = function(){
+          window.location.href = window.location.pathname + '?lesson=' + lessonId;
+        };
       });
-    }).catch(function(e){
-      console.error('[PROGRESS] Failed to load user data:', e);
     });
   }
 
   function toggleCompletion(uid, courseId, lessonId, newState){
-    console.log('[PROGRESS] Toggling completion:', {uid, courseId, lessonId, newState});
+    console.log('[TOGGLE] Setting lesson', lessonId, 'to', newState);
     
     var update = {};
     update['completed.' + lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
-    console.log('[PROGRESS] Writing to Firestore:', update);
-
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
       .then(function(){ 
-        console.log('[PROGRESS] Successfully saved, reloading page...');
+        console.log('[TOGGLE] Success, reloading...');
         location.reload(); 
       })
       .catch(function(e){
-        console.error('[PROGRESS] Failed to toggle completion:', e);
-        console.error('[PROGRESS] Error details:', e.code, e.message);
-        alert('Could not update progress. Error: ' + e.message + '\nCheck console for details.');
+        console.error('[TOGGLE] Failed:', e);
+        alert('Could not update progress: ' + e.message);
       });
   }
 
   function initLessonCompletionButtons(){
     if (!isSingleLessonPage()) return;
 
-    console.log('[PROGRESS] Initializing lesson completion buttons');
-
     try {
       var params = getQueryParams();
       var courseId = getCourseIdFromUrl();
       var lessonId = params.lesson;
+      currentCourseId = courseId;
 
-      console.log('[PROGRESS] Lesson page:', {courseId, lessonId});
-
-      if (!courseId || !lessonId) {
-        console.warn('[PROGRESS] Missing courseId or lessonId');
-        return;
-      }
+      if (!courseId || !lessonId) return;
 
       auth.onAuthStateChanged(function(user){
-        if (!user) {
-          console.log('[PROGRESS] No user logged in for lesson buttons');
-          return;
-        }
-
-        console.log('[PROGRESS] User logged in, checking selfProgress...');
+        if (!user) return;
+        currentUser = user;
 
         db.collection('users').doc(user.uid).get().then(function(userSnap){
-          if (!userSnap.exists) {
-            console.error('[PROGRESS] User document does not exist');
-            return;
-          }
+          var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
           
-          var userData = userSnap.data();
-          var canSelfProgress = userData.selfProgress === true;
-          
-          console.log('[PROGRESS] selfProgress:', canSelfProgress, 'userData:', userData);
-          
-          if (!canSelfProgress) {
-            console.log('[PROGRESS] selfProgress not enabled, skipping button creation');
-            return;
-          }
+          if (!canSelfProgress) return;
 
           db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
             .then(function(snap){
@@ -296,50 +248,32 @@
                 isCompleted = completed[lessonId] === true;
               }
 
-              console.log('[PROGRESS] Current lesson completion status:', isCompleted);
-              console.log('[PROGRESS] Creating completion buttons...');
               createCompletionButtons(user.uid, courseId, lessonId, isCompleted);
             });
-        }).catch(function(e){
-          console.error('[PROGRESS] Error checking user/progress:', e);
         });
       });
     } catch(e) {
-      console.error('[PROGRESS] Lesson completion init failed:', e);
+      console.error('Lesson completion init failed:', e);
     }
   }
 
   function createCompletionButtons(uid, courseId, lessonId, isCompleted){
-    console.log('[PROGRESS] createCompletionButtons called');
-    
     var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
-    if (!courseConfig) {
-      console.error('[PROGRESS] No course config for:', courseId);
-      return;
-    }
+    if (!courseConfig) return;
 
     var courseIndexUrl = window.location.pathname;
     var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId);
 
-    console.log('[PROGRESS] courseIndexUrl:', courseIndexUrl);
-    console.log('[PROGRESS] nextLessonUrl:', nextLessonUrl);
-
+    var topBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
     var topPlaceholder = document.querySelector('#complete-button-top');
-    var bottomPlaceholder = document.querySelector('#complete-button-bottom');
-    
-    console.log('[PROGRESS] Top placeholder found:', !!topPlaceholder);
-    console.log('[PROGRESS] Bottom placeholder found:', !!bottomPlaceholder);
-
     if (topPlaceholder) {
-      var topBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
       topPlaceholder.appendChild(topBtn);
-      console.log('[PROGRESS] Top button created');
     }
 
+    var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
+    var bottomPlaceholder = document.querySelector('#complete-button-bottom');
     if (bottomPlaceholder) {
-      var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
       bottomPlaceholder.appendChild(bottomBtn);
-      console.log('[PROGRESS] Bottom button created');
     }
   }
 
@@ -377,47 +311,35 @@
     btn.addEventListener('mouseenter', function(){ btn.style.opacity = '0.9'; });
     btn.addEventListener('mouseleave', function(){ btn.style.opacity = '1'; });
 
-    btn.addEventListener('click', function(){
-      console.log('[PROGRESS] Complete button clicked');
+    btn.onclick = function(){
       if (isCompleted) {
         toggleLessonCompletion(uid, courseId, lessonId, false, courseIndexUrl);
       } else {
         var redirectUrl = nextLessonUrl || courseIndexUrl;
         toggleLessonCompletion(uid, courseId, lessonId, true, redirectUrl);
       }
-    });
+    };
 
     return btn;
   }
 
   function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
-    console.log('[PROGRESS] toggleLessonCompletion:', {uid, courseId, lessonId, newState, redirectUrl});
-    
     var update = {};
     update['completed.' + lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
-    console.log('[PROGRESS] Writing update:', update);
-
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
       .then(function(){
-        console.log('[PROGRESS] Save successful, redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
       })
       .catch(function(e){
-        console.error('[PROGRESS] Failed to toggle completion:', e);
-        console.error('[PROGRESS] Error code:', e.code);
-        console.error('[PROGRESS] Error message:', e.message);
-        alert('Could not update completion. Error: ' + e.message + '\nCheck console for details.');
+        console.error('Failed to toggle completion:', e);
+        alert('Could not update completion: ' + e.message);
       });
   }
 
   function init(){
-    console.log('[PROGRESS] Initializing...');
-    console.log('[PROGRESS] isCourseIndexPage:', isCourseIndexPage());
-    console.log('[PROGRESS] isSingleLessonPage:', isSingleLessonPage());
-    
     if (isCourseIndexPage()) {
       initCourseIndexPage();
     } else if (isSingleLessonPage()) {
@@ -430,6 +352,4 @@
   } else {
     init();
   }
-  
-  console.log('[PROGRESS] Script loaded successfully');
 })();
