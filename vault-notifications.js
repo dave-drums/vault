@@ -17,9 +17,12 @@
   let notificationCount = 0;
 
   function createNotificationIcon(){
-    // Find the account title element
+    // Find the account title element - check for both 'MY ACCOUNT' and 'ACCOUNT'
     const titleEl = document.querySelector('.members-title');
-    if (!titleEl || titleEl.textContent !== 'ACCOUNT') return;
+    if (!titleEl) return;
+    
+    const titleText = titleEl.textContent.trim();
+    if (titleText !== 'MY ACCOUNT' && titleText !== 'ACCOUNT') return;
 
     // Check if icons already exist
     if (document.getElementById('vault-notification-icon')) return;
@@ -159,248 +162,152 @@
     popup.appendChild(header);
     popup.appendChild(content);
     overlay.appendChild(popup);
-
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) overlay.remove();
-    });
-
     document.body.appendChild(overlay);
 
-    // Load notifications
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
     loadNotifications(user.uid, content);
   }
 
-  async function loadNotifications(uid, contentDiv){
-    try {
-      const snap = await db.collection('users').doc(uid).collection('notifications')
-        .orderBy('createdAt', 'desc')
-        .limit(3)
-        .get();
+  function loadNotifications(uid, container){
+    db.collection('users').doc(uid).collection('notifications')
+      .orderBy('createdAt', 'desc')
+      .limit(50)
+      .get()
+      .then(snap => {
+        container.innerHTML = '';
 
-      contentDiv.innerHTML = '';
-
-      if (snap.empty) {
-        const empty = document.createElement('div');
-        empty.textContent = 'No notifications yet';
-        empty.style.cssText = 'padding:40px 24px;text-align:center;color:#666;font-size:13px;';
-        contentDiv.appendChild(empty);
-        return;
-      }
-
-      snap.forEach(doc => {
-        const notif = doc.data();
-        const item = createNotificationItem(notif, doc.id);
-        contentDiv.appendChild(item);
-      });
-      
-      // Add clear notifications button
-      const clearBtn = document.createElement('button');
-      clearBtn.textContent = 'Clear Notifications';
-      clearBtn.style.cssText = 'width:calc(100% - 48px);margin:16px 24px;padding:10px;' +
-        'background:#f3f3f3;border:1px solid #ddd;border-radius:8px;cursor:pointer;' +
-        'font-size:13px;font-weight:600;color:#666;transition:all 0.2s ease;';
-      
-      clearBtn.addEventListener('mouseenter', () => {
-        clearBtn.style.background = '#e8e8e8';
-        clearBtn.style.borderColor = '#bbb';
-      });
-      clearBtn.addEventListener('mouseleave', () => {
-        clearBtn.style.background = '#f3f3f3';
-        clearBtn.style.borderColor = '#ddd';
-      });
-      
-      clearBtn.addEventListener('click', async () => {
-        if (confirm('Clear all notifications?')) {
-          clearBtn.disabled = true;
-          clearBtn.textContent = 'Clearing...';
-          
-          const allNotifs = await db.collection('users').doc(uid).collection('notifications').get();
-          const batch = db.batch();
-          allNotifs.docs.forEach(doc => {
-            batch.delete(doc.ref);
-          });
-          await batch.commit();
-          
-          contentDiv.innerHTML = '<div style="padding:40px 24px;text-align:center;color:#666;font-size:13px;">No notifications yet</div>';
+        if (snap.empty) {
+          const emptyDiv = document.createElement('div');
+          emptyDiv.textContent = 'No notifications yet';
+          emptyDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#999;font-size:14px;';
+          container.appendChild(emptyDiv);
+          return;
         }
-      });
-      
-      contentDiv.appendChild(clearBtn);
 
-    } catch (e) {
-      console.error('Error loading notifications:', e);
-      const errorDiv = document.createElement('div');
-      errorDiv.textContent = 'Failed to load notifications';
-      errorDiv.style.cssText = 'padding:40px 24px;text-align:center;color:#c00;font-size:13px;';
-      contentDiv.innerHTML = '';
-      contentDiv.appendChild(errorDiv);
-    }
+        snap.forEach(doc => {
+          const data = doc.data();
+          const item = createNotificationItem(data, doc.id, uid);
+          container.appendChild(item);
+        });
+      })
+      .catch(err => {
+        container.innerHTML = '<div style="padding:40px 24px;text-align:center;color:#c00;font-size:14px;">Error loading notifications</div>';
+        console.error('Error loading notifications:', err);
+      });
   }
 
-  function createNotificationItem(notif, notifId){
+  function createNotificationItem(data, notifId, uid){
     const item = document.createElement('div');
     item.style.cssText = 'padding:16px 24px;border-bottom:1px solid #f0f0f0;' +
-      'cursor:pointer;transition:background 0.2s ease;' +
-      (notif.read ? 'opacity:0.7;' : 'background:#f8f9fa;');
+      'cursor:pointer;transition:background 0.15s ease;' +
+      (data.seen ? '' : 'background:#f9f9f9;');
 
-    item.addEventListener('mouseenter', () => {
-      item.style.background = '#f0f0f0';
-    });
+    item.addEventListener('mouseenter', () => { item.style.background = '#f5f5f5'; });
+    item.addEventListener('mouseleave', () => { item.style.background = data.seen ? '#fff' : '#f9f9f9'; });
 
-    item.addEventListener('mouseleave', () => {
-      item.style.background = notif.read ? '#fff' : '#f8f9fa';
-    });
-
-    const header = document.createElement('div');
-    header.style.cssText = 'display:flex;align-items:baseline;justify-content:space-between;' +
-      'gap:12px;margin-bottom:6px;';
-
-    const fromName = document.createElement('div');
-    fromName.textContent = notif.fromName || 'Someone';
-    fromName.style.cssText = 'font-weight:700;color:#111;font-size:13px;';
-
-    const time = document.createElement('div');
-    time.textContent = formatTime(notif.createdAt);
-    time.style.cssText = 'color:#666;white-space:nowrap;opacity:0.8;font-size:12px;';
-
-    header.appendChild(fromName);
-    header.appendChild(time);
+    const title = document.createElement('div');
+    title.style.cssText = 'font-weight:' + (data.seen ? '400' : '600') + ';margin-bottom:4px;color:#111;font-size:14px;';
+    title.textContent = data.title || 'New reply to your comment';
 
     const message = document.createElement('div');
-    message.style.cssText = 'line-height:1.4;margin-bottom:6px;color:#111;font-size:13px;';
+    message.style.cssText = 'color:#666;font-size:13px;margin-bottom:6px;line-height:1.4;';
+    message.textContent = data.message || '';
 
-    if (notif.type === 'comment_reply') {
-      message.textContent = 'replied to your comment';
-    } else {
-      message.textContent = 'sent you a notification';
-    }
+    const time = document.createElement('div');
+    time.style.cssText = 'color:#999;font-size:12px;';
+    time.textContent = data.createdAt ? formatRelativeTime(data.createdAt.toDate()) : '';
 
-    const preview = document.createElement('div');
-    
-    // Check if comment is deleted or permanently removed
-    if (notif.commentPermanentlyRemoved) {
-      preview.textContent = '[Comment permanently removed]';
-      preview.style.cssText = 'color:#999;font-style:italic;margin-bottom:8px;font-size:12px;opacity:0.5;';
-    } else if (notif.commentDeleted) {
-      preview.textContent = notif.deletedBy === 'admin' ? '[Comment deleted]' : '[Comment deleted by user]';
-      preview.style.cssText = 'color:#999;font-style:italic;margin-bottom:8px;font-size:12px;opacity:0.7;';
-    } else {
-      preview.textContent = '"' + (notif.commentText || '').slice(0, 100) + (notif.commentText?.length > 100 ? '...' : '') + '"';
-      preview.style.cssText = 'color:#666;font-style:italic;margin-bottom:8px;font-size:12px;';
-    }
-
-    const lessonLink = document.createElement('div');
-    lessonLink.textContent = '→ ' + (notif.lessonTitle || 'View lesson');
-    lessonLink.style.cssText = 'color:#06b3fd;font-weight:600;font-size:13px;';
-
-    item.appendChild(header);
+    item.appendChild(title);
     item.appendChild(message);
-    item.appendChild(preview);
-    item.appendChild(lessonLink);
+    item.appendChild(time);
 
     item.addEventListener('click', () => {
-      markAsRead(notifId);
-      if (notif.lessonUrl) {
-        window.location.href = notif.lessonUrl;
+      markAsRead(uid, notifId);
+      if (data.link) {
+        window.location.href = data.link;
       }
     });
 
     return item;
   }
 
-  function formatTime(timestamp){
-    if (!timestamp || !timestamp.toDate) return '';
-    const date = timestamp.toDate();
+  function formatRelativeTime(date){
     const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return diffMins + 'm ago';
-    if (diffHours < 24) return diffHours + 'h ago';
-    if (diffDays < 7) return diffDays + 'd ago';
-
-    return date.toLocaleDateString('en-AU', {
-      day: '2-digit',
-      month: 'short'
-    });
-  }
-
-  function markAsRead(notifId){
-    const user = auth.currentUser;
-    if (!user) return;
-
-    db.collection('users').doc(user.uid).collection('notifications')
-      .doc(notifId)
-      .update({ read: true })
-      .catch(e => console.error('Error marking notification as read:', e));
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return minutes + 'm ago';
+    if (hours < 24) return hours + 'h ago';
+    if (days < 7) return days + 'd ago';
+    return date.toLocaleDateString();
   }
 
   function markAllAsSeen(uid){
-    // Mark all unread notifications as read when popup is opened
     db.collection('users').doc(uid).collection('notifications')
-      .where('read', '==', false)
+      .where('seen', '==', false)
       .get()
       .then(snap => {
-        if (snap.empty) return;
-        
         const batch = db.batch();
-        snap.docs.forEach(doc => {
-          batch.update(doc.ref, { read: true });
+        snap.forEach(doc => {
+          batch.update(doc.ref, { seen: true });
         });
         return batch.commit();
       })
-      .catch(e => console.error('Error marking all as seen:', e));
+      .then(() => {
+        updateBadge(0);
+      })
+      .catch(err => console.error('Error marking notifications as seen:', err));
+  }
+
+  function markAsRead(uid, notifId){
+    db.collection('users').doc(uid).collection('notifications').doc(notifId)
+      .update({ read: true })
+      .catch(err => console.error('Error marking notification as read:', err));
   }
 
   function listenToNotifications(uid){
     if (unsubNotifications) unsubNotifications();
 
     unsubNotifications = db.collection('users').doc(uid).collection('notifications')
-      .where('read', '==', false)
+      .where('seen', '==', false)
       .onSnapshot(snap => {
-        const count = snap.size;
-        updateBadge(count);
+        updateBadge(snap.size);
       }, err => {
         console.error('Error listening to notifications:', err);
       });
   }
 
   function init(){
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        if (unsubNotifications) {
-          unsubNotifications();
-          unsubNotifications = null;
-        }
-        // Remove both icons when logged out
-        const drumContainer = document.getElementById('vault-drum-container');
-        const notifContainer = document.getElementById('vault-notification-container');
-        if (drumContainer) drumContainer.remove();
-        if (notifContainer) notifContainer.remove();
-        return;
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+      return;
+    }
+
+    // Wait for account page to load
+    const checkInterval = setInterval(() => {
+      const titleEl = document.querySelector('.members-title');
+      if (titleEl && (titleEl.textContent.trim() === 'MY ACCOUNT' || titleEl.textContent.trim() === 'ACCOUNT')) {
+        clearInterval(checkInterval);
+        
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            createNotificationIcon();
+            listenToNotifications(user.uid);
+          } else {
+            if (unsubNotifications) unsubNotifications();
+          }
+        });
       }
+    }, 100);
 
-      // Wait for account view to be rendered
-      const checkInterval = setInterval(() => {
-        const titleEl = document.querySelector('.members-title');
-        if (titleEl && titleEl.textContent === 'ACCOUNT') {
-          clearInterval(checkInterval);
-          createNotificationIcon();
-          listenToNotifications(user.uid);
-        }
-      }, 100);
-
-      // Timeout after 5 seconds
-      setTimeout(() => clearInterval(checkInterval), 5000);
-    });
+    // Stop checking after 10 seconds
+    setTimeout(() => clearInterval(checkInterval), 10000);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  init();
 })();
