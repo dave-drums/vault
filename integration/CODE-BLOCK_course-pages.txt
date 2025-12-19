@@ -1,7 +1,5 @@
-<!-- WHERE: /vault/gs1 → Course Page Code Box (within Squarespace page) -->
-<!-- PURPOSE: Display course and lesson content within the page -->
-
-<!-- COURSE PAGE CODE BLOCK - POINTER-EVENTS VERSION -->
+<!-- WHERE: /vault/* → Code Block -->
+<!-- PURPOSE: Inject rendered lesson UI from master *.txt file (Firebase Storage) -->
 
 <style>
 .gs1-course-container {
