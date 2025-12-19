@@ -1,25 +1,3 @@
-<!-- WHERE: /vault-admin → Code Block -->
-<!-- PURPOSE: Pre-auth + pre-mount admin placeholder -->
-
-<style>
-#vault-admin-placeholder{
-  max-width: 520px;
-  margin: 120px auto;
-  text-align: center;
-  color: #111;
-}
-</style>
-
-<div id="vault-admin-root">
-  <div id="vault-admin-placeholder">
-    Checking user permissions…
-  </div>
-</div>
-
-
-- - - - - - - - - - -
-
-
 <!-- WHERE: /vault-admin → Page Header Code Injection -->
 <!-- PURPOSE: Admin gate + admin console loader -->
 
