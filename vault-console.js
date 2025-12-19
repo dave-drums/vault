@@ -1,13 +1,33 @@
 (function(){
-/* Vault Admin Console - FIXED
-   Fixes:
-   - Progress checkmarks now work (proper Firestore nested update)
-   - h4 headers (not bold)
-   - Removed "Information" from profile header
-   - Removed progress section from profile modal
-*/
+var db;
+var auth;
+var rootEl;
 
-/* ---------- Font helpers ---------- */
+// BUNDLED COURSE CONFIG
+window.VAULT_COURSES = {
+  'gs1': {
+    name: 'Groove Studies 1',
+    pathway: 'groove',
+    lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
+'1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16',
+'1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23']
+  },
+  'gs2': { name: 'Groove Studies 2', pathway: 'groove', lessons: [] },
+  'gs3': { name: 'Groove Studies 3', pathway: 'groove', lessons: [] },
+  'gs4': { name: 'Groove Studies 4', pathway: 'groove', lessons: [] },
+  'fs1': { name: 'Fill Studies 1', pathway: 'fills', lessons: [] },
+  'fs2': { name: 'Fill Studies 2', pathway: 'fills', lessons: [] },
+  'fs3': { name: 'Fill Studies 3', pathway: 'fills', lessons: [] },
+  'fs4': { name: 'Fill Studies 4', pathway: 'fills', lessons: [] },
+  'ss1': { name: 'Stick Studies 1', pathway: 'sticks', lessons: [] },
+  'ss2': { name: 'Stick Studies 2', pathway: 'sticks', lessons: [] },
+  'ss3': { name: 'Stick Studies 3', pathway: 'sticks', lessons: [] },
+  'ss4': { name: 'Stick Studies 4', pathway: 'sticks', lessons: [] },
+  'ks1': { name: 'Kick Studies 1', pathway: 'kicks', lessons: [] },
+  'ks2': { name: 'Kick Studies 2', pathway: 'kicks', lessons: [] },
+  'ks3': { name: 'Kick Studies 3', pathway: 'kicks', lessons: [] }
+};
+
 function pvGetFontBaseEl(){
   return (
     document.querySelector('.sqs-block-content') ||
@@ -27,7 +47,6 @@ function pvApplyFontFromBase(el){
   el.style.color = cs.color;
 }
 
-/* ---------- Utils ---------- */
 function escapeHtml(s){
   return String(s || '').replace(/[&<>"']/g, function (c) {
     return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
@@ -125,7 +144,6 @@ function showBody(){
   if (document.body) document.body.style.opacity = '1';
 }
 
-/* ---------- Invites ---------- */
 var INVITES_COL = 'invites';
 var CREATE_ACCOUNT_URL_BASE = 'https://www.davedrums.com.au/create-account?t=';
 
@@ -142,7 +160,6 @@ function randomToken(len){
   }
 }
 
-/* ---------- Modals ---------- */
 function makeOverlay(){
   var overlay = document.createElement('div');
   overlay.setAttribute('role','dialog');
@@ -229,7 +246,7 @@ function openInvitesModal(db){
   var overlay = makeOverlay();
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
+  box.style.cssText = 'width:100%;max-width:900px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
   pvApplyFontFromBase(box);
 
   box.innerHTML =
@@ -260,6 +277,7 @@ function openInvitesModal(db){
                 '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Status</th>' +
                 '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Created</th>' +
                 '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Expires</th>' +
+                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Actions</th>' +
                 '</tr></thead><tbody>';
 
       snap.forEach(function(doc){
@@ -277,11 +295,32 @@ function openInvitesModal(db){
         tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;color:' + statusColor + ';">' + status + '</td>';
         tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + createdAt + '</td>';
         tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + expiresAt + '</td>';
+        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">';
+        if (!used) {
+          tbl += '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:4px 8px;border-radius:4px;border:1px solid #d00;background:#ffe;color:#d00;cursor:pointer;font-size:12px;">Revoke</button>';
+        }
+        tbl += '</td>';
         tbl += '</tr>';
       });
 
       tbl += '</tbody></table>';
       listEl.innerHTML = tbl;
+      
+      listEl.querySelectorAll('.revoke-invite-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var inviteId = btn.getAttribute('data-invite-id');
+          if (confirm('Delete this invite?')) {
+            db.collection(INVITES_COL).doc(inviteId).delete()
+              .then(function(){
+                overlay.remove();
+                openInvitesModal(db);
+              })
+              .catch(function(e){
+                alert('Failed to delete invite.');
+              });
+          }
+        });
+      });
     })
     .catch(function(){
       listEl.textContent = 'Error loading invites.';
@@ -289,10 +328,6 @@ function openInvitesModal(db){
 }
 
 var ONLINE_WINDOW_MS = 3 * 60 * 1000;
-
-var db;
-var auth;
-var rootEl;
 
 document.addEventListener('DOMContentLoaded', function(){
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
@@ -307,10 +342,6 @@ document.addEventListener('DOMContentLoaded', function(){
     return db.collection('admins').doc(user.uid).get()
       .then(function(doc){ return doc.exists; })
       .catch(function(){ return false; });
-  }
-
-  function openProfileModal(db, student){
-    openUserDetailsModal(student.uid);
   }
 
   function openUserDetailsModal(uid){
@@ -337,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function(){
       modal.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);';
       pvApplyFontFromBase(modal);
       
-      // FIXED: Removed "Information", removed Progress section, h4 not bold
       modal.innerHTML = 
         '<h4 style="margin:0 0 20px 0;font-size:20px;font-weight:400;">Student Details</h4>' +
         '<div class="p2" style="margin:0 0 20px 0;padding-bottom:20px;border-bottom:1px solid #ddd;">👤 ' + escapeHtml(userData.email || '') + '</div>' +
@@ -485,7 +515,6 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  /* ---------- Progress Modal ---------- */
   function openProgressModal(db, uid, displayName){
     var overlay = makeOverlay();
 
@@ -494,7 +523,6 @@ document.addEventListener('DOMContentLoaded', function(){
       'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;max-height:90vh;overflow-y:auto;';
     pvApplyFontFromBase(box);
 
-    // FIXED: h4 not bold
     var header = document.createElement('h4');
     header.textContent = 'Progress: ' + displayName;
     header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:400;';
@@ -531,11 +559,11 @@ document.addEventListener('DOMContentLoaded', function(){
         selfProgress: selfProgressCheckbox.checked
       }, { merge: true })
       .then(function(){
-        window.VaultToast.success('Self-progress ' + (selfProgressCheckbox.checked ? 'enabled' : 'disabled'));
+        if(window.VaultToast) window.VaultToast.success('Self-progress ' + (selfProgressCheckbox.checked ? 'enabled' : 'disabled'));
       })
       .catch(function(e){
         console.error('Failed to update selfProgress:', e);
-        window.VaultToast.error('Failed to update');
+        if(window.VaultToast) window.VaultToast.error('Failed to update');
       });
     });
 
@@ -603,6 +631,11 @@ document.addEventListener('DOMContentLoaded', function(){
       return;
     }
 
+    if (!courseConfig.lessons || courseConfig.lessons.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">No lessons configured for this course yet.</div>';
+      return;
+    }
+
     db.collection('users').doc(uid).collection('progress').doc(courseId).get()
       .then(function(snap){
         var completed = {};
@@ -654,20 +687,19 @@ document.addEventListener('DOMContentLoaded', function(){
       });
   }
 
-  // FIXED: Proper Firestore nested field update using dot notation
   function toggleAdminCompletion(db, uid, courseId, lessonId, newState){
     var update = {};
-    update['completed.' + lessonId] = newState; // Use dot notation for nested field
+    update['completed.' + lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
       .then(function(){
-        window.VaultToast.success('Updated: Lesson ' + lessonId);
+        if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
       })
       .catch(function(e){
         console.error('Failed to update:', e);
-        window.VaultToast.error('Update failed');
+        if(window.VaultToast) window.VaultToast.error('Update failed');
       });
   }
 
