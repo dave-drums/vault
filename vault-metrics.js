@@ -1,4 +1,4 @@
-/* vault-metrics.js - Consolidated metrics, tracking, and progress */
+/* vault-unified.js - Consolidated metrics, tracking, and progress */
 
 (function(){
   'use strict';
@@ -16,12 +16,8 @@
   var currentUser = null;
 
   function getCourseIdFromUrl(){
-    var path = window.location.pathname;
-    var parts = path.split('/').filter(function(p){ return p.length > 0; });
-    if (parts.length >= 2 && parts[0] === 'vault') {
-      return parts[1];
-    }
-    return null;
+    var params = getQueryParams();
+    return params.course || null;
   }
 
   function getQueryParams(){
@@ -283,10 +279,9 @@
     var VAULT_INDEX_PATH = '/vault';
 
     function isLessonPage(){
-      var path = window.location.pathname;
-      if (path.indexOf(VAULT_PATH_PREFIX) !== 0) return false;
-      if (path === VAULT_INDEX_PATH || path === VAULT_INDEX_PATH + '/') return false;
-      return true;
+      if (window.location.pathname !== '/vault') return false;
+      var params = getQueryParams();
+      return params.course && params.lesson;
     }
 
     function getLessonTitle(){
@@ -454,7 +449,7 @@
         }
         
         lessonItem.onclick = function(){
-          window.location.href = window.location.pathname + '?lesson=' + lessonId;
+          window.location.href = '/vault?course=' + courseId + '&lesson=' + lessonId;
         };
       });
     }
@@ -487,7 +482,7 @@
       loadAndRenderProgress(currentUser.uid, courseId, courseConfig);
     }
 
-    function getNextLessonUrl(courseConfig, currentLessonId){
+    function getNextLessonUrl(courseConfig, currentLessonId, courseId){
       var lessons = courseConfig.lessons;
       var currentIndex = lessons.indexOf(currentLessonId);
       
@@ -496,7 +491,7 @@
       }
       
       var nextLessonId = lessons[currentIndex + 1];
-      return window.location.pathname + '?lesson=' + nextLessonId;
+      return '/vault?course=' + courseId + '&lesson=' + nextLessonId;
     }
 
     function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl){
@@ -507,7 +502,7 @@
       if (isCompleted) {
         btn.textContent = 'Mark Incomplete';
       } else if (nextLessonUrl) {
-        btn.textContent = 'Complete Lesson →';
+        btn.textContent = 'Complete & Next Lesson →';
       } else {
         btn.textContent = 'Complete Lesson';
       }
@@ -554,8 +549,8 @@
       var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
       if (!courseConfig) return;
 
-      var courseIndexUrl = window.location.pathname;
-      var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId);
+      var courseIndexUrl = '/vault?course=' + courseId;
+      var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId, courseId);
       var btn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
 
       var topPlaceholder = document.querySelector('#complete-button-top');
