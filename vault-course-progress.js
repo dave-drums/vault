@@ -163,6 +163,7 @@
           
           statusCircle.addEventListener('click', function(e){
             e.preventDefault();
+            e.stopPropagation();
             toggleCompletion(uid, courseId, lessonId, !isCompleted);
           });
         }
