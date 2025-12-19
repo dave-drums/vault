@@ -615,7 +615,14 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       if (snap.exists) {
         var completed = snap.data().completed || {};
         courseConfig.lessons.forEach(function(lessonId){
-          if (completed[lessonId]) completedCount++;
+          // Handle both correct format and old nested format
+          var isComplete = completed[lessonId];
+          if (!isComplete && lessonId.indexOf('.') !== -1) {
+            // Check nested format (old bug)
+            var parts = lessonId.split('.');
+            isComplete = completed[parts[0]] && completed[parts[0]][parts[1]];
+          }
+          if (isComplete) completedCount++;
         });
       }
 
@@ -1539,5 +1546,3 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
 
   start();
 });
-
-
