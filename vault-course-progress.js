@@ -151,53 +151,33 @@
     }
   }
 
-  function renderStatusCircles(uid, courseId, completed, lessons){
-    db.collection('users').doc(uid).get().then(function(userSnap){
-      var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
+function renderStatusCircles(uid, courseId, completed, lessons){
+    lessons.forEach(function(lessonId){
+      var lessonItem = document.querySelector('[data-lesson="' + lessonId + '"]');
+      if (!lessonItem) return;
 
-      lessons.forEach(function(lessonId){
-        var lessonItem = document.querySelector('[data-lesson="' + lessonId + '"]');
-        if (!lessonItem) return;
+      var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
+      var lessonLink = lessonItem.querySelector('.gs1-lesson-link');
+      if (!statusCircle || !lessonLink) return;
 
-        var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
-        var lessonLink = lessonItem.querySelector('.gs1-lesson-link');
-        if (!statusCircle || !lessonLink) return;
-
-        var isCompleted = completed[lessonId] === true;
-        
-        // Update visual state
-        if (isCompleted) {
-          statusCircle.classList.remove('incomplete');
-          statusCircle.classList.add('completed');
-        } else {
-          statusCircle.classList.remove('completed');
-          statusCircle.classList.add('incomplete');
-        }
-
-        // Make clickable if user has permission
-        if (canSelfProgress) {
-          statusCircle.classList.add('clickable');
-          
-          // Store current state as data attribute
-          statusCircle.setAttribute('data-completed', isCompleted ? 'true' : 'false');
-          statusCircle.setAttribute('data-lesson-id', lessonId);
-          
-          // Use onclick attribute as fallback (most reliable)
-          statusCircle.onclick = function(e){
-            e.preventDefault();
-            e.stopPropagation();
-            var lessonId = this.getAttribute('data-lesson-id');
-            var currentState = this.getAttribute('data-completed') === 'true';
-            console.log('[CLICK] Status circle clicked:', lessonId, 'completed:', currentState);
-            window.vaultToggleLesson(lessonId, currentState);
-          };
-        }
-        
-        // Make lesson text clickable to navigate
-        lessonLink.onclick = function(){
-          window.location.href = window.location.pathname + '?lesson=' + lessonId;
-        };
-      });
+      var isCompleted = completed[lessonId] === true;
+      
+      // Update visual state
+      if (isCompleted) {
+        statusCircle.classList.remove('incomplete');
+        statusCircle.classList.add('completed');
+      } else {
+        statusCircle.classList.remove('completed');
+        statusCircle.classList.add('incomplete');
+      }
+      
+      // Circles are view-only for users - no clicking
+      statusCircle.style.cursor = 'default';
+      
+      // Make lesson text clickable to navigate
+      lessonLink.onclick = function(){
+        window.location.href = window.location.pathname + '?lesson=' + lessonId;
+      };
     });
   }
 
