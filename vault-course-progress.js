@@ -350,13 +350,15 @@ function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
       });
   }
 
-  function init(){
+ function init(){
     if (isCourseIndexPage()) {
       initCourseIndexPage();
-    } else if (isSingleLessonPage()) {
-      initLessonCompletionButtons();
     }
+    // Don't auto-init buttons on lesson pages - wait for renderLesson to call us
   }
+  
+  // Expose for lesson renderer to call after placeholders exist
+  window.initLessonButtons = initLessonCompletionButtons;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
