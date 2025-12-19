@@ -198,7 +198,12 @@ function toggleCompletion(uid, courseId, lessonId, newState){
   }
 
   function initLessonCompletionButtons(){
-    if (!isSingleLessonPage()) return;
+    if (!isSingleLessonPage()) {
+      console.log('[BTN] Not a lesson page');
+      return;
+    }
+
+    console.log('[BTN] Init started');
 
     try {
       var params = getQueryParams();
@@ -206,16 +211,29 @@ function toggleCompletion(uid, courseId, lessonId, newState){
       var lessonId = params.lesson;
       currentCourseId = courseId;
 
-      if (!courseId || !lessonId) return;
+      console.log('[BTN] courseId:', courseId, 'lessonId:', lessonId);
+
+      if (!courseId || !lessonId) {
+        console.log('[BTN] Missing courseId or lessonId');
+        return;
+      }
 
       auth.onAuthStateChanged(function(user){
+        console.log('[BTN] Auth changed, user:', user ? user.uid : 'none');
         if (!user) return;
         currentUser = user;
 
         db.collection('users').doc(user.uid).get().then(function(userSnap){
+          console.log('[BTN] User doc exists:', userSnap.exists);
+          console.log('[BTN] User data:', userSnap.data());
           var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
           
-          if (!canSelfProgress) return;
+          console.log('[BTN] canSelfProgress:', canSelfProgress);
+          
+          if (!canSelfProgress) {
+            console.log('[BTN] selfProgress is false, exiting');
+            return;
+          }
 
           db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
             .then(function(snap){
