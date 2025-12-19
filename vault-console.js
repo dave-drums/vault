@@ -807,7 +807,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
 function loadOnce(){
-  Promise.all([
+  return Promise.all([
     db.collection('users').get(),
     db.collection('admins').get()
   ]).then(function(results){
