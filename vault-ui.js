@@ -290,25 +290,6 @@ document.addEventListener('DOMContentLoaded', function () {
       // Load last lesson data
       loadLastLesson(user, continueBtn);
 
-      // Daily quote (AFTER buttons)
-      var quoteContainer = document.createElement('div');
-      quoteContainer.style.cssText = 'background:#f9f9f9;border-left:4px solid #06b3fd;padding:14px 18px;' +
-        'margin-bottom:20px;border-radius:6px;';
-      
-      var quoteText = document.createElement('p');
-      quoteText.className = 'p3';
-      quoteText.style.cssText = 'margin:0;font-style:italic;color:#333;line-height:1.5;word-wrap:break-word;font-size:14px;';
-      
-      // Get daily quote from VaultCues if available
-      var dailyQuote = 'Practice makes progress';
-      if (window.VaultCues && window.VaultCues.getDailyQuote) {
-        dailyQuote = window.VaultCues.getDailyQuote();
-      }
-      quoteText.textContent = '💡 ' + dailyQuote;
-      
-      quoteContainer.appendChild(quoteText);
-      panel.appendChild(quoteContainer);
-
       // My Progress dropdown
       var practiceSection = createDropdownSection('My Progress', function(){
         return createPracticeContent(user);
@@ -326,6 +307,34 @@ document.addEventListener('DOMContentLoaded', function () {
         return createStatsContent(user);
       });
       panel.appendChild(statsSection);
+
+      // Daily quote (LAST, after all dropdowns)
+      var quoteContainer = document.createElement('div');
+      quoteContainer.style.cssText = 'background:#f9f9f9;border-left:4px solid #06b3fd;padding:14px 18px;' +
+        'margin-top:20px;border-radius:6px;';
+      
+      var quoteText = document.createElement('p');
+      quoteText.className = 'p3';
+      quoteText.style.cssText = 'margin:0;color:#333;line-height:1.5;word-wrap:break-word;font-size:14px;';
+      
+      // Get daily quote from VaultCues if available
+      var dailyQuote = 'Practice makes progress';
+      if (window.VaultCues && window.VaultCues.getDailyQuote) {
+        dailyQuote = window.VaultCues.getDailyQuote();
+      }
+      
+      var emoji = document.createElement('span');
+      emoji.textContent = '💡 ';
+      
+      var quote = document.createElement('span');
+      quote.style.fontStyle = 'italic';
+      quote.textContent = dailyQuote;
+      
+      quoteText.appendChild(emoji);
+      quoteText.appendChild(quote);
+      
+      quoteContainer.appendChild(quoteText);
+      panel.appendChild(quoteContainer);
 
       return panel;
     }
@@ -363,11 +372,14 @@ document.addEventListener('DOMContentLoaded', function () {
       db.collection('users').doc(user.uid).collection('metrics').doc('practice').get()
         .then(function(snap){
           if (!snap.exists) {
-            btnEl.disabled = true;
-            btnEl.style.opacity = '0.5';
-            btnEl.style.cursor = 'not-allowed';
-            btnEl.textContent = 'No Recent Lesson';
-            return;
+            btnEl.disabled = false;
+            btnEl.style.opacity = '1';
+            btnEl.style.cursor = 'pointer';
+            btnEl.textContent = 'Open Practice Vault';
+            btnEl.onclick = function(){
+              window.location.href = '/vault';
+            };
+              return;
           }
 
           var data = snap.data() || {};
@@ -393,17 +405,25 @@ document.addEventListener('DOMContentLoaded', function () {
               window.location.href = url;
             };
           } else {
-            btnEl.disabled = true;
-            btnEl.style.opacity = '0.5';
-            btnEl.style.cursor = 'not-allowed';
-            btnEl.textContent = 'No Recent Lesson';
+            btnEl.disabled = false;
+            btnEl.style.opacity = '1';
+            btnEl.style.cursor = 'pointer';
+            btnEl.textContent = 'Open Practice Vault';
+            btnEl.onclick = function(){
+              window.location.href = '/vault';
+            };
+              return;
           }
         })
         .catch(function(){
-          btnEl.disabled = true;
-          btnEl.style.opacity = '0.5';
-          btnEl.style.cursor = 'not-allowed';
-          btnEl.textContent = 'No Recent Lesson';
+            btnEl.disabled = false;
+            btnEl.style.opacity = '1';
+            btnEl.style.cursor = 'pointer';
+            btnEl.textContent = 'Open Practice Vault';
+            btnEl.onclick = function(){
+              window.location.href = '/vault';
+            };
+            return;
         });
     }
 
@@ -784,13 +804,13 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
-        iconEl.style.cssText = 'font-size:24px;flex-shrink:0;';
+        iconEl.style.cssText = 'font-size:18px;flex-shrink:0;';
 
         var textWrapper = document.createElement('div');
         textWrapper.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:16px;font-weight:700;color:#06b3fd;white-space:nowrap;';
+        valueEl.style.cssText = 'font-size:14px;font-weight:600;color:#06b3fd;white-space:nowrap;';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
@@ -1546,6 +1566,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
