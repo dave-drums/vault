@@ -1511,7 +1511,7 @@ var c = String(newPw2.value || '').trim();
     if (loginBtn) {
       loginBtn.addEventListener('click', function(){
         clearMessage();
-        var email = emailInput ? String(emailInput.value || '').trim() : '';
+        var email = emailInput ? String(emailInput.value || '').trim().toLowerCase() : '';
         var pass = passInput ? String(passInput.value || '').trim() : '';
 
         if (!email || !pass) {
@@ -1529,7 +1529,7 @@ var c = String(newPw2.value || '').trim();
       resetLink.addEventListener('click', function(e){
         e.preventDefault();
         clearMessage();
-        var email = emailInput ? String(emailInput.value || '').trim() : '';
+        var email = emailInput ? String(emailInput.value || '').trim().toLowerCase() : '';
         if (!email) {
           setMessage('Please enter your email first.');
           return;
@@ -1546,5 +1546,6 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
