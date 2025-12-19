@@ -690,8 +690,9 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
+    var completedPath = new firebase.firestore.FieldPath('completed', lessonId);
     var update = {};
-    update['completed.' + lessonId] = newState;
+    update[completedPath] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
@@ -924,3 +925,4 @@ function loadOnce(){
   });
 });
 })();
+
