@@ -1,4 +1,4 @@
-/* vault-course-progress.js - CLICK-FIX VERSION */
+/* vault-course-progress.js */
 
 (function(){
   'use strict';
@@ -157,8 +157,7 @@ function renderStatusCircles(uid, courseId, completed, lessons){
       if (!lessonItem) return;
 
       var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
-      var lessonLink = lessonItem.querySelector('.gs1-lesson-link');
-      if (!statusCircle || !lessonLink) return;
+      if (!statusCircle) return;
 
       var isCompleted = completed[lessonId] === true;
       
@@ -171,11 +170,8 @@ function renderStatusCircles(uid, courseId, completed, lessons){
         statusCircle.classList.add('incomplete');
       }
       
-      // Circles are view-only for users - no clicking
-      statusCircle.style.cursor = 'default';
-      
-      // Make lesson text clickable to navigate
-      lessonLink.onclick = function(){
+      // Make whole bubble clickable to navigate
+      lessonItem.onclick = function(){
         window.location.href = window.location.pathname + '?lesson=' + lessonId;
       };
     });
@@ -216,22 +212,16 @@ function toggleCompletion(uid, courseId, lessonId, newState){
         if (!user) return;
         currentUser = user;
 
-        db.collection('users').doc(user.uid).get().then(function(userSnap){
-          var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
-          
-          if (!canSelfProgress) return;
+        db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
+          .then(function(snap){
+            var isCompleted = false;
+            if (snap.exists) {
+              var completed = snap.data().completed || {};
+              isCompleted = completed[lessonId] === true;
+            }
 
-          db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
-            .then(function(snap){
-              var isCompleted = false;
-              if (snap.exists) {
-                var completed = snap.data().completed || {};
-                isCompleted = completed[lessonId] === true;
-              }
-
-              createCompletionButtons(user.uid, courseId, lessonId, isCompleted);
-            });
-        });
+            createCompletionButtons(user.uid, courseId, lessonId, isCompleted);
+          });
       });
     } catch(e) {
       console.error('Lesson completion init failed:', e);
