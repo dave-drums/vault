@@ -204,8 +204,9 @@
   function toggleCompletion(uid, courseId, lessonId, newState){
     console.log('[TOGGLE] Setting lesson', lessonId, 'to', newState);
     
+    var completedPath = new firebase.firestore.FieldPath('completed', lessonId);
     var update = {};
-    update['completed.' + lessonId] = newState;
+    update[completedPath] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
@@ -341,8 +342,9 @@
   }
 
   function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
+    var completedPath = new firebase.firestore.FieldPath('completed', lessonId);
     var update = {};
-    update['completed.' + lessonId] = newState;
+    update[completedPath] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
