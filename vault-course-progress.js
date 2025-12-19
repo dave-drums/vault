@@ -145,8 +145,8 @@
         if (!lessonItem) return;
 
         var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
-        var lessonText = lessonItem.querySelector('.gs1-lesson-text');
-        if (!statusCircle || !lessonText) return;
+        var lessonLink = lessonItem.querySelector('.gs1-lesson-link');
+        if (!statusCircle || !lessonLink) return;
 
         var isCompleted = completed[lessonId] === true;
         
@@ -168,8 +168,8 @@
           });
         }
         
-        lessonText.addEventListener('click', function(){
-          window.location.href = lessonItem.href;
+        lessonLink.addEventListener('click', function(){
+          window.location.href = window.location.pathname + '?lesson=' + lessonId;
         });
       });
     });
