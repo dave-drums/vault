@@ -14,15 +14,16 @@
   // Inject CSS
   const style = document.createElement('style');
   style.textContent = `
-    .vault-comments{
-      margin: 24px 0 0 0;
-      padding: 24px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      box-sizing: border-box;
-      color: #111;
-    }
+.vault-comments{
+  width: min(860px, 100%);
+  margin: 24px auto 0;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+  color: #111;
+}
 
     .vault-comments h3{
       margin: 0 0 6px 0;
@@ -317,11 +318,14 @@
       return;
     }
 
-    // Generate thread ID from URL path
-    function getThreadId(){
-      const path = window.location.pathname.replace(/^\/|\/$/g, '');
-      return path.split('/').join('_') || 'home';
-    }
+// Generate thread ID from URL path + lesson param
+function getThreadId(){
+  const path = window.location.pathname.replace(/^\/|\/$/g, '');
+  const params = new URLSearchParams(window.location.search);
+  const lesson = params.get('lesson');
+  const base = path.split('/').join('_') || 'home';
+  return lesson ? base + '_lesson_' + lesson : base;
+}
 
     const threadId = getThreadId();
     const colRef = db.collection('lessonComments').doc(threadId).collection('comments');
