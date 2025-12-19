@@ -1,0 +1,17 @@
+<!-- WHERE: /vault-admin → Code Block -->
+<!-- PURPOSE: Admin gate + admin console loader -->
+
+<style>
+#vault-admin-placeholder{
+  max-width: 520px;
+  margin: 120px auto;
+  text-align: center;
+  color: #111;
+}
+</style>
+
+<div id="vault-admin-root">
+  <div id="vault-admin-placeholder">
+    Checking user permissions…
+  </div>
+</div>
