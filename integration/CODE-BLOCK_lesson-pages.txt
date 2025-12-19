@@ -473,7 +473,7 @@
     container.innerHTML = '';
     
     const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin:0 0 20px 0;';
+    buttonContainer.style.cssText = 'width:min(860px,100%);margin:0 auto 32px;display:flex;justify-content:space-between;align-items:flex-start;';
     
     const backBtn = document.createElement('a');
     backBtn.href = window.location.pathname;
@@ -529,6 +529,13 @@
         window.initVaultComments();
       }
     }, 200);
+    
+    // Trigger completion button creation after placeholders exist
+    setTimeout(function() {
+      if (typeof window.initLessonButtons === 'function') {
+        window.initLessonButtons();
+      }
+    }, 300);
   }
   
   function showError(message) {
