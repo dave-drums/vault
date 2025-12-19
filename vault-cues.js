@@ -6,12 +6,9 @@
 (function(){
   'use strict';
 
-  // Export to global scope
   window.VaultCues = {
     quotes: [
-      // Add your 50 quotes here, one per line
-      // Format: "Quote text here"
-      
+   
       "Consistency beats intensity. Small, focused sessions add up.",
       "Back in the woodshed today. Pick one thing and go deep.",
       "Play it slow, play it right.",
@@ -25,7 +22,7 @@
       "Every mistake is a small lesson.",
       "Repetition builds confidence. Awareness builds control.",
       "Hard work pays off.",
-      "Practise what makes the music feel better, not busier.",
+      "Practice what makes the music feel better, not busier.",
       "Speed comes with time.",
       "One solid, focused session today is enough.",
       "Consistency is quieter than motivation, but stronger.",
@@ -38,7 +35,7 @@
       "If you’re stuck, reduce the problem.",
       "Progress often feels boring before it feels obvious.",
       "Musical choices matter more than technical ones.",
-      "Finish today knowing exactly what to practise next time.",
+      "Finish today knowing exactly what to practice next time.",
       "Small wins, daily.",
       "Clarity is a better goal than complexity.",
       "Let the tempo reveal what needs work.",
@@ -61,21 +58,20 @@
       "End the session with something clean.",
       "Play it the way you want it to sound.",
       "Your time and feel improve when you stop rushing outcomes.",
-      "Practise the parts you usually avoid.",
-      "Let the metronome expose things, not punish them.",
+      "Practice the parts you usually avoid.",
       "Stay relaxed where tension usually sneaks in.",
       "Solve the problem once, then reinforce it.",
       "If the groove feels unstable, simplify the limbs.",
       "Practice enough to make today’s work easy to return to.",
       "When in doubt, slow down and listen.",
       "Don’t polish what isn’t consistent yet.",
-      "Practise until it feels predictable.",
+      "Practice until it feels predictable.",
       "Notice where your attention drifts.",
       "Stability first, variation second.",
       "Keep your touch even when ideas change.",
-      "Practise with intent, not urgency.",
+      "Practice with intent, not urgency.",
       "Keep the idea steady before adding more details.",
-      "Practise until it sounds intentional.",
+      "Practice until it sounds intentional.",
       "Let repetition smooth the rough edges.",
       "Clean movement supports clean sound.",
       "If it feels awkward, isolate it.",
@@ -83,14 +79,13 @@
       "Control the notes you play, not the ones you imagine.",
       "Notice what changes when you relax.",
       "Return to the basics when things feel messy.",
-      "Practise the version you can repeat.",
+      "Practice the version you can repeat.",
       "Work at the tempo that reveals mistakes.",
       "Let the groove settle before adjusting it.",
       "End the session knowing what worked.",
       "Quality over quantity.",
     ],
 
-    // Get daily quote (cycles based on day of year)
     getDailyQuote: function(){
       var now = new Date();
       var start = new Date(now.getFullYear(), 0, 0);
