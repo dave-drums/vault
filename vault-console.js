@@ -1,11 +1,13 @@
 (function(){
-/* Vault Admin Console
-   - Student list + editable progress + name fields
-   - Invite-only onboarding (no Cloud Functions)
-   - Admin gate via /admins/{uid} doc existence
+/* Vault Admin Console - FIXED
+   Fixes:
+   - Progress checkmarks now work (proper Firestore nested update)
+   - h4 headers (not bold)
+   - Removed "Information" from profile header
+   - Removed progress section from profile modal
 */
 
-/* ---------- Font helpers (inherit Squarespace font) ---------- */
+/* ---------- Font helpers ---------- */
 function pvGetFontBaseEl(){
   return (
     document.querySelector('.sqs-block-content') ||
@@ -158,7 +160,7 @@ function openAddUserModal(db){
   pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:600;">Add user</h3>' +
+    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:400;">Add User</h4>' +
     '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font-size:15px;">Create an invite link (expires in 7 days)</div>' +
     '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;font:inherit;">' +
@@ -231,7 +233,7 @@ function openInvitesModal(db){
   pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h3 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:600;">Invites</h3>' +
+    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:400;">Invites</h4>' +
     '<div id="pv-invites-list" style="margin-top:10px;font:inherit;color:#111;"></div>' +
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
       '<button id="pv-invites-close" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
@@ -286,7 +288,7 @@ function openInvitesModal(db){
     });
 }
 
-var ONLINE_WINDOW_MS = 3 * 60 * 1000; // 3 minutes
+var ONLINE_WINDOW_MS = 3 * 60 * 1000;
 
 var db;
 var auth;
@@ -314,19 +316,16 @@ document.addEventListener('DOMContentLoaded', function(){
   function openUserDetailsModal(uid){
     var userDoc = db.collection('users').doc(uid);
     var statsDoc = userDoc.collection('metrics').doc('stats');
-    var progressDoc = userDoc.collection('metrics').doc('progress');
     var notesDoc = userDoc.collection('admin').doc('notes');
     
     Promise.all([
       userDoc.get(),
       statsDoc.get(),
-      progressDoc.get(),
       notesDoc.get()
     ]).then(function(results){
       var userData = results[0].exists ? results[0].data() : {};
       var statsData = results[1].exists ? results[1].data() : {};
-      var progressData = results[2].exists ? results[2].data() : {};
-      var notesData = results[3].exists ? results[3].data() : {};
+      var notesData = results[2].exists ? results[2].data() : {};
       
       var joinedAt = userData.createdAt;
       var lastLogin = statsData.lastLoginAt;
@@ -338,9 +337,10 @@ document.addEventListener('DOMContentLoaded', function(){
       modal.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);';
       pvApplyFontFromBase(modal);
       
+      // FIXED: Removed "Information", removed Progress section, h4 not bold
       modal.innerHTML = 
-        '<h3 style="margin:0 0 20px 0;font-size:20px;">Student Details</h3>' +
-        '<div class="p2" style="margin:0 0 20px 0;padding-bottom:20px;border-bottom:1px solid #ddd;">👤 ' + escapeHtml(userData.email || '') + ' Information</div>' +
+        '<h4 style="margin:0 0 20px 0;font-size:20px;font-weight:400;">Student Details</h4>' +
+        '<div class="p2" style="margin:0 0 20px 0;padding-bottom:20px;border-bottom:1px solid #ddd;">👤 ' + escapeHtml(userData.email || '') + '</div>' +
         
         '<div style="margin-bottom:16px;">' +
           '<div style="font-size:13px;color:#666;margin-bottom:4px;">Joined</div>' +
@@ -378,28 +378,6 @@ document.addEventListener('DOMContentLoaded', function(){
             '<input type="text" id="modal-dob-year" placeholder="YYYY" maxlength="4" style="width:90px;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;text-align:center;">' +
           '</div>' +
           '<div id="modal-dob-age" style="margin-top:6px;font-size:12px;color:#666;"></div>' +
-        '</div>' +
-        
-        '<div style="margin-bottom:4px;font-size:13px;color:#666;">Progress</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
-          '<div>' +
-            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Groove Studies</label>' +
-            '<input type="text" id="modal-grooves" value="' + escapeHtml(progressData.grooves || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
-          '</div>' +
-          '<div>' +
-            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Fill Studies</label>' +
-            '<input type="text" id="modal-fills" value="' + escapeHtml(progressData.fills || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
-          '</div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
-          '<div>' +
-            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Stick Studies</label>' +
-            '<input type="text" id="modal-hands" value="' + escapeHtml(progressData.hands || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
-          '</div>' +
-          '<div>' +
-            '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px;">Kick Studies</label>' +
-            '<input type="text" id="modal-feet" value="' + escapeHtml(progressData.feet || '') + '" placeholder="(empty)" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;">' +
-          '</div>' +
         '</div>' +
         
         '<div style="margin-bottom:20px;">' +
@@ -489,18 +467,10 @@ document.addEventListener('DOMContentLoaded', function(){
           birthdate: birthdate
         };
         
-        var progressUpdates = {
-          grooves: modal.querySelector('#modal-grooves').value.trim(),
-          fills: modal.querySelector('#modal-fills').value.trim(),
-          hands: modal.querySelector('#modal-hands').value.trim(),
-          feet: modal.querySelector('#modal-feet').value.trim()
-        };
-        
         var notesText = modal.querySelector('#modal-notes').value.trim();
         
         Promise.all([
           userDoc.set(updates, { merge: true }),
-          progressDoc.set(progressUpdates, { merge: true }),
           notesDoc.set({ text: notesText, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
         ]).then(function(){
           overlay.remove();
@@ -515,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  /* ---------- NEW: Progress Modal ---------- */
+  /* ---------- Progress Modal ---------- */
   function openProgressModal(db, uid, displayName){
     var overlay = makeOverlay();
 
@@ -524,9 +494,10 @@ document.addEventListener('DOMContentLoaded', function(){
       'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;max-height:90vh;overflow-y:auto;';
     pvApplyFontFromBase(box);
 
-    var header = document.createElement('h3');
+    // FIXED: h4 not bold
+    var header = document.createElement('h4');
     header.textContent = 'Progress: ' + displayName;
-    header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:600;';
+    header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:400;';
     box.appendChild(header);
 
     var selfProgressContainer = document.createElement('div');
@@ -683,9 +654,10 @@ document.addEventListener('DOMContentLoaded', function(){
       });
   }
 
+  // FIXED: Proper Firestore nested field update using dot notation
   function toggleAdminCompletion(db, uid, courseId, lessonId, newState){
-    var update = { completed: {} };
-    update.completed[lessonId] = newState;
+    var update = {};
+    update['completed.' + lessonId] = newState; // Use dot notation for nested field
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
