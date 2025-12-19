@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // URLs
-    var VAULT_URL = '/vault';
+    var VAULT_URL = '/vault-home';
     var SUPPORT_URL = '/contact';
 
     // DOM elements
@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault';
+              window.location.href = '/vault-home';
             };
               return;
           }
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault';
+              window.location.href = '/vault-home';
             };
               return;
           }
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault';
+              window.location.href = '/vault-home';
             };
             return;
         });
@@ -1566,7 +1566,3 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
-
-
-
-
