@@ -1,9 +1,4 @@
-/* vault-course-progress.js - ENHANCED VERSION
-   Navigation options:
-   - Back to Course button (always visible)
-   - Complete & Next button (auto-advances to next lesson)
-   - Mark Incomplete button (if already completed)
-*/
+/* vault-course-progress.js - POINTER-EVENTS VERSION */
 
 (function(){
   'use strict';
@@ -52,10 +47,6 @@
     if (parts.length >= 2 && parts[0] === 'vault') {
       return parts[1];
     }
-    var params = getQueryParams();
-    if (params.course) {
-      return params.course;
-    }
     return null;
   }
 
@@ -75,20 +66,14 @@
   function isCourseIndexPage(){
     var courseId = getCourseIdFromUrl();
     if (!courseId) return false;
-    var path = window.location.pathname;
-    var expectedPath = '/vault/' + courseId;
     var params = getQueryParams();
-    return (path === expectedPath || path === expectedPath + '/') && !params.lesson;
+    return !params.lesson;
   }
 
   function isSingleLessonPage(){
     var params = getQueryParams();
-    return params.course && params.lesson;
+    return params.lesson;
   }
-
-  /* ============================================
-     COURSE INDEX PAGE
-     ============================================ */
 
   function initCourseIndexPage(){
     if (!isCourseIndexPage()) return;
@@ -160,7 +145,8 @@
         if (!lessonItem) return;
 
         var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
-        if (!statusCircle) return;
+        var lessonText = lessonItem.querySelector('.gs1-lesson-text');
+        if (!statusCircle || !lessonText) return;
 
         var isCompleted = completed[lessonId] === true;
         
@@ -173,43 +159,46 @@
         }
 
         if (canSelfProgress) {
-          lessonItem.style.cursor = 'pointer';
-          lessonItem.addEventListener('click', function(e){
-            if (e.target === statusCircle || statusCircle.contains(e.target)) {
-              e.preventDefault();
-              toggleCompletion(uid, courseId, lessonId, !isCompleted);
-            }
+          statusCircle.classList.add('clickable');
+          
+          statusCircle.addEventListener('click', function(e){
+            e.preventDefault();
+            toggleCompletion(uid, courseId, lessonId, !isCompleted);
           });
         }
+        
+        lessonText.addEventListener('click', function(){
+          window.location.href = lessonItem.href;
+        });
       });
     });
   }
 
   function toggleCompletion(uid, courseId, lessonId, newState){
-    var update = { completed: {} };
-    update.completed[lessonId] = newState;
+    var update = {};
+    update['completed.' + lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
-      .then(function(){ location.reload(); })
+      .then(function(){ 
+        location.reload(); 
+      })
       .catch(function(e){
         console.error('Failed to toggle completion:', e);
         alert('Could not update progress. Please try again.');
       });
   }
 
-  /* ============================================
-     SINGLE LESSON PAGE - ENHANCED NAVIGATION
-     ============================================ */
-
   function initLessonCompletionButtons(){
     if (!isSingleLessonPage()) return;
 
     try {
       var params = getQueryParams();
-      var courseId = params.course;
+      var courseId = getCourseIdFromUrl();
       var lessonId = params.lesson;
+
+      if (!courseId || !lessonId) return;
 
       auth.onAuthStateChanged(function(user){
         if (!user) return;
@@ -243,21 +232,16 @@
     var courseIndexUrl = window.location.pathname;
     var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId);
 
-    // Top button
     var topBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
-    var contentTop = document.querySelector('#lesson-content');
-    if (contentTop && contentTop.children.length > 1) {
-      var insertPoint = contentTop.children[2] || contentTop.children[1];
-      if (insertPoint) {
-        contentTop.insertBefore(topBtn, insertPoint);
-      }
+    var topPlaceholder = document.querySelector('#complete-button-top');
+    if (topPlaceholder) {
+      topPlaceholder.appendChild(topBtn);
     }
 
-    // Bottom button
     var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
-    var contentBottom = document.querySelector('#lesson-content');
-    if (contentBottom) {
-      contentBottom.appendChild(bottomBtn);
+    var bottomPlaceholder = document.querySelector('#complete-button-bottom');
+    if (bottomPlaceholder) {
+      bottomPlaceholder.appendChild(bottomBtn);
     }
   }
 
@@ -266,12 +250,11 @@
     var currentIndex = lessons.indexOf(currentLessonId);
     
     if (currentIndex === -1 || currentIndex === lessons.length - 1) {
-      return null; // No next lesson (last lesson or not found)
+      return null;
     }
     
     var nextLessonId = lessons[currentIndex + 1];
-    var courseId = getCourseIdFromUrl(); // Use existing helper function
-    return window.location.pathname + '?course=' + courseId + '&lesson=' + nextLessonId;
+    return window.location.pathname + '?lesson=' + nextLessonId;
   }
 
   function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl){
@@ -279,7 +262,6 @@
     btn.type = 'button';
     btn.className = 'vault-lesson-complete-btn';
     
-    // Button text based on state
     if (isCompleted) {
       btn.textContent = 'Mark Incomplete';
     } else if (nextLessonUrl) {
@@ -288,20 +270,19 @@
       btn.textContent = 'Complete Lesson';
     }
     
-    btn.style.cssText = 'display:block;width:100%;max-width:400px;margin:20px auto;padding:14px 24px;' +
+    btn.style.cssText = 'display:inline-block;padding:10px 16px;' +
       'background:' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
-      'border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;' +
-      'transition:all 0.2s ease;';
+      'border:1px solid ' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
+      'border-radius:6px;color:#fff;font-size:14px;cursor:pointer;' +
+      'transition:all 0.2s ease;text-decoration:none;';
 
     btn.addEventListener('mouseenter', function(){ btn.style.opacity = '0.9'; });
     btn.addEventListener('mouseleave', function(){ btn.style.opacity = '1'; });
 
     btn.addEventListener('click', function(){
       if (isCompleted) {
-        // Mark incomplete and go back to course
         toggleLessonCompletion(uid, courseId, lessonId, false, courseIndexUrl);
       } else {
-        // Mark complete and advance to next lesson (or course if last)
         var redirectUrl = nextLessonUrl || courseIndexUrl;
         toggleLessonCompletion(uid, courseId, lessonId, true, redirectUrl);
       }
@@ -311,8 +292,8 @@
   }
 
   function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
-    var update = { completed: {} };
-    update.completed[lessonId] = newState;
+    var update = {};
+    update['completed.' + lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
@@ -325,10 +306,6 @@
         alert('Could not update completion. Please try again.');
       });
   }
-
-  /* ============================================
-     INITIALIZATION
-     ============================================ */
 
   function init(){
     if (isCourseIndexPage()) {
