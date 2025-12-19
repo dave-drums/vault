@@ -1,6 +1,8 @@
 <!-- WHERE: /vault/* → Code Block -->
 <!-- PURPOSE: Inject rendered lesson UI from master *.txt file (Firebase Storage) -->
 
+<!-- COURSE PAGE CODE BLOCK - POINTER-EVENTS VERSION -->
+
 <style>
 .gs1-course-container {
   max-width: 1280px;
@@ -220,6 +222,37 @@
   .gs1-lessons-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ADD THIS CSS TO YOUR COURSE PAGE */
+
+/* Force status circles to be on top and clickable */
+.gs1-lesson-status {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+.gs1-lesson-status.clickable {
+  cursor: pointer !important;
+}
+
+/* Ensure no pseudo-elements block clicks */
+.gs1-lesson-status::before,
+.gs1-lesson-status::after {
+  pointer-events: none;
+}
+
+/* Make sure parent doesn't block */
+.gs1-lesson-item {
+  position: relative;
+}
+
+/* Ensure link doesn't overlap status circle */
+.gs1-lesson-link {
+  position: relative;
+  z-index: 1;
 }
 </style>
 
@@ -544,3 +577,4 @@
   }
 })();
 </script>
+
