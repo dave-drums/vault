@@ -320,10 +320,11 @@
 
 // Generate thread ID from URL path + lesson param
 function getThreadId(){
-  const path = window.location.pathname.replace(/^\/|\/$/g, '');
   const params = new URLSearchParams(window.location.search);
+  const course = params.get('course');
   const lesson = params.get('lesson');
-  const base = path.split('/').join('_') || 'home';
+  if (!course) return 'vault_home';
+  const base = 'vault_' + course;
   return lesson ? base + '_lesson_' + lesson : base;
 }
 
