@@ -1,4 +1,4 @@
-/* vault-course-progress.js */
+/* vault-course-progress.js - CLICK-FIX VERSION */
 
 (function(){
   'use strict';
@@ -197,7 +197,7 @@ function toggleCompletion(uid, courseId, lessonId, newState){
       });
   }
 
-function initLessonCompletionButtons(){
+  function initLessonCompletionButtons(){
     if (!isSingleLessonPage()) return;
 
     try {
