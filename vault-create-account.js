@@ -279,7 +279,8 @@
           firstName: String(firstName || "").trim(),
           lastName: String(lastName || "").trim(),
           displayName,
-          birthdate: birthdate
+          birthdate: birthdate,
+          selfProgress: false
         }, { merge: true });
 
         // Ensure metrics doc exists (other counters are written by vault-metrics.js).
