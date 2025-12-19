@@ -252,17 +252,32 @@ function toggleCompletion(uid, courseId, lessonId, newState){
     }
   }
 
-  function createCompletionButtons(uid, courseId, lessonId, isCompleted){
+function createCompletionButtons(uid, courseId, lessonId, isCompleted){
+    console.log('[BTN] createCompletionButtons called');
     var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
-    if (!courseConfig) return;
+    if (!courseConfig) {
+      console.log('[BTN] No course config found');
+      return;
+    }
 
     var courseIndexUrl = window.location.pathname;
     var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId);
 
     var topBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
     var topPlaceholder = document.querySelector('#complete-button-top');
+    console.log('[BTN] Top placeholder exists:', !!topPlaceholder);
     if (topPlaceholder) {
       topPlaceholder.appendChild(topBtn);
+      console.log('[BTN] Top button added');
+    } else {
+      console.log('[BTN] Top placeholder not found, waiting...');
+      setTimeout(function() {
+        var retry = document.querySelector('#complete-button-top');
+        if (retry) {
+          retry.appendChild(topBtn);
+          console.log('[BTN] Top button added (retry)');
+        }
+      }, 500);
     }
 
     var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
