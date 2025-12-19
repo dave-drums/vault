@@ -209,14 +209,31 @@
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .set(update, { merge: true })
+      .update(update)
       .then(function(){ 
         console.log('[TOGGLE] Success, reloading...');
         location.reload(); 
       })
       .catch(function(e){
         console.error('[TOGGLE] Failed:', e);
-        alert('Could not update progress: ' + e.message);
+        
+        // If document doesn't exist, create it first
+        if (e.code === 'not-found') {
+          var initialData = {
+            completed: {}
+          };
+          initialData.completed[lessonId] = newState;
+          initialData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+          
+          return db.collection('users').doc(uid).collection('progress').doc(courseId)
+            .set(initialData)
+            .then(function(){
+              console.log('[TOGGLE] Document created, reloading...');
+              location.reload();
+            });
+        } else {
+          alert('Could not update progress: ' + e.message);
+        }
       });
   }
 
@@ -329,13 +346,29 @@
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .set(update, { merge: true })
+      .update(update)
       .then(function(){
         window.location.href = redirectUrl;
       })
       .catch(function(e){
         console.error('Failed to toggle completion:', e);
-        alert('Could not update completion: ' + e.message);
+        
+        // If document doesn't exist, create it first
+        if (e.code === 'not-found') {
+          var initialData = {
+            completed: {}
+          };
+          initialData.completed[lessonId] = newState;
+          initialData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+          
+          return db.collection('users').doc(uid).collection('progress').doc(courseId)
+            .set(initialData)
+            .then(function(){
+              window.location.href = redirectUrl;
+            });
+        } else {
+          alert('Could not update completion: ' + e.message);
+        }
       });
   }
 
