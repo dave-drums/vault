@@ -1383,9 +1383,9 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
           return;
         }
 
-        var a = String(curPw.value || '');
-        var b = String(newPw.value || '');
-        var c = String(newPw2.value || '');
+var a = String(curPw.value || '').trim();
+var b = String(newPw.value || '').trim();
+var c = String(newPw2.value || '').trim();
 
         if (!a || !b || !c) {
           setMessage('Please fill in all password fields.');
@@ -1546,4 +1546,5 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
 
   start();
 });
+
 
