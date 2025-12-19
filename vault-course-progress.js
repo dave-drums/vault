@@ -201,40 +201,23 @@
     });
   }
 
-  function toggleCompletion(uid, courseId, lessonId, newState){
+function toggleCompletion(uid, courseId, lessonId, newState){
     console.log('[TOGGLE] Setting lesson', lessonId, 'to', newState);
     
-    var completedPath = new firebase.firestore.FieldPath('completed', lessonId);
-    var update = {};
-    update[completedPath] = newState;
-    update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-
     db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .update(update)
+      .set({
+        completed: {
+          [lessonId]: newState
+        },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true })
       .then(function(){ 
         console.log('[TOGGLE] Success, reloading...');
         location.reload(); 
       })
       .catch(function(e){
         console.error('[TOGGLE] Failed:', e);
-        
-        // If document doesn't exist, create it first
-        if (e.code === 'not-found') {
-          var initialData = {
-            completed: {}
-          };
-          initialData.completed[lessonId] = newState;
-          initialData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-          
-          return db.collection('users').doc(uid).collection('progress').doc(courseId)
-            .set(initialData)
-            .then(function(){
-              console.log('[TOGGLE] Document created, reloading...');
-              location.reload();
-            });
-        } else {
-          alert('Could not update progress: ' + e.message);
-        }
+        alert('Could not update progress: ' + e.message);
       });
   }
 
@@ -341,36 +324,20 @@
     return btn;
   }
 
-  function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
-    var completedPath = new firebase.firestore.FieldPath('completed', lessonId);
-    var update = {};
-    update[completedPath] = newState;
-    update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-
+function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
     db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .update(update)
+      .set({
+        completed: {
+          [lessonId]: newState
+        },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true })
       .then(function(){
         window.location.href = redirectUrl;
       })
       .catch(function(e){
         console.error('Failed to toggle completion:', e);
-        
-        // If document doesn't exist, create it first
-        if (e.code === 'not-found') {
-          var initialData = {
-            completed: {}
-          };
-          initialData.completed[lessonId] = newState;
-          initialData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-          
-          return db.collection('users').doc(uid).collection('progress').doc(courseId)
-            .set(initialData)
-            .then(function(){
-              window.location.href = redirectUrl;
-            });
-        } else {
-          alert('Could not update completion: ' + e.message);
-        }
+        alert('Could not update completion: ' + e.message);
       });
   }
 
