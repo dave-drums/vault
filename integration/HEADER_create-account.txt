@@ -1,12 +1,3 @@
-<!-- WHERE: /create-account → Code Block -->
-<!-- PURPOSE: Create new user account -->
-
-<div id="vault-create-account-root">Loading…</div>
-
-
-- - - - - - - - - - -
-
-
 <!-- WHERE: /create-account → Page Header Code Injection -->
 <!-- PURPOSE: Invite-only create account gate -->
 
