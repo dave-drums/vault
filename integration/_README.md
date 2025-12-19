@@ -241,7 +241,7 @@ Location: `/users/{uid}/notifications/{notificationId}`
 
 ## Optimization Strategies
 1. **Progress tracking**: Single doc per course with sparse completion map  
-   → 1 read per course page load, 1 write per completion toggle
+   → 1 read per lesson page load, 1 write per completion toggle
    
 2. **Comments**: Paginated loading (10 per page) with real-time listener  
    → ~10 reads per lesson page, detaches on tab hide
@@ -313,7 +313,7 @@ Location: `/users/{uid}/notifications/{notificationId}`
 **Admin Console** (/vault-admin):
 - N reads: all users collection
 - N reads: all user stats
-- 1 read per course when Progress modal opened
+- 1 read per lesson/course when Progress modal opened
 - **Total: varies by user count**
 
 **Typical user session**: 10-30 reads (well within free tier: 50k reads/day)
