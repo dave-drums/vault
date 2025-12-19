@@ -667,7 +667,9 @@ document.addEventListener('DOMContentLoaded', function(){
           checkbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
           
           checkbox.addEventListener('change', function(){
-            toggleAdminCompletion(db, uid, courseId, lessonId, checkbox.checked);
+            var newState = checkbox.checked;
+            checkbox.disabled = true;
+            toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox);
           });
 
           var label = document.createElement('span');
@@ -687,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function(){
       });
   }
 
-  function toggleAdminCompletion(db, uid, courseId, lessonId, newState){
+  function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
     var update = {};
     update['completed.' + lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -695,11 +697,18 @@ document.addEventListener('DOMContentLoaded', function(){
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
       .then(function(){
+        checkbox.disabled = false;
         if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
       })
       .catch(function(e){
+        checkbox.checked = !newState;
+        checkbox.disabled = false;
         console.error('Failed to update:', e);
-        if(window.VaultToast) window.VaultToast.error('Update failed');
+        if(window.VaultToast) {
+          window.VaultToast.error('Update failed: ' + e.message);
+        } else {
+          alert('Update failed: ' + e.message);
+        }
       });
   }
 
