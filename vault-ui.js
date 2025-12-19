@@ -1512,7 +1512,7 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       loginBtn.addEventListener('click', function(){
         clearMessage();
         var email = emailInput ? String(emailInput.value || '').trim() : '';
-        var pass = passInput ? String(passInput.value || '') : '';
+        var pass = passInput ? String(passInput.value || '').trim() : '';
 
         if (!email || !pass) {
           setMessage('Please enter email and password.');
@@ -1546,3 +1546,4 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
 
   start();
 });
+
