@@ -104,7 +104,7 @@
           <div class="vca-field">
             <label>Display Name</label>
             <input id="vca-display" type="text" placeholder="How you'd like to be known">
-            <div class="vca-hint">Used for public lesson comments for those above 16 years of age.</div>
+            <div class="vca-hint">Used for public lesson comments.</div>
           </div>
 
           <div class="vca-field">
