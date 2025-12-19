@@ -102,6 +102,12 @@
           </div>
 
           <div class="vca-field">
+            <label>Display Name</label>
+            <input id="vca-display" type="text" placeholder="How you'd like to be known">
+            <div class="vca-hint">Used for public lesson comments for those above 16 years of age.</div>
+          </div>
+
+          <div class="vca-field">
             <label>Date of Birth (DD/MM/YYYY)</label>
             <input id="vca-birthdate" type="text" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="bday">
           </div>
@@ -135,11 +141,12 @@
       msg.textContent = "";
       btn.disabled = true;
 
-      const firstName = (document.getElementById("vca-first").value || "").trim();
-      const lastName = (document.getElementById("vca-last").value || "").trim();
-      const birthdate = (document.getElementById("vca-birthdate").value || "").trim();
-      const password = (document.getElementById("vca-pass").value || "").trim();
-      const passwordRepeat = (document.getElementById("vca-pass-repeat").value || "").trim();
+const firstName = (document.getElementById("vca-first").value || "").trim();
+const lastName = (document.getElementById("vca-last").value || "").trim();
+const displayNameInput = (document.getElementById("vca-display").value || "").trim();
+const birthdate = (document.getElementById("vca-birthdate").value || "").trim();
+const password = (document.getElementById("vca-pass").value || "").trim();
+const passwordRepeat = (document.getElementById("vca-pass-repeat").value || "").trim();
 
       // Check for emojis in names
       const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{FE00}-\u{FE0F}]/gu;
@@ -279,10 +286,8 @@
 
         const inviteCreatedAt = inviteData.createdAt || nowServer;
 
-        const ln = String(lastName || "").trim();
-        let displayName = String(firstName || "").trim();
-        if (ln) displayName += " " + ln.slice(0, 1).toUpperCase() + ".";
-        displayName = displayName.trim();
+         const ln = String(lastName || "").trim();
+         let displayName = displayNameInput || (String(firstName || "").trim() + (ln ? " " + ln.slice(0, 1).toUpperCase() + "." : "")).trim();
          
          batch.set(userRef, {
           email: email.toLowerCase(),
