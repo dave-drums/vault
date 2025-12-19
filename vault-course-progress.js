@@ -197,7 +197,7 @@ function toggleCompletion(uid, courseId, lessonId, newState){
       });
   }
 
-  function initLessonCompletionButtons(){
+function initLessonCompletionButtons(){
     if (!isSingleLessonPage()) return;
 
     try {
@@ -212,16 +212,22 @@ function toggleCompletion(uid, courseId, lessonId, newState){
         if (!user) return;
         currentUser = user;
 
-        db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
-          .then(function(snap){
-            var isCompleted = false;
-            if (snap.exists) {
-              var completed = snap.data().completed || {};
-              isCompleted = completed[lessonId] === true;
-            }
+        db.collection('users').doc(user.uid).get().then(function(userSnap){
+          var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
+          
+          if (!canSelfProgress) return;
 
-            createCompletionButtons(user.uid, courseId, lessonId, isCompleted);
-          });
+          db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
+            .then(function(snap){
+              var isCompleted = false;
+              if (snap.exists) {
+                var completed = snap.data().completed || {};
+                isCompleted = completed[lessonId] === true;
+              }
+
+              createCompletionButtons(user.uid, courseId, lessonId, isCompleted);
+            });
+        });
       });
     } catch(e) {
       console.error('Lesson completion init failed:', e);
