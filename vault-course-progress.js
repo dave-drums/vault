@@ -232,12 +232,6 @@
     if (topPlaceholder) {
       topPlaceholder.appendChild(topBtn);
     }
-
-    var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
-    var bottomPlaceholder = document.querySelector('#complete-button-bottom');
-    if (bottomPlaceholder) {
-      bottomPlaceholder.appendChild(bottomBtn);
-    }
   }
 
   function getNextLessonUrl(courseConfig, currentLessonId){
@@ -269,7 +263,7 @@
       'background:' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
       'border:1px solid ' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
       'border-radius:6px;color:#fff;font-size:14px;cursor:pointer;' +
-      'transition:all 0.2s;text-decoration:none;font-family:inherit;line-height:normal;';
+      'transition:all 0.2s;text-decoration:none;box-sizing:border-box;';
 
     btn.addEventListener('mouseenter', function(){ btn.style.opacity = '0.9'; });
     btn.addEventListener('mouseleave', function(){ btn.style.opacity = '1'; });
