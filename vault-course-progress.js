@@ -1,10 +1,8 @@
-/* vault-course-progress.js
-   Handles all course progress features:
-   - Course config (bundled)
-   - Progress bars on course index pages
-   - Status circles on course index pages
-   - Completion buttons on single lesson pages
-   - Active course tracking
+/* vault-course-progress.js - ENHANCED VERSION
+   Navigation options:
+   - Back to Course button (always visible)
+   - Complete & Next button (auto-advances to next lesson)
+   - Mark Incomplete button (if already completed)
 */
 
 (function(){
@@ -12,10 +10,6 @@
 
   if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
-  /* ============================================
-     COURSE CONFIG (bundled inline)
-     ============================================ */
-  
   window.VAULT_COURSES = {
     'gs1': {
       name: 'Groove Studies 1',
@@ -26,76 +20,20 @@
         '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23'
       ]
     },
-    'gs2': {
-      name: 'Groove Studies 2',
-      pathway: 'groove',
-      lessons: [] // Add lesson IDs when ready: ['2.01', '2.02', ...]
-    },
-    'gs3': {
-      name: 'Groove Studies 3',
-      pathway: 'groove',
-      lessons: []
-    },
-    'gs4': {
-      name: 'Groove Studies 4',
-      pathway: 'groove',
-      lessons: []
-    },
-    'fs1': {
-      name: 'Fill Studies 1',
-      pathway: 'fills',
-      lessons: []
-    },
-    'fs2': {
-      name: 'Fill Studies 2',
-      pathway: 'fills',
-      lessons: []
-    },
-    'fs3': {
-      name: 'Fill Studies 3',
-      pathway: 'fills',
-      lessons: []
-    },
-    'fs4': {
-      name: 'Fill Studies 4',
-      pathway: 'fills',
-      lessons: []
-    },
-    'ss1': {
-      name: 'Stick Studies 1',
-      pathway: 'sticks',
-      lessons: []
-    },
-    'ss2': {
-      name: 'Stick Studies 2',
-      pathway: 'sticks',
-      lessons: []
-    },
-    'ss3': {
-      name: 'Stick Studies 3',
-      pathway: 'sticks',
-      lessons: []
-    },
-    'ss4': {
-      name: 'Stick Studies 4',
-      pathway: 'sticks',
-      lessons: []
-    },
-    'ks1': {
-      name: 'Kick Studies 1',
-      pathway: 'kicks',
-      lessons: []
-    },
-    'ks2': {
-      name: 'Kick Studies 2',
-      pathway: 'kicks',
-      lessons: []
-    },
-    'ks3': {
-      name: 'Kick Studies 3',
-      pathway: 'kicks',
-      lessons: []
-    }
+    'gs2': { name: 'Groove Studies 2', pathway: 'groove', lessons: [] },
+    'gs3': { name: 'Groove Studies 3', pathway: 'groove', lessons: [] },
+    'gs4': { name: 'Groove Studies 4', pathway: 'groove', lessons: [] },
+    'fs1': { name: 'Fill Studies 1', pathway: 'fills', lessons: [] },
+    'fs2': { name: 'Fill Studies 2', pathway: 'fills', lessons: [] },
+    'fs3': { name: 'Fill Studies 3', pathway: 'fills', lessons: [] },
+    'fs4': { name: 'Fill Studies 4', pathway: 'fills', lessons: [] },
+    'ss1': { name: 'Stick Studies 1', pathway: 'sticks', lessons: [] },
+    'ss2': { name: 'Stick Studies 2', pathway: 'sticks', lessons: [] },
+    'ss3': { name: 'Stick Studies 3', pathway: 'sticks', lessons: [] },
+    'ss4': { name: 'Stick Studies 4', pathway: 'sticks', lessons: [] },
+    'ks1': { name: 'Kick Studies 1', pathway: 'kicks', lessons: [] },
+    'ks2': { name: 'Kick Studies 2', pathway: 'kicks', lessons: [] },
+    'ks3': { name: 'Kick Studies 3', pathway: 'kicks', lessons: [] }
   };
 
   window.VAULT_PATHWAY_NAMES = {
@@ -105,27 +43,19 @@
     kicks: 'Kick Studies'
   };
 
-  /* ============================================
-     SHARED UTILITIES
-     ============================================ */
-
   var auth = firebase.auth();
   var db = firebase.firestore();
 
   function getCourseIdFromUrl(){
-    // Try path first: /vault/gs1 -> gs1
     var path = window.location.pathname;
     var parts = path.split('/').filter(function(p){ return p.length > 0; });
     if (parts.length >= 2 && parts[0] === 'vault') {
       return parts[1];
     }
-    
-    // Try query param: ?course=gs1
     var params = getQueryParams();
     if (params.course) {
       return params.course;
     }
-    
     return null;
   }
 
@@ -133,7 +63,6 @@
     var params = {};
     var search = window.location.search.substring(1);
     if (!search) return params;
-    
     search.split('&').forEach(function(pair){
       var parts = pair.split('=');
       if (parts.length === 2) {
@@ -146,11 +75,10 @@
   function isCourseIndexPage(){
     var courseId = getCourseIdFromUrl();
     if (!courseId) return false;
-    
-    // Must be /vault/gs1, not /vault/gs1/something or /vault?course=gs1
     var path = window.location.pathname;
     var expectedPath = '/vault/' + courseId;
-    return (path === expectedPath || path === expectedPath + '/') && !window.location.search;
+    var params = getQueryParams();
+    return (path === expectedPath || path === expectedPath + '/') && !params.lesson;
   }
 
   function isSingleLessonPage(){
@@ -159,7 +87,7 @@
   }
 
   /* ============================================
-     COURSE INDEX PAGE: Progress Bar + Status Circles
+     COURSE INDEX PAGE
      ============================================ */
 
   function initCourseIndexPage(){
@@ -175,11 +103,7 @@
 
       auth.onAuthStateChanged(function(user){
         if (!user) return;
-
-        // Update active course for this pathway
         updateActiveCourse(user.uid, courseConfig.pathway, courseId);
-
-        // Load completion data and render
         loadAndRenderProgress(user.uid, courseId, courseConfig);
       });
     } catch(e) {
@@ -190,11 +114,8 @@
   function updateActiveCourse(uid, pathway, courseId){
     var update = { activeCourses: {} };
     update.activeCourses[pathway] = courseId;
-    
     db.collection('users').doc(uid).set(update, { merge: true })
-      .catch(function(e){
-        console.error('Failed to update active course:', e);
-      });
+      .catch(function(e){ console.error('Failed to update active course:', e); });
   }
 
   function loadAndRenderProgress(uid, courseId, courseConfig){
@@ -205,19 +126,15 @@
           var data = snap.data() || {};
           completed = data.completed || {};
         }
-
         renderProgressBar(completed, courseConfig.lessons);
         renderStatusCircles(uid, courseId, completed, courseConfig.lessons);
       })
-      .catch(function(e){
-        console.error('Failed to load course progress:', e);
-      });
+      .catch(function(e){ console.error('Failed to load course progress:', e); });
   }
 
   function renderProgressBar(completed, lessons){
     var progressBar = document.querySelector('.course-progress-bar');
     var progressText = document.querySelector('.course-progress-text');
-    
     if (!progressBar) return;
 
     var completedCount = 0;
@@ -239,17 +156,14 @@
       var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
 
       lessons.forEach(function(lessonId){
-        // Find lesson item by data-lesson attribute
         var lessonItem = document.querySelector('[data-lesson="' + lessonId + '"]');
         if (!lessonItem) return;
 
-        // Find status circle within the lesson item
         var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
         if (!statusCircle) return;
 
         var isCompleted = completed[lessonId] === true;
         
-        // Update visual state
         if (isCompleted) {
           statusCircle.classList.remove('incomplete');
           statusCircle.classList.add('completed');
@@ -258,18 +172,13 @@
           statusCircle.classList.add('incomplete');
         }
 
-        // Add click handler if user can self-progress
         if (canSelfProgress) {
           lessonItem.style.cursor = 'pointer';
-          
-          // Prevent default link behavior when clicking on the item
           lessonItem.addEventListener('click', function(e){
-            // If clicking the status circle, toggle completion instead of navigating
             if (e.target === statusCircle || statusCircle.contains(e.target)) {
               e.preventDefault();
               toggleCompletion(uid, courseId, lessonId, !isCompleted);
             }
-            // Otherwise, allow normal link navigation
           });
         }
       });
@@ -283,9 +192,7 @@
 
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
-      .then(function(){
-        location.reload();
-      })
+      .then(function(){ location.reload(); })
       .catch(function(e){
         console.error('Failed to toggle completion:', e);
         alert('Could not update progress. Please try again.');
@@ -293,7 +200,7 @@
   }
 
   /* ============================================
-     SINGLE LESSON PAGE: Completion Buttons
+     SINGLE LESSON PAGE - ENHANCED NAVIGATION
      ============================================ */
 
   function initLessonCompletionButtons(){
@@ -330,48 +237,80 @@
   }
 
   function createCompletionButtons(uid, courseId, lessonId, isCompleted){
-    var courseIndexUrl = '/vault/' + courseId;
+    var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
+    if (!courseConfig) return;
+
+    var courseIndexUrl = window.location.pathname;
+    var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId);
 
     // Top button
-    var topBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl);
-    var contentTop = document.querySelector('.sqs-block-content');
-    if (contentTop && contentTop.firstChild) {
-      contentTop.insertBefore(topBtn, contentTop.firstChild);
+    var topBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
+    var contentTop = document.querySelector('#lesson-content');
+    if (contentTop && contentTop.children.length > 1) {
+      var insertPoint = contentTop.children[2] || contentTop.children[1];
+      if (insertPoint) {
+        contentTop.insertBefore(topBtn, insertPoint);
+      }
     }
 
     // Bottom button
-    var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl);
-    var contentBottom = document.querySelector('.sqs-block-content');
+    var bottomBtn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
+    var contentBottom = document.querySelector('#lesson-content');
     if (contentBottom) {
       contentBottom.appendChild(bottomBtn);
     }
   }
 
-  function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl){
+  function getNextLessonUrl(courseConfig, currentLessonId){
+    var lessons = courseConfig.lessons;
+    var currentIndex = lessons.indexOf(currentLessonId);
+    
+    if (currentIndex === -1 || currentIndex === lessons.length - 1) {
+      return null; // No next lesson (last lesson or not found)
+    }
+    
+    var nextLessonId = lessons[currentIndex + 1];
+    var courseId = getCourseIdFromUrl(); // Use existing helper function
+    return window.location.pathname + '?course=' + courseId + '&lesson=' + nextLessonId;
+  }
+
+  function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl){
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'vault-lesson-complete-btn';
-    btn.textContent = isCompleted ? 'Mark Incomplete' : 'Complete Lesson';
+    
+    // Button text based on state
+    if (isCompleted) {
+      btn.textContent = 'Mark Incomplete';
+    } else if (nextLessonUrl) {
+      btn.textContent = 'Complete & Next Lesson →';
+    } else {
+      btn.textContent = 'Complete Lesson';
+    }
+    
     btn.style.cssText = 'display:block;width:100%;max-width:400px;margin:20px auto;padding:14px 24px;' +
       'background:' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
       'border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;' +
       'transition:all 0.2s ease;';
 
-    btn.addEventListener('mouseenter', function(){
-      btn.style.opacity = '0.9';
-    });
-    btn.addEventListener('mouseleave', function(){
-      btn.style.opacity = '1';
-    });
+    btn.addEventListener('mouseenter', function(){ btn.style.opacity = '0.9'; });
+    btn.addEventListener('mouseleave', function(){ btn.style.opacity = '1'; });
 
     btn.addEventListener('click', function(){
-      toggleLessonCompletion(uid, courseId, lessonId, !isCompleted, courseIndexUrl);
+      if (isCompleted) {
+        // Mark incomplete and go back to course
+        toggleLessonCompletion(uid, courseId, lessonId, false, courseIndexUrl);
+      } else {
+        // Mark complete and advance to next lesson (or course if last)
+        var redirectUrl = nextLessonUrl || courseIndexUrl;
+        toggleLessonCompletion(uid, courseId, lessonId, true, redirectUrl);
+      }
     });
 
     return btn;
   }
 
-  function toggleLessonCompletion(uid, courseId, lessonId, newState, courseIndexUrl){
+  function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
     var update = { completed: {} };
     update.completed[lessonId] = newState;
     update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -379,7 +318,7 @@
     db.collection('users').doc(uid).collection('progress').doc(courseId)
       .set(update, { merge: true })
       .then(function(){
-        window.location.href = courseIndexUrl;
+        window.location.href = redirectUrl;
       })
       .catch(function(e){
         console.error('Failed to toggle completion:', e);
