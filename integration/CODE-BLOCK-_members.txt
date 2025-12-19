@@ -123,7 +123,7 @@
 
     <button id="login-btn">Login</button>
 
-    <span id="reset-link">Forgot your password?</span>
+    <a href="#" id="reset-link">Forgot your password?</a>
   </div>
 
   <!-- ACCOUNT VIEW -->
