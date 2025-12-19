@@ -386,6 +386,12 @@ document.addEventListener('DOMContentLoaded', function () {
           var url = data.lastLessonUrl;
           var title = data.lastLessonTitle;
 
+          // MIGRATE OLD URL FORMAT: /vault/gs1?lesson=1.01 → /vault?course=gs1&lesson=1.01
+          if (url && url.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/)) {
+            var migrationMatch = url.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/);
+            url = '/vault?course=' + migrationMatch[1] + '&lesson=' + migrationMatch[2];
+          }
+
           if (url && title) {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
@@ -529,6 +535,12 @@ document.addEventListener('DOMContentLoaded', function () {
           var lastLessonUrl = '';
           if (practiceSnap.exists) {
             lastLessonUrl = practiceSnap.data().lastLessonUrl || '';
+          }
+
+          // MIGRATE OLD URL FORMAT: /vault/gs1?lesson=1.01 → /vault?course=gs1&lesson=1.01
+          if (lastLessonUrl && lastLessonUrl.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/)) {
+            var migrationMatch = lastLessonUrl.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/);
+            lastLessonUrl = '/vault?course=' + migrationMatch[1] + '&lesson=' + migrationMatch[2];
           }
 
           // Extract course from last lesson URL
