@@ -2,7 +2,7 @@
 This file documents intent only.  
 It is not a replacement for Firebase Security Rules.
 
-Last updated: December 2024
+Last updated: December 19, 2025
 
 ## Roles
 - Admin access is determined by existence of document:  
@@ -24,6 +24,9 @@ Last updated: December 2024
 - `birthdate` (string, format: "DD/MM/YYYY")
 - `createdAt` (timestamp)
 - `selfProgress` (boolean) - **Controls whether user can mark their own lessons complete**
+  - **Default: `false`** for all new users (set during account creation)
+  - **Admin can enable** via Progress modal checkbox in admin console
+  - **Purpose**: Gives admin control over who can self-report progress
 - `activeCourses` (map) - Tracks most recently viewed course per pathway  
   Example: `{ groove: 'gs1', fills: 'fs2' }`
 
@@ -72,7 +75,7 @@ Location: `/users/{uid}/metrics/{docId}`
 ### Structure
 Location: `/users/{uid}/progress/{courseId}`
 
-Document format:
+**Correct structure (nested object):**
 ```javascript
 {
   completed: {
@@ -85,10 +88,16 @@ Document format:
 }
 ```
 
+**Important:** The `completed` field is a **nested object**, not flat fields. Earlier implementations mistakenly created flat fields like `"completed.1.01": true` which caused read failures.
+
 ### Updates
-- Uses Firestore dot notation for efficient nested updates:  
-  `{ "completed.1.01": true }`
+- **Uses Firestore `.update()` method** with dot notation for efficient nested updates:  
+  ```javascript
+  update({ "completed.1.01": true })
+  ```
+- **Not `.set()` with merge**, which creates flat fields incorrectly
 - Avoids replacing entire `completed` map on each toggle
+- If document doesn't exist yet, creates it with proper nested structure first
 
 ### Access Rules
 - **Users may read their own course progress** (always)
@@ -96,10 +105,43 @@ Document format:
 - **Admins may read/write course progress for any user** (always)
 - **Client code must not assume progress documents exist**  
   (treat missing document as 0% complete)
+- **Firestore rules do NOT check selfProgress via `get()` call** (causes silent failures)
+  - Instead, client-side JavaScript checks `selfProgress` before making checkboxes clickable
+  - Security rules only verify user owns the document
+
+### User Experience
+**For users with `selfProgress: false` (default):**
+- Can view course pages and lessons
+- Can see progress bar and completion status
+- **Cannot** click checkboxes to mark lessons complete
+- Admin must mark their progress OR enable selfProgress
+
+**For users with `selfProgress: true`:**
+- All above features, plus:
+- Can click checkboxes on course index page to toggle completion
+- Can click "Complete Lesson" button on lesson pages
+- Changes save immediately to Firestore
+
+**For admins:**
+- Full access to all users' progress
+- Can toggle any user's lesson completion in admin console
+- Can enable/disable selfProgress per user via Progress modal
+
+### Implementation Details
+- **Event handler**: Uses `onclick` property (not addEventListener) for maximum reliability
+- **Click detection**: Status circles use `e.stopPropagation()` to prevent parent link navigation
+- **Visual state**: Green checkmark when complete, white circle when incomplete
+- **Page reload**: After toggling, page reloads to show updated state
+- **Error handling**: Falls back to document creation if update fails with 'not-found'
 
 ### Course Configuration
 - Course definitions (name, pathway, lesson list) stored in JavaScript  
   (`window.VAULT_COURSES` in vault-console.js and vault-course-progress.js)
+- Currently configured courses:
+  - Groove Studies: gs1, gs2, gs3, gs4
+  - Fill Studies: fs1, fs2, fs3, fs4
+  - Stick Studies: ss1, ss2, ss3, ss4
+  - Kick Studies: ks1, ks2, ks3
 - Course content files stored in Firebase Storage:  
   `/courses/{courseId}.txt`
 - Storage rules: Authenticated users can read, no one can write
@@ -153,6 +195,19 @@ Location: `/invites/{token}`
 - **Claiming user: can update once to mark as used**
 - **Revocation: Admin can delete invite document**
 
+### Account Creation Flow
+1. Admin generates invite via admin console
+2. Invite email sent with link containing token
+3. User clicks link, fills out registration form
+4. Account created with Firebase Auth
+5. User document created in Firestore with:
+   - Basic profile info (email, name, birthdate)
+   - **`selfProgress: false`** (new users can't self-progress by default)
+   - `createdAt` timestamp
+6. Metrics document created at `/users/{uid}/metrics/stats`
+7. Invite marked as used
+8. User redirected to members area
+
 ## Notifications
 User-to-user and system notifications.
 
@@ -181,6 +236,8 @@ Location: `/users/{uid}/notifications/{notificationId}`
 - **Avoid storing derived totals that can desynchronize**  
   (prefer deriving percentages from completion maps and known lesson counts)
 - **Handle missing documents gracefully** (assume 0% progress, no metrics yet, etc.)
+- **Use `.update()` for nested field updates, not `.set()` with merge**
+- **Check for document existence before update, create if needed**
 
 ## Optimization Strategies
 1. **Progress tracking**: Single doc per course with sparse completion map  
@@ -195,26 +252,100 @@ Location: `/users/{uid}/notifications/{notificationId}`
 4. **Daily tracking**: Date-keyed sessions for "days practiced this week"  
    → One doc per day, incremental updates
 
+5. **SelfProgress checking**: Checked once on page load, result cached  
+   → Status circles rendered based on cached value, no per-click reads
+
+## Common Pitfalls & Solutions
+
+### Issue: Progress not saving
+**Symptoms:** Checkboxes don't change state, no errors in console  
+**Causes:**
+- `selfProgress` field missing or undefined on user document
+- Using `.set()` instead of `.update()` creates wrong data structure
+- Firestore rules using `get()` call that fails silently
+
+**Solutions:**
+- Ensure all users have `selfProgress` boolean field (default: false)
+- Use `.update()` method with dot notation for nested updates
+- Avoid `get()` calls in Firestore rules; do client-side checks instead
+- Check browser console for `[CLICK]` and `[TOGGLE]` debug logs
+
+### Issue: Data structure is flat instead of nested
+**Symptoms:** Firestore shows `"completed.1.01": true` instead of `completed: {"1.01": true}`  
+**Cause:** Using `.set(data, {merge: true})` with dot notation in field names  
+**Solution:**
+- Use `.update()` method which properly interprets dot notation as paths
+- Run data cleanup script to convert existing flat fields to nested structure
+- Update vault-console.js and vault-course-progress.js to use `.update()`
+
+### Issue: Login fails after account creation
+**Symptoms:** "Invalid credential" error immediately after creating account  
+**Causes:**
+- Extra spaces in email field (browser autofill)
+- API restrictions blocking Identity Toolkit API
+
+**Solutions:**
+- Always `.trim()` and `.toLowerCase()` emails during account creation
+- Check Firebase Console → Authentication for exact email format
+- Verify Google Cloud Console API restrictions don't block Identity Toolkit
+- Use password reset if credentials don't match
+
 ## When Rules Change (Quick Checklist)
 - Update this file if role logic or read/write access changes
 - Update Firebase Security Rules in Firebase Console
 - If any client assumptions changed, update the relevant `/vault/*.js` code
 - If access failures are expected (`permission-denied`), ensure the UI handles it cleanly
 - Test with non-admin user account to verify rule enforcement
+- Clear browser cache and test with hard refresh after updates
 
 ## Known Firestore Read Patterns
 **Course Index Page** (/vault/gs1):
 - 1 read: progress doc
 - 1 read: user doc (for selfProgress check)
+- **Total: 2 reads**
 
 **Lesson Page** (/vault/gs1?lesson=1.01):
 - 1 read: progress doc (if selfProgress enabled)
 - 1 read: user doc (for selfProgress check)
-- ~10 reads: comments (paginated)
+- ~10 reads: comments (paginated, first page)
+- **Total: ~12 reads**
 
 **Admin Console** (/vault-admin):
 - N reads: all users collection
 - N reads: all user stats
 - 1 read per course when Progress modal opened
+- **Total: varies by user count**
 
-**Typical session**: 10-20 reads (well within free tier: 50k/day)
+**Typical user session**: 10-30 reads (well within free tier: 50k reads/day)
+
+## File Versions & Updates
+**Latest production files (December 19, 2025):**
+- `vault-create-account.js` - Sets selfProgress: false for new users
+- `vault-course-progress.js` - Uses onclick handlers, .update() method
+- `vault-console.js` - Fixed admin checkbox state handling
+- `firestore.rules` - Removed problematic get() call for selfProgress check
+
+**Deprecated/debug versions:**
+- `vault-course-progress-debug.js` - Excessive logging, use for diagnostics only
+- Any version using `.set({merge: true})` for progress updates
+
+## API Configuration
+**Google Cloud Console settings:**
+- **Website restrictions**: Enabled (whitelist davedrums.com.au domains)
+- **API restrictions**: Disabled (all Firebase APIs allowed)
+  - Website restrictions provide sufficient security
+  - API restrictions were blocking Identity Toolkit (login) functionality
+- **Authorized domains** (Firebase Console → Authentication):
+  - davedrums.com.au
+  - www.davedrums.com.au
+  - davedrums.squarespace.com
+  - dave-drums.firebaseapp.com
+
+## Security Notes
+- Email/password auth only (no third-party providers)
+- All reads/writes require authentication
+- Firestore rules enforce user ownership for personal data
+- Admin role verified via document existence check (not email patterns)
+- Course content in Firebase Storage is read-only
+- Invite tokens expire after 7 days
+- User passwords managed by Firebase Auth (never stored in Firestore)
