@@ -1,7 +1,7 @@
 <!-- WHERE: /vault/* → Code Block -->
 <!-- PURPOSE: Inject rendered lesson UI from master *.txt file (Firebase Storage) -->
 
-<!-- COURSE PAGE CODE BLOCK - POINTER-EVENTS VERSION -->
+<!-- COURSE PAGE CODE BLOCK - UPDATED -->
 
 <style>
 .gs1-course-container {
@@ -26,7 +26,7 @@
 
 .gs1-progress-bar-bg {
   width: 100%;
-  height: 15px;
+  height: 17px;
   background-color: #f0f0f0f0;
   border-radius: 10px;
   overflow: hidden;
@@ -35,7 +35,7 @@
 .gs1-progress-bar-fill {
   height: 100%;
   background-color: #06b3fd;
-  border-radius: 10px;
+  border-radius: 13px;
   transition: width 0.3s ease;
 }
 
@@ -71,45 +71,33 @@
   align-items: center;
   gap: 12px;
   transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.gs1-lesson-item:hover {
+  background-color: #ececec;
 }
 
 .gs1-lesson-link {
   flex: 1;
-  cursor: pointer;
   user-select: none;
-}
-
-.gs1-lesson-link:hover {
-  opacity: 0.8;
 }
 
 .gs1-lesson-status {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: 50%;
   border: 2px solid #d0d0d0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   transition: all 0.15s ease;
-  pointer-events: auto;
-}
-
-.gs1-lesson-status.clickable {
-  cursor: pointer;
-  border-color: #999;
-}
-
-.gs1-lesson-status.clickable:hover {
-  transform: scale(1.08);
-  border-color: #666;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .gs1-lesson-status.completed {
-  background-color: #10b981;
-  border-color: #10b981;
+  background-color: #06b3fd;
+  border-color: #06b3fd;
 }
 
 .gs1-lesson-status.completed::after {
@@ -205,7 +193,7 @@
   color: #06b3fd;
   cursor: pointer;
   padding: 0;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .vault-comment-actions button:hover {
@@ -222,37 +210,6 @@
   .gs1-lessons-grid {
     grid-template-columns: 1fr;
   }
-}
-
-/* ADD THIS CSS TO YOUR COURSE PAGE */
-
-/* Force status circles to be on top and clickable */
-.gs1-lesson-status {
-  position: relative;
-  z-index: 10;
-  pointer-events: auto !important;
-  cursor: pointer;
-}
-
-.gs1-lesson-status.clickable {
-  cursor: pointer !important;
-}
-
-/* Ensure no pseudo-elements block clicks */
-.gs1-lesson-status::before,
-.gs1-lesson-status::after {
-  pointer-events: none;
-}
-
-/* Make sure parent doesn't block */
-.gs1-lesson-item {
-  position: relative;
-}
-
-/* Ensure link doesn't overlap status circle */
-.gs1-lesson-link {
-  position: relative;
-  z-index: 1;
 }
 </style>
 
@@ -295,7 +252,7 @@
 
   <div class="gs1-chapter">
     <div class="gs1-chapter-header">
-      <p class="gs1-chapter-title sqsrte-large">Quarter Note Grooves</p>
+      <p class="gs1-chapter-title sqsrte-large">Eighth Note Grooves – Linear</p>
       <span class="gs1-chapter-count">4 Lessons</span>
     </div>
     <div class="gs1-lessons-grid">
@@ -516,7 +473,7 @@
     container.innerHTML = '';
     
     const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:0 0 20px 0;';
+    buttonContainer.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin:0 0 20px 0;';
     
     const backBtn = document.createElement('a');
     backBtn.href = window.location.pathname;
@@ -543,16 +500,16 @@
     
     const commentsHTML = `
       <div id="vault-comments" class="vault-comments">
-        <h3>Discussion</h3>
+        <h3>Lesson Comments</h3>
         <div id="vault-comments-meta" style="font-size:14px;color:#666;margin-bottom:16px;"></div>
-        <form id="vault-comment-form" style="margin-bottom:24px;">
+        <div id="vault-comments-list" style="margin-bottom:24px;"></div>
+        <form id="vault-comment-form">
           <textarea id="vault-comment-text" placeholder="Add a comment..."></textarea>
           <div style="display:flex;justify-content:flex-end;">
             <button type="submit" id="vault-comment-post">Post Comment</button>
           </div>
         </form>
         <div id="vault-comment-status" style="margin:8px 0;color:#c00;font-size:14px;"></div>
-        <div id="vault-comments-list"></div>
       </div>
     `;
     
@@ -566,9 +523,12 @@
       window.VaultAudioPlayer.scan();
     }
     
-    if (typeof window.initVaultComments === 'function') {
-      setTimeout(function() { window.initVaultComments(); }, 100);
-    }
+    // Wait for comments container to be in DOM, then initialize
+    setTimeout(function() {
+      if (typeof window.initVaultComments === 'function') {
+        window.initVaultComments();
+      }
+    }, 200);
   }
   
   function showError(message) {
