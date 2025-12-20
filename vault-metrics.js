@@ -1,4 +1,4 @@
-/* vault-unified.js - Consolidated metrics, tracking, and progress */
+/* vault-metrics.js - Consolidated metrics, tracking, and progress */
 
 (function(){
   'use strict';
@@ -16,8 +16,23 @@
   var currentUser = null;
 
   function getCourseIdFromUrl(){
+    var path = window.location.pathname;
+    var parts = path.split('/').filter(function(p){ return p.length > 0; });
+    if (parts.length < 2 || parts[0] !== 'vault') return null;
+    
+    var pathway = parts[1]; // gs, fs, ss, ks
     var params = getQueryParams();
-    return params.course || null;
+    var courseNum = params.c;
+    
+    if (!courseNum) return null;
+    return pathway + courseNum; // gs1, fs2, etc
+  }
+
+  function parseCourseId(courseId){
+    // gs1 → {pathway: 'gs', num: '1'}
+    var match = courseId.match(/^([a-z]+)(\d+)$/);
+    if (!match) return null;
+    return { pathway: match[1], num: match[2] };
   }
 
   function getQueryParams(){
@@ -37,12 +52,12 @@
     var courseId = getCourseIdFromUrl();
     if (!courseId) return false;
     var params = getQueryParams();
-    return !params.lesson;
+    return !params.l;
   }
 
   function isSingleLessonPage(){
     var params = getQueryParams();
-    return params.lesson;
+    return params.c && params.l;
   }
 
   function isProtectedPage(){
@@ -279,9 +294,10 @@
     var VAULT_INDEX_PATH = '/vault';
 
     function isLessonPage(){
-      if (window.location.pathname !== '/vault') return false;
+      var path = window.location.pathname;
+      if (!path.startsWith('/vault/')) return false;
       var params = getQueryParams();
-      return params.course && params.lesson;
+      return params.c && params.l;
     }
 
     function getLessonTitle(){
@@ -464,7 +480,10 @@
         }
         
         lessonItem.onclick = function(){
-          window.location.href = '/vault?course=' + courseId + '&lesson=' + lessonId;
+          var parsed = parseCourseId(courseId);
+          if (parsed) {
+            window.location.href = '/vault/' + parsed.pathway + '?c=' + parsed.num + '&l=' + lessonId;
+          }
         };
       });
     }
@@ -506,7 +525,9 @@
       }
       
       var nextLessonId = lessons[currentIndex + 1];
-      return '/vault?course=' + courseId + '&lesson=' + nextLessonId;
+      var parsed = parseCourseId(courseId);
+      if (!parsed) return null;
+      return '/vault/' + parsed.pathway + '?c=' + parsed.num + '&l=' + nextLessonId;
     }
 
     function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl){
@@ -564,7 +585,9 @@
       var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
       if (!courseConfig) return;
 
-      var courseIndexUrl = '/vault?course=' + courseId;
+      var parsed = parseCourseId(courseId);
+      if (!parsed) return;
+      var courseIndexUrl = '/vault/' + parsed.pathway + '?c=' + parsed.num;
       var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId, courseId);
       var btn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
 
