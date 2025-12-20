@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // URLs
-    var VAULT_URL = '/vault-home';
+    var VAULT_URL = '/vault';
     var SUPPORT_URL = '/contact';
 
     // DOM elements
@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault-home';
+              window.location.href = '/vault';
             };
               return;
           }
@@ -386,10 +386,19 @@ document.addEventListener('DOMContentLoaded', function () {
           var url = data.lastLessonUrl;
           var title = data.lastLessonTitle;
 
-          // MIGRATE OLD URL FORMAT: /vault/gs1?lesson=1.01 → /vault?course=gs1&lesson=1.01
-          if (url && url.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/)) {
-            var migrationMatch = url.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/);
-            url = '/vault?course=' + migrationMatch[1] + '&lesson=' + migrationMatch[2];
+          // MIGRATE OLD URL FORMATS
+          if (url) {
+            // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
+            var match1 = url.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
+            if (match1) {
+              url = '/vault/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
+            } else {
+              // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
+              var match2 = url.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
+              if (match2) {
+                url = '/vault/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
+              }
+            }
           }
 
           if (url && title) {
@@ -416,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault-home';
+              window.location.href = '/vault';
             };
               return;
           }
@@ -427,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault-home';
+              window.location.href = '/vault';
             };
             return;
         });
@@ -537,20 +546,30 @@ document.addEventListener('DOMContentLoaded', function () {
             lastLessonUrl = practiceSnap.data().lastLessonUrl || '';
           }
 
-          // MIGRATE OLD URL FORMAT: /vault/gs1?lesson=1.01 → /vault?course=gs1&lesson=1.01
-          if (lastLessonUrl && lastLessonUrl.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/)) {
-            var migrationMatch = lastLessonUrl.match(/^\/vault\/([^/?]+)\?lesson=(.+)$/);
-            lastLessonUrl = '/vault?course=' + migrationMatch[1] + '&lesson=' + migrationMatch[2];
+          // MIGRATE OLD URL FORMATS
+          if (lastLessonUrl) {
+            // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
+            var match1 = lastLessonUrl.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
+            if (match1) {
+              lastLessonUrl = '/vault/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
+            } else {
+              // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
+              var match2 = lastLessonUrl.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
+              if (match2) {
+                lastLessonUrl = '/vault/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
+              }
+            }
           }
 
           // Extract course from last lesson URL
           var lastActiveCourseId = null;
           var lastActivePathway = null;
           if (lastLessonUrl) {
-            var match = lastLessonUrl.match(/[?&]course=([^&]+)/);
-            if (match) {
-              lastActiveCourseId = match[1];
-              // Find pathway for this course
+            // New format: /vault/gs?c=1&l=1.01
+            var pathMatch = lastLessonUrl.match(/^\/vault\/([a-z]+)\?c=(\d+)/);
+            if (pathMatch) {
+              lastActivePathway = pathMatch[1];
+              lastActiveCourseId = pathMatch[1] + pathMatch[2];
               var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[lastActiveCourseId];
               if (courseConfig) {
                 lastActivePathway = courseConfig.pathway;
