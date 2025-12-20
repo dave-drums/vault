@@ -1,4 +1,4 @@
-/* vault-metrics.js - Consolidated metrics, tracking, and progress */
+/* vault-unified.js - Consolidated metrics, tracking, and progress */
 
 (function(){
   'use strict';
@@ -530,11 +530,30 @@
       return '/vault/' + parsed.pathway + '?c=' + parsed.num + '&l=' + nextLessonId;
     }
 
-    function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl){
+    function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl, selfProgress){
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'vault-lesson-complete-btn';
       
+      // Non-selfProgress users get simple Next Lesson button
+      if (!selfProgress) {
+        btn.textContent = nextLessonUrl ? 'Next Lesson →' : 'Back to Course';
+        btn.style.cssText = 'display:inline-block;padding:10px 16px;' +
+          'background:#f3f3f3;border:1px solid #ddd;border-radius:6px;' +
+          'color:#333;font-size:14px;cursor:pointer;transition:all 0.2s;' +
+          'text-decoration:none;box-sizing:border-box;';
+        
+        btn.addEventListener('mouseenter', function(){ btn.style.background = '#e8e8e8'; });
+        btn.addEventListener('mouseleave', function(){ btn.style.background = '#f3f3f3'; });
+        
+        btn.onclick = function(){
+          window.location.href = nextLessonUrl || courseIndexUrl;
+        };
+        
+        return btn;
+      }
+      
+      // selfProgress users get Complete Lesson button
       if (isCompleted) {
         btn.textContent = 'Mark Incomplete';
       } else if (nextLessonUrl) {
@@ -581,7 +600,7 @@
         });
     }
 
-    function createCompletionButton(uid, courseId, lessonId, isCompleted){
+    function createCompletionButton(uid, courseId, lessonId, isCompleted, selfProgress){
       var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
       if (!courseConfig) return;
 
@@ -589,7 +608,7 @@
       if (!parsed) return;
       var courseIndexUrl = '/vault/' + parsed.pathway + '?c=' + parsed.num;
       var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId, courseId);
-      var btn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl);
+      var btn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl, selfProgress);
 
       var topPlaceholder = document.querySelector('#complete-button-top');
       if (topPlaceholder && !topPlaceholder.querySelector('.vault-lesson-complete-btn')) {
@@ -609,12 +628,11 @@
 
       db.collection('users').doc(currentUser.uid).get().then(function(userSnap){
         var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
-        if (!canSelfProgress) return;
 
         db.collection('users').doc(currentUser.uid).collection('progress').doc(courseId).get()
           .then(function(snap){
             var isCompleted = false;
-            if (snap.exists) {
+            if (snap.exists && canSelfProgress) {
               var completed = snap.data().completed || {};
               isCompleted = completed[lessonId] === true;
             }
@@ -623,7 +641,7 @@
             buttonObserver = new MutationObserver(function(){
               var placeholder = document.querySelector('#complete-button-top');
               if (placeholder && !placeholder.querySelector('.vault-lesson-complete-btn')) {
-                createCompletionButton(currentUser.uid, courseId, lessonId, isCompleted);
+                createCompletionButton(currentUser.uid, courseId, lessonId, isCompleted, canSelfProgress);
                 if (buttonObserver) {
                   buttonObserver.disconnect();
                   buttonObserver = null;
@@ -636,7 +654,7 @@
             // Also try immediately in case placeholder already exists
             var existingPlaceholder = document.querySelector('#complete-button-top');
             if (existingPlaceholder) {
-              createCompletionButton(currentUser.uid, courseId, lessonId, isCompleted);
+              createCompletionButton(currentUser.uid, courseId, lessonId, isCompleted, canSelfProgress);
               if (buttonObserver) {
                 buttonObserver.disconnect();
                 buttonObserver = null;
