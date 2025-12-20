@@ -317,7 +317,7 @@
       }
       if (!title) {
         var params = getQueryParams();
-        var lessonId = params.lesson;
+        var lessonId = params.l;
         if (lessonId) {
           title = 'Lesson ' + lessonId;
         }
@@ -602,7 +602,7 @@
 
       var params = getQueryParams();
       var courseId = getCourseIdFromUrl();
-      var lessonId = params.lesson;
+      var lessonId = params.l;
       currentCourseId = courseId;
 
       if (!courseId || !lessonId) return;
