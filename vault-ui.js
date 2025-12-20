@@ -823,30 +823,30 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       grid.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
 
       var stats = [
-        { label: 'Days This Week', id: 'stat-days-week', value: '—', icon: '📅' },
-        { label: 'Total Time', id: 'stat-total-time', value: '—', icon: '⏱️' },
-        { label: 'Avg Per Session', id: 'stat-avg-time', value: '—', icon: '📊' }
+        { label: 'days this week', id: 'stat-days-week', value: '—', icon: '📅' },
+        { label: 'total time', id: 'stat-total-time', value: '—', icon: '⏱️' },
+        { label: 'avg per session', id: 'stat-avg-time', value: '—', icon: '📊' }
       ];
 
       stats.forEach(function(stat){
         var box = document.createElement('div');
         box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 20px;' +
-          'display:flex;align-items:center;gap:16px;justify-content:center;';
+          'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;';
 
         var iconEl = document.createElement('div');
         iconEl.textContent = stat.icon;
-        iconEl.style.cssText = 'font-size:18px;flex-shrink:0;';
+        iconEl.style.cssText = 'font-size:24px;';
 
         var textWrapper = document.createElement('div');
-        textWrapper.style.cssText = 'display:flex;align-items:center;gap:8px;flex:1;';
+        textWrapper.style.cssText = 'display:flex;align-items:center;gap:6px;';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:14px;font-weight:600;color:#06b3fd;white-space:nowrap;';
+        valueEl.style.cssText = 'font-size:16px;font-weight:600;color:#06b3fd;';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
         var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:13px;color:#666;white-space:nowrap;';
+        labelEl.style.cssText = 'font-size:13px;color:#666;';
         labelEl.textContent = stat.label;
 
         textWrapper.appendChild(valueEl);
