@@ -399,15 +399,10 @@ document.addEventListener('DOMContentLoaded', function(){
         '</div>' +
         
         '<div style="margin-bottom:16px;">' +
-          '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;" id="modal-dob-label">Date of Birth</label>' +
-          '<div style="display:flex;gap:8px;align-items:center;">' +
-            '<input type="text" id="modal-dob-day" placeholder="DD" maxlength="2" style="width:60px;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;text-align:center;">' +
-            '<span style="color:#999;">/</span>' +
-            '<input type="text" id="modal-dob-month" placeholder="MM" maxlength="2" style="width:60px;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;text-align:center;">' +
-            '<span style="color:#999;">/</span>' +
-            '<input type="text" id="modal-dob-year" placeholder="YYYY" maxlength="4" style="width:90px;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;text-align:center;">' +
-          '</div>' +
-          '<div id="modal-dob-age" style="margin-top:6px;font-size:12px;color:#666;"></div>' +
+          '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#333;">' +
+            '<input type="checkbox" id="modal-age-confirmed" style="width:18px;height:18px;cursor:pointer;">' +
+            '<span>Above 16 years of age</span>' +
+          '</label>' +
         '</div>' +
         
         '<div style="margin-bottom:20px;">' +
@@ -423,52 +418,9 @@ document.addEventListener('DOMContentLoaded', function(){
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
       
-      var birthdate = userData.birthdate || '';
-      if (birthdate) {
-        var parts = birthdate.split('/');
-        if (parts.length === 3) {
-          modal.querySelector('#modal-dob-day').value = parts[0];
-          modal.querySelector('#modal-dob-month').value = parts[1];
-          modal.querySelector('#modal-dob-year').value = parts[2];
-        }
-      }
-      
-      function updateAge() {
-        var day = modal.querySelector('#modal-dob-day').value.trim();
-        var month = modal.querySelector('#modal-dob-month').value.trim();
-        var year = modal.querySelector('#modal-dob-year').value.trim();
-        var ageDiv = modal.querySelector('#modal-dob-age');
-        var labelDiv = modal.querySelector('#modal-dob-label');
-        
-        if (day && month && year && day.length === 2 && month.length === 2 && year.length === 4) {
-          var birthDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-          if (!isNaN(birthDate.getTime())) {
-            var today = new Date();
-            var ageYears = today.getFullYear() - birthDate.getFullYear();
-            var monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-              ageYears--;
-              monthDiff = monthDiff < 0 ? 12 + monthDiff : 11;
-            }
-            
-            if (monthDiff < 0) monthDiff = 0;
-            
-            ageDiv.textContent = ageYears + ' years, ' + Math.abs(monthDiff) + ' months';
-            labelDiv.textContent = 'Date of Birth';
-            return;
-          }
-        }
-        
-        ageDiv.textContent = '';
-        labelDiv.textContent = 'Date of Birth';
-      }
-      
-      modal.querySelector('#modal-dob-day').addEventListener('input', updateAge);
-      modal.querySelector('#modal-dob-month').addEventListener('input', updateAge);
-      modal.querySelector('#modal-dob-year').addEventListener('input', updateAge);
-      
-      updateAge();
+      // Load ageConfirmed status
+      var ageConfirmed = userData.ageConfirmed === true;
+      modal.querySelector('#modal-age-confirmed').checked = ageConfirmed;
       
       overlay.addEventListener('click', function(e){
         if (e.target === overlay) overlay.remove();
@@ -479,22 +431,13 @@ document.addEventListener('DOMContentLoaded', function(){
       });
       
       modal.querySelector('#modal-save').addEventListener('click', function(){
-        var dobDay = modal.querySelector('#modal-dob-day').value.trim();
-        var dobMonth = modal.querySelector('#modal-dob-month').value.trim();
-        var dobYear = modal.querySelector('#modal-dob-year').value.trim();
-        var birthdate = '';
-        
-        if (dobDay && dobMonth && dobYear) {
-          dobDay = dobDay.padStart(2, '0');
-          dobMonth = dobMonth.padStart(2, '0');
-          birthdate = dobDay + '/' + dobMonth + '/' + dobYear;
-        }
+        var ageConfirmed = modal.querySelector('#modal-age-confirmed').checked;
         
         var updates = {
           displayName: modal.querySelector('#modal-username').value.trim(),
           firstName: modal.querySelector('#modal-firstname').value.trim(),
           lastName: modal.querySelector('#modal-lastname').value.trim(),
-          birthdate: birthdate
+          ageConfirmed: ageConfirmed
         };
         
         var notesText = modal.querySelector('#modal-notes').value.trim();
@@ -673,6 +616,11 @@ document.addEventListener('DOMContentLoaded', function(){
           });
 
           var label = document.createElement('span');
+          // Note: Lesson IDs come from VAULT_COURSES config
+          // Lesson TITLES are in master course files (e.g. gs1.txt: === LESSON 1.01 | Start Here ===)
+          // To show titles here, would need to either:
+          // 1) Fetch and parse course .txt file, or
+          // 2) Add lesson titles to VAULT_COURSES config
           label.textContent = 'Lesson ' + lessonId;
           label.style.cssText = 'font-size:14px;color:#333;';
 
@@ -909,5 +857,3 @@ function loadOnce(){
   });
 });
 })();
-
-
