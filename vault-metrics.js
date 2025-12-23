@@ -1,4 +1,4 @@
-/* vault-unified.js - Consolidated metrics, tracking, and progress */
+/* vault-metrics.js - Consolidated metrics, tracking, and progress */
 
 (function(){
   'use strict';
