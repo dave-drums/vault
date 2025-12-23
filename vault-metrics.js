@@ -557,7 +557,7 @@
       if (isCompleted) {
         btn.textContent = 'Mark Incomplete';
       } else if (nextLessonUrl) {
-        btn.textContent = 'Complete & Next Lesson →';
+        btn.textContent = 'Complete Lesson →';
       } else {
         btn.textContent = 'Complete Lesson';
       }
