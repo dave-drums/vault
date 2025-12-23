@@ -164,12 +164,6 @@ const passwordRepeat = (document.getElementById("vca-pass-repeat").value || "").
         btn.disabled = false;
         return;
       }
-
-      if (!ageConfirmed) {
-        msg.textContent = "Please confirm that you are above 16 years of age.";
-        btn.disabled = false;
-        return;
-      }
        
        if (password.length < 6) {
         msg.textContent = "Please use a password of at least 6 characters.";
@@ -253,7 +247,7 @@ const passwordRepeat = (document.getElementById("vca-pass-repeat").value || "").
           firstName: String(firstName || "").trim(),
           lastName: String(lastName || "").trim(),
           displayName,
-          ageConfirmed: true,
+            ageConfirmed: ageConfirmed,
           selfProgress: false
         }, { merge: true });
 
