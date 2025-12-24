@@ -33,7 +33,7 @@
     drumContainer.style.cssText = 'position:absolute;top:24px;left:24px;';
     
     const drumLink = document.createElement('a');
-    drumLink.href = '/vault-home';
+    drumLink.href = '/vault';
     drumLink.style.cssText = 'display:block;width:40px;height:40px;border-radius:50%;' +
       'background:#f3f3f3;border:1px solid #ddd;display:flex;align-items:center;' +
       'justify-content:center;transition:all 0.2s ease;overflow:hidden;';
