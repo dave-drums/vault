@@ -1,0 +1,25 @@
+netlify-vault/
+├── .
+├── DEPLOYMENT_CHECKLIST.md
+├── README.md
+├── deploy-guide.sh
+├── file-tree.txt
+├── firebase
+  ├── firebase/firebase-app-compat.js
+  ├── firebase/firebase-auth-compat.js
+  ├── firebase/firebase-firestore-compat.js
+  ├── firebase/firebase-functions-compat.js
+  ├── firebase/firebase-storage-compat.js
+├── index.html
+├── members.html
+├── netlify.toml
+├── test.html
+├── vault-components.js
+├── vault-console.js
+├── vault-course-config.js
+├── vault-create-account.js
+├── vault-cues.js
+├── vault-dashboard.js
+├── vault-lesson-comments.js
+├── vault-notifications.js
+├── vault-render.js
