@@ -594,6 +594,7 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
 }
 
 function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
+  var db = firebase.firestore();
   db.collection('users').doc(uid).collection('progress').doc(courseId).get()
     .then(function(snap){
       var completedCount = 0;
