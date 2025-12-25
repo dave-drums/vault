@@ -4,10 +4,10 @@
   const urlParams = new URLSearchParams(window.location.search);
   const lessonId = urlParams.get('l');
   
-  // Extract courseId from URL: /vault/gs?c=1 → gs1
+  // Extract courseId from URL: /test/gs.html?c=1 → gs1
   const path = window.location.pathname;
-  const pathParts = path.split('/').filter(p => p.length > 0);
-  const pathway = (pathParts.length >= 2 && pathParts[0] === 'vault') ? pathParts[1] : null;
+  const filename = path.split('/').pop().replace('.html', ''); // Get 'gs' from 'gs.html'
+  const pathway = filename || null;
   const courseNum = urlParams.get('c');
   const courseId = (pathway && courseNum) ? pathway + courseNum : null;
   
@@ -257,7 +257,7 @@
       item.onclick = function() {
         const parsed = courseId.match(/^([a-z]+)(\d+)$/);
         if (parsed) {
-          window.location.href = '/vault/' + parsed[1] + '?c=' + parsed[2] + '&l=' + lessonId;
+          window.location.href = parsed[1] + '.html' + '?c=' + parsed[2] + '&l=' + lessonId;
         }
       };
     });
@@ -437,7 +437,7 @@
     buttonContainer.style.cssText = 'width:min(860px,100%);margin:0 auto 40px;display:flex;justify-content:space-between;align-items:flex-start;';
     
     const backBtn = document.createElement('a');
-    backBtn.href = '/vault/' + pathway + '?c=' + courseNum;
+    backBtn.href = pathway + '.html' + '?c=' + courseNum;
     backBtn.textContent = '← Back to Course';
     backBtn.className = 'p3';
     backBtn.style.cssText = 'display:inline-block;padding:10px 16px;background:#f3f3f3;' +
@@ -529,7 +529,7 @@
               // Last lesson - go back to course
               const parsed = courseId.match(/^([a-z]+)(\d+)$/);
               if (parsed) {
-                window.location.href = '/vault/' + parsed[1] + '?c=' + parsed[2];
+                window.location.href = parsed[1] + '.html' + '?c=' + parsed[2];
               }
             }
           };
@@ -573,7 +573,7 @@
     
     // Build lesson URL
     const parsed = courseId.match(/^([a-z]+)(\d+)$/);
-    const lessonUrl = parsed ? '/vault/' + parsed[1] + '?c=' + parsed[2] + '&l=' + lessonId : '';
+    const lessonUrl = parsed ? parsed[1] + '.html' + '?c=' + parsed[2] + '&l=' + lessonId : '';
     
     // Update both progress completion AND last lesson tracking
     return Promise.all([
@@ -593,7 +593,7 @@
   function navigateToLesson(courseId, lessonId) {
     const parsed = courseId.match(/^([a-z]+)(\d+)$/);
     if (parsed) {
-      window.location.href = '/vault/' + parsed[1] + '?c=' + parsed[2] + '&l=' + lessonId;
+      window.location.href = parsed[1] + '.html' + '?c=' + parsed[2] + '&l=' + lessonId;
     }
   }
   
