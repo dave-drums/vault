@@ -550,10 +550,28 @@
     <div class="course-hero-bg"></div>
     <div class="course-hero-content">
       <div class="course-hero-badge">Practice Vault</div>
-      <h1 class="course-hero-title">Groove Studies</h1>
-      <div class="course-hero-subtitle">Master the fundamentals of groove drumming</div>
+      <h1 class="course-hero-title" id="hero-course-name">Loading...</h1>
+      <div class="course-hero-subtitle" id="hero-course-level"></div>
     </div>
   </div>
+  
+  <script>
+    // Set hero title dynamically from course config
+    (function(){
+      const urlParams = new URLSearchParams(window.location.search);
+      const path = window.location.pathname;
+      const filename = path.split('/').pop().replace('.html', '');
+      const pathway = filename || null;
+      const courseNum = urlParams.get('c');
+      const courseId = (pathway && courseNum) ? pathway + courseNum : null;
+      
+      if (courseId && window.VAULT_COURSES && window.VAULT_COURSES[courseId]) {
+        const config = window.VAULT_COURSES[courseId];
+        document.getElementById('hero-course-name').textContent = config.name || 'Course';
+        document.getElementById('hero-course-level').textContent = config.level || '';
+      }
+    })();
+  </script>
 
   <div id="course-index" class="course-container">
     <div style="text-align:center;padding:60px 20px;color:var(--text-secondary)">
