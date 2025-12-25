@@ -602,4 +602,3 @@
     container.innerHTML = `<div style="padding:20px;border:2px solid #d00;background:#ffe;color:#d00;margin:20px;font-family:monospace;">${message}</div>`;
   }
 })();
-</script>
