@@ -73,7 +73,8 @@
       width:min(860px,100%);
       margin:2rem auto 0.75rem;
       font-weight:700;
-      font-size:20px;
+      font-size:22px;
+      letter-spacing:-0.02em;
       color:var(--text-primary)!important;
       text-align:center;
       text-align:center;
@@ -109,17 +110,18 @@
       transition:width .4s ease;
     }
     
-    .course-chapter{margin-bottom:48px}
+    .course-chapter{margin-bottom:64px}
     .course-chapter-header{
       display:flex;
       justify-content:space-between;
       align-items:baseline;
-      margin-bottom:16px;
+      margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);
     }
     .course-chapter-title{
       margin:0;
       color:var(--text-primary);
-      font-size:20px;
+      font-size:22px;
+      letter-spacing:-0.02em;
       font-weight:700;
     }
     
@@ -140,6 +142,7 @@
       cursor:pointer;
       border:1px solid var(--border);
       box-shadow:var(--shadow);
+      min-height:60px;
     }
     .course-lesson-item:hover{
       background:var(--surface-hover);
@@ -151,8 +154,9 @@
       flex:1;
       user-select:none;
       color:var(--text-primary);
-      font-weight:500;
+      font-weight:400;
       font-size:15px;
+      line-height:1.4;
     }
     .course-lesson-status{
       width:24px;
