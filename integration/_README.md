@@ -2,7 +2,107 @@
 This file documents intent only.  
 It is not a replacement for Firebase Security Rules.
 
-Last updated: December 19, 2025
+Last updated: December 25, 2024
+
+---
+
+## Site Architecture Overview
+
+### Course System (Universal Template)
+The site uses a **universal course template system** that dynamically renders any course (gs1, fs1, ss1, ks1, etc.) from a single code block.
+
+**Key files:**
+- `vault-course-config.js` - Course definitions (name, pathway, lesson arrays)
+- `CODE-BLOCK_course-pages.txt` - Universal code block (same for all course pages)
+- Firebase Storage: `/courses/{courseId}.txt` - Course content files with chapter markers
+
+**How it works:**
+1. User visits `/vault/gs?c=1` or `/vault/fs?c=1`
+2. URL parsed to determine courseId (gs1, fs1, etc.)
+3. Universal code block reads course config from `window.VAULT_COURSES`
+4. Fetches course content from Firebase Storage (`/courses/gs1.txt`)
+5. Parses chapter markers: `=== CHAPTER | Title ===` and `=== LESSON | G1.01 Name ===`
+6. Renders course index with chapters, lessons, progress bar, and checkboxes
+7. Loads user's progress from Firestore and updates UI
+
+**Course content format:**
+```
+=== CHAPTER | Eighth Note Grooves ===
+
+=== LESSON | G1.01 Start Here ===
+T> Welcome text
+V> video-id
+G> groove-url
+
+=== LESSON | G1.02 Kick Variations ===
+...
+```
+
+**Benefits:**
+- Add new course: Just upload .txt file and update vault-course-config.js
+- No HTML duplication (was 360+ lines per course, now 0)
+- Single source of truth for styling and functionality
+- Easy maintenance - fix once, applies to all courses
+
+### Page Structure
+
+**Public pages:**
+- Home, About, Contact, Services (no Firebase)
+- Conditional script loading - Firebase only on protected pages
+
+**Protected pages:**
+- `/vault` - Course selection hub
+- `/vault/gs`, `/vault/fs`, etc. - Course index pages (universal template)
+- `/vault/gs?c=1&l=1.01` - Individual lesson pages
+- `/members` - Dashboard with progress cards and Continue button
+- `/vault/admin` - Admin console for user/progress management
+
+**Authentication flow:**
+1. HEADER_sitewide.txt loads Firebase SDK conditionally (only on /vault, /members paths)
+2. Self-hosted Firebase SDK from dave-drums.github.io (bypasses tracker blockers)
+3. Page headers check auth state, redirect to /members if not logged in
+4. Body opacity hidden until auth check completes
+
+### Script Loading Order
+
+**HEADER_sitewide.txt** (all pages):
+- Conditional Firebase SDK loading (self-hosted from dave-drums.github.io/vault/firebase/)
+- vault-toast.js (conditional - /vault, /members only)
+- vault-sidenav.js (conditional - /vault, /members only)  
+- vault-render.js (conditional - /vault pages only)
+
+**HEADER_members.txt** (/members page):
+- vault-course-config.js (course definitions)
+- Chart.js (for practice charts)
+- vault-cues.js (motivational quotes)
+- vault-metrics.js (login/practice tracking)
+- vault-notifications.js (user notifications)
+- vault-ui.js (dashboard rendering)
+
+**HEADER_course-pages.txt** (/vault/gs, /vault/fs, etc.):
+- Auth gate (redirect if not logged in)
+- vault-course-config.js (course definitions)
+- vault-lesson-comments.js (lesson discussions)
+
+**Note:** vault-metrics.js is NOT loaded on course pages - complete buttons handled by universal code block to avoid duplicates.
+
+### File Naming Convention
+- `vault-*.js` - Core functionality files on GitHub
+- `HEADER_*.txt` - Squarespace page header injections
+- `CODE-BLOCK_*.txt` - Squarespace code blocks
+- `{courseId}.txt` - Course content in Firebase Storage (e.g., gs1.txt, fs1.txt)
+
+### Self-Hosted Firebase SDK
+To bypass tracker blockers (Bitdefender, uBlock, etc.), Firebase SDK is hosted on dave-drums.github.io instead of Google's CDN:
+- firebase-app-compat.js
+- firebase-auth-compat.js
+- firebase-firestore-compat.js
+- firebase-functions-compat.js
+- firebase-storage-compat.js
+
+This ensures the site works for all users regardless of browser extensions.
+
+---
 
 ## Roles
 - Admin access is determined by existence of document:  
@@ -136,15 +236,21 @@ Location: `/users/{uid}/progress/{courseId}`
 
 ### Course Configuration
 - Course definitions (name, pathway, lesson list) stored in JavaScript  
-  (`window.VAULT_COURSES` in vault-console.js and vault-course-progress.js)
+  (`window.VAULT_COURSES` in vault-course-config.js)
 - Currently configured courses:
-  - Groove Studies: gs1, gs2, gs3, gs4
-  - Fill Studies: fs1, fs2, fs3, fs4
+  - Groove Studies: gs1 (23 lessons), gs2, gs3, gs4
+  - Fill Studies: fs1 (23 lessons), fs2, fs3, fs4
   - Stick Studies: ss1, ss2, ss3, ss4
   - Kick Studies: ks1, ks2, ks3
 - Course content files stored in Firebase Storage:  
-  `/courses/{courseId}.txt`
+  `/courses/{courseId}.txt` (e.g., gs1.txt, fs1.txt)
 - Storage rules: Authenticated users can read, no one can write
+- To add a new course:
+  1. Add entry to `window.VAULT_COURSES` in vault-course-config.js
+  2. Upload course .txt file to Firebase Storage
+  3. Create Squarespace page at `/vault/{pathway}` (e.g., /vault/ss for Stick Studies)
+  4. Copy universal CODE-BLOCK to the page
+  5. Works automatically - no custom HTML needed
 
 ## Comments (Lesson Discussions)
 User-generated content scoped to authenticated users.
@@ -310,7 +416,7 @@ Location: `/users/{uid}/notifications/{notificationId}`
 - ~10 reads: comments (paginated, first page)
 - **Total: ~12 reads**
 
-**Admin Console** (/vault-admin):
+**Admin Console** (/vaultadmin):
 - N reads: all users collection
 - N reads: all user stats
 - 1 read per lesson/course when Progress modal opened
