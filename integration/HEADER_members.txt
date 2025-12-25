@@ -10,9 +10,6 @@
 <!-- Metrics tracking -->
 <script src="https://dave-drums.github.io/vault/vault-metrics.js"></script>
 
-<!-- Lesson tracking -->
-<script src="https://dave-drums.github.io/vault/vault-lessons.js"></script>
-
 <!-- Notifications -->
 <script src="https://dave-drums.github.io/vault/vault-notifications.js"></script>
 
