@@ -68,7 +68,6 @@
       "Practice until it feels predictable.",
       "Notice where your attention drifts.",
       "Stability first, variation second.",
-      "Keep your touch even when ideas change.",
       "Practice with intent, not urgency.",
       "Keep the idea steady before adding more details.",
       "Practice until it sounds intentional.",
