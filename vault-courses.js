@@ -2,10 +2,8 @@
    Purpose: Course configuration data
    Used by: Course index pages, progress tracking, admin console
 */
-
 (function(){
   'use strict';
-
   window.VAULT_COURSES = {
     'gs1': {
       name: 'Groove Studies 1',
