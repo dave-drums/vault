@@ -1,8 +1,6 @@
 <!-- WHERE: /vault/* → Code Block -->
 <!-- PURPOSE: Inject rendered lesson UI from master *.txt file (Firebase Storage) -->
 
-<!-- COURSE PAGE CODE BLOCK - UPDATED -->
-
 <style>
 .gs1-course-container {
   max-width: 1280px;
@@ -120,7 +118,8 @@
 }
 
 .vault-comments {
-  margin-top: 60px;
+  width: min(860px, 100%);
+  margin: 15px auto 0; /* Adjust margin-top value to change spacing from lesson content */
   padding: 24px;
   background: #fff;
   border: 1px solid #ddd;
@@ -252,7 +251,7 @@
 
   <div class="gs1-chapter">
     <div class="gs1-chapter-header">
-      <p class="gs1-chapter-title sqsrte-large">Eighth Note Grooves – Linear</p>
+      <p class="gs1-chapter-title sqsrte-large">Quarter Note Grooves</p>
       <span class="gs1-chapter-count">4 Lessons</span>
     </div>
     <div class="gs1-lessons-grid">
@@ -371,11 +370,14 @@
   'use strict';
   
   const urlParams = new URLSearchParams(window.location.search);
-  const lessonId = urlParams.get('lesson');
+  const lessonId = urlParams.get('l');
   
+  // Extract courseId from new format: /vault/gs?c=1&l=1.01 → gs1
   const path = window.location.pathname;
   const pathParts = path.split('/').filter(p => p.length > 0);
-  const courseId = pathParts.length >= 2 && pathParts[0] === 'vault' ? pathParts[1] : null;
+  const pathway = (pathParts.length >= 2 && pathParts[0] === 'vault') ? pathParts[1] : null;
+  const courseNum = urlParams.get('c');
+  const courseId = (pathway && courseNum) ? pathway + courseNum : null;
   
   if (lessonId && courseId) {
     document.getElementById('course-index').style.display = 'none';
@@ -384,12 +386,24 @@
   }
   
   async function loadLesson(course, lesson) {
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (!user) {
-        showError('You must be logged in to view lessons.');
-        return;
-      }
-      
+    // Try currentUser first for faster loading
+    var user = firebase.auth().currentUser;
+    
+    if (user) {
+      await fetchAndRenderLesson(user, course, lesson);
+    } else {
+      // Wait for auth state if not logged in yet
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (!user) {
+          showError('You must be logged in to view lessons.');
+          return;
+        }
+        await fetchAndRenderLesson(user, course, lesson);
+      });
+    }
+  }
+  
+  async function fetchAndRenderLesson(user, course, lesson) {
       try {
         const storage = firebase.storage();
         const fileRef = storage.ref(`courses/${course}.txt`);
@@ -416,7 +430,6 @@
         showError(`Error: ${error.message}`);
         console.error(error);
       }
-    });
   }
   
   function extractAllLessonIds(content) {
@@ -460,9 +473,15 @@
     return { content: lessonContent, title: lessonTitle };
   }
   
-  function renderLesson(content, title, courseId) {
+  function renderLesson(content, title, courseId, attempt) {
+    attempt = attempt || 0;
+    
     if (!window.vaultParse) {
-      setTimeout(function() { renderLesson(content, title, courseId); }, 100);
+      if (attempt < 50) { // 5 second max wait
+        setTimeout(function() { renderLesson(content, title, courseId, attempt + 1); }, 100);
+      } else {
+        showError('Failed to load lesson renderer. Please refresh the page.');
+      }
       return;
     }
     
@@ -473,10 +492,10 @@
     container.innerHTML = '';
     
     const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = 'width:min(860px,100%);margin:0 auto 32px;display:flex;justify-content:space-between;align-items:flex-start;';
+    buttonContainer.style.cssText = 'width:min(860px,100%);margin:0 auto 40px;display:flex;justify-content:space-between;align-items:flex-start;';
     
     const backBtn = document.createElement('a');
-    backBtn.href = window.location.pathname;
+    backBtn.href = '/vault/' + pathway + '?c=' + courseNum;
     backBtn.textContent = '← Back to Course';
     backBtn.className = 'p3';
     backBtn.style.cssText = 'display:inline-block;padding:10px 16px;background:#f3f3f3;' +
@@ -493,10 +512,9 @@
     container.appendChild(buttonContainer);
     container.appendChild(renderedDOM);
     
-    const bottomButtonPlaceholder = document.createElement('div');
-    bottomButtonPlaceholder.id = 'complete-button-bottom';
-    bottomButtonPlaceholder.style.cssText = 'margin-top:40px;';
-    container.appendChild(bottomButtonPlaceholder);
+const bottomButtonPlaceholder = document.createElement('div');
+bottomButtonPlaceholder.id = 'complete-button-bottom';
+bottomButtonPlaceholder.style.cssText = 'width:min(860px,100%);margin:40px auto 0;text-align:right;';
     
     const commentsHTML = `
       <div id="vault-comments" class="vault-comments">
@@ -529,13 +547,6 @@
         window.initVaultComments();
       }
     }, 200);
-    
-    // Trigger completion button creation after placeholders exist
-    setTimeout(function() {
-      if (typeof window.initLessonButtons === 'function') {
-        window.initLessonButtons();
-      }
-    }, 300);
   }
   
   function showError(message) {
@@ -544,4 +555,3 @@
   }
 })();
 </script>
-
