@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groove Studies | Practice Vault</title>
+  
+  <script src="firebase/firebase-app-compat.js"></script>
+  <script src="firebase/firebase-auth-compat.js"></script>
+  <script src="firebase/firebase-firestore-compat.js"></script>
+  <script src="firebase/firebase-functions-compat.js"></script>
+  <script src="firebase/firebase-storage-compat.js"></script>
+  
+  <script>
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
+        authDomain: "dave-drums.firebaseapp.com",
+        projectId: "dave-drums",
+        storageBucket: "dave-drums.firebasestorage.app",
+        messagingSenderId: "602823096344",
+        appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
+        measurementId: "G-RHL1DSNTJ7"
+      });
+    }
+  </script>
+  
+  <script>document.documentElement.dataset.protected = 'true';</script>
+  
+  <script src="vault-components.js"></script>
+  <script src="vault-course-config.js"></script>
+  
+  <script>
+    window.VAULT_CONFIG = {
+      bunnyLibraryId: "556221",
+      grooveOrigin: "https://groove.davedrums.com.au",
+      grooveEmbedPath: "/GrooveEmbed.html",
+      youtubeLogoSrc: "youtube-logo.png"
+    };
+  </script>
+  <script src="vault-render.js" defer></script>
+  <script src="vault-lesson-comments.js" defer></script>
+  
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg-primary:#1a1a1a;--bg-secondary:#242424;--bg-tertiary:#2e2e2e;--text-primary:#e8e8e8;--text-secondary:#b8b8b8;--accent:#06b3fd;--accent-hover:#0599dc;--border:#3a3a3a;--vault-bubble-bg:#242424}
+    html[data-protected="true"] body{opacity:0;transition:opacity .2s}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;min-height:100vh}
+    .course-container{max-width:1280px;margin:0 auto;padding:40px 20px}
+    .course-container p{margin:0}
+    .course-progress-section{margin-bottom:40px}
+    .course-progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:var(--text-primary)}
+    .course-progress-bar-bg{width:100%;height:17px;background-color:var(--bg-tertiary);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+    .course-progress-bar-fill{height:100%;background-color:var(--accent);border-radius:13px;transition:width .3s}
+    .course-chapter{margin-bottom:50px}
+    .course-chapter-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+    .course-chapter-title{margin:0;color:var(--text-primary)}
+    .course-lessons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+    .course-lesson-item{background-color:var(--bg-secondary);padding:20px 24px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:all .2s;cursor:pointer;border:1px solid var(--border)}
+    .course-lesson-item:hover{background-color:var(--bg-tertiary);border-color:var(--accent)}
+    .course-lesson-link{flex:1;user-select:none;color:var(--text-primary)}
+    .course-lesson-status{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+    .course-lesson-status.completed{background-color:var(--accent);border-color:var(--accent)}
+    .course-lesson-status.completed::after{content:'✓';color:#fff;font-size:16px;font-weight:700}
+    .course-lesson-status.incomplete{background-color:var(--bg-tertiary);border:2px solid var(--border)}
+    #lesson-content{max-width:900px;margin:0 auto;padding:40px 20px}
+    .vault-info{background:var(--bg-secondary)!important;border:1px solid var(--border);color:var(--text-primary)!important}
+    .vault-heading{color:var(--text-primary)!important}
+    .vault-divider{background:var(--border)!important}
+    .vault-groove-player{background:var(--bg-secondary)!important;border:1px solid var(--border)!important}
+    .vault-comments{width:min(860px,100%);margin:40px auto 0;padding:24px;background:var(--bg-secondary)!important;border:1px solid var(--border)!important;border-radius:12px;color:var(--text-primary)!important}
+    .vault-comments h3{margin:0 0 12px;font-size:18px;color:var(--text-primary)!important}
+    #vault-comment-text{width:100%;min-height:80px;padding:12px;border:1px solid var(--border)!important;border-radius:8px;font-size:14px;resize:vertical;box-sizing:border-box;margin-bottom:8px;font-family:inherit;background:var(--bg-tertiary);color:var(--text-primary)}
+    #vault-comment-text::placeholder{color:var(--text-secondary)}
+    #vault-comment-post{padding:10px 20px;background:var(--accent)!important;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px}
+    #vault-comment-post:hover{background:var(--accent-hover)!important}
+    .vault-comment{padding:16px;border-bottom:1px solid var(--border)!important;margin-bottom:8px}
+    .vault-comment-author{font-weight:600;margin-bottom:4px;color:var(--text-primary)!important}
+    .vault-comment-time{font-size:12px;color:var(--text-secondary)!important;margin-bottom:8px}
+    .vault-comment-text{line-height:1.6;margin-bottom:8px;color:var(--text-primary)!important}
+    .vault-comment-actions{display:flex;gap:12px;font-size:13px}
+    .vault-comment-actions button{background:none;border:none;color:var(--accent);cursor:pointer;padding:0;font-size:12px}
+    .vault-comment-actions button:hover{text-decoration:underline}
+    .vault-comment-reply{margin-left:40px;border-left:2px solid var(--border);padding-left:16px}
+    @media(max-width:768px){.course-lessons-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <script>
+    (function(){
+      var revealed=false;
+      function reveal(){if(revealed)return;revealed=true;if(document.body)document.body.style.opacity='1'}
+      function redirectToMembers(){var next=encodeURIComponent(location.pathname+location.search+location.hash);location.href='members.html?next='+next}
+      var failSafe=setTimeout(reveal,2500);
+      if(typeof firebase!=='undefined'&&firebase.auth){
+        firebase.auth().onAuthStateChanged(function(user){
+          clearTimeout(failSafe);
+          if(!user){redirectToMembers()}else{reveal()}
+        })
+      }
+    })();
+  </script>
+
+  <div id="course-index" class="course-container">
+    <div style="text-align:center;padding:40px;color:var(--text-secondary)">Loading course...</div>
+  </div>
+
+  <div id="lesson-content" style="display:none"></div>
+
+  <script src="course-universal.js"></script>
+</body>
+</html>
