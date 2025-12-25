@@ -11,72 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var auth = firebase.auth();
     var db = firebase.firestore();
 
-    // Login metrics (once per tab session)
-    var LOGIN_MARK_PREFIX = 'vault_login_mark_v1:';
-    var LAST_UID_KEY = 'vault_last_uid_v1';
-
-    function markKeyForUser(uid){
-      return LOGIN_MARK_PREFIX + uid;
-    }
-
-    function hasMarkedLogin(uid){
-      try { return sessionStorage.getItem(markKeyForUser(uid)) === '1'; } catch(_) { return false; }
-    }
-
-    function markLogin(uid){
-      try { sessionStorage.setItem(markKeyForUser(uid), '1'); sessionStorage.setItem(LAST_UID_KEY, uid); } catch(_) {}
-    }
-
-    function clearLoginMark(uid){
-      try { if (uid) sessionStorage.removeItem(markKeyForUser(uid)); } catch(_) {}
-    }
-
-    function clearAllLoginMarks(){
-      try{
-        for (var i = sessionStorage.length - 1; i >= 0; i--){
-          var k = sessionStorage.key(i);
-          if (k && k.indexOf(LOGIN_MARK_PREFIX) === 0) sessionStorage.removeItem(k);
-        }
-        sessionStorage.removeItem(LAST_UID_KEY);
-      } catch(_){}
-    }
-
-    function detectDevice(){
-      try {
-        var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
-        var coarse = false;
-        try {
-          coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-        } catch(_) {}
-
-        if (isTouch || coarse) return { type: 'mobile', emoji: '📱' };
-        return { type: 'desktop', emoji: '🖥️' };
-      } catch(e) {
-        return { type: 'other', emoji: '🧩' };
-      }
-    }
-
-    function recordLoginOnce(user){
-      if (!user || !user.uid) return;
-      if (hasMarkedLogin(user.uid)) return;
-
-      markLogin(user.uid);
-
-      var device = detectDevice();
-
-      var userDoc = db.collection('users').doc(user.uid);
-      userDoc.set({
-        email: user.email || null
-      }, { merge: true }).catch(function(){});
-
-      var statsDoc = userDoc.collection('metrics').doc('stats');
-      statsDoc.set({
-        loginCount: firebase.firestore.FieldValue.increment(1),
-        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastDeviceType: device.type,
-        lastDeviceEmoji: device.emoji
-      }, { merge: true }).catch(function(){});
-    }
 
     // URLs
     var VAULT_URL = '/vault';
@@ -1552,10 +1486,8 @@ var c = String(newPw2.value || '').trim();
 
     auth.onAuthStateChanged(function(user){
       if (!user) {
-        clearAllLoginMarks();
         return showLogin();
       }
-      recordLoginOnce(user);
       showAccount(user);
     });
 
