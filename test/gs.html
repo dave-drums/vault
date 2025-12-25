@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Groove Studies | Practice Vault</title>
   
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="firebase/firebase-app-compat.js"></script>
   <script src="firebase/firebase-auth-compat.js"></script>
   <script src="firebase/firebase-firestore-compat.js"></script>
@@ -57,11 +62,21 @@
       --vault-bubble-bg:#f8f9fa;
     }
     html[data-protected="true"] body{opacity:0;transition:opacity .2s}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text-primary);line-height:1.6;min-height:100vh}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text-primary);line-height:1.6;min-height:100vh}
     
     /* Modern Course Index */
     .course-container{max-width:1200px;margin:0 auto;padding:32px 20px}
     .course-container p{margin:0}
+    
+    /* Center Exercise Headers (H> in vault content) */
+    .vault-heading{
+      width:min(860px,100%);
+      margin:2rem auto 0.75rem;
+      font-weight:700;
+      font-size:20px;
+      color:var(--text-primary)!important;
+      text-align:center;
+    }
     
     .course-progress-section{
       background:var(--surface);
@@ -242,13 +257,6 @@
     }
     
     /* Headings & Dividers */
-    .vault-heading{
-      width:min(860px,100%);
-      margin:32px auto 16px;
-      font-weight:700;
-      font-size:20px;
-      color:var(--text-primary)!important;
-    }
     .vault-divider{
       width:min(860px,100%);
       height:1px;
