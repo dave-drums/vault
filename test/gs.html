@@ -64,6 +64,69 @@
     html[data-protected="true"] body{opacity:0;transition:opacity .2s}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text-primary);line-height:1.6;min-height:100vh}
     
+    /* EPIC COURSE HERO HEADER */
+    .course-hero{
+      position:relative;
+      background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#334155 100%);
+      padding:80px 20px 60px;
+      margin-bottom:48px;
+      overflow:hidden;
+    }
+    .course-hero-bg{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(6,179,253,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(56,189,248,0.1) 0%, transparent 50%);
+      opacity:0.6;
+    }
+    .course-hero-content{
+      position:relative;
+      max-width:1200px;
+      margin:0 auto;
+      text-align:center;
+      z-index:1;
+    }
+    .course-hero-badge{
+      display:inline-block;
+      padding:8px 20px;
+      background:rgba(6,179,253,0.15);
+      border:1px solid rgba(6,179,253,0.3);
+      border-radius:24px;
+      color:#38bdf8;
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:0.5px;
+      text-transform:uppercase;
+      margin-bottom:24px;
+      backdrop-filter:blur(10px);
+    }
+    .course-hero-title{
+      font-size:56px;
+      font-weight:800;
+      background:linear-gradient(135deg,#fff 0%,#e0f2fe 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      margin:0 0 16px;
+      letter-spacing:-0.02em;
+      line-height:1.1;
+    }
+    .course-hero-subtitle{
+      font-size:18px;
+      color:rgba(255,255,255,0.7);
+      font-weight:400;
+      max-width:600px;
+      margin:0 auto;
+      line-height:1.6;
+    }
+    
+    @media(max-width:768px){
+      .course-hero{padding:60px 20px 40px}
+      .course-hero-title{font-size:36px}
+      .course-hero-subtitle{font-size:16px}
+    }
+    
     /* Modern Course Index */
     .course-container{max-width:1200px;margin:0 auto;padding:32px 20px}
     .course-container p{margin:0}
@@ -481,6 +544,16 @@
       }
     })();
   </script>
+
+  <!-- EPIC COURSE HEADER -->
+  <div class="course-hero">
+    <div class="course-hero-bg"></div>
+    <div class="course-hero-content">
+      <div class="course-hero-badge">Practice Vault</div>
+      <h1 class="course-hero-title">Groove Studies</h1>
+      <div class="course-hero-subtitle">Master the fundamentals of groove drumming</div>
+    </div>
+  </div>
 
   <div id="course-index" class="course-container">
     <div style="text-align:center;padding:60px 20px;color:var(--text-secondary)">
