@@ -6,7 +6,7 @@
   
   // Extract courseId from URL: /test/gs.html?c=1 → gs1
   const path = window.location.pathname;
-  const filename = path.split('/').pop().replace('.html', ''); // Get 'gs' from 'gs.html'
+  const filename = path.split('/').pop().replace('.html', '');
   const pathway = filename || null;
   const courseNum = urlParams.get('c');
   const courseId = (pathway && courseNum) ? pathway + courseNum : null;
@@ -602,3 +602,4 @@
     container.innerHTML = `<div style="padding:20px;border:2px solid #d00;background:#ffe;color:#d00;margin:20px;font-family:monospace;">${message}</div>`;
   }
 })();
+</script>
