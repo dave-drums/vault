@@ -14,7 +14,7 @@
   // Must match the admin-side invite generator
   const INVITES_COL = "invites";
 
-  const MEMBERS_URL = "/members";
+  const MEMBERS_URL = "/members.html";
 
   const root = document.getElementById("vault-create-account-root");
   if (!root) return;
