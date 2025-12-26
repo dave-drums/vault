@@ -1390,7 +1390,63 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
     });
 }
 
-    function createGoalsContent(user){
+    
+// Auto-update activeCourses when user visits a course
+function initActiveCourseTracking(){
+  if (typeof firebase === 'undefined' || !firebase.auth) return;
+  
+  firebase.auth().onAuthStateChanged(function(user){
+    if (!user) return;
+    
+    var db = firebase.firestore();
+    
+    // Listen for progress changes and update activeCourses
+    db.collection('users').doc(user.uid).collection('progress').onSnapshot(function(snapshot){
+      var activeCourses = {};
+      
+      snapshot.forEach(function(doc){
+        var courseId = doc.id; // e.g., "gs1", "fs1"
+        var match = courseId.match(/^([a-z]+)(\d+)$/);
+        if (match) {
+          var pathway = match[1];
+          var pathwayMap = {
+            'gs': 'groove',
+            'fs': 'fills',
+            'ss': 'sticks',
+            'ks': 'kicks'
+          };
+          var fullPathway = pathwayMap[pathway] || pathway;
+          
+          // Only set if this course has progress or is higher than current
+          var data = doc.data();
+          var hasProgress = data && data.completed && Object.keys(data.completed).length > 0;
+          
+          if (hasProgress) {
+            // Use highest course number for each pathway
+            var courseNum = parseInt(match[2]);
+            if (!activeCourses[fullPathway] || courseNum > parseInt(activeCourses[fullPathway].replace(/[a-z]+/, ''))) {
+              activeCourses[fullPathway] = courseId;
+            }
+          }
+        }
+      });
+      
+      // Update user doc with activeCourses
+      db.collection('users').doc(user.uid).set({
+        activeCourses: activeCourses
+      }, { merge: true }).catch(function(err){
+        console.log('Could not update activeCourses:', err);
+      });
+    }, function(err){
+      console.log('Error listening to progress:', err);
+    });
+  });
+}
+
+// Initialize tracking
+initActiveCourseTracking();
+
+function createGoalsContent(user){
       var content = document.createElement('div');
 
       var textarea = document.createElement('textarea');
