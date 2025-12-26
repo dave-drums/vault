@@ -37,6 +37,90 @@
   <!-- Vault Scripts -->
   <script src="config/components.js"></script>
   <script src="config/cues.js"></script>
+  <script>
+  (function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteToken = urlParams.get('invite');
+    if (!inviteToken) return;
+    const modal = document.getElementById('invite-modal');
+    const form = document.getElementById('invite-form');
+    const errorEl = document.getElementById('invite-error');
+    const submitBtn = document.getElementById('invite-submit');
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.style.display = 'block';
+    }
+    modal.style.display = 'block';
+    firebase.firestore().collection('invites').doc(inviteToken).get()
+      .then(function(doc) {
+        if (!doc.exists) {
+          showError('Invalid or expired invite link.');
+          return;
+        }
+        const data = doc.data();
+        if (data.used) {
+          showError('This invite has already been used.');
+          return;
+        }
+        const expiresAt = data.expiresAt;
+        if (expiresAt && expiresAt.toDate() < new Date()) {
+          showError('This invite link has expired.');
+          return;
+        }
+        document.getElementById('invite-email').value = data.email || '';
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const email = document.getElementById('invite-email').value.trim();
+          const firstName = document.getElementById('invite-firstname').value.trim();
+          const lastName = document.getElementById('invite-lastname').value.trim();
+          const password = document.getElementById('invite-password').value;
+          if (!email || !firstName || !lastName || !password) {
+            showError('Please fill in all fields.');
+            return;
+          }
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Creating account...';
+          errorEl.style.display = 'none';
+          firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(function(userCredential) {
+              const user = userCredential.user;
+              return firebase.firestore().collection('users').doc(user.uid).set({
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                displayName: firstName + ' ' + lastName,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                showProgress: true
+              }).then(function() {
+                return firebase.firestore().collection('invites').doc(inviteToken).update({
+                  used: true,
+                  usedBy: user.uid,
+                  usedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+              }).then(function() {
+                window.location.href = window.location.pathname;
+              });
+            })
+            .catch(function(error) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Create Account';
+              let msg = 'Account creation failed. ';
+              if (error.code === 'auth/email-already-in-use') {
+                msg = 'This email is already registered. Please log in instead.';
+              } else if (error.code === 'auth/weak-password') {
+                msg = 'Password is too weak. Use at least 6 characters.';
+              } else {
+                msg += error.message || '';
+              }
+              showError(msg);
+            });
+        });
+      })
+      .catch(function(error) {
+        showError('Error loading invite: ' + (error.message || 'Unknown error'));
+      });
+  })();
+  </script>
   <script src="config/dashboard.js" defer></script>
   
   <style>
@@ -748,6 +832,34 @@
   </style>
 </head>
 <body>
+  
+  <!-- Invite Redemption Modal (shown when ?invite=TOKEN is present) -->
+  <div id="invite-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; padding:20px; overflow-y:auto;">
+    <div style="max-width:480px; margin:40px auto; background:#fff; border-radius:12px; padding:32px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <h2 style="margin:0 0 8px 0; font-size:24px; font-weight:700; color:#1a1a1a;">Create Your Account</h2>
+      <p style="margin:0 0 24px 0; color:#6c757d; font-size:14px;">You've been invited to join Practice Vault</p>
+      
+      <div id="invite-error" style="display:none; margin:0 0 16px 0; padding:12px; background:#fee; border:1px solid #fcc; border-radius:8px; color:#c00; font-size:14px;"></div>
+      
+      <form id="invite-form">
+        <label style="display:block; margin:0 0 6px 0; font-weight:600; font-size:14px; color:#1a1a1a;">Email</label>
+        <input type="email" id="invite-email" readonly style="width:100%; padding:12px; border:1px solid #e9ecef; border-radius:8px; margin:0 0 16px 0; font-size:15px; background:#f8f9fa; box-sizing:border-box;">
+        
+        <label style="display:block; margin:0 0 6px 0; font-weight:600; font-size:14px; color:#1a1a1a;">First Name</label>
+        <input type="text" id="invite-firstname" required style="width:100%; padding:12px; border:1px solid #e9ecef; border-radius:8px; margin:0 0 16px 0; font-size:15px; box-sizing:border-box;">
+        
+        <label style="display:block; margin:0 0 6px 0; font-weight:600; font-size:14px; color:#1a1a1a;">Last Name</label>
+        <input type="text" id="invite-lastname" required style="width:100%; padding:12px; border:1px solid #e9ecef; border-radius:8px; margin:0 0 16px 0; font-size:15px; box-sizing:border-box;">
+        
+        <label style="display:block; margin:0 0 6px 0; font-weight:600; font-size:14px; color:#1a1a1a;">Password</label>
+        <input type="password" id="invite-password" required minlength="6" style="width:100%; padding:12px; border:1px solid #e9ecef; border-radius:8px; margin:0 0 24px 0; font-size:15px; box-sizing:border-box;">
+        
+        <button type="submit" id="invite-submit" style="width:100%; padding:14px; background:#06b3fd; color:#fff; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer;">
+          Create Account
+        </button>
+      </form>
+    </div>
+  </div>
   
   <!-- HERO HEADER -->
   <div class="members-hero">
