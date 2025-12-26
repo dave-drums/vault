@@ -312,16 +312,21 @@
       }
       
       console.log('About to render lesson...');
-      console.log('vaultRender function exists?', typeof window.vaultRender === 'function');
+      console.log('vaultParse exists?', typeof window.vaultParse === 'object');
       
       // Render using vault-render.js
-      if (typeof window.vaultRender === 'function') {
-        console.log('Calling vaultRender...');
-        window.vaultRender(lessonContent, container);
-        console.log('vaultRender complete');
+      if (window.vaultParse && typeof window.vaultParse.tokenise === 'function' && typeof window.vaultParse.render === 'function') {
+        console.log('Calling vaultParse...');
+        const tokens = window.vaultParse.tokenise(lessonContent);
+        console.log('Tokens created:', tokens.length);
+        const renderedContent = window.vaultParse.render(tokens);
+        console.log('Content rendered');
+        container.innerHTML = '';
+        container.appendChild(renderedContent);
+        console.log('Content appended to container');
       } else {
-        console.warn('vaultRender not found, using fallback');
-        container.innerHTML = '<pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#f5f5f5">' + lessonContent + '</pre>';
+        console.warn('vaultParse not found, using fallback');
+        container.innerHTML = '<div style="max-width:800px;margin:0 auto;padding:20px"><pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#f5f5f5;border-radius:8px">' + lessonContent.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>';
       }
       
       // Add complete button handler
