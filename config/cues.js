@@ -73,7 +73,7 @@
       "Practice until it sounds intentional.",
       "Let repetition smooth the rough edges.",
       "Clean movement supports clean sound.",
-      "If it feels awkward, isolate it.",
+      "If it feels awkward, isolate it and practice until it doesnt.",
       "Don’t rush past what still needs clarity.",
       "Control the notes you play, not the ones you imagine.",
       "Notice what changes when you relax.",
