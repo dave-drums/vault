@@ -922,6 +922,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // PRACTICE TAB PANEL
     // ============================================
 
+    function createOpenSection(title, contentBuilder){
+      var section = document.createElement('div');
+      section.className = 'section';
+      
+      var header = document.createElement('div');
+      header.className = 'section-header';
+      
+      var titleEl = document.createElement('h2');
+      titleEl.className = 'section-title';
+      titleEl.textContent = title;
+      
+      header.appendChild(titleEl);
+      section.appendChild(header);
+      
+      var content = contentBuilder();
+      section.appendChild(content);
+      
+      return section;
+    }
+
     function createPracticePanel(user){
       var panel = document.createElement('div');
       panel.className = 'tab-panel active';
@@ -1095,25 +1115,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function createDropdownSection(title, contentBuilder){
 
-    function createOpenSection(title, contentBuilder){
-      var section = document.createElement('div');
-      section.className = 'section';
-      
-      var header = document.createElement('div');
-      header.className = 'section-header';
-      
-      var titleEl = document.createElement('h2');
-      titleEl.className = 'section-title';
-      titleEl.textContent = title;
-      
-      header.appendChild(titleEl);
-      section.appendChild(header);
-      
-      var content = contentBuilder();
-      section.appendChild(content);
-      
-      return section;
-    }
 
       var section = document.createElement('div');
       section.style.cssText = 'margin-bottom:12px;';
