@@ -185,6 +185,26 @@
     </div>
   </div>
   
+  <!-- Debug Firebase State -->
+  <script>
+    console.log('Firebase check:', {
+      firebaseDefined: typeof firebase !== 'undefined',
+      authAvailable: typeof firebase !== 'undefined' && !!firebase.auth,
+      firestoreAvailable: typeof firebase !== 'undefined' && !!firebase.firestore,
+      appInitialized: typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0
+    });
+    
+    // Check current user
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        console.log('Auth state changed:', user ? {
+          uid: user.uid,
+          email: user.email
+        } : 'No user logged in');
+      });
+    }
+  </script>
+  
   <!-- Admin Console Logic -->
   <script src="console.js"></script>
 </body>
