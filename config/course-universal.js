@@ -168,7 +168,7 @@
     // Progress section
     html += '<div class="course-progress-section">';
     html += '<div class="course-progress-header">';
-    html += '<p class="sqsrte-small course-progress-label">Progress</p>';
+    html += '<p class="sqsrte-medium course-progress-label">Progress</p>';
     html += '<p class="sqsrte-medium course-progress-text">0/' + courseConfig.lessons.length + ' (0%)</p>';
     html += '</div>';
     html += '<div class="course-progress-bar-bg">';
