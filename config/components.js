@@ -451,7 +451,7 @@
     
     var footerHTML = 
       '<div class="vault-footer-content">' +
-      '  <img src="/assets/dwd-logo-white-500px.webp" alt="Dave Drums" class="vault-footer-logo">' +
+      '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-footer-logo">' +
       '  <nav class="vault-footer-links">' +
       '    <a href="https://www.davedrums.com.au/about" target="_blank" rel="noopener">About</a>' +
       '    <a href="https://www.davedrums.com.au/contact" target="_blank" rel="noopener">Contact</a>' +
