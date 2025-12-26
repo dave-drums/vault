@@ -129,7 +129,7 @@
       var links = [
         {text: 'Practice Vault', url: '/'},
         {text: 'Continue...', url: '/', id: 'vault-continue'},
-        {text: 'GrooveScribe', url: '/groove'},
+        {text: 'GrooveScribe', url: 'https://davedrums.com.au/groove'},
         {text: 'Members Area', url: '/members.html'}
       ];
       
@@ -185,8 +185,10 @@
           var title = data.lastLessonTitle || '';
           
           if(url && title){
-            if(title.length > 20) title = title.substring(0, 20) + '...';
-            continueLink.textContent = 'Continue: ' + title;
+            // Extract just the lesson code (e.g., "F1.03" from "F1.03 Quarters & Eighths")
+            var shortTitle = title.split(' ')[0] || title;
+            if(shortTitle.length > 10) shortTitle = shortTitle.substring(0, 10);
+            continueLink.textContent = 'Continue ' + shortTitle;
             continueLink.href = url;
             continueLink.style.display = 'block';
           } else {
@@ -265,8 +267,10 @@ body.vault-logged-in #vault-side-nav-toggle {
   padding: 10px 14px;
   margin: 4px 0;
   border-radius: 8px;
-  font-size: inherit;
+  font-size: 13px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background 0.2s;
   background: none;
   border: none;
