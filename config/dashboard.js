@@ -767,7 +767,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function setMessage(text) {
       if (!msgEl) return;
-      msgEl.textContent = String(text || '').trim();
+      var msg = String(text || '').trim();
+      msgEl.textContent = msg;
+      if (msg) {
+        msgEl.className = 'error';
+        msgEl.style.display = 'block';
+      } else {
+        msgEl.style.display = 'none';
+      }
     }
 
     function clearMessage(){ setMessage(''); }
@@ -958,7 +965,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var continueTitle = document.createElement('div');
       continueTitle.className = 'continue-title';
       continueTitle.id = 'continue-lesson-title';
-      continueTitle.textContent = 'Loading...';
+      continueTitle.textContent = 'Start Your Practice Journey';
       
       var continueBtn = document.createElement('button');
       continueBtn.className = 'btn-continue';
@@ -984,7 +991,15 @@ document.addEventListener('DOMContentLoaded', function () {
         dailyQuote = window.VaultCues.getDailyQuote();
       }
       
-      quoteText.textContent = '💡 ' + dailyQuote;
+      var emojiSpan = document.createElement('span');
+      emojiSpan.textContent = '💡 ';
+      emojiSpan.style.fontStyle = 'normal';
+      
+      var quoteSpan = document.createElement('span');
+      quoteSpan.textContent = dailyQuote;
+      
+      quoteText.appendChild(emojiSpan);
+      quoteText.appendChild(quoteSpan);
       quoteContainer.appendChild(quoteText);
       panel.appendChild(quoteContainer);
 
@@ -1496,9 +1511,9 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       statsCards.className = 'stats-cards';
 
       var stats = [
-        { label: 'Hours', id: 'stat-total-time', value: '—' },
+        { label: 'Total Time', id: 'stat-total-time', value: '—' },
         { label: 'Day Streak', id: 'stat-days-week', value: '—' },
-        { label: 'Sessions', id: 'stat-avg-time', value: '—' }
+        { label: 'Avg. Session Time', id: 'stat-avg-time', value: '—' }
       ];
 
       stats.forEach(function(stat){
@@ -1509,6 +1524,7 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
         valueEl.className = 'stat-value';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
+        valueEl.style.fontSize = '28px';
 
         var labelEl = document.createElement('div');
         labelEl.className = 'stat-label';
