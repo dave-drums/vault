@@ -9,6 +9,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
+  <!-- Firebase -->
+  <script src="firebase/firebase-app-compat.js"></script>
+  <script src="firebase/firebase-auth-compat.js"></script>
+  <script src="firebase/firebase-firestore-compat.js"></script>
+  
+  <script>
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
+        authDomain: "dave-drums.firebaseapp.com",
+        projectId: "dave-drums",
+        storageBucket: "dave-drums.firebasestorage.app",
+        messagingSenderId: "602823096344",
+        appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
+        measurementId: "G-RHL1DSNTJ7"
+      });
+    }
+  </script>
+  
+  <script src="config/components.js"></script>
+  
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     
@@ -78,6 +99,27 @@
       text-align:center;
       z-index:1;
     }
+    
+    /* Logo - Top Left */
+    .vault-hero-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 3;
+    }
+    .vault-hero-logo a {
+      display: block;
+    }
+    .vault-hero-logo img {
+      height: 64px;
+      width: auto;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .vault-hero-logo img:hover {
+      opacity: 1;
+    }
+    
     .vault-hero-title{
       font-family:'Oswald', sans-serif;
       font-size:48px;
@@ -91,7 +133,7 @@
       line-height:1.1;
       text-transform:uppercase;
     }
-    .course-hero-badge{
+    .vault-hero-badge{
       display:inline-block;
       padding:8px 18px;
       background:rgba(6,179,253,0.1);
@@ -232,6 +274,14 @@
   <!-- HERO HEADER -->
   <div class="vault-hero">
     <div class="vault-hero-bg"></div>
+    
+    <!-- Logo - Top Left -->
+    <div class="vault-hero-logo">
+      <a href="/">
+        <img src="assets/dwd-logo-500px.webp" alt="Dave Drums">
+      </a>
+    </div>
+    
     <div class="vault-hero-content">
       <h1 class="vault-hero-title">Practice Vault</h1>
       <div class="vault-hero-badge">Your Practice Pathways</div>
