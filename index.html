@@ -303,7 +303,7 @@
             <div class="topic-left">
               <h3 class="topic-name">Level 1 - Beginner</h3>
             </div>
-            <div class="topic-right">23 lessons • 4/23 complete</div>
+            <div class="topic-right" id="gs1-progress">23 lessons</div>
           </a>
           <a href="#" class="pathway-topic locked">
             <div class="topic-left">
@@ -454,6 +454,36 @@
     </div>
     
   </div>
+  
+  <script>
+    // Load progress for courses on index page
+    (function(){
+      if (typeof firebase === 'undefined' || !firebase.auth) return;
+      
+      firebase.auth().onAuthStateChanged(function(user){
+        if (!user) return;
+        
+        var db = firebase.firestore();
+        
+        // Load GS1 progress
+        db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
+          .then(function(snap){
+            var progressEl = document.getElementById('gs1-progress');
+            if (!progressEl) return;
+            
+            if (snap.exists) {
+              var data = snap.data();
+              var completed = (data.completed || []).length;
+              var total = 23; // gs1 has 23 lessons
+              progressEl.textContent = total + ' lessons • ' + completed + '/' + total + ' complete';
+            }
+          })
+          .catch(function(err){
+            console.log('Error loading progress:', err);
+          });
+      });
+    })();
+  </script>
   
 </body>
 </html>
