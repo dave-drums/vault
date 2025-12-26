@@ -165,6 +165,11 @@
   function renderCourseIndex(container, courseId, courseConfig, structure, auth, db) {
     let html = '';
     
+    // Back to Practice Vault button
+    html += '<div class="course-back-nav">';
+    html += '<button class="course-back-btn" onclick="window.location.href=\'/index.html\'">← Back to Practice Vault</button>';
+    html += '</div>';
+    
     // Progress section
     html += '<div class="course-progress-section">';
     html += '<div class="course-progress-header">';
@@ -348,13 +353,40 @@
         const renderedContent = window.vaultParse.render(tokens);
         console.log('Content rendered');
         container.innerHTML = '';
+        
+        // Add top navigation buttons
+        const topNavHtml = `
+          <div class="lesson-nav-top">
+            <button class="lesson-nav-back" onclick="window.location.href='${window.location.pathname}?c=${courseId.charAt(courseId.length - 1)}'">
+              ← Back to Course
+            </button>
+            <button class="lesson-nav-complete" id="complete-lesson-top">
+              Complete Lesson →
+            </button>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', topNavHtml);
+        
         container.appendChild(renderedContent);
         console.log('Content appended to container');
+        
+        // Add bottom navigation buttons
+        const bottomNavHtml = `
+          <div class="lesson-nav-bottom">
+            <button class="lesson-nav-back" onclick="window.location.href='${window.location.pathname}?c=${courseId.charAt(courseId.length - 1)}'">
+              ← Back to Course
+            </button>
+            <button class="lesson-nav-complete" id="complete-lesson-bottom">
+              Complete Lesson →
+            </button>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', bottomNavHtml);
         
         // Add comments section
         const commentsHtml = `
           <div id="vault-comments" class="vault-comments">
-            <h3>Comments</h3>
+            <h3>Lesson Comments</h3>
             <div id="vault-comments-meta" class="vault-comments-meta">Loading comments...</div>
             <ul id="vault-comments-list" class="vault-comments-list"></ul>
             <form id="vault-comment-form" class="vault-comment-form">
@@ -377,8 +409,8 @@
         container.innerHTML = '<div style="max-width:800px;margin:0 auto;padding:20px"><pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#f5f5f5;border-radius:8px">' + lessonContent.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>';
       }
       
-      // Add complete button handler
-      addCompleteButtonHandler(courseId, lessonId, auth, db);
+      // Add complete lesson handler
+      addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db);
       
     }).catch(function(err) {
       console.error('Error loading lesson:', err);
@@ -471,60 +503,100 @@
     return result;
   }
   
-  function addCompleteButtonHandler(courseId, lessonId, auth, db) {
-    const completeBtn = document.getElementById('complete-lesson');
-    if (!completeBtn) return;
+  function addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db) {
+    const topBtn = document.getElementById('complete-lesson-top');
+    const bottomBtn = document.getElementById('complete-lesson-bottom');
+    
+    if (!topBtn || !bottomBtn) return;
     
     auth.onAuthStateChanged(function(user) {
       if (!user) {
-        completeBtn.style.display = 'none';
+        topBtn.style.display = 'none';
+        bottomBtn.style.display = 'none';
         return;
       }
       
       const uid = user.uid;
-      completeBtn.style.display = 'inline-block';
       
-      // Check if already completed
-      db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-        .then(function(doc) {
-          if (doc.exists) {
-            const completed = doc.data().completed || [];
-            if (completed.includes(lessonId)) {
-              completeBtn.textContent = 'Completed ✓';
-              completeBtn.classList.add('completed');
+      // Get user's showProgress setting and current progress
+      Promise.all([
+        db.collection('users').doc(uid).get(),
+        db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+      ]).then(function(results) {
+        const userDoc = results[0];
+        const progressDoc = results[1];
+        
+        const showProgress = userDoc.exists ? (userDoc.data().showProgress !== false) : true;
+        
+        let completed = [];
+        if (progressDoc.exists) {
+          completed = progressDoc.data().completed || [];
+          
+          // Handle object format
+          if (!Array.isArray(completed)) {
+            if (typeof completed === 'object' && completed !== null) {
+              completed = Object.keys(completed).filter(function(key) {
+                return completed[key] === true;
+              });
+            } else {
+              completed = [];
             }
           }
-        });
-      
-      completeBtn.addEventListener('click', function() {
-        if (completeBtn.classList.contains('completed')) {
-          return;
         }
         
-        const progressDoc = db.collection('users').doc(uid).collection('progress').doc(courseId);
+        const isCompleted = completed.includes(lessonId);
         
-        progressDoc.get().then(function(doc) {
-          const currentCompleted = doc.exists ? (doc.data().completed || []) : [];
+        // Update button states
+        if (isCompleted && showProgress) {
+          topBtn.textContent = 'Completed ✓';
+          bottomBtn.textContent = 'Completed ✓';
+          topBtn.classList.add('completed');
+          bottomBtn.classList.add('completed');
+        }
+        
+        const handleComplete = function() {
+          // Find next lesson
+          const currentIndex = courseConfig.lessons.indexOf(lessonId);
+          const nextLesson = currentIndex < courseConfig.lessons.length - 1 
+            ? courseConfig.lessons[currentIndex + 1] 
+            : null;
           
-          if (!currentCompleted.includes(lessonId)) {
-            currentCompleted.push(lessonId);
+          if (showProgress && !completed.includes(lessonId)) {
+            // Mark as complete in Firestore
+            const newCompleted = completed.concat([lessonId]);
+            
+            db.collection('users').doc(uid).collection('progress').doc(courseId).set({
+              completed: newCompleted,
+              lastLesson: lessonId,
+              lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).then(function() {
+              console.log('Lesson marked complete');
+              
+              // Navigate to next lesson or back to course
+              if (nextLesson) {
+                window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
+              } else {
+                window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
+              }
+            }).catch(function(err) {
+              console.error('Error marking complete:', err);
+            });
+          } else {
+            // Just navigate without marking complete
+            if (nextLesson) {
+              window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
+            } else {
+              window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
+            }
           }
-          
-          // Update both progress completion AND last lesson tracking
-          return progressDoc.set({
-            completed: currentCompleted,
-            lastLesson: lessonId,
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        }).then(function() {
-          completeBtn.textContent = 'Completed ✓';
-          completeBtn.classList.add('completed');
-        }).catch(function(err) {
-          console.error('Error marking complete:', err);
-          alert('Error saving progress');
-        });
+        };
+        
+        topBtn.addEventListener('click', handleComplete);
+        bottomBtn.addEventListener('click', handleComplete);
+      }).catch(function(err) {
+        console.error('Error setting up complete handler:', err);
       });
     });
   }
-  
+
 })();
