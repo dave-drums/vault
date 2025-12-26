@@ -113,6 +113,26 @@
       z-index: 1;
     }
     
+    /* Logo - Top Left */
+    .create-hero-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 3;
+    }
+    .create-hero-logo a {
+      display: block;
+    }
+    .create-hero-logo img {
+      height: 64px;
+      width: auto;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .create-hero-logo img:hover {
+      opacity: 1;
+    }
+    
     .create-hero-title {
       font-family: 'Oswald', sans-serif;
       font-size: 48px;
@@ -151,6 +171,14 @@
   <!-- HERO HEADER -->
   <div class="create-hero">
     <div class="create-hero-bg"></div>
+    
+    <!-- Logo - Top Left -->
+    <div class="create-hero-logo">
+      <a href="/">
+        <img src="assets/dwd-logo-500px.webp" alt="Dave Drums">
+      </a>
+    </div>
+    
     <div class="create-hero-content">
       <h1 class="create-hero-title">Create Account</h1>
     </div>
