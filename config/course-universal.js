@@ -181,7 +181,7 @@
     html += '</div>';
     html += '</div>';
     
-    html += '<div style="height: 48px;"></div>'; // Large gap before chapters
+    html += '<div style="height: 32px;"></div>'; // Gap before chapters
     
     // Chapters
     structure.chapters.forEach(chapter => {
