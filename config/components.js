@@ -110,12 +110,19 @@
   function createHamburgerMenu(uid, auth, db){
     removeHamburgerMenu();
     
-    // Create hamburger button
+    // Create hamburger button inside hero
     var hamburger = document.createElement('button');
     hamburger.id = 'vault-hamburger-btn';
     hamburger.className = 'vault-hamburger-btn';
     hamburger.innerHTML = '<span></span><span></span><span></span>';
-    document.body.appendChild(hamburger);
+    
+    // Find hero and insert hamburger
+    var hero = document.querySelector('.course-hero, .vault-hero, .members-hero, .create-hero, .groove-hero');
+    if (hero) {
+      hero.appendChild(hamburger);
+    } else {
+      document.body.appendChild(hamburger);
+    }
     
     // Create backdrop
     var backdrop = document.createElement('div');
@@ -142,9 +149,9 @@
       '  <div class="vault-menu-section">' +
       '    <div class="vault-menu-section-title">Courses</div>' +
       '    <a href="/gs?c=1" class="vault-menu-link">Groove Studies</a>' +
-      '    <a href="/fs?c=1" class="vault-menu-link">Fill Studies</a>' +
-      '    <a href="/ss?c=1" class="vault-menu-link">Stick Studies</a>' +
-      '    <a href="/ks?c=1" class="vault-menu-link">Kick Studies</a>' +
+      '    <a href="/" class="vault-menu-link">Fill Studies</a>' +
+      '    <a href="/" class="vault-menu-link">Stick Studies</a>' +
+      '    <a href="/" class="vault-menu-link">Kick Studies</a>' +
       '  </div>' +
       '  <div class="vault-menu-section">' +
       '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
@@ -210,10 +217,10 @@
   function injectStyles(){
     var css = `
     .vault-hamburger-btn {
-      position: fixed;
+      position: absolute;
       top: 20px;
       right: 20px;
-      z-index: 10000;
+      z-index: 3;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 8px;
