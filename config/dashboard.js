@@ -922,17 +922,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // PRACTICE TAB PANEL
     // ============================================
 
-
-    // ============================================
-    // PRACTICE TAB PANEL (UPDATED FOR NEW DESIGN)
-    // ============================================
-
     function createPracticePanel(user){
       var panel = document.createElement('div');
       panel.className = 'tab-panel active';
       panel.id = 'practice-panel';
 
-      // Continue Card (gradient card style)
+      // Continue Card
       var continueCard = document.createElement('div');
       continueCard.className = 'continue-card';
       
@@ -955,10 +950,9 @@ document.addEventListener('DOMContentLoaded', function () {
       continueCard.appendChild(continueBtn);
       panel.appendChild(continueCard);
 
-      // Load last lesson data
       loadLastLesson(user, continueBtn);
 
-      // Daily quote (after continue, before progress)
+      // Daily quote
       var quoteContainer = document.createElement('div');
       quoteContainer.className = 'quote-box';
       
@@ -974,19 +968,19 @@ document.addEventListener('DOMContentLoaded', function () {
       quoteContainer.appendChild(quoteText);
       panel.appendChild(quoteContainer);
 
-      // My Progress section (open card)
+      // My Progress section
       var progressSection = createOpenSection('My Progress', function(){
         return createPracticeContent(user);
       });
       panel.appendChild(progressSection);
 
-      // My Goals section (open card)
+      // My Goals section
       var goalsSection = createOpenSection('My Goals', function(){
         return createGoalsContent(user);
       });
       panel.appendChild(goalsSection);
 
-      // Stats section (open card)
+      // Stats section
       var statsSection = createOpenSection('Stats', function(){
         return createStatsContent(user);
       });
@@ -994,6 +988,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       return panel;
     }
+
 
     function mkPrimaryBtn(text, href, isButton){
       var el;
@@ -1031,11 +1026,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault →';
-            
-            var titleEl = document.getElementById('continue-lesson-title');
-            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
-            
+            btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
               window.location.href = '/';
             };
@@ -1048,12 +1039,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // MIGRATE OLD URL FORMATS
           if (url) {
-            // Old format 1: /vault/gs1?lesson=1.01 → /gs?c=1&l=1.01
+            // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
             var match1 = url.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
             if (match1) {
               url = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
             } else {
-              // Old format 2: /vault?course=gs1&lesson=1.01 → /gs?c=1&l=1.01
+              // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
               var match2 = url.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
               if (match2) {
                 url = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
@@ -1061,17 +1052,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
 
-          // Update continue card title
-          var titleEl = document.getElementById('continue-lesson-title');
-          if (titleEl && title) {
-            titleEl.textContent = title;
-          }
-
           if (url && title) {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Resume Lesson →';
+            
+            // Shorten title if needed for mobile
+            var displayTitle = title;
+            if (window.innerWidth <= 600 && title.length > 20) {
+              displayTitle = title.substring(0, 20) + '...';
+            } else if (title.length > 30) {
+              displayTitle = title.substring(0, 30) + '...';
+            }
+            
+            btnEl.textContent = 'Continue: ' + displayTitle;
             
             btnEl.onclick = function(){
               window.location.href = url;
@@ -1080,10 +1074,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault →';
-            
-            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
-            
+            btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
               window.location.href = '/';
             };
@@ -1094,11 +1085,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault →';
-            
-            var titleEl = document.getElementById('continue-lesson-title');
-            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
-            
+            btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
               window.location.href = '/';
             };
@@ -1106,7 +1093,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // NEW: Open section (no dropdown, always visible)
+    function createDropdownSection(title, contentBuilder){
+
     function createOpenSection(title, contentBuilder){
       var section = document.createElement('div');
       section.className = 'section';
@@ -1121,14 +1109,12 @@ document.addEventListener('DOMContentLoaded', function () {
       header.appendChild(titleEl);
       section.appendChild(header);
       
-      // Build and append content immediately (no dropdown)
       var content = contentBuilder();
       section.appendChild(content);
       
       return section;
     }
 
-    function createDropdownSection(title, contentBuilder){
       var section = document.createElement('div');
       section.style.cssText = 'margin-bottom:12px;';
 
@@ -1482,7 +1468,6 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
         });
     }
 
-
     function createStatsContent(user){
       var content = document.createElement('div');
 
@@ -1505,7 +1490,7 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       graphContainer.appendChild(canvasContainer);
       content.appendChild(graphContainer);
 
-      // Stats Cards (new design - 3 horizontal cards)
+      // Stats Cards
       var statsCards = document.createElement('div');
       statsCards.className = 'stats-cards';
 
@@ -1534,12 +1519,11 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       });
 
       content.appendChild(statsCards);
-
-      // Load stats and render chart
       loadStatsAndChart(user, canvas);
 
       return content;
     }
+
 
     function loadStatsAndChart(user, canvas){
       if (!user) return;
@@ -1759,9 +1743,8 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       return rem === 0 ? hours + ' hrs' : hours + ' hrs ' + rem + ' min';
     }
 
-
     // ============================================
-    // PROFILE TAB PANEL (UPDATED FOR NEW DESIGN)
+    // PROFILE TAB PANEL
     // ============================================
 
     function mkFormGroup(label, type, value){
@@ -1789,7 +1772,6 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       panel.className = 'tab-panel';
       panel.id = 'profile-panel';
 
-      // Logged in as
       var emailText = document.createElement('p');
       emailText.className = 'profile-email';
       emailText.innerHTML = 'Logged in as <strong>' + (user && user.email ? user.email : '') + '</strong>';
@@ -1804,7 +1786,6 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       nameTitle.textContent = 'Change Name';
       nameCard.appendChild(nameTitle);
       
-      // Get user data for name fields
       db.collection('users').doc(user.uid).get().then(function(doc){
         if (doc.exists) {
           var userData = doc.data() || {};
@@ -1928,6 +1909,284 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       return panel;
     }
 
+
+    function mkAccountBtn(tag, text, href) {
+      var el = document.createElement(tag);
+      el.className = 'account-btn';
+      el.textContent = text;
+      el.style.cssText = 'display:block;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+
+      if (tag === 'a') {
+        el.href = href || '#';
+        el.style.textDecoration = 'none';
+        el.style.color = 'inherit';
+      } else {
+        el.type = 'button';
+      }
+
+      el.addEventListener('mouseenter', function(){
+        el.style.background = '#f5f5f5';
+      });
+      el.addEventListener('mouseleave', function(){
+        el.style.background = '#fff';
+      });
+
+      return el;
+    }
+
+    function createEmailSection(user){
+      var section = document.createElement('div');
+
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'account-btn';
+      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+      
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Change Email';
+      
+      var arrow = document.createElement('span');
+      arrow.textContent = '▼';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
+      
+      header.appendChild(titleSpan);
+      header.appendChild(arrow);
+      
+      var panel = document.createElement('div');
+      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
+        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
+
+      var message = document.createElement('p');
+      message.style.cssText = 'margin:0;line-height:1.5;color:#333;font-size:15px;';
+      message.textContent = 'To change your email address, please contact support.';
+
+      panel.appendChild(message);
+
+      var isOpen = false;
+
+      header.addEventListener('click', function(){
+        if (isOpen) {
+          panel.style.display = 'none';
+          header.style.borderRadius = '8px';
+          arrow.style.transform = 'rotate(0deg)';
+        } else {
+          panel.style.display = 'block';
+          header.style.borderRadius = '8px 8px 0 0';
+          arrow.style.transform = 'rotate(180deg)';
+        }
+        isOpen = !isOpen;
+      });
+
+      section.appendChild(header);
+      section.appendChild(panel);
+
+      return section;
+    }
+
+    function createNameSection(user){
+      var section = document.createElement('div');
+
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'account-btn';
+      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+      
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Change Name';
+      
+      var arrow = document.createElement('span');
+      arrow.textContent = '▼';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
+      
+      header.appendChild(titleSpan);
+      header.appendChild(arrow);
+      
+      var panel = document.createElement('div');
+      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
+        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
+
+      var fnLabel = mkLabel('First name');
+      var fn = mkInput('text');
+      var lnLabel = mkLabel('Last name');
+      var ln = mkInput('text');
+      
+      var dnLabel = mkLabel('Display name');
+      var dn = mkInput('text');
+      dn.maxLength = 30;
+      
+      var dnHelper = document.createElement('div');
+      dnHelper.style.cssText = 'font-size:12px;color:#666;margin:-10px 0 14px 0;line-height:1.4;';
+      dnHelper.textContent = 'This name appears on your public comments. Max 30 characters.';
+
+      panel.appendChild(fnLabel);
+      panel.appendChild(fn);
+      panel.appendChild(lnLabel);
+      panel.appendChild(ln);
+      panel.appendChild(dnLabel);
+      panel.appendChild(dn);
+      panel.appendChild(dnHelper);
+
+      var actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+      var closeBtn = mkInlineBtn('Close', false);
+      var saveBtn = mkInlineBtn('Save', true);
+
+      actions.appendChild(closeBtn);
+      actions.appendChild(saveBtn);
+      panel.appendChild(actions);
+
+      var isOpen = false;
+
+      // Function to load existing name data
+      function loadNameData(){
+        db.collection('users').doc(user.uid).get().then(function(snap){
+          if (!snap.exists) return;
+          var d = snap.data() || {};
+          fn.value = String(d.firstName || '').trim();
+          ln.value = String(d.lastName || '').trim();
+          dn.value = String(d.displayName || '').trim();
+        }).catch(function(){});
+      }
+
+      // Load on creation
+      loadNameData();
+
+      header.addEventListener('click', function(){
+        if (isOpen) {
+          panel.style.display = 'none';
+          header.style.borderRadius = '8px';
+          arrow.style.transform = 'rotate(0deg)';
+        } else {
+          // Reload data when opening
+          loadNameData();
+          panel.style.display = 'block';
+          header.style.borderRadius = '8px 8px 0 0';
+          arrow.style.transform = 'rotate(180deg)';
+        }
+        isOpen = !isOpen;
+      });
+
+      closeBtn.addEventListener('click', function(){
+        panel.style.display = 'none';
+        header.style.borderRadius = '8px';
+        arrow.style.transform = 'rotate(0deg)';
+        isOpen = false;
+      });
+
+      // saveBtn click handler comes after this...
+
+      saveBtn.addEventListener('click', function(){
+        clearMessage();
+        var firstName = String(fn.value || '').trim();
+        var lastName = String(ln.value || '').trim();
+        var displayName = String(dn.value || '').trim();
+
+        if (!firstName || !lastName) {
+          setMessage('Please enter your first and last name.');
+          return;
+        }
+        
+        if (!displayName) {
+          setMessage('Please enter a display name.');
+          return;
+        }
+        
+        // Validate display name (letters, numbers, spaces, underscore, hyphen, apostrophe only)
+        var validPattern = /^[a-zA-Z0-9 _'\-]+$/;
+        if (!validPattern.test(displayName)) {
+          setMessage('Display name can only contain letters, numbers, spaces, underscores, hyphens, and apostrophes.');
+          return;
+        }
+
+        db.collection('users').doc(user.uid).set({
+          firstName: firstName,
+          lastName: lastName,
+          displayName: displayName
+        }, { merge: true }).then(function(){
+          panel.style.display = 'none';
+          header.style.borderRadius = '8px';
+          isOpen = false;
+          window.VaultToast.success('Name updated');
+        }).catch(function(e){
+          setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
+        });
+      });
+
+      section.appendChild(header);
+      section.appendChild(panel);
+
+      return section;
+    }
+
+    function createPasswordSection(user){
+      var section = document.createElement('div');
+
+      var header = document.createElement('button');
+      header.type = 'button';
+      header.className = 'account-btn';
+      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
+        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
+      
+      var titleSpan = document.createElement('span');
+      titleSpan.textContent = 'Change Password';
+      
+      var arrow = document.createElement('span');
+      arrow.textContent = '▼';
+      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
+      
+      header.appendChild(titleSpan);
+      header.appendChild(arrow);
+      
+      var panel = document.createElement('div');
+      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
+        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
+
+      var curLabel = mkLabel('Current password');
+      var curPw = mkInput('password');
+      var newLabel = mkLabel('New password');
+      var newPw = mkInput('password');
+      var new2Label = mkLabel('Repeat new password');
+      var newPw2 = mkInput('password');
+
+      panel.appendChild(curLabel);
+      panel.appendChild(curPw);
+      panel.appendChild(newLabel);
+      panel.appendChild(newPw);
+      panel.appendChild(new2Label);
+      panel.appendChild(newPw2);
+
+      var actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+      var closeBtn = mkInlineBtn('Close', false);
+      var updateBtn = mkInlineBtn('Update', true);
+
+      actions.appendChild(closeBtn);
+      actions.appendChild(updateBtn);
+      panel.appendChild(actions);
+
+      var isOpen = false;
+
+      header.addEventListener('click', function(){
+        if (isOpen) {
+          panel.style.display = 'none';
+          header.style.borderRadius = '8px';
+          arrow.style.transform = 'rotate(0deg)';
+        } else {
+          panel.style.display = 'block';
+          header.style.borderRadius = '8px 8px 0 0';
+          arrow.style.transform = 'rotate(180deg)';
+        }
+        isOpen = !isOpen;
+      });
+
+      closeBtn.addEventListener('click', function(){
+        panel.style.display = 'none';
+        header.style.borderRadius = '8px';
         arrow.style.transform = 'rotate(0deg)';
         isOpen = false;
       });
