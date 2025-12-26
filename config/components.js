@@ -1,10 +1,5 @@
-/* vault-components.js
-   Consolidated: vault-toast.js + vault-sidenav.js
-   Purpose: UI components (toast notifications + side navigation)
-*/
-
-/* vault-toast.js
-   Purpose: Global toast notification system
+/* components.js
+   Purpose: UI components - toast notifications + hamburger menu navigation + universal site footer
    Usage: Loaded conditionally on /vault and /members pages
 */
 
