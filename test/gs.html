@@ -87,6 +87,7 @@
       background:linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
       background-size:200% auto;
       animation:gradient-shift 3s linear infinite;
+      z-index:3;
     }
     @keyframes gradient-shift{
       0%{background-position:0% center}
@@ -95,7 +96,17 @@
     .course-hero-bg{
       position:absolute;
       inset:0;
-      background:radial-gradient(ellipse at top, rgba(6,179,253,0.15) 0%, transparent 50%);
+      background-image:url('https://dave-drums.github.io/vault/assets/groove-studies.webp');
+      background-size:cover;
+      background-position:center;
+      opacity:0.15;
+      z-index:0;
+    }
+    .course-hero-bg:after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:radial-gradient(ellipse at top, rgba(6,179,253,0.1) 0%, transparent 50%);
     }
     .course-hero-content{
       position:relative;
@@ -311,23 +322,24 @@
     
     /* Text Bubbles */
     .vault-info{
-      padding:8px 20px;
+      padding:1rem 1.25rem;
       border-radius:12px;
       background:var(--surface)!important;
       border:1px solid var(--border)!important;
       box-shadow:var(--shadow);
       color:var(--text-primary)!important;
-      line-height:1.6;
+      line-height:1.4;
       font-size:15px;
       text-align:center;
+      box-sizing:border-box;
     }
     .vault-info-full{
       width:min(860px,100%);
-      margin:0 auto;
+      margin:1rem auto 0;
     }
     .vault-info-row{
       width:min(860px,100%);
-      margin:0 auto;
+      margin:1rem auto 0;
       display:flex;
       gap:1rem;
       align-items:stretch;
