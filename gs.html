@@ -116,6 +116,27 @@
       text-align:center;
       z-index:1;
     }
+    
+    /* Logo - Top Left */
+    .course-hero-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 3;
+    }
+    .course-hero-logo a {
+      display: block;
+    }
+    .course-hero-logo img {
+      height: 28px;
+      width: auto;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .course-hero-logo img:hover {
+      opacity: 1;
+    }
+    
     .course-hero-badge{
       display:inline-block;
       padding:8px 18px;
@@ -764,6 +785,14 @@
   <!-- EPIC COURSE HEADER -->
   <div class="course-hero">
     <div class="course-hero-bg"></div>
+    
+    <!-- Logo - Top Left -->
+    <div class="course-hero-logo">
+      <a href="/">
+        <img src="assets/dwd-logo-white-500px.webp" alt="Dave Drums">
+      </a>
+    </div>
+    
     <div class="course-hero-content">
       <h1 class="course-hero-title" id="hero-course-name">Loading...</h1>
       <div class="course-hero-badge" id="hero-course-level"></div>
