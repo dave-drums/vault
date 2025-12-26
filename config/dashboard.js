@@ -960,7 +960,8 @@ document.addEventListener('DOMContentLoaded', function () {
       
       var continueLabel = document.createElement('div');
       continueLabel.className = 'continue-label';
-      continueLabel.textContent = 'Continue Where You Left Off';
+      continueLabel.id = 'continue-lesson-label';
+      continueLabel.textContent = '';
       
       var continueTitle = document.createElement('div');
       continueTitle.className = 'continue-title';
@@ -977,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function () {
       continueCard.appendChild(continueBtn);
       panel.appendChild(continueCard);
 
-      loadLastLesson(user, continueBtn);
+      loadLastLesson(user, continueBtn, continueLabel, continueTitle);
 
       // Daily quote
       var quoteContainer = document.createElement('div');
@@ -1052,13 +1053,13 @@ document.addEventListener('DOMContentLoaded', function () {
       return el;
     }
 
-    function loadLastLesson(user, btnEl){
+    function loadLastLesson(user, btnEl, labelEl, titleEl){
       if (!user || !btnEl) return;
 
       db.collection('users').doc(user.uid).collection('metrics').doc('practice').get()
         .then(function(snap){
           if (!snap.exists) {
-            var titleEl = document.getElementById('continue-lesson-title');
+            if (labelEl) labelEl.textContent = '';
             if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
@@ -1093,8 +1094,8 @@ document.addEventListener('DOMContentLoaded', function () {
           }
 
           if (url && title) {
-            var titleEl = document.getElementById('continue-lesson-title');
-            if (titleEl) titleEl.textContent = 'Continue Where You Left Off';
+            if (labelEl) labelEl.textContent = 'Continue Where You Left Off';
+            if (titleEl) titleEl.textContent = '';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
@@ -1113,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', function () {
               window.location.href = url;
             };
           } else {
-            var titleEl = document.getElementById('continue-lesson-title');
+            if (labelEl) labelEl.textContent = '';
             if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
@@ -1126,6 +1127,8 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         })
         .catch(function(){
+            if (labelEl) labelEl.textContent = '';
+            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
