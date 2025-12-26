@@ -226,7 +226,7 @@
       text-decoration: underline;
     }
     
-    #members-message {
+    #message {
       margin-top: 16px;
       padding: 12px;
       border-radius: 6px;
@@ -235,14 +235,14 @@
       display: none;
     }
     
-    #members-message.error {
+    #message.error {
       display: block;
       background: #fee;
       color: #c00;
       border: 1px solid #fcc;
     }
     
-    #members-message.success {
+    #message.success {
       display: block;
       background: #efe;
       color: #0a0;
@@ -290,16 +290,16 @@
       <div id="login-box">
         <div class="login-form">
           <label for="members-email">Email</label>
-          <input type="email" id="members-email" autocomplete="email">
+          <input type="email" id="email-input" autocomplete="email">
           
           <label for="members-password">Password</label>
-          <input type="password" id="members-password" autocomplete="current-password">
+          <input type="password" id="password-input" autocomplete="current-password">
           
-          <button type="button" id="members-login-btn">Log In</button>
+          <button type="button" id="login-btn">Log In</button>
           
-          <a href="#" id="members-reset-link" class="reset-link">Forgot password?</a>
+          <a href="#" id="reset-link" class="reset-link">Forgot password?</a>
           
-          <div id="members-message"></div>
+          <div id="message"></div>
         </div>
       </div>
       
