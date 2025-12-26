@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members | Practice Vault</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase -->
+  <script src="firebase/firebase-app-compat.js"></script>
+  <script src="firebase/firebase-auth-compat.js"></script>
+  <script src="firebase/firebase-firestore-compat.js"></script>
+  <script src="firebase/firebase-storage-compat.js"></script>
+  
+  <script>
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
+        authDomain: "dave-drums.firebaseapp.com",
+        projectId: "dave-drums",
+        storageBucket: "dave-drums.firebasestorage.app",
+        messagingSenderId: "602823096344",
+        appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
+        measurementId: "G-RHL1DSNTJ7"
+      });
+    }
+  </script>
+  
+  <!-- Chart.js for practice stats -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- Vault Scripts -->
+  <script src="config/components.js"></script>
+  <script src="config/cues.js"></script>
+  <script src="config/dashboard.js" defer></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --accent: #06b3fd;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6c757d;
+      --surface: #fff;
+      --surface-hover: #f8f9fa;
+      --border: #e9ecef;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    html {
+      font-size: 16px;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    
+    /* HERO HEADER */
+    .members-hero {
+      position: relative;
+      background: #1a1a2e;
+      padding: 80px 20px 60px;
+      margin-bottom: 40px;
+      overflow: hidden;
+    }
+    
+    .members-hero:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
+      background-size: 200% auto;
+      animation: gradient-shift 3s linear infinite;
+      z-index: 3;
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    .members-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('gs/groove-studies.webp');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15;
+      z-index: 0;
+    }
+    
+    .members-hero-bg:after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top, rgba(6, 179, 253, 0.1) 0%, transparent 50%);
+    }
+    
+    .members-hero-content {
+      position: relative;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+      z-index: 1;
+    }
+    
+    .members-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 48px;
+      font-weight: 400;
+      background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    
+    @media (max-width: 768px) {
+      .members-hero {
+        padding: 60px 20px 40px;
+      }
+      .members-title {
+        font-size: 32px;
+      }
+    }
+    
+    /* MAIN CONTAINER */
+    .members-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+    
+    /* LOGIN/ACCOUNT BOX */
+    #members-wrap {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      border: 1px solid var(--border);
+    }
+    
+    /* LOGIN FORM */
+    .login-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .login-form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+    
+    .login-form input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    
+    .login-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .login-form button {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    .login-form button:hover {
+      background: #0599dc;
+      border-color: #0599dc;
+    }
+    
+    .login-form button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .reset-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .reset-link:hover {
+      text-decoration: underline;
+    }
+    
+    #members-message {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 14px;
+      display: none;
+    }
+    
+    #members-message.error {
+      display: block;
+      background: #fee;
+      color: #c00;
+      border: 1px solid #fcc;
+    }
+    
+    #members-message.success {
+      display: block;
+      background: #efe;
+      color: #0a0;
+      border: 1px solid #cfc;
+    }
+    
+    /* LOADING STATE */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+    
+    /* RESPONSIVE */
+    @media (max-width: 480px) {
+      #members-wrap {
+        padding: 24px;
+      }
+      
+      .tab-label-full {
+        display: none !important;
+      }
+      
+      .tab-label-short {
+        display: inline !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- HERO HEADER -->
+  <div class="members-hero">
+    <div class="members-hero-bg"></div>
+    <div class="members-hero-content">
+      <h1 class="members-title">My Account</h1>
+    </div>
+  </div>
+  
+  <!-- MAIN CONTENT -->
+  <div class="members-container">
+    <div id="members-wrap">
+      
+      <!-- LOGIN FORM (shown when logged out) -->
+      <div id="login-box">
+        <div class="login-form">
+          <label for="members-email">Email</label>
+          <input type="email" id="members-email" autocomplete="email">
+          
+          <label for="members-password">Password</label>
+          <input type="password" id="members-password" autocomplete="current-password">
+          
+          <button type="button" id="members-login-btn">Log In</button>
+          
+          <a href="#" id="members-reset-link" class="reset-link">Forgot password?</a>
+          
+          <div id="members-message"></div>
+        </div>
+      </div>
+      
+      <!-- ACCOUNT BOX (shown when logged in, populated by dashboard.js) -->
+      <div id="account-box" style="display:none;">
+        <div class="loading">Loading your account...</div>
+      </div>
+      
+    </div>
+  </div>
+  
+</body>
+</html>
