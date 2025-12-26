@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Console - Practice Vault</title>
-  <link rel="icon" href="../assets/favicon.png" type="image/png">
+  <link rel="icon" type="image/webp" href="../assets/favicon.webp">
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
@@ -13,6 +13,21 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Config (inline to avoid 404) -->
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpX7cv9VW7F_L5rYBO0Y5wHxqJ9vY-rPg",
+      authDomain: "vault-davedrums.firebaseapp.com",
+      projectId: "vault-davedrums",
+      storageBucket: "vault-davedrums.firebasestorage.app",
+      messagingSenderId: "446765056646",
+      appId: "1:446765056646:web:c23d18dd81aa5e98c1a3f3"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+  </script>
   
   <style>
     :root {
@@ -169,9 +184,6 @@
       <div>Loading admin console...</div>
     </div>
   </div>
-  
-  <!-- Firebase Config -->
-  <script src="firebase-config.js"></script>
   
   <!-- Admin Console Logic -->
   <script src="console.js"></script>
