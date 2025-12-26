@@ -168,8 +168,8 @@
     // Progress section
     html += '<div class="course-progress-section">';
     html += '<div class="course-progress-header">';
-    html += '<p class="sqsrte-medium course-progress-label">Progress</p>';
-    html += '<p class="sqsrte-medium course-progress-text">0/' + courseConfig.lessons.length + ' (0%)</p>';
+    html += '<p class="course-progress-label">Progress</p>';
+    html += '<p class="course-progress-text">0/' + courseConfig.lessons.length + ' (0%)</p>';
     html += '</div>';
     html += '<div class="course-progress-bar-bg">';
     html += '<div class="course-progress-bar-fill course-progress-bar" style="width: 0%;"></div>';
@@ -182,7 +182,7 @@
     structure.chapters.forEach(chapter => {
       html += '<div class="course-chapter">';
       html += '<div class="course-chapter-header">';
-      html += '<p class="course-chapter-title sqsrte-large">' + escapeHtml(chapter.title) + '</p>';
+      html += '<p class="course-chapter-title">' + escapeHtml(chapter.title) + '</p>';
       html += '<span class="course-chapter-count">' + chapter.lessons.length + ' Lesson' + (chapter.lessons.length !== 1 ? 's' : '') + '</span>';
       html += '</div>';
       html += '<div class="course-lessons-grid">';
@@ -191,7 +191,7 @@
         const lessonTitle = structure.lessonTitles[lessonId] || ('Lesson ' + lessonId);
         
         html += '<div class="course-lesson-item" data-lesson="' + escapeHtml(lessonId) + '">';
-        html += '<div class="course-lesson-link sqsrte-small">' + escapeHtml(lessonTitle) + '</div>';
+        html += '<div class="course-lesson-link">' + escapeHtml(lessonTitle) + '</div>';
         html += '<div class="course-lesson-status incomplete"></div>';
         html += '</div>';
       });
