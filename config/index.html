@@ -31,99 +31,142 @@
   </script>
   
   <style>
-    :root {
-      --bg: #f8f9fa;
-      --surface: #ffffff;
-      --surface-hover: #f0f8ff;
-      --text-primary: #1a1a1a;
-      --text-secondary: #6c757d;
-      --border: #e9ecef;
-      --accent: #06b3fd;
-      --shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
     
+    html {
+      font-size: 16px;
+    }
+    
+    :root {
+      --accent: #06b3fd;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6c757d;
+      --surface: #fff;
+      --surface-hover: #f8f9fa;
+      --border: #e9ecef;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
+      background: #f8f9fa;
       color: var(--text-primary);
-      line-height: 1.6;
       opacity: 0;
       transition: opacity 0.3s;
     }
     
-    /* Hero Section */
+    /* ADMIN HERO HEADER */
     .admin-hero {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-      padding: 80px 20px 60px;
       position: relative;
+      background: #1a1a2e;
+      padding: 100px 20px 80px;
+      margin-bottom: 48px;
       overflow: hidden;
     }
     
     .admin-hero:after {
       content: '';
       position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
       right: 0;
-      bottom: 0;
-      background: url('../assets/pv-home.webp') center/cover;
+      height: 4px;
+      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
+      background-size: 200% auto;
+      animation: gradient-shift 3s linear infinite;
+      z-index: 3;
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    .admin-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('../assets/pv-home.webp');
+      background-size: cover;
+      background-position: center;
       opacity: 0.15;
-      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .admin-hero-bg:after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top, rgba(6,179,253,0.1) 0%, transparent 50%);
     }
     
     .admin-hero-content {
+      position: relative;
       max-width: 1200px;
       margin: 0 auto;
-      position: relative;
+      text-align: center;
       z-index: 1;
+    }
+    
+    /* Logo - Top Left */
+    .admin-hero-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 3;
+    }
+    
+    .admin-hero-logo a {
+      display: block;
+    }
+    
+    .admin-hero-logo img {
+      height: 64px;
+      width: auto;
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    
+    .admin-hero-logo img:hover {
+      opacity: 1;
     }
     
     .admin-hero-title {
       font-family: 'Oswald', sans-serif;
       font-size: 48px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 12px;
+      font-weight: 400;
+      background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -1px;
+      line-height: 1.1;
       text-transform: uppercase;
-      letter-spacing: 1px;
     }
     
     .admin-hero-badge {
       display: inline-block;
-      padding: 6px 16px;
-      background: rgba(6, 179, 253, 0.2);
-      border: 1px solid rgba(6, 179, 253, 0.4);
-      border-radius: 24px;
-      color: #06b3fd;
-      font-size: 12px;
+      padding: 8px 18px;
+      background: rgba(6,179,253,0.1);
+      border: 1px solid rgba(6,179,253,0.3);
+      border-radius: 12px;
+      color: #38bdf8;
+      font-size: 18px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1.2px;
+      margin-top: 30px;
     }
     
-    /* Container */
+    /* MAIN CONTAINER */
     .admin-container {
       max-width: 1200px;
-      margin: -40px auto 60px auto;
-      padding: 0 20px;
-      position: relative;
-      z-index: 2;
-    }
-    
-    /* Members Title */
-    .members-title {
-      font-family: 'Oswald', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
+      margin: 0 auto;
+      padding: 0 20px 60px;
     }
     
     /* Loading State */
@@ -147,23 +190,17 @@
       to { transform: rotate(360deg); }
     }
     
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       .admin-hero {
         padding: 60px 20px 40px;
       }
       
       .admin-hero-title {
-        font-size: 32px;
+        font-size: 28px;
       }
       
       .admin-hero-badge {
-        font-size: 11px;
-        padding: 5px 12px;
-      }
-      
-      .admin-container {
-        margin-top: -30px;
+        font-size: 14px;
       }
     }
   </style>
@@ -172,6 +209,14 @@
   <!-- Hero Section -->
   <div class="admin-hero">
     <div class="admin-hero-bg"></div>
+    
+    <!-- Logo - Top Left -->
+    <div class="admin-hero-logo">
+      <a href="/">
+        <img src="../assets/dwd-logo-500px.webp" alt="Dave Drums">
+      </a>
+    </div>
+    
     <div class="admin-hero-content">
       <h1 class="admin-hero-title">Admin Console</h1>
       <div class="admin-hero-badge">Practice Vault Management</div>
