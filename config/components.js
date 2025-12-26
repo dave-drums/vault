@@ -143,15 +143,15 @@
       '  <div class="vault-menu-section">' +
       '    <div class="vault-menu-section-title">Navigation</div>' +
       '    <a href="/" class="vault-menu-link">Practice Vault</a>' +
-      '    <a href="/members.html" class="vault-menu-link">Members Area</a>' +
-      '    <a href="https://davedrums.com.au/groove" class="vault-menu-link">GrooveScribe</a>' +
+      '    <a href="/members" class="vault-menu-link">Members Area</a>' +
+      '    <a href="https://vault.davedrums.com.au/groove" class="vault-menu-link">GrooveScribe</a>' +
       '  </div>' +
-      '  <div class="vault-menu-section">' +
+      '  <div class="vault-menu-section" id="vault-menu-courses">' +
       '    <div class="vault-menu-section-title">Courses</div>' +
-      '    <a href="/gs?c=1" class="vault-menu-link">Groove Studies</a>' +
-      '    <a href="/" class="vault-menu-link">Fill Studies</a>' +
-      '    <a href="/" class="vault-menu-link">Stick Studies</a>' +
-      '    <a href="/" class="vault-menu-link">Kick Studies</a>' +
+      '    <a href="/gs?c=1" class="vault-menu-link" data-pathway="gs">Groove Studies</a>' +
+      '    <a href="/" class="vault-menu-link" data-pathway="fs">Fill Studies</a>' +
+      '    <a href="/" class="vault-menu-link" data-pathway="ss">Stick Studies</a>' +
+      '    <a href="/" class="vault-menu-link" data-pathway="ks">Kick Studies</a>' +
       '  </div>' +
       '  <div class="vault-menu-section">' +
       '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
@@ -192,6 +192,41 @@
     });
     
     highlightActive(menu);
+    loadSmartCourseLinks(uid, db);
+  }
+  
+  function loadSmartCourseLinks(uid, db){
+    // Get all progress docs to find highest course in each pathway
+    db.collection('users').doc(uid).collection('progress').get()
+      .then(function(snap){
+        var pathwayProgress = {gs: 1, fs: 1, ss: 1, ks: 1}; // defaults
+        
+        snap.forEach(function(doc){
+          var courseId = doc.id; // e.g., "gs2", "fs1"
+          var match = courseId.match(/^([a-z]+)(\d+)$/);
+          if(match){
+            var pathway = match[1];
+            var courseNum = parseInt(match[2]);
+            if(pathwayProgress[pathway] !== undefined && courseNum > pathwayProgress[pathway]){
+              pathwayProgress[pathway] = courseNum;
+            }
+          }
+        });
+        
+        // Update course links
+        var courseLinks = document.querySelectorAll('[data-pathway]');
+        courseLinks.forEach(function(link){
+          var pathway = link.getAttribute('data-pathway');
+          var courseNum = pathwayProgress[pathway];
+          if(courseNum && pathway === 'gs'){
+            link.href = '/' + pathway + '?c=' + courseNum;
+          }
+          // Other pathways stay as "/" until they're created
+        });
+      })
+      .catch(function(err){
+        console.log('Could not load course progress:', err);
+      });
   }
   
   function removeHamburgerMenu(){
