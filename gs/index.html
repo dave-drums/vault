@@ -40,7 +40,7 @@
       bunnyLibraryId: "556221",
       grooveOrigin: "https://groove.davedrums.com.au",
       grooveEmbedPath: "/GrooveEmbed.html",
-      youtubeLogoSrc: "youtube-logo.png"
+      youtubeLogoSrc: "/youtube-logo.png"
     };
   </script>
   <script src="../config/render.js" defer></script>
@@ -576,7 +576,7 @@
     (function(){
       var revealed=false;
       function reveal(){if(revealed)return;revealed=true;if(document.body)document.body.style.opacity='1'}
-      function redirectToMembers(){var next=encodeURIComponent(location.pathname+location.search+location.hash);location.href='members.html?next='+next}
+      function redirectToMembers(){var next=encodeURIComponent(location.pathname+location.search+location.hash);location.href='/members.html?next='+next}
       var failSafe=setTimeout(reveal,2500);
       if(typeof firebase!=='undefined'&&firebase.auth){
         firebase.auth().onAuthStateChanged(function(user){
