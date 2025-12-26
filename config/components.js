@@ -127,10 +127,10 @@
       nav.id = 'vault-side-nav';
       
       var links = [
-        {text: 'Practice Vault', url: '/vault'},
-        {text: 'Continue...', url: '/vault', id: 'vault-continue'},
+        {text: 'Practice Vault', url: '/'},
+        {text: 'Continue...', url: '/', id: 'vault-continue'},
         {text: 'GrooveScribe', url: '/groove'},
-        {text: 'Members Area', url: '/members'}
+        {text: 'Members Area', url: '/members.html'}
       ];
       
       links.forEach(function(link){
@@ -148,7 +148,7 @@
       logoutBtn.textContent = 'Logout';
       logoutBtn.onclick = function(){
         auth.signOut().then(function(){
-          window.location.href = '/members';
+          window.location.href = '/members.html';
         });
       };
       nav.appendChild(logoutBtn);
