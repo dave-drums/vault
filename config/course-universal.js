@@ -98,7 +98,7 @@
     
     // Parse lessons from course master file
     const storageRef = storage.ref();
-    const masterPath = 'courses/' + courseId + '_master.txt';
+    const masterPath = 'courses/' + courseId + '.txt';
     
     storageRef.child(masterPath).getDownloadURL().then(function(url) {
       return fetch(url);
@@ -266,7 +266,7 @@
     
     // Load lesson from master file
     const storageRef = storage.ref();
-    const masterPath = 'courses/' + courseId + '_master.txt';
+    const masterPath = 'courses/' + courseId + '.txt';
     
     storageRef.child(masterPath).getDownloadURL().then(function(url) {
       return fetch(url);
