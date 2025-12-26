@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400&display=swap" rel="stylesheet">
   
-  <script src="firebase/firebase-app-compat.js"></script>
-  <script src="firebase/firebase-auth-compat.js"></script>
-  <script src="firebase/firebase-firestore-compat.js"></script>
-  <script src="firebase/firebase-functions-compat.js"></script>
-  <script src="firebase/firebase-storage-compat.js"></script>
+  <script src="../firebase/firebase-app-compat.js"></script>
+  <script src="../firebase/firebase-auth-compat.js"></script>
+  <script src="../firebase/firebase-firestore-compat.js"></script>
+  <script src="../firebase/firebase-functions-compat.js"></script>
+  <script src="../firebase/firebase-storage-compat.js"></script>
   
   <script>
     if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -32,8 +32,8 @@
   
   <script>document.documentElement.dataset.protected = 'true';</script>
   
-  <script src="vault-components.js"></script>
-  <script src="vault-course-config.js"></script>
+  <script src="../vault-components.js"></script>
+  <script src="../vault-course-config.js"></script>
   
   <script>
     window.VAULT_CONFIG = {
@@ -43,8 +43,8 @@
       youtubeLogoSrc: "youtube-logo.png"
     };
   </script>
-  <script src="vault-render.js" defer></script>
-  <script src="vault-lesson-comments.js" defer></script>
+  <script src="../vault-render.js" defer></script>
+  <script src="../vault-lesson-comments.js" defer></script>
   
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -96,7 +96,7 @@
     .course-hero-bg{
       position:absolute;
       inset:0;
-      background-image:url('https://dave-drums.github.io/vault/test/gs/groove-studies.webp');
+      background-image:url('groove-studies.webp');
       background-size:cover;
       background-position:center;
       opacity:0.15;
@@ -623,7 +623,7 @@
 
   <div id="lesson-content" style="display:none"></div>
 
-  <script src="course-universal.js"></script>
+  <script src="../course-universal.js"></script>
   
   <style>
     @keyframes spin{to{transform:rotate(360deg)}}
