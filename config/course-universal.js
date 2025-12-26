@@ -280,6 +280,9 @@
     const storage = firebase.storage();
     const container = document.getElementById('lesson-content');
     
+    // Show loading state
+    container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-secondary)"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite"></div><div style="font-weight:500">Loading lesson...</div></div>';
+    
     // Show back button
     const backBtn = document.getElementById('back-to-course');
     if (backBtn) {
@@ -293,6 +296,8 @@
     const storageRef = storage.ref();
     const masterPath = 'courses/' + courseId + '.txt';
     
+    console.log('Loading lesson file:', masterPath);
+    
     storageRef.child(masterPath).getDownloadURL().then(function(url) {
       return fetch(url);
     }).then(function(response) {
@@ -301,15 +306,22 @@
       const lessonContent = extractLessonFromMaster(masterText, lessonId);
       
       if (!lessonContent) {
+        console.error('No lesson content extracted!');
         container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Lesson not found</div>';
         return;
       }
       
+      console.log('About to render lesson...');
+      console.log('vaultRender function exists?', typeof window.vaultRender === 'function');
+      
       // Render using vault-render.js
       if (typeof window.vaultRender === 'function') {
+        console.log('Calling vaultRender...');
         window.vaultRender(lessonContent, container);
+        console.log('vaultRender complete');
       } else {
-        container.innerHTML = '<pre>' + lessonContent + '</pre>';
+        console.warn('vaultRender not found, using fallback');
+        container.innerHTML = '<pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#f5f5f5">' + lessonContent + '</pre>';
       }
       
       // Add complete button handler
