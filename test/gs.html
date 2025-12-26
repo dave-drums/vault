@@ -77,10 +77,10 @@
       margin-bottom:48px;
       overflow:hidden;
     }
-    .course-hero:before{
+    .course-hero:after{
       content:'';
       position:absolute;
-      top:0;
+      bottom:0;
       left:0;
       right:0;
       height:4px;
@@ -149,9 +149,18 @@
     .course-container{max-width:1200px;margin:0 auto;padding:32px 20px}
     .course-container p{margin:0}
     
-    /* Add MORE spacing after progress bar */
+    /* MASSIVE spacing after progress bar */
     .progress-container{
-      margin-bottom:80px;
+      margin-bottom:120px;
+    }
+    
+    /* Thicker progress bar */
+    .progress-bar{
+      height:12px !important;
+      border-radius:6px !important;
+    }
+    .progress-fill{
+      border-radius:6px !important;
     }
     
     /* Center Exercise Headers (H> in vault content) */
@@ -245,7 +254,7 @@
       user-select:none;
       color:var(--text-primary);
       font-weight:400;
-      font-size:15px;
+      font-size:14px;
       line-height:1.4;
     }
     .course-lesson-status{
@@ -302,7 +311,7 @@
     
     /* Text Bubbles */
     .vault-info{
-      padding:16px 20px;
+      padding:12px 20px;
       border-radius:12px;
       background:var(--surface)!important;
       border:1px solid var(--border)!important;
