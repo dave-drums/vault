@@ -183,7 +183,7 @@
       border-left: 3px solid #06b3fd;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       font-weight: 600;
-      font-size: 20px;
+      font-size: 18px;
       color: #1a1a1a;
       font-family: 'Inter', sans-serif;
     }
@@ -308,15 +308,15 @@
     }
     .course-progress-bar-bg{
       width:100%;
-      height:8px;
+      height:16px;
       background-color:var(--border);
-      border-radius:8px;
+      border-radius:16px;
       overflow:hidden;
     }
     .course-progress-bar-fill{
       height:100%;
       background:linear-gradient(90deg,var(--accent),#38bdf8);
-      border-radius:8px;
+      border-radius:16px;
       transition:width .4s ease;
     }
     
@@ -424,6 +424,104 @@
     }
     
     /* Text Bubbles */
+    
+    /* Course Navigation */
+    .course-back-nav {
+      width: min(860px, 100%);
+      margin: 0 auto 24px auto;
+    }
+    
+    .course-back-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .course-back-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Lesson Navigation Buttons */
+    .lesson-nav-top,
+    .lesson-nav-bottom {
+      width: min(860px, 100%);
+      max-width: 860px;
+      margin: 0 auto 24px auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    
+    .lesson-nav-bottom {
+      margin-top: 40px;
+      margin-bottom: 0;
+    }
+    
+    .lesson-nav-back {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .lesson-nav-back:hover {
+      background: var(--surface-hover);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .lesson-nav-complete {
+      background: linear-gradient(135deg, #06b3fd 0%, #38bdf8 100%);
+      border: none;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 2px 8px rgba(6,179,253,0.3);
+    }
+    
+    .lesson-nav-complete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(6,179,253,0.4);
+    }
+    
+    .lesson-nav-complete.completed {
+      background: #10b981;
+      box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+    }
+    
+    @media(max-width:640px){
+      .lesson-nav-top,
+      .lesson-nav-bottom {
+        flex-direction: column;
+      }
+      
+      .lesson-nav-back,
+      .lesson-nav-complete {
+        width: 100%;
+      }
+    }
     
     /* Headings & Dividers */
     .vault-divider{
@@ -542,7 +640,7 @@
     /* Modern Comments */
     .vault-comments{
       width:min(860px,100%);
-      margin:40px auto 0;
+      margin:30px auto 0;
       padding:24px;
       background:var(--surface)!important;
       border:1px solid var(--border)!important;
@@ -554,7 +652,17 @@
       margin:0 0 16px;
       font-size:18px;
       color:var(--text-primary)!important;
-      font-weight:700;
+      font-weight:600;
+    }
+    
+    /* Mobile: smaller text in comments */
+    @media(max-width:640px){
+      .vault-comments{
+        font-size:14px;
+      }
+      .vault-comments h3{
+        font-size:16px;
+      }
     }
     #vault-comment-text{
       width:100%;
