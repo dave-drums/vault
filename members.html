@@ -226,7 +226,7 @@
       text-decoration: underline;
     }
     
-    #message {
+    #members-message {
       margin-top: 16px;
       padding: 12px;
       border-radius: 6px;
@@ -235,14 +235,14 @@
       display: none;
     }
     
-    #message.error {
+    #members-message.error {
       display: block;
       background: #fee;
       color: #c00;
       border: 1px solid #fcc;
     }
     
-    #message.success {
+    #members-message.success {
       display: block;
       background: #efe;
       color: #0a0;
@@ -287,24 +287,24 @@
     <div id="members-wrap">
       
       <!-- LOGIN FORM (shown when logged out) -->
-      <div id="login-box">
+      <div id="members-login">
         <div class="login-form">
-          <label for="members-email">Email</label>
-          <input type="email" id="email-input" autocomplete="email">
+          <label for="auth-email">Email</label>
+          <input type="email" id="auth-email" autocomplete="email">
           
-          <label for="members-password">Password</label>
-          <input type="password" id="password-input" autocomplete="current-password">
+          <label for="auth-password">Password</label>
+          <input type="password" id="auth-password" autocomplete="current-password">
           
           <button type="button" id="login-btn">Log In</button>
           
           <a href="#" id="reset-link" class="reset-link">Forgot password?</a>
           
-          <div id="message"></div>
+          <div id="members-message"></div>
         </div>
       </div>
       
       <!-- ACCOUNT BOX (shown when logged in, populated by dashboard.js) -->
-      <div id="account-box" style="display:none;">
+      <div id="members-account" style="display:none;">
         <div class="loading">Loading your account...</div>
       </div>
       
