@@ -105,10 +105,7 @@
     }).then(function(response) {
       return response.text();
     }).then(function(masterText) {
-      console.log('Master file loaded, length:', masterText.length);
-      console.log('First 500 chars:', masterText.substring(0, 500));
       const structure = parseChaptersFromMaster(masterText, courseConfig.lessons);
-      console.log('Parsed structure:', structure);
       renderCourseIndex(container, courseId, courseConfig, structure, auth, db);
     }).catch(function(err) {
       console.error('Error loading master file:', err);
@@ -125,27 +122,38 @@
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Chapter header: starts with # and contains "CHAPTER"
-      if (line.startsWith('#') && line.toUpperCase().includes('CHAPTER')) {
-        const chapterTitle = line.replace(/^#+\s*/, '').trim();
-        currentChapter = {
-          title: chapterTitle,
-          lessons: []
-        };
-        chapters.push(currentChapter);
+      // Chapter header: === CHAPTER | Title ===
+      if (line.startsWith('===') && line.toUpperCase().includes('CHAPTER') && line.includes('|')) {
+        const match = line.match(/===\s*CHAPTER\s*\|\s*(.+?)\s*===/i);
+        if (match) {
+          const chapterTitle = match[1].trim();
+          currentChapter = {
+            title: chapterTitle,
+            lessons: []
+          };
+          chapters.push(currentChapter);
+        }
         continue;
       }
       
-      // Lesson header: starts with ## and contains lesson ID
-      if (line.startsWith('##')) {
-        const match = line.match(/##\s*(\d+\.\d+)\s*[–-]\s*(.+)/);
+      // Lesson header: === LESSON | G1.01 Start Here ===
+      if (line.startsWith('===') && line.toUpperCase().includes('LESSON') && line.includes('|')) {
+        const match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
         if (match) {
-          const lessonId = match[1];
-          const lessonTitle = match[2].trim();
-          lessonTitles[lessonId] = lessonTitle;
+          const fullTitle = match[1].trim();
           
-          if (currentChapter) {
-            currentChapter.lessons.push(lessonId);
+          // Extract lesson ID (matches pattern like G1.01, F1.02, 1.01, etc)
+          const idMatch = fullTitle.match(/^[A-Z]?(\d+\.\d+)/i);
+          
+          if (idMatch) {
+            const lessonId = idMatch[1]; // Just the numeric part (1.01)
+            const lessonTitle = fullTitle; // Keep the full title including ID
+            
+            lessonTitles[lessonId] = lessonTitle;
+            
+            if (currentChapter) {
+              currentChapter.lessons.push(lessonId);
+            }
           }
         }
       }
@@ -167,21 +175,6 @@
     html += '<div class="course-progress-bar-fill course-progress-bar" style="width: 0%;"></div>';
     html += '</div>';
     html += '</div>';
-    
-    // If no chapters found, create a default one
-    if (!structure.chapters || structure.chapters.length === 0) {
-      console.warn('No chapters found in master file, creating default structure');
-      structure.chapters = [{
-        title: 'All Lessons',
-        lessons: courseConfig.lessons
-      }];
-      // Create default titles
-      courseConfig.lessons.forEach(function(lessonId) {
-        if (!structure.lessonTitles[lessonId]) {
-          structure.lessonTitles[lessonId] = 'Lesson ' + lessonId;
-        }
-      });
-    }
     
     // Chapters
     structure.chapters.forEach(chapter => {
@@ -237,13 +230,11 @@
           
           // Handle both array and object formats
           if (!Array.isArray(completed)) {
-            // If it's an object with boolean values, convert to array
             if (typeof completed === 'object' && completed !== null) {
               completed = Object.keys(completed).filter(function(key) {
                 return completed[key] === true;
               });
             } else {
-              console.warn('completed is not an array or object:', completed);
               completed = [];
             }
           }
@@ -332,17 +323,34 @@
     const lines = masterText.split('\n');
     let inLesson = false;
     let lessonContent = [];
-    const lessonPattern = new RegExp('^##\\s*' + lessonId.replace('.', '\\.') + '\\s');
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      const trimmed = line.trim();
       
-      if (lessonPattern.test(line)) {
-        inLesson = true;
-        continue;
+      // Check for === LESSON | with our lesson ID
+      // Matches: === LESSON | G1.01 ... === or === LESSON | 1.01 ... ===
+      if (trimmed.startsWith('===') && trimmed.toUpperCase().includes('LESSON') && trimmed.includes('|')) {
+        const match = trimmed.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
+        if (match) {
+          const titlePart = match[1];
+          // Check if this title contains our lesson ID
+          const pattern = new RegExp('[A-Z]?' + lessonId.replace('.', '\\.'), 'i');
+          
+          if (pattern.test(titlePart)) {
+            inLesson = true;
+            continue;
+          }
+          
+          // If we were in our lesson and hit another, stop
+          if (inLesson) {
+            break;
+          }
+        }
       }
       
-      if (inLesson && line.startsWith('##')) {
+      // If we hit a CHAPTER marker while in lesson, stop
+      if (inLesson && trimmed.startsWith('===') && trimmed.toUpperCase().includes('CHAPTER')) {
         break;
       }
       
