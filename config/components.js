@@ -483,7 +483,7 @@
       gap: 20px;
     }
     .vault-footer-logo {
-      height: 40px;
+      height: 64px;
       width: auto;
       opacity: 0.9;
     }
