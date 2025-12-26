@@ -23,9 +23,9 @@
   function getCourseIdFromUrl(){
     var path = window.location.pathname;
     var parts = path.split('/').filter(function(p){ return p.length > 0; });
-    if (parts.length < 2 || parts[0] !== 'vault') return null;
+    if (parts.length < 1) return null;
     
-    var pathway = parts[1]; // gs, fs, ss, ks
+    var pathway = parts[0]; // gs, fs, ss, ks
     var params = getQueryParams();
     var courseNum = params.c;
     
@@ -295,12 +295,12 @@
   // ============================================
 
   var LessonTracker = (function(){
-    var VAULT_PATH_PREFIX = '/vault/';
-    var VAULT_INDEX_PATH = '/vault';
+    var VAULT_PATH_PREFIX = '/';
+    var VAULT_INDEX_PATH = '/';
 
     function isLessonPage(){
       var path = window.location.pathname;
-      if (!path.startsWith('/vault/')) return false;
+      if (!path.startsWith('/')) return false;
       var params = getQueryParams();
       return params.c && params.l;
     }
@@ -487,7 +487,7 @@
         lessonItem.onclick = function(){
           var parsed = parseCourseId(courseId);
           if (parsed) {
-            window.location.href = '/vault/' + parsed.pathway + '?c=' + parsed.num + '&l=' + lessonId;
+            window.location.href = '/' + parsed.pathway + '?c=' + parsed.num + '&l=' + lessonId;
           }
         };
       });
@@ -532,7 +532,7 @@
       var nextLessonId = lessons[currentIndex + 1];
       var parsed = parseCourseId(courseId);
       if (!parsed) return null;
-      return '/vault/' + parsed.pathway + '?c=' + parsed.num + '&l=' + nextLessonId;
+      return '/' + parsed.pathway + '?c=' + parsed.num + '&l=' + nextLessonId;
     }
 
     function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl, selfProgress){
@@ -611,7 +611,7 @@
 
       var parsed = parseCourseId(courseId);
       if (!parsed) return;
-      var courseIndexUrl = '/vault/' + parsed.pathway + '?c=' + parsed.num;
+      var courseIndexUrl = '/' + parsed.pathway + '?c=' + parsed.num;
       var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId, courseId);
       var btn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl, selfProgress);
 
@@ -732,7 +732,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // URLs
-    var VAULT_URL = '/vault';
+    var VAULT_URL = '/';
     var SUPPORT_URL = '/contact';
 
     // DOM elements
@@ -1030,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault';
+              window.location.href = '/';
             };
               return;
           }
@@ -1044,12 +1044,12 @@ document.addEventListener('DOMContentLoaded', function () {
             // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
             var match1 = url.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
             if (match1) {
-              url = '/vault/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
+              url = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
             } else {
               // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
               var match2 = url.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
               if (match2) {
-                url = '/vault/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
+                url = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
               }
             }
           }
@@ -1078,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault';
+              window.location.href = '/';
             };
               return;
           }
@@ -1089,7 +1089,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/vault';
+              window.location.href = '/';
             };
             return;
         });
@@ -1204,12 +1204,12 @@ document.addEventListener('DOMContentLoaded', function () {
             // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
             var match1 = lastLessonUrl.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
             if (match1) {
-              lastLessonUrl = '/vault/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
+              lastLessonUrl = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
             } else {
               // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
               var match2 = lastLessonUrl.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
               if (match2) {
-                lastLessonUrl = '/vault/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
+                lastLessonUrl = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
               }
             }
           }
