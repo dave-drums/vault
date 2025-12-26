@@ -215,7 +215,14 @@
           }
           
           const data = doc.data();
-          const completed = data.completed || [];
+          let completed = data.completed || [];
+          
+          // Ensure completed is an array
+          if (!Array.isArray(completed)) {
+            console.warn('completed is not an array:', completed);
+            completed = [];
+          }
+          
           const totalLessons = courseConfig.lessons.length;
           const completedCount = completed.length;
           const percent = Math.round((completedCount / totalLessons) * 100);
