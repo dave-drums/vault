@@ -965,7 +965,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var continueTitle = document.createElement('div');
       continueTitle.className = 'continue-title';
       continueTitle.id = 'continue-lesson-title';
-      continueTitle.textContent = 'Start Your Practice Journey';
+      continueTitle.textContent = '';
       
       var continueBtn = document.createElement('button');
       continueBtn.className = 'btn-continue';
@@ -1058,12 +1058,14 @@ document.addEventListener('DOMContentLoaded', function () {
       db.collection('users').doc(user.uid).collection('metrics').doc('practice').get()
         .then(function(snap){
           if (!snap.exists) {
+            var titleEl = document.getElementById('continue-lesson-title');
+            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/';
+              window.location.href = 'https://vault.davedrums.com.au';
             };
               return;
           }
@@ -1074,20 +1076,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // MIGRATE OLD URL FORMATS
           if (url) {
-            // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
+            // Old format 1: /vault/gs1?lesson=1.01 → /gs?c=1&l=1.01
             var match1 = url.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
             if (match1) {
               url = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
             } else {
-              // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
+              // Old format 2: /vault?course=gs1&lesson=1.01 → /gs?c=1&l=1.01
               var match2 = url.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
               if (match2) {
                 url = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
+              } else {
+                // Old format 3: /gs/?c=1&l=1.01 → /gs?c=1&l=1.01 (remove trailing slash)
+                url = url.replace(/\/([a-z]+)\/\?/g, '/$1?');
               }
             }
           }
 
           if (url && title) {
+            var titleEl = document.getElementById('continue-lesson-title');
+            if (titleEl) titleEl.textContent = 'Continue Where You Left Off';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
@@ -1106,12 +1113,14 @@ document.addEventListener('DOMContentLoaded', function () {
               window.location.href = url;
             };
           } else {
+            var titleEl = document.getElementById('continue-lesson-title');
+            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = '/';
+              window.location.href = 'https://vault.davedrums.com.au';
             };
               return;
           }
@@ -1524,7 +1533,6 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
         valueEl.className = 'stat-value';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
-        valueEl.style.fontSize = '28px';
 
         var labelEl = document.createElement('div');
         labelEl.className = 'stat-label';
