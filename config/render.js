@@ -236,17 +236,17 @@
       if(t.type === "text"){
         if(t.yt){
           const row = document.createElement("div");
-          row.className = "vault-info-row";
+          row.className = "vault-text-row";
 
           const main = document.createElement("div");
-          main.className = "vault-info vault-info-main";
+          main.className = "vault-text vault-text-main";
           main.innerHTML = (t.lines || []).map(l=>{
             const s = String(l || "");
             return s.trim() === "" ? "<div>&nbsp;</div>" : `<div>${parseBold(s)}</div>`;
           }).join("");
 
           const btn = document.createElement("button");
-          btn.className = "vault-info-yt";
+          btn.className = "vault-text-yt";
           btn.type = "button";
           btn.addEventListener("click", ()=>openYT(t.yt));
           btn.innerHTML = `<img src="${YT_LOGO}" class="vault-yt-logo" alt="YouTube">`;
@@ -256,7 +256,7 @@
           out.appendChild(row);
         }else{
           const box = document.createElement("div");
-          box.className = "vault-info vault-info-full";
+          box.className = "vault-text";
           box.innerHTML = (t.lines || []).map(l=>{
             const s = String(l || "");
             return s.trim() === "" ? "<div>&nbsp;</div>" : `<div>${parseBold(s)}</div>`;
