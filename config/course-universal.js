@@ -280,6 +280,21 @@
     const storage = firebase.storage();
     const container = document.getElementById('lesson-content');
     
+    // Get course config for hero
+    const courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
+    
+    // Update hero title (GROOVE STUDIES)
+    const heroTitle = document.getElementById('hero-course-name');
+    if (heroTitle && courseConfig) {
+      heroTitle.textContent = courseConfig.name.toUpperCase();
+    }
+    
+    // Update hero badge to show lesson info (will be updated with actual title after loading)
+    const heroBadge = document.getElementById('hero-course-level');
+    if (heroBadge) {
+      heroBadge.textContent = 'Loading lesson...';
+    }
+    
     // Show loading state
     container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-secondary)"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite"></div><div style="font-weight:500">Loading lesson...</div></div>';
     
@@ -304,6 +319,15 @@
       return response.text();
     }).then(function(masterText) {
       const lessonContent = extractLessonFromMaster(masterText, lessonId);
+      
+      // Get lesson title from master file
+      const lessonTitle = getLessonTitle(masterText, lessonId);
+      
+      // Update hero badge with lesson info
+      const heroBadge = document.getElementById('hero-course-level');
+      if (heroBadge && lessonTitle) {
+        heroBadge.textContent = 'Lesson ' + lessonTitle;
+      }
       
       if (!lessonContent) {
         console.error('No lesson content extracted!');
@@ -336,6 +360,29 @@
       console.error('Error loading lesson:', err);
       container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Error loading lesson</div>';
     });
+  }
+  
+  function getLessonTitle(masterText, lessonId) {
+    const lines = masterText.split('\n');
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Look for === LESSON | with our lesson ID
+      if (line.startsWith('===') && line.toUpperCase().includes('LESSON') && line.includes('|')) {
+        const match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
+        if (match) {
+          const titlePart = match[1];
+          const pattern = new RegExp('[A-Z]?' + lessonId.replace('.', '\\.'), 'i');
+          
+          if (pattern.test(titlePart)) {
+            return titlePart; // Returns e.g., "G1.01 Start Here"
+          }
+        }
+      }
+    }
+    
+    return lessonId; // Fallback to just the ID
   }
   
   function extractLessonFromMaster(masterText, lessonId) {
