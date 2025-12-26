@@ -326,7 +326,9 @@
       // Update hero badge with lesson info
       const heroBadge = document.getElementById('hero-course-level');
       if (heroBadge && lessonTitle) {
-        heroBadge.textContent = 'Lesson ' + lessonTitle;
+        // Replace first space after lesson ID with dash (G1.01 Start Here -> G1.01 – Start Here)
+        const formattedTitle = lessonTitle.replace(/^([A-Z]?\d+\.\d+)\s+/, '$1 – ');
+        heroBadge.textContent = 'Lesson ' + formattedTitle;
       }
       
       if (!lessonContent) {
@@ -348,6 +350,28 @@
         container.innerHTML = '';
         container.appendChild(renderedContent);
         console.log('Content appended to container');
+        
+        // Add comments section
+        const commentsHtml = `
+          <div id="vault-comments" class="vault-comments">
+            <h3>Comments</h3>
+            <div id="vault-comments-meta" class="vault-comments-meta">Loading comments...</div>
+            <ul id="vault-comments-list" class="vault-comments-list"></ul>
+            <form id="vault-comment-form" class="vault-comment-form">
+              <textarea id="vault-comment-text" class="vault-comment-textarea" placeholder="Add a comment..." rows="3"></textarea>
+              <div class="vault-comment-actions">
+                <button type="submit" id="vault-comment-post" class="vault-comment-post-btn">Post Comment</button>
+                <span id="vault-comment-status" class="vault-comment-status"></span>
+              </div>
+            </form>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', commentsHtml);
+        
+        // Initialize comments system
+        if (typeof window.initVaultComments === 'function') {
+          window.initVaultComments();
+        }
       } else {
         console.warn('vaultParse not found, using fallback');
         container.innerHTML = '<div style="max-width:800px;margin:0 auto;padding:20px"><pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#f5f5f5;border-radius:8px">' + lessonContent.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>';
