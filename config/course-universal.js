@@ -168,13 +168,15 @@
     // Progress section
     html += '<div class="course-progress-section">';
     html += '<div class="course-progress-header">';
-    html += '<p class="sqsrte-medium course-progress-text">0/' + courseConfig.lessons.length + ' (0%)</p>';
     html += '<p class="sqsrte-small course-progress-label">Progress</p>';
+    html += '<p class="sqsrte-medium course-progress-text">0/' + courseConfig.lessons.length + ' (0%)</p>';
     html += '</div>';
     html += '<div class="course-progress-bar-bg">';
     html += '<div class="course-progress-bar-fill course-progress-bar" style="width: 0%;"></div>';
     html += '</div>';
     html += '</div>';
+    
+    html += '<div style="height: 48px;"></div>'; // Large gap before chapters
     
     // Chapters
     structure.chapters.forEach(chapter => {
@@ -320,30 +322,42 @@
   }
   
   function extractLessonFromMaster(masterText, lessonId) {
+    console.log('=== EXTRACTING LESSON ===');
+    console.log('Looking for lesson ID:', lessonId);
+    console.log('Master text length:', masterText.length);
+    
     const lines = masterText.split('\n');
     let inLesson = false;
     let lessonContent = [];
+    let foundLessons = [];
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const trimmed = line.trim();
       
       // Check for === LESSON | with our lesson ID
-      // Matches: === LESSON | G1.01 ... === or === LESSON | 1.01 ... ===
       if (trimmed.startsWith('===') && trimmed.toUpperCase().includes('LESSON') && trimmed.includes('|')) {
         const match = trimmed.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
         if (match) {
           const titlePart = match[1];
+          foundLessons.push(titlePart);
+          
           // Check if this title contains our lesson ID
           const pattern = new RegExp('[A-Z]?' + lessonId.replace('.', '\\.'), 'i');
           
+          console.log('Found lesson marker:', titlePart);
+          console.log('Testing pattern:', pattern);
+          console.log('Match result:', pattern.test(titlePart));
+          
           if (pattern.test(titlePart)) {
+            console.log('✓ MATCH! Starting extraction at line', i);
             inLesson = true;
             continue;
           }
           
           // If we were in our lesson and hit another, stop
           if (inLesson) {
+            console.log('Hit next lesson, stopping extraction at line', i);
             break;
           }
         }
@@ -351,6 +365,7 @@
       
       // If we hit a CHAPTER marker while in lesson, stop
       if (inLesson && trimmed.startsWith('===') && trimmed.toUpperCase().includes('CHAPTER')) {
+        console.log('Hit chapter marker, stopping extraction at line', i);
         break;
       }
       
@@ -359,7 +374,13 @@
       }
     }
     
-    return lessonContent.join('\n').trim();
+    console.log('All lessons found:', foundLessons);
+    console.log('Extracted lines:', lessonContent.length);
+    const result = lessonContent.join('\n').trim();
+    console.log('Result length:', result.length);
+    console.log('First 300 chars:', result.substring(0, 300));
+    
+    return result;
   }
   
   function addCompleteButtonHandler(courseId, lessonId, auth, db) {
