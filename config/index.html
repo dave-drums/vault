@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Console - Practice Vault</title>
+  <link rel="icon" href="../assets/favicon.png" type="image/png">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --surface-hover: #f0f8ff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6c757d;
+      --border: #e9ecef;
+      --accent: #06b3fd;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    /* Hero Section */
+    .admin-hero {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      padding: 80px 20px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .admin-hero:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('../assets/pv-home.webp') center/cover;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    
+    .admin-hero-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .admin-hero-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .admin-hero-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(6, 179, 253, 0.2);
+      border: 1px solid rgba(6, 179, 253, 0.4);
+      border-radius: 24px;
+      color: #06b3fd;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Container */
+    .admin-container {
+      max-width: 1200px;
+      margin: -40px auto 60px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    /* Members Title */
+    .members-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    
+    /* Loading State */
+    .admin-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .admin-loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .admin-hero {
+        padding: 60px 20px 40px;
+      }
+      
+      .admin-hero-title {
+        font-size: 32px;
+      }
+      
+      .admin-hero-badge {
+        font-size: 11px;
+        padding: 5px 12px;
+      }
+      
+      .admin-container {
+        margin-top: -30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <div class="admin-hero">
+    <div class="admin-hero-bg"></div>
+    <div class="admin-hero-content">
+      <h1 class="admin-hero-title">Admin Console</h1>
+      <div class="admin-hero-badge">Practice Vault Management</div>
+    </div>
+  </div>
+  
+  <!-- Main Container -->
+  <div class="admin-container">
+    <div id="vault-admin-root" class="admin-loading">
+      <div class="admin-loading-spinner"></div>
+      <div>Loading admin console...</div>
+    </div>
+  </div>
+  
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
+  
+  <!-- Admin Console Logic -->
+  <script src="console.js"></script>
+</body>
+</html>
