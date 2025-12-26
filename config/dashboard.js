@@ -922,72 +922,75 @@ document.addEventListener('DOMContentLoaded', function () {
     // PRACTICE TAB PANEL
     // ============================================
 
+
+    // ============================================
+    // PRACTICE TAB PANEL (UPDATED FOR NEW DESIGN)
+    // ============================================
+
     function createPracticePanel(user){
       var panel = document.createElement('div');
-      panel.className = 'tab-panel';
+      panel.className = 'tab-panel active';
       panel.id = 'practice-panel';
 
-      // Continue Practice Button Row (FIRST)
-      var btnRow = document.createElement('div');
-      btnRow.style.cssText = 'display:block;margin-bottom:16px;';
+      // Continue Card (gradient card style)
+      var continueCard = document.createElement('div');
+      continueCard.className = 'continue-card';
       
-      var continueBtn = mkPrimaryBtn('Continue...', '#', true); // Will update with real URL
+      var continueLabel = document.createElement('div');
+      continueLabel.className = 'continue-label';
+      continueLabel.textContent = 'Continue Where You Left Off';
+      
+      var continueTitle = document.createElement('div');
+      continueTitle.className = 'continue-title';
+      continueTitle.id = 'continue-lesson-title';
+      continueTitle.textContent = 'Loading...';
+      
+      var continueBtn = document.createElement('button');
+      continueBtn.className = 'btn-continue';
       continueBtn.id = 'continue-lesson-btn';
-      continueBtn.style.background = '#06b3fd';
-      continueBtn.style.borderColor = '#06b3fd';
-      continueBtn.style.width = '100%';
-
-      btnRow.appendChild(continueBtn);
-      panel.appendChild(btnRow);
+      continueBtn.textContent = 'Resume Lesson →';
+      
+      continueCard.appendChild(continueLabel);
+      continueCard.appendChild(continueTitle);
+      continueCard.appendChild(continueBtn);
+      panel.appendChild(continueCard);
 
       // Load last lesson data
       loadLastLesson(user, continueBtn);
 
-      // My Progress dropdown
-      var practiceSection = createDropdownSection('My Progress', function(){
-        return createPracticeContent(user);
-      });
-      panel.appendChild(practiceSection);
-
-      // My Goals dropdown
-      var goalsSection = createDropdownSection('My Goals', function(){
-        return createGoalsContent(user);
-      });
-      panel.appendChild(goalsSection);
-
-      // Stats dropdown
-      var statsSection = createDropdownSection('Stats', function(){
-        return createStatsContent(user);
-      });
-      panel.appendChild(statsSection);
-
-      // Daily quote (LAST, after all dropdowns)
+      // Daily quote (after continue, before progress)
       var quoteContainer = document.createElement('div');
-      quoteContainer.style.cssText = 'background:#f9f9f9;border-left:4px solid #06b3fd;padding:14px 18px;' +
-        'margin-top:20px;border-radius:6px;';
+      quoteContainer.className = 'quote-box';
       
       var quoteText = document.createElement('p');
-      quoteText.className = 'p3';
-      quoteText.style.cssText = 'margin:0;color:#333;line-height:1.5;word-wrap:break-word;font-size:14px;';
+      quoteText.className = 'quote-text';
       
-      // Get daily quote from VaultCues if available
       var dailyQuote = 'Practice makes progress';
       if (window.VaultCues && window.VaultCues.getDailyQuote) {
         dailyQuote = window.VaultCues.getDailyQuote();
       }
       
-      var emoji = document.createElement('span');
-      emoji.textContent = '💡 ';
-      
-      var quote = document.createElement('span');
-      quote.style.fontStyle = 'italic';
-      quote.textContent = dailyQuote;
-      
-      quoteText.appendChild(emoji);
-      quoteText.appendChild(quote);
-      
+      quoteText.textContent = '💡 ' + dailyQuote;
       quoteContainer.appendChild(quoteText);
       panel.appendChild(quoteContainer);
+
+      // My Progress section (open card)
+      var progressSection = createOpenSection('My Progress', function(){
+        return createPracticeContent(user);
+      });
+      panel.appendChild(progressSection);
+
+      // My Goals section (open card)
+      var goalsSection = createOpenSection('My Goals', function(){
+        return createGoalsContent(user);
+      });
+      panel.appendChild(goalsSection);
+
+      // Stats section (open card)
+      var statsSection = createOpenSection('Stats', function(){
+        return createStatsContent(user);
+      });
+      panel.appendChild(statsSection);
 
       return panel;
     }
@@ -1028,7 +1031,11 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault';
+            btnEl.textContent = 'Open Practice Vault →';
+            
+            var titleEl = document.getElementById('continue-lesson-title');
+            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
+            
             btnEl.onclick = function(){
               window.location.href = '/';
             };
@@ -1041,12 +1048,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // MIGRATE OLD URL FORMATS
           if (url) {
-            // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
+            // Old format 1: /vault/gs1?lesson=1.01 → /gs?c=1&l=1.01
             var match1 = url.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
             if (match1) {
               url = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
             } else {
-              // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
+              // Old format 2: /vault?course=gs1&lesson=1.01 → /gs?c=1&l=1.01
               var match2 = url.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
               if (match2) {
                 url = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
@@ -1054,20 +1061,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
 
+          // Update continue card title
+          var titleEl = document.getElementById('continue-lesson-title');
+          if (titleEl && title) {
+            titleEl.textContent = title;
+          }
+
           if (url && title) {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            
-            // Shorten title if needed for mobile
-            var displayTitle = title;
-            if (window.innerWidth <= 600 && title.length > 20) {
-              displayTitle = title.substring(0, 20) + '...';
-            } else if (title.length > 30) {
-              displayTitle = title.substring(0, 30) + '...';
-            }
-            
-            btnEl.textContent = 'Continue: ' + displayTitle;
+            btnEl.textContent = 'Resume Lesson →';
             
             btnEl.onclick = function(){
               window.location.href = url;
@@ -1076,7 +1080,10 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault';
+            btnEl.textContent = 'Open Practice Vault →';
+            
+            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
+            
             btnEl.onclick = function(){
               window.location.href = '/';
             };
@@ -1087,12 +1094,38 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.disabled = false;
             btnEl.style.opacity = '1';
             btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault';
+            btnEl.textContent = 'Open Practice Vault →';
+            
+            var titleEl = document.getElementById('continue-lesson-title');
+            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
+            
             btnEl.onclick = function(){
               window.location.href = '/';
             };
             return;
         });
+    }
+
+    // NEW: Open section (no dropdown, always visible)
+    function createOpenSection(title, contentBuilder){
+      var section = document.createElement('div');
+      section.className = 'section';
+      
+      var header = document.createElement('div');
+      header.className = 'section-header';
+      
+      var titleEl = document.createElement('h2');
+      titleEl.className = 'section-title';
+      titleEl.textContent = title;
+      
+      header.appendChild(titleEl);
+      section.appendChild(header);
+      
+      // Build and append content immediately (no dropdown)
+      var content = contentBuilder();
+      section.appendChild(content);
+      
+      return section;
     }
 
     function createDropdownSection(title, contentBuilder){
@@ -1449,70 +1482,58 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
         });
     }
 
+
     function createStatsContent(user){
       var content = document.createElement('div');
 
       // 30-day practice graph
       var graphContainer = document.createElement('div');
-      graphContainer.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;margin-bottom:16px;';
+      graphContainer.className = 'stats-chart-container';
       
       var graphTitle = document.createElement('div');
-      graphTitle.style.cssText = 'font-size:14px;font-weight:600;color:#333;margin-bottom:12px;text-align:center;';
+      graphTitle.className = 'chart-title';
       graphTitle.textContent = 'Last 30 Days';
       
       var canvasContainer = document.createElement('div');
-      canvasContainer.style.cssText = 'position:relative;height:200px;';
+      canvasContainer.className = 'chart-canvas-wrapper';
       
       var canvas = document.createElement('canvas');
       canvas.id = 'practice-chart';
-      canvas.style.cssText = 'max-width:100%;';
       
       canvasContainer.appendChild(canvas);
       graphContainer.appendChild(graphTitle);
       graphContainer.appendChild(canvasContainer);
       content.appendChild(graphContainer);
 
-      // Stats grid below graph (vertical stack)
-      var grid = document.createElement('div');
-      grid.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
+      // Stats Cards (new design - 3 horizontal cards)
+      var statsCards = document.createElement('div');
+      statsCards.className = 'stats-cards';
 
       var stats = [
-        { label: 'days this week', id: 'stat-days-week', value: '—', icon: '📅' },
-        { label: 'total time', id: 'stat-total-time', value: '—', icon: '⏱️' },
-        { label: 'avg per session', id: 'stat-avg-time', value: '—', icon: '📊' }
+        { label: 'Hours', id: 'stat-total-time', value: '—' },
+        { label: 'Day Streak', id: 'stat-days-week', value: '—' },
+        { label: 'Sessions', id: 'stat-avg-time', value: '—' }
       ];
 
       stats.forEach(function(stat){
-        var box = document.createElement('div');
-        box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 20px;' +
-          'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;';
-
-        var iconEl = document.createElement('div');
-        iconEl.textContent = stat.icon;
-        iconEl.style.cssText = 'font-size:24px;';
-
-        var textWrapper = document.createElement('div');
-        textWrapper.style.cssText = 'display:flex;align-items:center;gap:6px;';
+        var card = document.createElement('div');
+        card.className = 'stat-card';
 
         var valueEl = document.createElement('div');
-        valueEl.style.cssText = 'font-size:16px;font-weight:600;color:#06b3fd;';
+        valueEl.className = 'stat-value';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
         var labelEl = document.createElement('div');
-        labelEl.style.cssText = 'font-size:13px;color:#666;';
+        labelEl.className = 'stat-label';
         labelEl.textContent = stat.label;
 
-        textWrapper.appendChild(valueEl);
-        textWrapper.appendChild(labelEl);
-
-        box.appendChild(iconEl);
-        box.appendChild(textWrapper);
-
-        grid.appendChild(box);
+        card.appendChild(valueEl);
+        card.appendChild(labelEl);
+        statsCards.appendChild(card);
       });
 
-      content.appendChild(grid);
+      content.appendChild(statsCards);
 
       // Load stats and render chart
       loadStatsAndChart(user, canvas);
@@ -1738,9 +1759,30 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       return rem === 0 ? hours + ' hrs' : hours + ' hrs ' + rem + ' min';
     }
 
+
     // ============================================
-    // PROFILE TAB PANEL
+    // PROFILE TAB PANEL (UPDATED FOR NEW DESIGN)
     // ============================================
+
+    function mkFormGroup(label, type, value){
+      var group = document.createElement('div');
+      group.className = 'form-group';
+      
+      var labelEl = document.createElement('label');
+      labelEl.textContent = label;
+      
+      var input = document.createElement('input');
+      input.type = type;
+      input.value = value || '';
+      if (type === 'password') {
+        input.autocomplete = 'current-password';
+      }
+      
+      group.appendChild(labelEl);
+      group.appendChild(input);
+      
+      return group;
+    }
 
     function createProfilePanel(user, existingLogout){
       var panel = document.createElement('div');
@@ -1749,332 +1791,143 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
 
       // Logged in as
       var emailText = document.createElement('p');
-      emailText.className = 'p3';
-      emailText.textContent = 'Logged in as ' + (user && user.email ? user.email : '');
-      emailText.style.cssText = 'margin:0 0 20px 0;color:#666;text-align:center;font-size:15px;';
+      emailText.className = 'profile-email';
+      emailText.innerHTML = 'Logged in as <strong>' + (user && user.email ? user.email : '') + '</strong>';
       panel.appendChild(emailText);
 
-      // Button container
-      var btnContainer = document.createElement('div');
-      btnContainer.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+      // Change Name Card
+      var nameCard = document.createElement('div');
+      nameCard.className = 'profile-card';
+      
+      var nameTitle = document.createElement('div');
+      nameTitle.className = 'profile-card-title';
+      nameTitle.textContent = 'Change Name';
+      nameCard.appendChild(nameTitle);
+      
+      // Get user data for name fields
+      db.collection('users').doc(user.uid).get().then(function(doc){
+        if (doc.exists) {
+          var userData = doc.data() || {};
+          
+          var fnGroup = mkFormGroup('First Name', 'text', userData.firstName || '');
+          var lnGroup = mkFormGroup('Last Name', 'text', userData.lastName || '');
+          var dnGroup = mkFormGroup('Display Name', 'text', userData.displayName || '');
+          
+          nameCard.appendChild(fnGroup);
+          nameCard.appendChild(lnGroup);
+          nameCard.appendChild(dnGroup);
+          
+          var saveBtn = document.createElement('button');
+          saveBtn.className = 'btn-save';
+          saveBtn.textContent = 'Save Changes';
+          saveBtn.onclick = function(){
+            var firstName = fnGroup.querySelector('input').value.trim();
+            var lastName = lnGroup.querySelector('input').value.trim();
+            var displayName = dnGroup.querySelector('input').value.trim();
+            
+            db.collection('users').doc(user.uid).update({
+              firstName: firstName,
+              lastName: lastName,
+              displayName: displayName
+            }).then(function(){
+              window.VaultToast.success('Name updated');
+            }).catch(function(e){
+              window.VaultToast.error('Failed to update name');
+            });
+          };
+          nameCard.appendChild(saveBtn);
+        }
+      });
+      
+      panel.appendChild(nameCard);
 
-      // Change Email (dropdown)
-      var emailSection = createEmailSection(user);
-      btnContainer.appendChild(emailSection);
-
-      // Change Name (dropdown)
-      var nameSection = createNameSection(user);
-      btnContainer.appendChild(nameSection);
-
-      // Change Password (dropdown)
-      var pwSection = createPasswordSection(user);
-      btnContainer.appendChild(pwSection);
-
-      // Contact Support
-      var supportBtn = mkAccountBtn('a', 'Contact Support', SUPPORT_URL);
-      btnContainer.appendChild(supportBtn);
-
-      // Logout button
-      if (existingLogout) {
-        existingLogout.id = 'logout-btn';
-        existingLogout.style.marginTop = '10px';
-        btnContainer.appendChild(existingLogout);
+      // Change Password Card
+      var pwCard = document.createElement('div');
+      pwCard.className = 'profile-card';
+      
+      var pwTitle = document.createElement('div');
+      pwTitle.className = 'profile-card-title';
+      pwTitle.textContent = 'Change Password';
+      pwCard.appendChild(pwTitle);
+      
+      var currentPwGroup = mkFormGroup('Current Password', 'password', '');
+      var newPwGroup = mkFormGroup('New Password', 'password', '');
+      var confirmPwGroup = mkFormGroup('Confirm New Password', 'password', '');
+      
+      pwCard.appendChild(currentPwGroup);
+      pwCard.appendChild(newPwGroup);
+      pwCard.appendChild(confirmPwGroup);
+      
+      var pwSaveBtn = document.createElement('button');
+      pwSaveBtn.className = 'btn-save';
+      pwSaveBtn.textContent = 'Update Password';
+      pwSaveBtn.onclick = function(){
+        var currentPw = currentPwGroup.querySelector('input').value;
+        var newPw = newPwGroup.querySelector('input').value;
+        var confirmPw = confirmPwGroup.querySelector('input').value;
         
-        // Re-attach event listener
-        existingLogout.addEventListener('click', function(){
-          clearMessage();
-          try{
-            var u = auth.currentUser;
-            if (u) clearLoginMark(u.uid);
-            else clearAllLoginMarks();
-          } catch(_){}
-          auth.signOut();
-          window.VaultToast.info('Logged out');
+        if (newPw !== confirmPw) {
+          window.VaultToast.error('Passwords do not match');
+          return;
+        }
+        if (newPw.length < 6) {
+          window.VaultToast.error('Password must be at least 6 characters');
+          return;
+        }
+        
+        var credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPw);
+        user.reauthenticateWithCredential(credential).then(function(){
+          return user.updatePassword(newPw);
+        }).then(function(){
+          window.VaultToast.success('Password updated');
+          currentPwGroup.querySelector('input').value = '';
+          newPwGroup.querySelector('input').value = '';
+          confirmPwGroup.querySelector('input').value = '';
+        }).catch(function(e){
+          window.VaultToast.error(e.message || 'Failed to update password');
         });
-      }
+      };
+      pwCard.appendChild(pwSaveBtn);
+      panel.appendChild(pwCard);
 
-      panel.appendChild(btnContainer);
+      // Change Email Card
+      var emailCard = document.createElement('div');
+      emailCard.className = 'profile-card';
+      
+      var emailTitle = document.createElement('div');
+      emailTitle.className = 'profile-card-title';
+      emailTitle.textContent = 'Change Email';
+      emailCard.appendChild(emailTitle);
+      
+      var emailNote = document.createElement('p');
+      emailNote.className = 'profile-note';
+      emailNote.innerHTML = 'To change your email address, please <a href="https://davedrums.com.au/contact">contact support</a>.';
+      emailCard.appendChild(emailNote);
+      panel.appendChild(emailCard);
+
+      // Logout Button
+      var logoutBtn = document.createElement('button');
+      logoutBtn.className = 'btn-logout';
+      logoutBtn.textContent = 'Logout';
+      logoutBtn.onclick = function(){
+        clearMessage();
+        try{
+          var u = auth.currentUser;
+          if (u) clearLoginMark(u.uid);
+          else clearAllLoginMarks();
+        } catch(_){}
+        auth.signOut();
+        window.VaultToast.info('Logged out');
+      };
+      
+      var actionsDiv = document.createElement('div');
+      actionsDiv.className = 'profile-actions';
+      actionsDiv.appendChild(logoutBtn);
+      panel.appendChild(actionsDiv);
 
       return panel;
     }
 
-    function mkAccountBtn(tag, text, href) {
-      var el = document.createElement(tag);
-      el.className = 'account-btn';
-      el.textContent = text;
-      el.style.cssText = 'display:block;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
-
-      if (tag === 'a') {
-        el.href = href || '#';
-        el.style.textDecoration = 'none';
-        el.style.color = 'inherit';
-      } else {
-        el.type = 'button';
-      }
-
-      el.addEventListener('mouseenter', function(){
-        el.style.background = '#f5f5f5';
-      });
-      el.addEventListener('mouseleave', function(){
-        el.style.background = '#fff';
-      });
-
-      return el;
-    }
-
-    function createEmailSection(user){
-      var section = document.createElement('div');
-
-      var header = document.createElement('button');
-      header.type = 'button';
-      header.className = 'account-btn';
-      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
-      
-      var titleSpan = document.createElement('span');
-      titleSpan.textContent = 'Change Email';
-      
-      var arrow = document.createElement('span');
-      arrow.textContent = '▼';
-      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
-      
-      header.appendChild(titleSpan);
-      header.appendChild(arrow);
-      
-      var panel = document.createElement('div');
-      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
-        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
-
-      var message = document.createElement('p');
-      message.style.cssText = 'margin:0;line-height:1.5;color:#333;font-size:15px;';
-      message.textContent = 'To change your email address, please contact support.';
-
-      panel.appendChild(message);
-
-      var isOpen = false;
-
-      header.addEventListener('click', function(){
-        if (isOpen) {
-          panel.style.display = 'none';
-          header.style.borderRadius = '8px';
-          arrow.style.transform = 'rotate(0deg)';
-        } else {
-          panel.style.display = 'block';
-          header.style.borderRadius = '8px 8px 0 0';
-          arrow.style.transform = 'rotate(180deg)';
-        }
-        isOpen = !isOpen;
-      });
-
-      section.appendChild(header);
-      section.appendChild(panel);
-
-      return section;
-    }
-
-    function createNameSection(user){
-      var section = document.createElement('div');
-
-      var header = document.createElement('button');
-      header.type = 'button';
-      header.className = 'account-btn';
-      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
-      
-      var titleSpan = document.createElement('span');
-      titleSpan.textContent = 'Change Name';
-      
-      var arrow = document.createElement('span');
-      arrow.textContent = '▼';
-      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
-      
-      header.appendChild(titleSpan);
-      header.appendChild(arrow);
-      
-      var panel = document.createElement('div');
-      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
-        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
-
-      var fnLabel = mkLabel('First name');
-      var fn = mkInput('text');
-      var lnLabel = mkLabel('Last name');
-      var ln = mkInput('text');
-      
-      var dnLabel = mkLabel('Display name');
-      var dn = mkInput('text');
-      dn.maxLength = 30;
-      
-      var dnHelper = document.createElement('div');
-      dnHelper.style.cssText = 'font-size:12px;color:#666;margin:-10px 0 14px 0;line-height:1.4;';
-      dnHelper.textContent = 'This name appears on your public comments. Max 30 characters.';
-
-      panel.appendChild(fnLabel);
-      panel.appendChild(fn);
-      panel.appendChild(lnLabel);
-      panel.appendChild(ln);
-      panel.appendChild(dnLabel);
-      panel.appendChild(dn);
-      panel.appendChild(dnHelper);
-
-      var actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
-
-      var closeBtn = mkInlineBtn('Close', false);
-      var saveBtn = mkInlineBtn('Save', true);
-
-      actions.appendChild(closeBtn);
-      actions.appendChild(saveBtn);
-      panel.appendChild(actions);
-
-      var isOpen = false;
-
-      // Function to load existing name data
-      function loadNameData(){
-        db.collection('users').doc(user.uid).get().then(function(snap){
-          if (!snap.exists) return;
-          var d = snap.data() || {};
-          fn.value = String(d.firstName || '').trim();
-          ln.value = String(d.lastName || '').trim();
-          dn.value = String(d.displayName || '').trim();
-        }).catch(function(){});
-      }
-
-      // Load on creation
-      loadNameData();
-
-      header.addEventListener('click', function(){
-        if (isOpen) {
-          panel.style.display = 'none';
-          header.style.borderRadius = '8px';
-          arrow.style.transform = 'rotate(0deg)';
-        } else {
-          // Reload data when opening
-          loadNameData();
-          panel.style.display = 'block';
-          header.style.borderRadius = '8px 8px 0 0';
-          arrow.style.transform = 'rotate(180deg)';
-        }
-        isOpen = !isOpen;
-      });
-
-      closeBtn.addEventListener('click', function(){
-        panel.style.display = 'none';
-        header.style.borderRadius = '8px';
-        arrow.style.transform = 'rotate(0deg)';
-        isOpen = false;
-      });
-
-      // saveBtn click handler comes after this...
-
-      saveBtn.addEventListener('click', function(){
-        clearMessage();
-        var firstName = String(fn.value || '').trim();
-        var lastName = String(ln.value || '').trim();
-        var displayName = String(dn.value || '').trim();
-
-        if (!firstName || !lastName) {
-          setMessage('Please enter your first and last name.');
-          return;
-        }
-        
-        if (!displayName) {
-          setMessage('Please enter a display name.');
-          return;
-        }
-        
-        // Validate display name (letters, numbers, spaces, underscore, hyphen, apostrophe only)
-        var validPattern = /^[a-zA-Z0-9 _'\-]+$/;
-        if (!validPattern.test(displayName)) {
-          setMessage('Display name can only contain letters, numbers, spaces, underscores, hyphens, and apostrophes.');
-          return;
-        }
-
-        db.collection('users').doc(user.uid).set({
-          firstName: firstName,
-          lastName: lastName,
-          displayName: displayName
-        }, { merge: true }).then(function(){
-          panel.style.display = 'none';
-          header.style.borderRadius = '8px';
-          isOpen = false;
-          window.VaultToast.success('Name updated');
-        }).catch(function(e){
-          setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
-        });
-      });
-
-      section.appendChild(header);
-      section.appendChild(panel);
-
-      return section;
-    }
-
-    function createPasswordSection(user){
-      var section = document.createElement('div');
-
-      var header = document.createElement('button');
-      header.type = 'button';
-      header.className = 'account-btn';
-      header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
-      
-      var titleSpan = document.createElement('span');
-      titleSpan.textContent = 'Change Password';
-      
-      var arrow = document.createElement('span');
-      arrow.textContent = '▼';
-      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
-      
-      header.appendChild(titleSpan);
-      header.appendChild(arrow);
-      
-      var panel = document.createElement('div');
-      panel.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
-        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
-
-      var curLabel = mkLabel('Current password');
-      var curPw = mkInput('password');
-      var newLabel = mkLabel('New password');
-      var newPw = mkInput('password');
-      var new2Label = mkLabel('Repeat new password');
-      var newPw2 = mkInput('password');
-
-      panel.appendChild(curLabel);
-      panel.appendChild(curPw);
-      panel.appendChild(newLabel);
-      panel.appendChild(newPw);
-      panel.appendChild(new2Label);
-      panel.appendChild(newPw2);
-
-      var actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
-
-      var closeBtn = mkInlineBtn('Close', false);
-      var updateBtn = mkInlineBtn('Update', true);
-
-      actions.appendChild(closeBtn);
-      actions.appendChild(updateBtn);
-      panel.appendChild(actions);
-
-      var isOpen = false;
-
-      header.addEventListener('click', function(){
-        if (isOpen) {
-          panel.style.display = 'none';
-          header.style.borderRadius = '8px';
-          arrow.style.transform = 'rotate(0deg)';
-        } else {
-          panel.style.display = 'block';
-          header.style.borderRadius = '8px 8px 0 0';
-          arrow.style.transform = 'rotate(180deg)';
-        }
-        isOpen = !isOpen;
-      });
-
-      closeBtn.addEventListener('click', function(){
-        panel.style.display = 'none';
-        header.style.borderRadius = '8px';
         arrow.style.transform = 'rotate(0deg)';
         isOpen = false;
       });
