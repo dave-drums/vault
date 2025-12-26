@@ -105,7 +105,10 @@
     }).then(function(response) {
       return response.text();
     }).then(function(masterText) {
+      console.log('Master file loaded, length:', masterText.length);
+      console.log('First 500 chars:', masterText.substring(0, 500));
       const structure = parseChaptersFromMaster(masterText, courseConfig.lessons);
+      console.log('Parsed structure:', structure);
       renderCourseIndex(container, courseId, courseConfig, structure, auth, db);
     }).catch(function(err) {
       console.error('Error loading master file:', err);
@@ -165,6 +168,21 @@
     html += '</div>';
     html += '</div>';
     
+    // If no chapters found, create a default one
+    if (!structure.chapters || structure.chapters.length === 0) {
+      console.warn('No chapters found in master file, creating default structure');
+      structure.chapters = [{
+        title: 'All Lessons',
+        lessons: courseConfig.lessons
+      }];
+      // Create default titles
+      courseConfig.lessons.forEach(function(lessonId) {
+        if (!structure.lessonTitles[lessonId]) {
+          structure.lessonTitles[lessonId] = 'Lesson ' + lessonId;
+        }
+      });
+    }
+    
     // Chapters
     structure.chapters.forEach(chapter => {
       html += '<div class="course-chapter">';
@@ -217,10 +235,17 @@
           const data = doc.data();
           let completed = data.completed || [];
           
-          // Ensure completed is an array
+          // Handle both array and object formats
           if (!Array.isArray(completed)) {
-            console.warn('completed is not an array:', completed);
-            completed = [];
+            // If it's an object with boolean values, convert to array
+            if (typeof completed === 'object' && completed !== null) {
+              completed = Object.keys(completed).filter(function(key) {
+                return completed[key] === true;
+              });
+            } else {
+              console.warn('completed is not an array or object:', completed);
+              completed = [];
+            }
           }
           
           const totalLessons = courseConfig.lessons.length;
