@@ -53,25 +53,34 @@
   }
   
   function waitForFirebase(callback) {
-    var attempts = 0;
-    var maxAttempts = 300; // 30 seconds
-    
-    var checkFirebase = setInterval(function() {
-      attempts++;
+    return new Promise(function(resolve, reject) {
+      var attempts = 0;
+      var maxAttempts = 100; // 10 seconds
       
-      if (typeof firebase !== 'undefined' && 
-          firebase.auth && 
-          firebase.firestore && 
-          firebase.storage) {
-        clearInterval(checkFirebase);
-        callback();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkFirebase);
-        console.error('Firebase failed to load');
-        document.getElementById('course-index').innerHTML = 
-          '<div style="text-align:center;padding:40px;color:#c00;">Failed to load Firebase. Please refresh the page.</div>';
+      var checkFirebase = setInterval(function() {
+        attempts++;
+        
+        if (typeof firebase !== 'undefined' && 
+            firebase.auth && 
+            firebase.firestore && 
+            firebase.storage) {
+          clearInterval(checkFirebase);
+          resolve();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkFirebase);
+          reject(new Error('Firebase failed to load'));
+        }
+      }, 100);
+    }).then(callback).catch(function(error) {
+      console.error(error);
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(error, 'Firebase Init');
       }
-    }, 100);
+      var container = document.getElementById('course-index') || document.getElementById('lesson-content');
+      if (container) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Failed to load Firebase. Please refresh the page.</div>';
+      }
+    });
   }
   
   function escapeHtml(text) {
