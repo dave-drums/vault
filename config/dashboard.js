@@ -1435,10 +1435,10 @@ function initActiveCourseTracking(){
       db.collection('users').doc(user.uid).set({
         activeCourses: activeCourses
       }, { merge: true }).catch(function(err){
-        console.log('Could not update activeCourses:', err);
+        console.error('Could not update activeCourses:', err);
       });
     }, function(err){
-      console.log('Error listening to progress:', err);
+      console.error('Error listening to progress:', err);
     });
   });
 }
