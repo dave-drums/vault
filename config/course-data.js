@@ -1,4 +1,4 @@
-/* course-config.js
+/* course-data.js
    Purpose: SINGLE SOURCE OF TRUTH for all course data and progress loading
    Used by: index.html, members.html, admin.html, gs.html, and all course pages
    
