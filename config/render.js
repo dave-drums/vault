@@ -1,7 +1,15 @@
 (function(){
   "use strict";
 
-  const CFG = window.VAULT_CONFIG || {};
+  // Config defaults (can be overridden by pages if needed)
+  window.VAULT_CONFIG = window.VAULT_CONFIG || {
+    bunnyLibraryId: "556221",
+    grooveOrigin: "https://groove.davedrums.com.au",
+    grooveEmbedPath: "/GrooveEmbed.html",
+    youtubeLogoSrc: "/youtube-logo.png"
+  };
+
+  const CFG = window.VAULT_CONFIG;
   const BUNNY_LIB = CFG.bunnyLibraryId || "556221";
   const GROOVE_ORIGIN = CFG.grooveOrigin || "https://groove.davedrums.com.au";
   const GROOVE_EMBED = CFG.grooveEmbedPath || "/GrooveEmbed.html";
