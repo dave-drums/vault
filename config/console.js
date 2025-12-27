@@ -145,7 +145,7 @@ function showBody(){
 }
 
 var INVITES_COL = 'invites';
-var CREATE_ACCOUNT_URL_BASE = 'https://vault.davedrums.com.au/create-account.html?invite=';
+var CREATE_ACCOUNT_URL_BASE = 'https://vault.davedrums.com.au/create-account?t=';
 
 function randomToken(len){
   len = len || 16;
