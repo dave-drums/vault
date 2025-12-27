@@ -444,9 +444,10 @@
             
             if (snap.exists && window.VAULT_COURSES && window.VAULT_COURSES['gs1']) {
               var data = snap.data();
-              var completed = (data.completed || []).length;
+              var completed = data.completed || {};
+              var completedCount = Object.keys(completed).filter(function(key){ return completed[key]; }).length;
               var total = window.VAULT_COURSES['gs1'].lessons.length;
-              progressEl.textContent = total + ' lessons • ' + completed + '/' + total + ' complete';
+              progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
             }
           })
           .catch(function(err){
