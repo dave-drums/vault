@@ -1,5 +1,4 @@
-/* vault-dashboard.js
-   Consolidated: vault-ui.js + vault-metrics.js
+/* members.js
    Purpose: Members page UI, practice tracking, progress management
 */
 
