@@ -427,44 +427,5 @@
   </div>
   
   
-  <script>
-    // Load progress - wrapped in try/catch to prevent page breakage
-    (function(){
-      try {
-        if (typeof firebase === 'undefined' || !firebase.auth) return;
-        
-        firebase.auth().onAuthStateChanged(function(user){
-          if (!user) return;
-          
-          var db = firebase.firestore();
-          if (!window.VAULT_COURSES || !window.VAULT_COURSES['gs1']) return;
-          
-          // Load GS1 progress
-          db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
-            .then(function(snap){
-              var progressEl = document.getElementById('gs1-progress');
-              if (!progressEl) return;
-              
-              var total = window.VAULT_COURSES['gs1'].lessons.length;
-              var completedCount = 0;
-              
-              if (snap.exists) {
-                var completed = snap.data().completed || {};
-                var keys = Object.keys(completed);
-                for (var i = 0; i < keys.length; i++) {
-                  if (completed[keys[i]] === true) completedCount++;
-                }
-              }
-              
-              progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-            })
-            .catch(function(e){ console.error(e); });
-        });
-      } catch(e) {
-        console.error(e);
-      }
-    })();
-  </script>
-  
 </body>
 </html>
