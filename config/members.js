@@ -1791,14 +1791,29 @@ function createGoalsContent(user){
       sunday.setDate(monday.getDate() + 6);
       sunday.setHours(23, 59, 59, 999);
 
-      // Query daily sessions for this week
+      // Build array of date keys for this week (YYYY-MM-DD)
+      var weekDateKeys = [];
+      for (var i = 0; i <= 6; i++) {
+        var d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        var dateKey = d.getFullYear() + '-' + 
+          String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+          String(d.getDate()).padStart(2, '0');
+        weekDateKeys.push(dateKey);
+      }
+
+      // Get all daily sessions and count how many are in this week
       db.collection('users').doc(user.uid).collection('metrics')
         .doc('daily').collection('sessions')
-        .where('lastSessionAt', '>=', firebase.firestore.Timestamp.fromDate(monday))
-        .where('lastSessionAt', '<=', firebase.firestore.Timestamp.fromDate(sunday))
         .get()
         .then(function(snap){
-          daysEl.textContent = snap.size;
+          var count = 0;
+          snap.forEach(function(doc){
+            if (weekDateKeys.indexOf(doc.id) !== -1) {
+              count++;
+            }
+          });
+          daysEl.textContent = count;
         })
         .catch(function(){
           daysEl.textContent = '—';
