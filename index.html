@@ -10,18 +10,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <!-- Mark page as protected (requires login) -->
-  <script>document.documentElement.dataset.protected = 'true';</script>
-  
-  <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
   <script src="/firebase/firebase-auth-compat.js"></script>
   <script src="/firebase/firebase-firestore-compat.js"></script>
   <script src="/firebase/firebase-init.js"></script>
   
+  <!-- Mark page as protected (requires login) -->
+  <script>document.documentElement.dataset.protected = 'true';</script>
+  <script src="/config/auth-guard.js"></script>
+  
   <!-- Vault Scripts -->
   <script src="/config/components.js"></script>
-  <script src="/config/course-config.js"></script>
+  <script src="/config/course-data.js"></script>
   
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
