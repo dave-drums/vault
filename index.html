@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+  
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
   <script src="/firebase/firebase-auth-compat.js"></script>
@@ -101,7 +104,7 @@
     
     .vault-hero-title{
       font-family:'Oswald', sans-serif;
-      font-size:48px;
+      font-size:var(--heading-hero-desktop);
       font-weight:400;
       background:linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
       -webkit-background-clip:text;
@@ -119,7 +122,7 @@
       border:1px solid rgba(6,179,253,0.3);
       border-radius:12px;
       color:#38bdf8;
-      font-size:18px;
+      font-size:var(--heading-badge);
       font-weight:600;
       text-transform:uppercase;
       letter-spacing:1.2px;
@@ -128,8 +131,7 @@
     
     @media(max-width:768px){
       .vault-hero{padding:60px 20px 40px}
-      .vault-hero-title{font-size:28px}
-      .vault-hero-badge{font-size:14px}
+      .vault-hero-title{font-size:var(--heading-hero-mobile)}
     }
     
     /* MAIN CONTAINER */
@@ -165,7 +167,7 @@
     }
     .pathway-title{
       font-family:'Oswald',sans-serif;
-      font-size:28px;
+      font-size:var(--heading-pathway);
       font-weight:400;
       color:#fff;
       text-transform:uppercase;
@@ -180,7 +182,7 @@
     }
     .pathway-desc{
       color:var(--text-secondary);
-      font-size:14px;
+      font-size:var(--text-body);
       line-height:1.6;
       margin:0 0 20px;
       padding-bottom:20px;
@@ -225,12 +227,12 @@
     }
     .topic-name{
       font-weight:600;
-      font-size:15px;
+      font-size:var(--text-ui);
       margin:0;
       color:var(--text-primary);
     }
     .topic-right{
-      font-size:13px;
+      font-size:var(--text-tiny);
       color:var(--text-secondary);
       text-align:right;
     }
