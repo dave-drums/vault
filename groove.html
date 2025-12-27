@@ -15,24 +15,12 @@
   <script src="/firebase/firebase-app-compat.js"></script>
   <script src="/firebase/firebase-auth-compat.js"></script>
   <script src="/firebase/firebase-firestore-compat.js"></script>
-  
-  <script>
-    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
-        authDomain: "dave-drums.firebaseapp.com",
-        projectId: "dave-drums",
-        storageBucket: "dave-drums.firebasestorage.app",
-        messagingSenderId: "602823096344",
-        appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
-        measurementId: "G-RHL1DSNTJ7"
-      });
-    }
-  </script>
+  <script src="/firebase/firebase-init.js"></script>
+  <script src="/config/auth-guard.js"></script>
   
   <!-- Vault Scripts -->
   <script src="/config/components.js"></script>
-  <script src="/config/dashboard.js"></script>
+  <script src="/config/members.js"></script>
   
   <style>
     * {
