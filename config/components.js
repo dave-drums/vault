@@ -174,7 +174,7 @@
       '    <div class="vault-menu-section-title">Navigation</div>' +
       '    <a href="/" class="vault-menu-link">Practice Vault</a>' +
       '    <a href="/members" class="vault-menu-link">Members Area</a>' +
-      '    <a href="/groove.html" class="vault-menu-link">GrooveScribe</a>' +
+      '    <a href="https://vault.davedrums.com.au/groove" class="vault-menu-link">GrooveScribe</a>' +
       '  </div>' +
       '  <div class="vault-menu-divider"></div>' +
       '  <div class="vault-menu-section" id="vault-menu-courses">' +
@@ -662,66 +662,5 @@
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
-  }
-})();
-
-/* vault-index-progress.js
-   Purpose: Load course progress on index page
-   Usage: Auto-runs when index page loads
-*/
-
-(function(){
-  'use strict';
-  
-  // Only run on index page (check for pathway cards)
-  if (!document.querySelector('.pathway')) return;
-  
-  function loadIndexProgress() {
-    try {
-      if (typeof firebase === 'undefined' || !firebase.auth || !window.VAULT_COURSES) return;
-      
-      firebase.auth().onAuthStateChanged(function(user){
-        if (!user) return;
-        
-        var db = firebase.firestore();
-        
-        // Loop through all courses and load progress for elements that exist
-        Object.keys(window.VAULT_COURSES).forEach(function(courseId){
-          var progressEl = document.getElementById(courseId + '-progress');
-          if (!progressEl) return;
-          
-          var courseConfig = window.VAULT_COURSES[courseId];
-          if (!courseConfig || !courseConfig.lessons || courseConfig.lessons.length === 0) return;
-          
-          // Load progress from Firestore
-          db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
-            .then(function(snap){
-              var total = courseConfig.lessons.length;
-              var completedCount = 0;
-              
-              if (snap.exists) {
-                var completed = snap.data().completed || {};
-                var keys = Object.keys(completed);
-                for (var i = 0; i < keys.length; i++) {
-                  if (completed[keys[i]] === true) completedCount++;
-                }
-              }
-              
-              progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-            })
-            .catch(function(e){ 
-              console.error('Error loading ' + courseId + ' progress:', e); 
-            });
-        });
-      });
-    } catch(e) {
-      console.error('Index progress error:', e);
-    }
-  }
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadIndexProgress);
-  } else {
-    loadIndexProgress();
   }
 })();
