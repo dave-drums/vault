@@ -16,20 +16,7 @@
   <script src="firebase/firebase-auth-compat.js"></script>
   <script src="firebase/firebase-firestore-compat.js"></script>
   <script src="firebase/firebase-storage-compat.js"></script>
-  
-  <script>
-    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
-        authDomain: "dave-drums.firebaseapp.com",
-        projectId: "dave-drums",
-        storageBucket: "dave-drums.firebasestorage.app",
-        messagingSenderId: "602823096344",
-        appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
-        measurementId: "G-RHL1DSNTJ7"
-      });
-    }
-  </script>
+  <script src="firebase/firebase-init.js"></script>
   
   <!-- Chart.js for practice stats -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -40,7 +27,7 @@
   <script>
   (function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const inviteToken = urlParams.get('invite');
+    const inviteToken = urlParams.get('t');
     if (!inviteToken) return;
     const modal = document.getElementById('invite-modal');
     const form = document.getElementById('invite-form');
