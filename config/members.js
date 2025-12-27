@@ -2,8 +2,6 @@
    Purpose: Members page UI, practice tracking, progress management
 */
 
-/* vault-metrics.js - Consolidated metrics, tracking, and progress */
-
 (function(){
   'use strict';
 
@@ -2442,3 +2440,4 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
