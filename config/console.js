@@ -3,7 +3,6 @@ var db;
 var auth;
 var rootEl;
 
-// BUNDLED COURSE CONFIG
 // Load course configuration from shared file
 // This ensures consistency across all pages
 (function() {
@@ -11,7 +10,7 @@ var rootEl;
   
   var script = document.createElement('script');
   script.src = 'course-config.js';
-  script.async = false; // Load synchronously to ensure it's available
+  script.async = false; // Synchronous to ensure it's loaded before console code runs
   document.head.appendChild(script);
 })();
 
@@ -825,13 +824,15 @@ function loadOnce(){
     showBody();
 
     if (!user) {
-      rootEl.textContent = 'Please log in as admin.';
+      // Not logged in - redirect to login
+      window.location.href = '/members';
       return;
     }
 
     pvIsAdmin(user).then(function(ok){
       if (!ok) {
-        rootEl.textContent = 'You do not have permission to view this page.';
+        // Logged in but not admin - redirect to home
+        window.location.href = '/';
         return;
       }
 
