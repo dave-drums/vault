@@ -1,9 +1,21 @@
-/* vault-courses.js
-   Purpose: Course configuration data
-   Used by: Course index pages, progress tracking, admin console
+/* course-config.js
+   Purpose: SINGLE SOURCE OF TRUTH for all course data and progress loading
+   Used by: index.html, members.html, admin.html, gs.html, and all course pages
+   
+   This file contains:
+   1. Course definitions (lessons, names, levels)
+   2. Index page progress loader (for homepage pathway cards)
+   
+   NO OTHER FILES NEEDED for course data or index progress!
 */
+
 (function(){
   'use strict';
+  
+  // ===========================================
+  // COURSE DEFINITIONS - SINGLE SOURCE OF TRUTH
+  // ===========================================
+  
   window.VAULT_COURSES = {
     'gs1': {
       name: 'Groove Studies',
@@ -35,6 +47,67 @@
     'ks2': { name: 'Kick Studies', level: 'Level 2 – Intermediate', pathway: 'kicks', lessons: [] },
     'ks3': { name: 'Kick Studies', level: 'Level 3 – Advanced', pathway: 'kicks', lessons: [] }
   };
+  
+  // ===========================================
+  // INDEX PAGE PROGRESS LOADER
+  // Automatically loads progress for homepage
+  // ===========================================
+  
+  function loadIndexProgress() {
+    // Only run on index page (has pathway cards)
+    if (!document.querySelector('.pathway')) return;
+    
+    // Wait for Firebase
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+      setTimeout(loadIndexProgress, 100);
+      return;
+    }
+    
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) return;
+      
+      var db = firebase.firestore();
+      
+      // Loop through all courses and load progress for any that have elements on page
+      for (var courseId in window.VAULT_COURSES) {
+        var progressEl = document.getElementById(courseId + '-progress');
+        if (!progressEl) continue;
+        
+        var courseConfig = window.VAULT_COURSES[courseId];
+        if (!courseConfig.lessons || courseConfig.lessons.length === 0) continue;
+        
+        // Use IIFE to capture variables in loop
+        (function(cId, el, config) {
+          db.collection('users').doc(user.uid).collection('progress').doc(cId)
+            .get()
+            .then(function(snap) {
+              var total = config.lessons.length;
+              var count = 0;
+              
+              if (snap.exists) {
+                var completed = snap.data().completed || {};
+                for (var key in completed) {
+                  if (completed[key] === true) count++;
+                }
+              }
+              
+              el.textContent = total + ' lessons • ' + count + '/' + total + ' complete';
+            })
+            .catch(function(err) {
+              console.error('Progress load error for ' + cId + ':', err);
+            });
+        })(courseId, progressEl, courseConfig);
+      }
+    });
+  }
+  
+  // Run when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadIndexProgress);
+  } else {
+    loadIndexProgress();
+  }
+  
 })();
 
-// Updated: 2024-12-26
+// Updated: 2024-12-27
