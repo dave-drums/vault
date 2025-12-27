@@ -19,19 +19,12 @@
   <script src="/firebase/firebase-init.js"></script>
   
   <script>document.documentElement.dataset.protected = 'true';</script>
+  <script src="/config/auth-guard.js"></script>
   
   <script src="/config/components.js"></script>
   <script src="/config/error-handler.js"></script>
-  <script src="/config/course-config.js"></script>
+  <script src="/config/course-data.js"></script>
   
-  <script>
-    window.VAULT_CONFIG = {
-      bunnyLibraryId: "556221",
-      grooveOrigin: "https://groove.davedrums.com.au",
-      grooveEmbedPath: "/GrooveEmbed.html",
-      youtubeLogoSrc: "/youtube-logo.png"
-    };
-  </script>
   <script src="/config/render.js" defer></script>
   <script src="/config/lesson-comments.js" defer></script>
   
@@ -781,20 +774,6 @@
   </style>
 </head>
 <body>
-  <script>
-    (function(){
-      var revealed=false;
-      function reveal(){if(revealed)return;revealed=true;if(document.body)document.body.style.opacity='1'}
-      function redirectToMembers(){var next=encodeURIComponent(location.pathname+location.search+location.hash);location.href='/members.html?next='+next}
-      var failSafe=setTimeout(reveal,2500);
-      if(typeof firebase!=='undefined'&&firebase.auth){
-        firebase.auth().onAuthStateChanged(function(user){
-          clearTimeout(failSafe);
-          if(!user){redirectToMembers()}else{reveal()}
-        })
-      }
-    })();
-  </script>
 
   <!-- EPIC COURSE HEADER -->
   <div class="course-hero">
@@ -805,24 +784,6 @@
       <div class="course-hero-badge" id="hero-course-level"></div>
     </div>
   </div>
-  
-  <script>
-    // Set hero title dynamically from course config
-    (function(){
-      const urlParams = new URLSearchParams(window.location.search);
-      const path = window.location.pathname;
-      const filename = path.split('/').pop().replace('.html', '');
-      const pathway = filename || null;
-      const courseNum = urlParams.get('c');
-      const courseId = (pathway && courseNum) ? pathway + courseNum : null;
-      
-      if (courseId && window.VAULT_COURSES && window.VAULT_COURSES[courseId]) {
-        const config = window.VAULT_COURSES[courseId];
-        document.getElementById('hero-course-name').textContent = config.name || 'Course';
-        document.getElementById('hero-course-level').textContent = config.level || '';
-      }
-    })();
-  </script>
 
   <div id="course-index" class="course-container">
     <div style="text-align:center;padding:60px 20px;color:var(--text-secondary)">
@@ -833,7 +794,7 @@
 
   <div id="lesson-content" style="display:none"></div>
 
-  <script src="/config/course-universal.js"></script>
+  <script src="/config/course-loader.js"></script>
   
   <style>
     @keyframes spin{to{transform:rotate(360deg)}}
