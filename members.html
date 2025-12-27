@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+  
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
   <script src="/firebase/firebase-auth-compat.js"></script>
@@ -110,7 +113,7 @@
     }
     .members-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 48px;
+      font-size: var(--heading-hero-desktop);
       font-weight: 400;
       background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
       -webkit-background-clip: text;
@@ -127,7 +130,7 @@
         padding: 60px 20px 40px;
       }
       .members-title {
-        font-size: 36px;
+        font-size: var(--heading-hero-mobile);
       }
     }
     
@@ -136,7 +139,7 @@
         padding: 50px 20px 35px;
       }
       .members-title {
-        font-size: 28px;
+        font-size: var(--heading-hero-mobile);
       }
     }
     
@@ -165,7 +168,7 @@
     
     .login-header h2 {
       font-family: 'Oswald', sans-serif;
-      font-size: 28px;
+      font-size: var(--heading-section);
       font-weight: 400;
       text-transform: uppercase;
       letter-spacing: -0.5px;
@@ -175,7 +178,7 @@
     
     .login-header p {
       font-family: 'Inter', sans-serif;
-      font-size: 15px;
+      font-size: var(--text-ui);
       color: var(--text-secondary);
       margin: 0;
     }
@@ -185,7 +188,7 @@
       display: block;
       margin-bottom: 6px;
       font-weight: 600;
-      font-size: 14px;
+      font-size: var(--text-small);
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
     }
@@ -198,7 +201,7 @@
       border: 2px solid var(--border);
       border-radius: 10px;
       margin-bottom: 20px;
-      font-size: 15px;
+      font-size: var(--text-ui);
       font-family: 'Inter', sans-serif;
       transition: all 0.2s;
     }
@@ -217,7 +220,7 @@
       border-radius: 10px;
       color: #fff;
       font-weight: 600;
-      font-size: 15px;
+      font-size: var(--text-ui);
       cursor: pointer;
       transition: all 0.2s;
       font-family: 'Inter', sans-serif;
@@ -240,7 +243,7 @@
       margin-top: 20px;
       color: var(--accent);
       text-decoration: none;
-      font-size: 14px;
+      font-size: var(--text-small);
       font-family: 'Inter', sans-serif;
       font-weight: 500;
     }
@@ -254,7 +257,7 @@
       padding: 14px;
       border-radius: 10px;
       text-align: center;
-      font-size: 14px;
+      font-size: var(--text-small);
       font-weight: 500;
       display: none;
       font-family: 'Inter', sans-serif;
@@ -309,7 +312,7 @@
       border-bottom: 3px solid transparent;
       cursor: pointer;
       font-family: 'Oswald', sans-serif;
-      font-size: 16px;
+      font-size: var(--text-body);
       font-weight: 400;
       color: var(--text-secondary);
       text-transform: uppercase;
@@ -332,7 +335,7 @@
     }
     
     .tab-icon {
-      font-size: 20px;
+      font-size: var(--heading-card);
     }
     
     /* TAB PANELS */
@@ -361,7 +364,7 @@
     }
     
     .continue-label {
-      font-size: 12px;
+      font-size: var(--text-micro);
       text-transform: uppercase;
       letter-spacing: 1px;
       opacity: 0.9;
@@ -371,7 +374,7 @@
     
     .continue-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 22px;
+      font-size: var(--heading-card);
       font-weight: 400;
       margin-bottom: 16px;
       text-transform: uppercase;
@@ -385,7 +388,7 @@
       padding: 12px 24px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 14px;
+      font-size: var(--text-small);
       cursor: pointer;
       transition: all 0.2s;
       font-family: 'Inter', sans-serif;
@@ -407,7 +410,7 @@
     
     .quote-text {
       font-family: 'Inter', sans-serif;
-      font-size: 15px;
+      font-size: var(--text-ui);
       line-height: 1.6;
       font-style: italic;
       color: var(--text-primary);
@@ -434,7 +437,7 @@
     
     .section-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 24px;
+      font-size: var(--heading-section);
       font-weight: 400;
       text-transform: uppercase;
       letter-spacing: -0.5px;
@@ -470,14 +473,14 @@
     
     .pathway-name {
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: var(--text-small);
       font-weight: 600;
       margin-bottom: 12px;
       color: var(--text-primary);
     }
     
     .pathway-stat {
-      font-size: 28px;
+      font-size: var(--heading-section);
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 8px;
@@ -485,7 +488,7 @@
     }
     
     .pathway-label {
-      font-size: 12px;
+      font-size: var(--text-micro);
       color: var(--text-secondary);
       margin-bottom: 14px;
       font-family: 'Inter', sans-serif;
@@ -513,7 +516,7 @@
       border: 2px solid var(--border);
       border-radius: 12px;
       font-family: 'Inter', sans-serif;
-      font-size: 15px;
+      font-size: var(--text-ui);
       line-height: 1.6;
       resize: vertical;
       transition: all 0.2s;
@@ -527,7 +530,7 @@
     
     .save-status {
       margin-top: 12px;
-      font-size: 13px;
+      font-size: var(--text-tiny);
       color: var(--text-secondary);
       font-style: italic;
       font-family: 'Inter', sans-serif;
@@ -544,7 +547,7 @@
     
     .chart-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 16px;
+      font-size: var(--text-body);
       font-weight: 400;
       text-transform: uppercase;
       text-align: center;
@@ -573,7 +576,7 @@
     }
     
     .stat-value {
-      font-size: 16px;
+      font-size: var(--text-body);
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 4px;
@@ -581,7 +584,7 @@
     }
     
     .stat-label {
-      font-size: 13px;
+      font-size: var(--text-tiny);
       font-weight: 600;
       color: var(--text-secondary);
       font-family: 'Inter', sans-serif;
@@ -591,7 +594,7 @@
     .profile-email {
       text-align: center;
       margin-bottom: 24px;
-      font-size: 15px;
+      font-size: var(--text-ui);
       color: var(--text-secondary);
       font-family: 'Inter', sans-serif;
     }
@@ -607,7 +610,7 @@
     
     .profile-card-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 24px;
+      font-size: var(--heading-section);
       font-weight: 400;
       text-transform: uppercase;
       margin-bottom: 20px;
@@ -629,7 +632,7 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
-      font-size: 15px;
+      font-size: var(--text-ui);
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
     }
@@ -639,7 +642,7 @@
       padding: 12px 16px;
       border: 2px solid var(--border);
       border-radius: 10px;
-      font-size: 15px;
+      font-size: var(--text-ui);
       font-family: 'Inter', sans-serif;
       transition: all 0.2s;
     }
@@ -657,7 +660,7 @@
       padding: 12px 24px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 15px;
+      font-size: var(--text-ui);
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       margin-top: 16px;
@@ -672,7 +675,7 @@
       margin: 0;
       line-height: 1.6;
       color: var(--text-secondary);
-      font-size: 15px;
+      font-size: var(--text-ui);
       font-family: 'Inter', sans-serif;
     }
     
@@ -700,7 +703,7 @@
       border: none;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 15px;
+      font-size: var(--text-ui);
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       transition: all 0.2s;
@@ -713,25 +716,25 @@
     /* MOBILE */
     @media (max-width: 768px) {
       .tab-nav { margin: 0 -20px 32px -20px; }
-      .vault-tab { font-size: 14px; padding: 16px 20px; }
+      .vault-tab { font-size: var(--text-small); padding: 16px 20px; }
       .progress-grid { grid-template-columns: 1fr; }
       .stats-cards { grid-template-columns: 1fr; }
       .section { padding: 24px; }
       .continue-card { padding: 24px; }
-      .continue-title { font-size: 20px; }
+      .continue-title { font-size: var(--heading-card); }
       .login-card { padding: 32px; }
     }
     
     @media (max-width: 480px) {
-      .vault-tab { padding: 14px 16px; gap: 6px; font-size: 13px; }
-      .tab-icon { font-size: 18px; }
+      .vault-tab { padding: 14px 16px; gap: 6px; font-size: var(--text-tiny); }
+      .tab-icon { font-size: var(--text-large); }
       .section { padding: 20px; }
       .pathway-card { padding: 18px; }
-      .stat-value { font-size: 28px; }
-      .continue-title { font-size: 18px; }
-      .section-title { font-size: 20px; }
+      .stat-value { font-size: var(--heading-section); }
+      .continue-title { font-size: var(--heading-card); }
+      .section-title { font-size: var(--heading-card); }
       .profile-card { padding: 20px; }
-      .profile-card-title { font-size: 20px; }
+      .profile-card-title { font-size: var(--heading-card); }
       .login-card { padding: 28px; }
     }
     
@@ -749,7 +752,7 @@
       font-weight: 500;
       text-align: left;
       transition: all 0.2s ease;
-      font-size: 15px;
+      font-size: var(--text-ui);
     }
     
     .account-panel {
@@ -766,7 +769,7 @@
       display: block;
       margin-bottom: 6px;
       font-weight: 500;
-      font-size: 15px;
+      font-size: var(--text-ui);
     }
     
     .form-input {
@@ -777,7 +780,7 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       margin-bottom: 14px;
-      font-size: 15px;
+      font-size: var(--text-ui);
     }
     
     .btn-inline {
@@ -785,7 +788,7 @@
       border-radius: 6px;
       cursor: pointer;
       font: inherit;
-      font-size: 14px;
+      font-size: var(--text-small);
       transition: all 0.2s ease;
     }
     
@@ -831,7 +834,7 @@
     
     .vault-loading-text {
       color: var(--text-secondary);
-      font-size: 15px;
+      font-size: var(--text-ui);
     }
   </style>
 </head>
