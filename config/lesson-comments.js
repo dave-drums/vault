@@ -30,7 +30,7 @@
     }
 
     .vault-comments-meta{
-      font-size: .95rem;
+      font-size: var(--text-body);
       opacity: .7;
       margin-bottom: 20px;
     }
@@ -65,7 +65,7 @@
 
     .vault-comment-name{
       font-weight: 700;
-      font-size: 1.05rem;
+      font-size: var(--text-large);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -81,12 +81,12 @@
     }
 
     .vault-comment-admin-badge{
-      font-size: 0.9rem;
+      font-size: var(--text-small);
       line-height: 1;
     }
 
     .vault-comment-date{
-      font-size: 0.9rem;
+      font-size: var(--text-small);
       opacity: .6;
       white-space: nowrap;
     }
@@ -94,7 +94,7 @@
     .vault-comment-text{
       white-space: pre-wrap;
       line-height: 1.5;
-      font-size: 1.05rem;
+      font-size: var(--text-large);
       margin-bottom: 10px;
       word-break: break-word;
     }
@@ -116,7 +116,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: .9rem;
+      font-size: var(--text-small);
       opacity: .7;
       transition: opacity 0.2s ease;
       font-weight: 500;
@@ -165,7 +165,7 @@
       padding: 10px;
       resize: vertical;
       min-height: 80px;
-      font-size: 1rem;
+      font-size: var(--text-body);
       font-family: inherit;
       color: #111;
       box-sizing: border-box;
@@ -192,7 +192,7 @@
       transition: all 0.2s ease;
       border: 1px solid #ddd;
       background: #fff;
-      font-size: 0.95rem;
+      font-size: var(--text-body);
     }
 
     .vault-reply-form-actions button:hover{
@@ -227,7 +227,7 @@
       padding: 12px;
       resize: vertical;
       min-height: 100px;
-      font-size: 1.05rem;
+      font-size: var(--text-large);
       font-family: inherit;
       color: #111;
       box-sizing: border-box;
@@ -251,7 +251,7 @@
       color: #fff;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: var(--text-body);
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s ease;
@@ -267,7 +267,7 @@
     }
 
     .vault-comment-status{
-      font-size: .9rem;
+      font-size: var(--text-small);
       color: #666;
     }
 
@@ -820,7 +820,7 @@ function getThreadId(){
         loadMoreBtn.id = 'load-more-comments';
         loadMoreBtn.textContent = `Load More (${allComments.length - displayedCount} remaining)`;
         loadMoreBtn.style.cssText = 'width:100%;padding:12px;background:#f3f3f3;border:1px solid #ddd;' +
-          'border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:#666;' +
+          'border-radius:8px;cursor:pointer;font-size:var(--text-small);font-weight:600;color:#666;' +
           'transition:all 0.2s ease;margin-top:12px;';
         
         loadMoreBtn.addEventListener('mouseenter', () => {
@@ -933,7 +933,7 @@ function getThreadId(){
             const ageNotice = document.createElement('div');
             ageNotice.id = 'vault-comments-age-notice';
             ageNotice.style.cssText = 'padding:16px 20px;background:#fff3cd;border:1px solid #ffc107;' +
-              'border-radius:10px;color:#856404;font-size:0.95rem;line-height:1.5;text-align:center;';
+              'border-radius:10px;color:#856404;font-size:var(--text-body);line-height:1.5;text-align:center;';
             ageNotice.textContent = 'Comments are restricted for users under 16 years of age.';
             
             const existingNotice = document.getElementById('vault-comments-age-notice');
