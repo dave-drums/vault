@@ -18,7 +18,7 @@
   <!-- Components for Toast notifications -->
   <script src="../config/components.js"></script>
   
-  <!-- Mark page as protected (requires login) -->
+  <!-- Mark page as protected (requires login + admin) -->
   <script>document.documentElement.dataset.protected = 'true';</script>
   
   <style>
@@ -52,6 +52,8 @@
       font-family: 'Inter', sans-serif;
       background: #f8f9fa;
       color: var(--text-primary);
+      opacity: 0;
+      transition: opacity 0.3s;
     }
     
     /* ADMIN HERO HEADER */
@@ -104,29 +106,6 @@
       margin: 0 auto;
       text-align: center;
       z-index: 1;
-    }
-    
-    /* Logo - Top Left */
-    .admin-hero-logo {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 3;
-    }
-    
-    .admin-hero-logo a {
-      display: block;
-    }
-    
-    .admin-hero-logo img {
-      height: 64px;
-      width: auto;
-      opacity: 0.9;
-      transition: opacity 0.2s;
-    }
-    
-    .admin-hero-logo img:hover {
-      opacity: 1;
     }
     
     .admin-hero-title {
@@ -204,13 +183,6 @@
   <!-- Hero Section -->
   <div class="admin-hero">
     <div class="admin-hero-bg"></div>
-    
-    <!-- Logo - Top Left -->
-    <div class="admin-hero-logo">
-      <a href="/">
-        <img src="../assets/dwd-logo-500px.webp" alt="Dave Drums">
-      </a>
-    </div>
     
     <div class="admin-hero-content">
       <h1 class="admin-hero-title">Admin Console</h1>
