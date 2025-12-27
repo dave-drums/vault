@@ -3,40 +3,6 @@
    Usage: Loaded conditionally on /vault and /members pages
 */
 
-/* Auth Protection - Redirect non-logged-in users on protected pages */
-(function(){
-  'use strict';
-  
-  // Check if page is marked as protected
-  var isProtected = document.documentElement && 
-                    document.documentElement.dataset && 
-                    document.documentElement.dataset.protected === 'true';
-  
-  if (!isProtected) return; // Not a protected page
-  
-  // Wait for Firebase to be ready
-  function checkAuth() {
-    if (typeof firebase === 'undefined' || !firebase.auth) {
-      setTimeout(checkAuth, 50);
-      return;
-    }
-    
-    var auth = firebase.auth();
-    
-    auth.onAuthStateChanged(function(user) {
-      if (user) {
-        // User is logged in - show page
-        document.body.style.opacity = '1';
-      } else {
-        // User not logged in - redirect to members page
-        window.location.href = '/members.html';
-      }
-    });
-  }
-  
-  checkAuth();
-})();
-
 (function(){
   'use strict';
 
