@@ -2,6 +2,8 @@
    Purpose: Members page UI, practice tracking, progress management
 */
 
+/* vault-metrics.js - Consolidated metrics, tracking, and progress */
+
 (function(){
   'use strict';
 
@@ -1340,16 +1342,26 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
     .then(function(snap){
       var completedCount = 0;
       if (snap.exists) {
-        var completed = snap.data().completed || {};
+        var data = snap.data();
+        var completed = data.completed || {};
+        
+        // Handle both ARRAY format (new) and OBJECT format (old)
+        var completedArray = [];
+        if (Array.isArray(completed)) {
+          // New format: ["1.01", "1.02", ...]
+          completedArray = completed;
+        } else if (typeof completed === 'object') {
+          // Old format: {"1.01": true, "1.02": true, ...}
+          completedArray = Object.keys(completed).filter(function(key) {
+            return completed[key] === true;
+          });
+        }
+        
+        // Count completed lessons
         courseConfig.lessons.forEach(function(lessonId){
-          // Handle both correct format and old nested format
-          var isComplete = completed[lessonId];
-          if (!isComplete && lessonId.indexOf('.') !== -1) {
-            // Check nested format (old bug)
-            var parts = lessonId.split('.');
-            isComplete = completed[parts[0]] && completed[parts[0]][parts[1]];
+          if (completedArray.indexOf(lessonId) !== -1) {
+            completedCount++;
           }
-          if (isComplete) completedCount++;
         });
       }
 
@@ -1364,6 +1376,7 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
       progressEl.textContent = '—';
     });
 }
+
 
     
 // Auto-update activeCourses when user visits a course
@@ -2440,4 +2453,3 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
-
