@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+  
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
   <script src="/firebase/firebase-auth-compat.js"></script>
@@ -123,7 +126,7 @@
     
     .create-hero-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 48px;
+      font-size: var(--heading-hero-desktop);
       font-weight: 400;
       background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
       -webkit-background-clip: text;
@@ -140,7 +143,7 @@
         padding: 60px 20px 40px;
       }
       .create-hero-title {
-        font-size: 36px;
+        font-size: var(--heading-hero-mobile);
       }
     }
     
@@ -149,7 +152,8 @@
         padding: 50px 20px 35px;
       }
       .create-hero-title {
-        font-size: 28px;
+        font-size: var(--heading-hero-mobile);
+      }
       }
     }
   </style>
@@ -460,12 +464,12 @@
       .vca-field .vca-age-confirm-label{display:flex !important;flex-direction:row;align-items:center;gap:12px;margin:0;}
       .vca-field input[type="text"],
       .vca-field input[type="email"],
-      .vca-field input[type="password"]{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;}
+      .vca-field input[type="password"]{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:'Inter',sans-serif;font-size:var(--text-ui);}
       .vca-field input[type="checkbox"]{width:18px;height:18px;cursor:pointer;margin:0;}
       .vca-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
       @media (max-width:520px){.vca-grid{grid-template-columns:1fr;}}
-      .vca-hint{margin-top:6px;font-size:12px;opacity:.75;}
-      .vca-age-confirm-text{font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);user-select:none;}
+      .vca-hint{margin-top:6px;font-size:var(--text-micro);opacity:.75;}
+      .vca-age-confirm-text{font-family:'Inter',sans-serif;font-size:var(--text-small);color:var(--text-primary);user-select:none;}
       .vca-btn{width:100%;padding:12px;background:#06b3fd;border-radius:6px;border:1px solid #06b3fd;color:#fff;cursor:pointer;font:inherit;}
       .vca-btn:hover{background:#0494d3;border-color:#0494d3;}
       .vca-btn:disabled{opacity:.6;cursor:not-allowed;}
