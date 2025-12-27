@@ -37,7 +37,7 @@
         'box-shadow:0 4px 12px rgba(0,0,0,.15);' +
         'pointer-events:auto;' +
         'animation:slideIn 0.3s ease;' +
-        'font-size:14px;' +
+        'font-size:var(--text-ui);' +
         'max-width:300px;';
       toast.textContent = message;
       
@@ -338,7 +338,7 @@
       background: none;
       border: none;
       color: #fff;
-      font-size: 32px;
+      font-size: var(--heading-section);
       cursor: pointer;
       padding: 0;
       width: 40px;
@@ -365,7 +365,7 @@
       margin: 16px 0;
     }
     .vault-menu-section-title {
-      font-size: 11px;
+      font-size: var(--text-micro);
       text-transform: uppercase;
       letter-spacing: 1px;
       color: rgba(255,255,255,0.5);
@@ -380,7 +380,7 @@
       border-radius: 8px;
       margin-bottom: 4px;
       transition: all 0.2s;
-      font-size: 15px;
+      font-size: var(--text-ui);
     }
     .vault-menu-link:hover {
       background: rgba(255,255,255,0.1);
@@ -398,7 +398,7 @@
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 8px;
       color: #fff;
-      font-size: 15px;
+      font-size: var(--text-ui);
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
@@ -502,7 +502,7 @@
     .vault-footer-links a {
       color: rgba(255,255,255,0.8);
       text-decoration: none;
-      font-size: 14px;
+      font-size: var(--text-small);
       transition: color 0.2s;
     }
     .vault-footer-links a:hover {
@@ -510,7 +510,7 @@
     }
     .vault-footer-copyright {
       color: rgba(255,255,255,0.5);
-      font-size: 13px;
+      font-size: var(--text-tiny);
     }
     @media (max-width: 768px) {
       .vault-footer {
@@ -588,7 +588,7 @@
       border: none;
       border-radius: 50%;
       color: #fff;
-      font-size: 24px;
+      font-size: var(--heading-section);
       cursor: pointer;
       z-index: 9997;
       opacity: 0;
@@ -614,7 +614,7 @@
         right: 20px;
         width: 44px;
         height: 44px;
-        font-size: 20px;
+        font-size: var(--heading-card);
       }
     }
     `;
