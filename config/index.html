@@ -10,25 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-  
-  <!-- Firebase Config (inline to avoid 404) -->
-  <script>
-    // Initialize Firebase - MUST match members.html config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
-      authDomain: "dave-drums.firebaseapp.com",
-      projectId: "dave-drums",
-      storageBucket: "dave-drums.firebasestorage.app",
-      messagingSenderId: "602823096344",
-      appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
-      measurementId: "G-RHL1DSNTJ7"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-  </script>
+  <script src="../firebase/firebase-app-compat.js"></script>
+  <script src="../firebase/firebase-auth-compat.js"></script>
+  <script src="../firebase/firebase-firestore-compat.js"></script>
+  <script src="../firebase/firebase-init.js"></script>
   
   <!-- Components for Toast notifications -->
   <script src="../config/components.js"></script>
