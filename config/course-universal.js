@@ -1,6 +1,40 @@
 (function() {
   'use strict';
   
+  // Progress data normalization helper
+  function normalizeProgressData(completed) {
+    if (!completed) return [];
+    
+    if (Array.isArray(completed)) {
+      return completed;
+    }
+    
+    // Convert object format to array
+    if (typeof completed === 'object' && completed !== null) {
+      return Object.keys(completed).filter(function(key) {
+        return completed[key] === true;
+      });
+    }
+    
+    return [];
+  }
+  
+  // Loading state helpers
+  function showLoading(container, message) {
+    if (!container) return;
+    container.innerHTML = 
+      '<div class="vault-loading">' +
+      '<div class="vault-loading-spinner"></div>' +
+      '<div class="vault-loading-text">' + (message || 'Loading...') + '</div>' +
+      '</div>';
+  }
+  
+  function hideLoading(container) {
+    if (!container) return;
+    var loading = container.querySelector('.vault-loading');
+    if (loading) loading.remove();
+  }
+  
   const urlParams = new URLSearchParams(window.location.search);
   const lessonId = urlParams.get('l');
   
@@ -94,6 +128,9 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
     const container = document.getElementById('course-index');
+    
+    // Show loading state
+    showLoading(container, 'Loading course...');
     
     // Populate hero header with course name and level
     const heroNameEl = document.getElementById('hero-course-name');
@@ -231,7 +268,6 @@
     // Load progress data and update UI
     auth.onAuthStateChanged(function(user) {
       if (!user) {
-        console.log('No user signed in');
         return;
       }
       
@@ -240,23 +276,11 @@
       db.collection('users').doc(uid).collection('progress').doc(courseId).get()
         .then(function(doc) {
           if (!doc.exists) {
-            console.log('No progress data found');
             return;
           }
           
           const data = doc.data();
-          let completed = data.completed || [];
-          
-          // Handle both array and object formats
-          if (!Array.isArray(completed)) {
-            if (typeof completed === 'object' && completed !== null) {
-              completed = Object.keys(completed).filter(function(key) {
-                return completed[key] === true;
-              });
-            } else {
-              completed = [];
-            }
-          }
+          let completed = normalizeProgressData(data.completed);
           
           const totalLessons = courseConfig.lessons.length;
           const completedCount = completed.length;
@@ -324,11 +348,13 @@
       };
     }
     
+    // Show loading state
+    showLoading(container, 'Loading lesson...');
+    
     // Load lesson from master file
     const storageRef = storage.ref();
     const masterPath = 'courses/' + courseId + '.txt';
     
-    console.log('Loading lesson file:', masterPath);
     
     storageRef.child(masterPath).getDownloadURL().then(function(url) {
       return fetch(url);
@@ -354,16 +380,11 @@
         return;
       }
       
-      console.log('About to render lesson...');
-      console.log('vaultParse exists?', typeof window.vaultParse === 'object');
       
       // Render using vault-render.js
       if (window.vaultParse && typeof window.vaultParse.tokenise === 'function' && typeof window.vaultParse.render === 'function') {
-        console.log('Calling vaultParse...');
         const tokens = window.vaultParse.tokenise(lessonContent);
-        console.log('Tokens created:', tokens.length);
         const renderedContent = window.vaultParse.render(tokens);
-        console.log('Content rendered');
         container.innerHTML = '';
         
         // Add top navigation buttons
@@ -380,7 +401,6 @@
         container.insertAdjacentHTML('beforeend', topNavHtml);
         
         container.appendChild(renderedContent);
-        console.log('Content appended to container');
         
         // Add bottom navigation buttons
         const bottomNavHtml = `
@@ -471,14 +491,9 @@
   }
   
   function extractLessonFromMaster(masterText, lessonId) {
-    console.log('=== EXTRACTING LESSON ===');
-    console.log('Looking for lesson ID:', lessonId);
-    console.log('Master text length:', masterText.length);
-    
     const lines = masterText.split('\n');
     let inLesson = false;
     let lessonContent = [];
-    let foundLessons = [];
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -489,24 +504,17 @@
         const match = trimmed.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
         if (match) {
           const titlePart = match[1];
-          foundLessons.push(titlePart);
           
           // Check if this title contains our lesson ID
           const pattern = new RegExp('[A-Z]?' + lessonId.replace('.', '\\.'), 'i');
           
-          console.log('Found lesson marker:', titlePart);
-          console.log('Testing pattern:', pattern);
-          console.log('Match result:', pattern.test(titlePart));
-          
           if (pattern.test(titlePart)) {
-            console.log('✓ MATCH! Starting extraction at line', i);
             inLesson = true;
             continue;
           }
           
           // If we were in our lesson and hit another, stop
           if (inLesson) {
-            console.log('Hit next lesson, stopping extraction at line', i);
             break;
           }
         }
@@ -514,7 +522,6 @@
       
       // If we hit a CHAPTER marker while in lesson, stop
       if (inLesson && trimmed.startsWith('===') && trimmed.toUpperCase().includes('CHAPTER')) {
-        console.log('Hit chapter marker, stopping extraction at line', i);
         break;
       }
       
@@ -523,13 +530,7 @@
       }
     }
     
-    console.log('All lessons found:', foundLessons);
-    console.log('Extracted lines:', lessonContent.length);
-    const result = lessonContent.join('\n').trim();
-    console.log('Result length:', result.length);
-    console.log('First 300 chars:', result.substring(0, 300));
-    
-    return result;
+    return lessonContent.join('\n').trim();
   }
   
   function addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db) {
@@ -559,18 +560,7 @@
         
         let completed = [];
         if (progressDoc.exists) {
-          completed = progressDoc.data().completed || [];
-          
-          // Handle object format
-          if (!Array.isArray(completed)) {
-            if (typeof completed === 'object' && completed !== null) {
-              completed = Object.keys(completed).filter(function(key) {
-                return completed[key] === true;
-              });
-            } else {
-              completed = [];
-            }
-          }
+          completed = normalizeProgressData(progressDoc.data().completed);
         }
         
         const isCompleted = completed.includes(lessonId);
@@ -599,7 +589,6 @@
               lastLesson: lessonId,
               lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true }).then(function() {
-              console.log('Lesson marked complete');
               
               // Navigate to next lesson or back to course
               if (nextLesson) {
