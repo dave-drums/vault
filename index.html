@@ -41,7 +41,7 @@
     
     /* Hide body until auth checked */
     html[data-protected="true"] body{
-      opacity:1;
+      opacity:0;
       transition:opacity 0.2s;
     }
     
@@ -426,36 +426,6 @@
     
   </div>
   
-  <script>
-    // Load progress for courses on index page
-    (function(){
-      if (typeof firebase === 'undefined' || !firebase.auth) return;
-      
-      firebase.auth().onAuthStateChanged(function(user){
-        if (!user) return;
-        
-        var db = firebase.firestore();
-        
-        // Load GS1 progress - use dynamic lesson count from config
-        db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
-          .then(function(snap){
-            var progressEl = document.getElementById('gs1-progress');
-            if (!progressEl) return;
-            
-            if (snap.exists && window.VAULT_COURSES && window.VAULT_COURSES['gs1']) {
-              var data = snap.data();
-              var completed = data.completed || {};
-              var completedCount = Object.keys(completed).filter(function(key){ return completed[key]; }).length;
-              var total = window.VAULT_COURSES['gs1'].lessons.length;
-              progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-            }
-          })
-          .catch(function(err){
-            console.error('Error loading progress:', err);
-          });
-      });
-    })();
-  </script>
-  
+
 </body>
 </html>
