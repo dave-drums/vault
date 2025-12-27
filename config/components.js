@@ -223,7 +223,7 @@
         });
       })
       .catch(function(err){
-        console.log('Could not load course progress:', err);
+        console.error('Could not load course progress:', err);
       });
   }
   
