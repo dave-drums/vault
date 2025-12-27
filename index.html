@@ -310,7 +310,7 @@
             <div class="topic-left">
               <h3 class="topic-name">Level 1 - Beginner</h3>
             </div>
-            <div class="topic-right" id="fs1-progress">23 lessons</div>
+            <div class="topic-right">20 lessons • 0/20 complete</div>
           </a>
           <a href="#" class="pathway-topic locked">
             <div class="topic-left">
@@ -437,45 +437,36 @@
           
           try {
             var db = firebase.firestore();
-            if (!window.VAULT_COURSES) return;
+            if (!window.VAULT_COURSES || !window.VAULT_COURSES['gs1']) return;
             
             // Load GS1 progress
-            var gs1El = document.getElementById('gs1-progress');
-            if (gs1El && window.VAULT_COURSES['gs1']) {
-              db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
-                .then(function(snap){
-                  var total = window.VAULT_COURSES['gs1'].lessons.length;
-                  var completedCount = 0;
-                  if (snap.exists) {
-                    var completed = snap.data().completed || {};
-                    completedCount = Object.keys(completed).filter(function(k){ return completed[k]; }).length;
-                  }
-                  gs1El.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-                })
-                .catch(function(e){ console.error('GS1 progress error:', e); });
-            }
-            
-            // Load FS1 progress
-            var fs1El = document.getElementById('fs1-progress');
-            if (fs1El && window.VAULT_COURSES['fs1']) {
-              db.collection('users').doc(user.uid).collection('progress').doc('fs1').get()
-                .then(function(snap){
-                  var total = window.VAULT_COURSES['fs1'].lessons.length;
-                  var completedCount = 0;
-                  if (snap.exists) {
-                    var completed = snap.data().completed || {};
-                    completedCount = Object.keys(completed).filter(function(k){ return completed[k]; }).length;
-                  }
-                  fs1El.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-                })
-                .catch(function(e){ console.error('FS1 progress error:', e); });
-            }
+            db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
+              .then(function(snap){
+                var progressEl = document.getElementById('gs1-progress');
+                if (!progressEl) return;
+                
+                var total = window.VAULT_COURSES['gs1'].lessons.length;
+                var completedCount = 0;
+                
+                if (snap.exists) {
+                  var data = snap.data();
+                  var completed = data.completed || {};
+                  completedCount = Object.keys(completed).filter(function(key){ 
+                    return completed[key] === true; 
+                  }).length;
+                }
+                
+                progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
+              })
+              .catch(function(err){
+                console.error('Error loading progress:', err);
+              });
           } catch(e) {
-            console.error('Progress loading error:', e);
+            console.error('Progress error:', e);
           }
         });
       } catch(e) {
-        console.error('Firebase init error:', e);
+        console.error('Firebase error:', e);
       }
     })();
   </script>
