@@ -4,19 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Console - Practice Vault</title>
-  <link rel="icon" type="image/webp" href="../assets/favicon.webp">
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <script src="../firebase/firebase-app-compat.js"></script>
-  <script src="../firebase/firebase-auth-compat.js"></script>
-  <script src="../firebase/firebase-firestore-compat.js"></script>
-  <script src="../firebase/firebase-init.js"></script>
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
   
   <!-- Components for Toast notifications -->
-  <script src="../config/components.js"></script>
+  <script src="/config/components.js"></script>
   
   <!-- Mark page as protected (requires login + admin) -->
   <script>document.documentElement.dataset.protected = 'true';</script>
@@ -86,7 +86,7 @@
     .admin-hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('../assets/pv-home.webp');
+      background-image: url('/assets/pv-home.webp');
       background-size: cover;
       background-position: center;
       opacity: 0.15;
@@ -196,6 +196,6 @@
   </div>
   
   <!-- Admin Console Logic -->
-  <script src="console.js"></script>
+  <script src="/config/console.js"></script>
 </body>
 </html>
