@@ -9,7 +9,7 @@ var rootEl;
   if (window.VAULT_COURSES) return; // Already loaded
   
   var script = document.createElement('script');
-  script.src = 'course-config.js';
+  script.src = 'course-data.js';
   script.async = false; // Synchronous to ensure it's loaded before console code runs
   document.head.appendChild(script);
 })();
