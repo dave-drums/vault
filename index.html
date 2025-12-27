@@ -427,66 +427,55 @@
   </div>
   
   <script>
-    // Load progress for all courses on index page
+    // Load progress for courses on index page
     (function(){
-      'use strict';
-      
-      function loadCourseProgress() {
-        // Exit early if Firebase not ready
-        if (typeof firebase === 'undefined' || !firebase.auth) {
-          console.log('Firebase not loaded yet');
-          return;
-        }
+      try {
+        if (!firebase || !firebase.auth) return;
         
         firebase.auth().onAuthStateChanged(function(user){
           if (!user) return;
           
-          var db = firebase.firestore();
-          
-          // Check if VAULT_COURSES is loaded
-          if (!window.VAULT_COURSES) {
-            console.warn('VAULT_COURSES not loaded');
-            return;
-          }
-          
-          // Load progress for each course that has a progress element on the page
-          Object.keys(window.VAULT_COURSES).forEach(function(courseId){
-            var progressEl = document.getElementById(courseId + '-progress');
-            if (!progressEl) return;
+          try {
+            var db = firebase.firestore();
+            if (!window.VAULT_COURSES) return;
             
-            var courseConfig = window.VAULT_COURSES[courseId];
-            if (!courseConfig || !courseConfig.lessons || courseConfig.lessons.length === 0) {
-              return;
+            // Load GS1 progress
+            var gs1El = document.getElementById('gs1-progress');
+            if (gs1El && window.VAULT_COURSES['gs1']) {
+              db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
+                .then(function(snap){
+                  var total = window.VAULT_COURSES['gs1'].lessons.length;
+                  var completedCount = 0;
+                  if (snap.exists) {
+                    var completed = snap.data().completed || {};
+                    completedCount = Object.keys(completed).filter(function(k){ return completed[k]; }).length;
+                  }
+                  gs1El.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
+                })
+                .catch(function(e){ console.error('GS1 progress error:', e); });
             }
             
-            // Load this course's progress from Firestore
-            db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
-              .then(function(snap){
-                var total = courseConfig.lessons.length;
-                var completedCount = 0;
-                
-                if (snap.exists) {
-                  var data = snap.data();
-                  var completed = data.completed || {};
-                  completedCount = Object.keys(completed).filter(function(key){ 
-                    return completed[key] === true; 
-                  }).length;
-                }
-                
-                progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-              })
-              .catch(function(err){
-                console.error('Error loading progress for ' + courseId + ':', err);
-              });
-          });
+            // Load FS1 progress
+            var fs1El = document.getElementById('fs1-progress');
+            if (fs1El && window.VAULT_COURSES['fs1']) {
+              db.collection('users').doc(user.uid).collection('progress').doc('fs1').get()
+                .then(function(snap){
+                  var total = window.VAULT_COURSES['fs1'].lessons.length;
+                  var completedCount = 0;
+                  if (snap.exists) {
+                    var completed = snap.data().completed || {};
+                    completedCount = Object.keys(completed).filter(function(k){ return completed[k]; }).length;
+                  }
+                  fs1El.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
+                })
+                .catch(function(e){ console.error('FS1 progress error:', e); });
+            }
+          } catch(e) {
+            console.error('Progress loading error:', e);
+          }
         });
-      }
-      
-      // Wait for DOM to be ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadCourseProgress);
-      } else {
-        loadCourseProgress();
+      } catch(e) {
+        console.error('Firebase init error:', e);
       }
     })();
   </script>
