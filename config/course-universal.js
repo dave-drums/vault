@@ -109,6 +109,9 @@
       renderCourseIndex(container, courseId, courseConfig, structure, auth, db);
     }).catch(function(err) {
       console.error('Error loading master file:', err);
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(err, 'Load Course');
+      }
       container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Error loading course content</div>';
     });
   }
@@ -428,6 +431,9 @@
       
     }).catch(function(err) {
       console.error('Error loading lesson:', err);
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(err, 'Load Lesson');
+      }
       container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Error loading lesson</div>';
     });
   }
