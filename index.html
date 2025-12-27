@@ -431,38 +431,37 @@
     (function(){
       'use strict';
       
-      // Exit early if Firebase not ready
-      if (typeof firebase === 'undefined' || !firebase.auth) {
-        console.log('Firebase not loaded yet');
-        return;
-      }
-      
-      firebase.auth().onAuthStateChanged(function(user){
-        if (!user) return;
-        
-        var db = firebase.firestore();
-        
-        // Check if VAULT_COURSES is loaded
-        if (!window.VAULT_COURSES) {
-          console.warn('VAULT_COURSES not loaded');
+      function loadCourseProgress() {
+        // Exit early if Firebase not ready
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+          console.log('Firebase not loaded yet');
           return;
         }
         
-        // Load progress for each course that has a progress element on the page
-        // Element ID format: {courseId}-progress (e.g., gs1-progress, fs1-progress)
-        Object.keys(window.VAULT_COURSES).forEach(function(courseId){
-          var progressEl = document.getElementById(courseId + '-progress');
-          if (!progressEl) return; // Skip if no element on page
+        firebase.auth().onAuthStateChanged(function(user){
+          if (!user) return;
           
-          var courseConfig = window.VAULT_COURSES[courseId];
-          if (!courseConfig || !courseConfig.lessons || courseConfig.lessons.length === 0) {
-            return; // Skip courses with no lessons configured
+          var db = firebase.firestore();
+          
+          // Check if VAULT_COURSES is loaded
+          if (!window.VAULT_COURSES) {
+            console.warn('VAULT_COURSES not loaded');
+            return;
           }
           
-          // Load this course's progress from Firestore
-          db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
-            .then(function(snap){
-              try {
+          // Load progress for each course that has a progress element on the page
+          Object.keys(window.VAULT_COURSES).forEach(function(courseId){
+            var progressEl = document.getElementById(courseId + '-progress');
+            if (!progressEl) return;
+            
+            var courseConfig = window.VAULT_COURSES[courseId];
+            if (!courseConfig || !courseConfig.lessons || courseConfig.lessons.length === 0) {
+              return;
+            }
+            
+            // Load this course's progress from Firestore
+            db.collection('users').doc(user.uid).collection('progress').doc(courseId).get()
+              .then(function(snap){
                 var total = courseConfig.lessons.length;
                 var completedCount = 0;
                 
@@ -475,15 +474,20 @@
                 }
                 
                 progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
-              } catch (e) {
-                console.error('Error processing progress for ' + courseId + ':', e);
-              }
-            })
-            .catch(function(err){
-              console.error('Error loading progress for ' + courseId + ':', err);
-            });
+              })
+              .catch(function(err){
+                console.error('Error loading progress for ' + courseId + ':', err);
+              });
+          });
         });
-      });
+      }
+      
+      // Wait for DOM to be ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadCourseProgress);
+      } else {
+        loadCourseProgress();
+      }
     })();
   </script>
   
