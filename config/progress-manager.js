@@ -142,6 +142,11 @@
             
             console.log('[Progress Manager] Lesson ' + lessonId + ' marked complete');
             
+            // Show success toast
+            if (window.VaultToast) {
+              window.VaultToast.success('Lesson marked complete!');
+            }
+            
             return {
               courseId: courseId,
               completed: newCompleted,
@@ -153,6 +158,12 @@
       })
       .catch(function(err) {
         console.error('[Progress Manager] Error updating progress:', err);
+        
+        // Show error toast
+        if (window.VaultToast) {
+          window.VaultToast.error('Failed to mark lesson complete');
+        }
+        
         throw err;
       });
   }
