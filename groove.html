@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+  
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
   <script src="/firebase/firebase-auth-compat.js"></script>
@@ -102,7 +105,7 @@
     
     .groove-hero-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 48px;
+      font-size: var(--heading-hero-desktop);
       font-weight: 400;
       background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
       -webkit-background-clip: text;
@@ -119,7 +122,7 @@
         padding: 60px 20px 40px;
       }
       .groove-hero-title {
-        font-size: 36px;
+        font-size: var(--heading-hero-mobile);
       }
     }
     
@@ -128,7 +131,7 @@
         padding: 50px 20px 35px;
       }
       .groove-hero-title {
-        font-size: 28px;
+        font-size: var(--heading-hero-mobile);
       }
     }
     
@@ -198,7 +201,7 @@
     }
     
     .gs-rotate-text {
-      font-size: 18px;
+      font-size: var(--text-body);
       font-weight: 400;
       letter-spacing: 0.15em;
       line-height: 1.4;
@@ -206,7 +209,7 @@
     
     .gs-rotate-text span {
       display: block;
-      font-size: 16px;
+      font-size: var(--text-body);
       opacity: 0.75;
       margin-top: 8px;
       letter-spacing: 0.1em;
