@@ -145,7 +145,7 @@ function showBody(){
 }
 
 var INVITES_COL = 'invites';
-var CREATE_ACCOUNT_URL_BASE = 'https://vault.davedrums.com.au/create-account?t=';
+var CREATE_ACCOUNT_URL_BASE = 'https://vault.davedrums.com.au/create-account.html?invite=';
 
 function randomToken(len){
   len = len || 16;
@@ -177,7 +177,7 @@ function openAddUserModal(db){
   pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:400;">Add User</h4>' +
+    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:300;font-family:Oswald,sans-serif;">Add User</h4>' +
     '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font-size:15px;">Create an invite link (expires in 7 days)</div>' +
     '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;">Email</label>' +
     '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;font:inherit;">' +
@@ -225,7 +225,7 @@ function openAddUserModal(db){
 
       outEl.style.display = 'block';
       outEl.innerHTML =
-        '<div style="font-weight:600;margin:0 0 6px 0;font:inherit;color:#111;">Invite link</div>' +
+        '<div style="font-weight:600;margin:0 0 6px 0;font-family:Inter,sans-serif;color:#111;">Invite link</div>' +
         '<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">' +
           '<div style="word-break:break-word;flex:1;font:inherit;color:#111;">' + escapeHtml(res.link) + '</div>' +
           '<button id="pv-invite-copy" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;white-space:nowrap;">Copy</button>' +
@@ -250,7 +250,7 @@ function openInvitesModal(db){
   pvApplyFontFromBase(box);
 
   box.innerHTML =
-    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:400;">Invites</h4>' +
+    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:300;font-family:Oswald,sans-serif;">Invites</h4>' +
     '<div id="pv-invites-list" style="margin-top:10px;font:inherit;color:#111;"></div>' +
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
       '<button id="pv-invites-close" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function(){
       pvApplyFontFromBase(modal);
       
       modal.innerHTML = 
-        '<h4 style="margin:0 0 20px 0;font-size:20px;font-weight:400;">Student Details</h4>' +
+        '<h4 style="margin:0 0 20px 0;font-size:20px;font-weight:300;font-family:Oswald,sans-serif;">Student Details</h4>' +
         '<div class="p2" style="margin:0 0 20px 0;padding-bottom:20px;border-bottom:1px solid #ddd;">👤 ' + escapeHtml(userData.email || '') + '</div>' +
         
         '<div style="margin-bottom:16px;">' +
@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var header = document.createElement('h4');
     header.textContent = 'Progress: ' + displayName;
-    header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:400;';
+    header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:300;font-family:Oswald,sans-serif;';
     box.appendChild(header);
 
     var selfProgressContainer = document.createElement('div');
@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var courseLabel = document.createElement('label');
     courseLabel.textContent = 'Select Course:';
-    courseLabel.style.cssText = 'display:block;margin:0 0 6px 0;font-weight:600;color:#111;';
+    courseLabel.style.cssText = 'display:block;margin:0 0 6px 0;font-weight:600;color:#111;font-family:Inter,sans-serif;';
     box.appendChild(courseLabel);
 
     var courseSelect = document.createElement('select');
