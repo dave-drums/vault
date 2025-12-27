@@ -19,6 +19,9 @@
   <script src="/config/components.js"></script>
   <script src="/config/course-config.js"></script>
   
+  <!-- Mark page as protected (requires login) -->
+  <script>document.documentElement.dataset.protected = 'true';</script>
+  
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     
@@ -34,6 +37,12 @@
       --surface-hover:#f8f9fa;
       --border:#e9ecef;
       --shadow:0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    /* Hide body until auth checked */
+    html[data-protected="true"] body{
+      opacity:0;
+      transition:opacity 0.2s;
     }
     
     body{
