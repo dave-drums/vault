@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Members | Practice Vault</title>
-  <link rel="icon" type="image/webp" href="assets/favicon.webp">
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,19 +12,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <script src="firebase/firebase-app-compat.js"></script>
-  <script src="firebase/firebase-auth-compat.js"></script>
-  <script src="firebase/firebase-firestore-compat.js"></script>
-  <script src="firebase/firebase-storage-compat.js"></script>
-  <script src="firebase/firebase-init.js"></script>
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-storage-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
   
   <!-- Chart.js for practice stats -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   
   <!-- Vault Scripts -->
-  <script src="config/components.js"></script>
-  <script src="config/error-handler.js"></script>
-  <script src="config/cues.js"></script>
+  <script src="/config/components.js"></script>
+  <script src="/config/error-handler.js"></script>
+  <script src="/config/cues.js"></script>
   <script>
   (function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -109,7 +109,7 @@
       });
   })();
   </script>
-  <script src="config/dashboard.js" defer></script>
+  <script src="/config/dashboard.js" defer></script>
   
   <style>
     * {
@@ -170,7 +170,7 @@
     .members-hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('assets/members.webp');
+      background-image: url('/assets/members.webp');
       background-size: cover;
       background-position: center;
       opacity: 0.15;
