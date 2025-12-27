@@ -4,31 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home | Practice Vault</title>
-  <link rel="icon" type="image/webp" href="assets/favicon.webp">
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
   <!-- Firebase -->
-  <script src="firebase/firebase-app-compat.js"></script>
-  <script src="firebase/firebase-auth-compat.js"></script>
-  <script src="firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
   
-  <script>
-    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey: "AIzaSyDfiWX_TGcCopulONaTFBIaPb7ZRAiC_dc",
-        authDomain: "dave-drums.firebaseapp.com",
-        projectId: "dave-drums",
-        storageBucket: "dave-drums.firebasestorage.app",
-        messagingSenderId: "602823096344",
-        appId: "1:602823096344:web:b6402156a4d1c16a21ab6d",
-        measurementId: "G-RHL1DSNTJ7"
-      });
-    }
-  </script>
-  
-  <script src="config/components.js"></script>
+  <!-- Vault Scripts -->
+  <script src="/config/components.js"></script>
+  <script src="/config/course-config.js"></script>
   
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -80,7 +69,7 @@
     .vault-hero-bg{
       position:absolute;
       inset:0;
-      background-image:url('assets/pv-home.webp');
+      background-image:url('/assets/pv-home.webp');
       background-size:cover;
       background-position:center;
       opacity:0.15;
@@ -278,7 +267,7 @@
     <!-- Logo - Top Left -->
     <div class="vault-hero-logo">
       <a href="/">
-        <img src="assets/dwd-logo-500px.webp" alt="Dave Drums">
+        <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums">
       </a>
     </div>
     
@@ -293,13 +282,13 @@
     
     <!-- GROOVE STUDIES -->
     <div class="pathway">
-      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('assets/groove-studies.webp')">
+      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/groove-studies.webp')">
         <h2 class="pathway-title">Groove<br>Studies</h2>
       </div>
       <div class="pathway-content">
         <p class="pathway-desc">Progressive groove courses designed to develop your time, coordination, and feel.</p>
         <div class="pathway-topics">
-          <a href="gs?c=1" class="pathway-topic">
+          <a href="/gs?c=1" class="pathway-topic">
             <div class="topic-left">
               <h3 class="topic-name">Level 1 - Beginner</h3>
             </div>
@@ -329,7 +318,7 @@
     
     <!-- FILL STUDIES -->
     <div class="pathway">
-      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('assets/fill-studies.webp')">
+      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/fill-studies.webp')">
         <h2 class="pathway-title">Fill<br>Studies</h2>
       </div>
       <div class="pathway-content">
@@ -365,7 +354,7 @@
     
     <!-- STICK STUDIES -->
     <div class="pathway">
-      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('assets/stick-studies.webp')">
+      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/stick-studies.webp')">
         <h2 class="pathway-title">Stick<br>Studies</h2>
       </div>
       <div class="pathway-content">
@@ -401,7 +390,7 @@
     
     <!-- KICK STUDIES -->
     <div class="pathway">
-      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('assets/kick-studies.webp')">
+      <div class="pathway-image" style="background-image:linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/kick-studies.webp')">
         <h2 class="pathway-title">Kick<br>Studies</h2>
       </div>
       <div class="pathway-content">
@@ -465,21 +454,21 @@
         
         var db = firebase.firestore();
         
-        // Load GS1 progress
+        // Load GS1 progress - use dynamic lesson count from config
         db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
           .then(function(snap){
             var progressEl = document.getElementById('gs1-progress');
             if (!progressEl) return;
             
-            if (snap.exists) {
+            if (snap.exists && window.VAULT_COURSES && window.VAULT_COURSES['gs1']) {
               var data = snap.data();
               var completed = (data.completed || []).length;
-              var total = 23; // gs1 has 23 lessons
+              var total = window.VAULT_COURSES['gs1'].lessons.length;
               progressEl.textContent = total + ' lessons • ' + completed + '/' + total + ' complete';
             }
           })
           .catch(function(err){
-            console.log('Error loading progress:', err);
+            console.error('Error loading progress:', err);
           });
       });
     })();
