@@ -2196,7 +2196,11 @@ function createGoalsContent(user){
           isOpen = false;
           window.VaultToast.success('Name updated');
         }).catch(function(e){
-          setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
+          if (window.VaultErrors) {
+            window.VaultErrors.handle(e, 'Update Name');
+          } else {
+            setMessage(e && e.message ? e.message : 'Missing or insufficient permissions.');
+          }
         });
       });
 
@@ -2311,7 +2315,11 @@ var c = String(newPw2.value || '').trim();
             window.VaultToast.success('Password updated');
           })
           .catch(function(e){
-            setMessage(e && e.message ? e.message : 'Could not update password.');
+            if (window.VaultErrors) {
+              window.VaultErrors.handle(e, 'Change Password');
+            } else {
+              setMessage(e && e.message ? e.message : 'Could not update password.');
+            }
           });
       });
 
@@ -2419,7 +2427,11 @@ var c = String(newPw2.value || '').trim();
         }
 
         auth.signInWithEmailAndPassword(email, pass).catch(function(e){
-          setMessage(e && e.message ? e.message : 'Could not log in.');
+          if (window.VaultErrors) {
+            window.VaultErrors.handle(e, 'Login');
+          } else {
+            setMessage(e && e.message ? e.message : 'Could not log in.');
+          }
         });
       });
     }
@@ -2434,9 +2446,17 @@ var c = String(newPw2.value || '').trim();
           return;
         }
         auth.sendPasswordResetEmail(email).then(function(){
-          setMessage('Password reset email sent.');
+          if (window.VaultErrors) {
+            window.VaultErrors.success('Password reset email sent.');
+          } else {
+            setMessage('Password reset email sent.');
+          }
         }).catch(function(e){
-          setMessage(e && e.message ? e.message : 'Unable to send reset email.');
+          if (window.VaultErrors) {
+            window.VaultErrors.handle(e, 'Password Reset');
+          } else {
+            setMessage(e && e.message ? e.message : 'Unable to send reset email.');
+          }
         });
       });
     }
