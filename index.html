@@ -41,7 +41,7 @@
     
     /* Hide body until auth checked */
     html[data-protected="true"] body{
-      opacity:0;
+      opacity:1;
       transition:opacity 0.2s;
     }
     
@@ -310,7 +310,7 @@
             <div class="topic-left">
               <h3 class="topic-name">Level 1 - Beginner</h3>
             </div>
-            <div class="topic-right" id="fs1-progress">23 lessons</div>
+            <div class="topic-right">20 lessons • 0/20 complete</div>
           </a>
           <a href="#" class="pathway-topic locked">
             <div class="topic-left">
@@ -426,6 +426,36 @@
     
   </div>
   
-
+  <script>
+    // Load progress for courses on index page
+    (function(){
+      if (typeof firebase === 'undefined' || !firebase.auth) return;
+      
+      firebase.auth().onAuthStateChanged(function(user){
+        if (!user) return;
+        
+        var db = firebase.firestore();
+        
+        // Load GS1 progress - use dynamic lesson count from config
+        db.collection('users').doc(user.uid).collection('progress').doc('gs1').get()
+          .then(function(snap){
+            var progressEl = document.getElementById('gs1-progress');
+            if (!progressEl) return;
+            
+            if (snap.exists && window.VAULT_COURSES && window.VAULT_COURSES['gs1']) {
+              var data = snap.data();
+              var completed = data.completed || {};
+              var completedCount = Object.keys(completed).filter(function(key){ return completed[key]; }).length;
+              var total = window.VAULT_COURSES['gs1'].lessons.length;
+              progressEl.textContent = total + ' lessons • ' + completedCount + '/' + total + ' complete';
+            }
+          })
+          .catch(function(err){
+            console.error('Error loading progress:', err);
+          });
+      });
+    })();
+  </script>
+  
 </body>
 </html>
