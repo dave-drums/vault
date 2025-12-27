@@ -289,9 +289,9 @@
           </div>
 
           <div class="vca-field">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-              <input id="vca-age-confirm" type="checkbox">
-              <span>I am above 16 years of age</span>
+            <label class="vca-age-confirm-label">
+              <input id="vca-age-confirm" type="checkbox" class="vca-age-checkbox">
+              <span class="vca-age-confirm-text">I am above 16 years of age</span>
             </label>
           </div>
           
@@ -476,10 +476,13 @@
       .vca-sub{text-align:center;margin:0 0 18px;opacity:.8;line-height:1.4;}
       .vca-field{margin:0 0 14px;}
       .vca-field label{display:block;margin:0 0 6px;}
-      .vca-field input{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;}
+      .vca-field input{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;}
       .vca-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
       @media (max-width:520px){.vca-grid{grid-template-columns:1fr;}}
       .vca-hint{margin-top:6px;font-size:12px;opacity:.75;}
+      .vca-age-confirm-label{display:flex;align-items:center;gap:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+      .vca-age-checkbox{width:18px;height:18px;cursor:pointer;flex-shrink:0;}
+      .vca-age-confirm-text{font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);user-select:none;}
       .vca-btn{width:100%;padding:12px;background:#06b3fd;border-radius:6px;border:1px solid #06b3fd;color:#fff;cursor:pointer;font:inherit;}
       .vca-btn:hover{background:#0494d3;border-color:#0494d3;}
       .vca-btn:disabled{opacity:.6;cursor:not-allowed;}
