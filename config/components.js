@@ -166,6 +166,7 @@
     
     var menuHTML = 
       '<div class="vault-menu-header">' +
+      '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-menu-logo">' +
       '  <button class="vault-menu-close" id="vault-menu-close">&times;</button>' +
       '</div>' +
       '<div class="vault-menu-content">' +
@@ -360,7 +361,12 @@
       border-bottom: 1px solid rgba(255,255,255,0.1);
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
+    }
+    .vault-menu-logo {
+      height: 48px;
+      width: auto;
+      opacity: 0.9;
     }
     .vault-menu-close {
       background: none;
