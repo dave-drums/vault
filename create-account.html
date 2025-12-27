@@ -198,7 +198,7 @@
   const AUTH = firebase.auth();
   const DB = firebase.firestore();
   const INVITES_COL = "invites";
-  const MEMBERS_URL = "/members.html";
+  const MEMBERS_URL = "/members";
 
   const root = document.getElementById("vault-create-account-root");
   if (!root) return;
@@ -291,7 +291,7 @@
           <div class="vca-field">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
               <input id="vca-age-confirm" type="checkbox">
-              <span>I confirm that I am above 16 years of age</span>
+              <span>I am above 16 years of age</span>
             </label>
           </div>
           
