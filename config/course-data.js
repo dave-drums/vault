@@ -38,13 +38,13 @@
     'fs2': { name: 'Fill Studies', level: 'Level 2 – Intermediate 1', pathway: 'fills', lessons: [] },
     'fs3': { name: 'Fill Studies', level: 'Level 3 – Intermediate 2', pathway: 'fills', lessons: [] },
     'fs4': { name: 'Fill Studies', level: 'Level 4 – Advanced', pathway: 'fills', lessons: [] },
-    'ss1': { name: 'Stick Studies', level: 'Level 1 – Beginner', pathway: 'sticks', lessons: [] },
-    'ss2': { name: 'Stick Studies', level: 'Level 2 – Intermediate 1', pathway: 'sticks', lessons: [] },
-    'ss3': { name: 'Stick Studies', level: 'Level 3 – Intermediate 2', pathway: 'sticks', lessons: [] },
-    'ss4': { name: 'Stick Studies', level: 'Level 4 – Advanced', pathway: 'sticks', lessons: [] },
-    'ks1': { name: 'Kick Studies', level: 'Level 1 – Beginner', pathway: 'kicks', lessons: [] },
-    'ks2': { name: 'Kick Studies', level: 'Level 2 – Intermediate', pathway: 'kicks', lessons: [] },
-    'ks3': { name: 'Kick Studies', level: 'Level 3 – Advanced', pathway: 'kicks', lessons: [] }
+    'ss1': { name: 'Stick Studies', level: 'Hand Speed & Endurance', pathway: 'sticks', lessons: [] },
+    'ss2': { name: 'Stick Studies', level: 'Rudiments & Patterns', pathway: 'sticks', lessons: [] },
+    'ss3': { name: 'Stick Studies', level: 'Technique', pathway: 'sticks', lessons: [] },
+    'ss4': { name: 'Stick Studies', level: 'Weak Hand Development', pathway: 'sticks', lessons: [] },
+    'ks1': { name: 'Kick Studies', level: 'Single Pedal', pathway: 'kicks', lessons: [] },
+    'ks2': { name: 'Kick Studies', level: 'Double Pedal', pathway: 'kicks', lessons: [] },
+    'ks3': { name: 'Kick Studies', level: 'Technique & Pedal Settings', pathway: 'kicks', lessons: [] }
   };
   
   // ===========================================
