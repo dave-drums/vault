@@ -33,8 +33,7 @@
        level: 'Level 1 – Beginner',
        pathway: 'fills', 
        lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
-                '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16',
-                '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23']
+                '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15']
     },
     'fs2': { name: 'Fill Studies', level: 'Level 2 – Intermediate', pathway: 'fills', lessons: [] },
     'fs3': { name: 'Fill Studies', level: 'Level 3 – Advanced', pathway: 'fills', lessons: [] },
