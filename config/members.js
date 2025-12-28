@@ -165,6 +165,7 @@
            lastDeviceType: type,
            lastDeviceEmoji: emoji,
            lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+           lastSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
            loginCount: firebase.firestore.FieldValue.increment(1)
         });
      }
@@ -221,24 +222,25 @@
       writeDeviceInfoOnce(ref);
       recordDailyPractice(ref);
 
-      tickTimer = setInterval(function(){
-        if (!sessionActive) return;
-        writeLock();
-        if (!isLeader()){
-          endSession('lost-leader');
-          return;
-        }
-
-        var t = nowMs();
-        var elapsedSeconds = clampToSeconds(t - lastTickAtMs);
-        lastTickAtMs = t;
-
-        try {
-          safeIncSeconds(ref, elapsedSeconds);
-          recordDailyPractice(ref, elapsedSeconds);
-        } catch(e) {}
-      }, TICK_MS);
-
+       tickTimer = setInterval(function(){
+          if (!sessionActive) return;
+          writeLock();
+          if (!isLeader()){
+             endSession('lost-leader');
+             return;
+          }
+          
+          var t = nowMs();
+          var elapsedSeconds = clampToSeconds(t - lastTickAtMs);
+          lastTickAtMs = t;
+          
+          try {
+             safeIncSeconds(ref, elapsedSeconds);
+             recordDailyPractice(ref, elapsedSeconds);
+             safeMergeSet(ref, { lastSeenAt: firebase.firestore.FieldValue.serverTimestamp() });
+          } catch(e) {}
+       }, TICK_MS);
+       
       idleCheckTimer = setInterval(function(){
         if (!sessionActive) return;
         var idleFor = nowMs() - lastActivityAtMs;
@@ -2470,5 +2472,6 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
