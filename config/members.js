@@ -157,15 +157,17 @@
       if (!seconds || seconds <= 0) return Promise.resolve();
       return safeMergeSet(ref, { totalSeconds: firebase.firestore.FieldValue.increment(seconds) });
     }
-
-    function writeDeviceInfoOnce(ref){
-      var type = getDeviceType();
-      var emoji = getDeviceEmoji(type);
-      return safeMergeSet(ref, {
-        lastDeviceType: type,
-        lastDeviceEmoji: emoji
-      });
-    }
+     
+     function writeDeviceInfoOnce(ref){
+        var type = getDeviceType();
+        var emoji = getDeviceEmoji(type);
+        return safeMergeSet(ref, {
+           lastDeviceType: type,
+           lastDeviceEmoji: emoji,
+           lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
+           loginCount: firebase.firestore.FieldValue.increment(1)
+        });
+     }
 
     function recordDailyPractice(ref, seconds){
       var dateKey = getTodayDateKey();
@@ -2468,4 +2470,5 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
