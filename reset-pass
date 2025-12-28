@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+  
+  <!-- Vault Scripts -->
+  <script src="/config/components.js"></script>
+  <script src="/config/error-handler.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --accent: #06b3fd;
+      --accent-hover: #0599dc;
+      --text-primary: #1a1a1a;
+      --text-secondary: #6c757d;
+      --surface: #fff;
+      --surface-hover: #f8f9fa;
+      --border: #e9ecef;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    html {
+      font-size: 16px;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    
+    /* HERO HEADER */
+    .reset-hero {
+      position: relative;
+      background: #1a1a2e;
+      padding: 80px 20px 60px;
+      margin-bottom: 40px;
+      overflow: hidden;
+    }
+    
+    .reset-hero:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
+      background-size: 200% auto;
+      animation: gradient-shift 3s linear infinite;
+      z-index: 3;
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    .reset-hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('/assets/members.webp');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15;
+      z-index: 0;
+    }
+    
+    .reset-hero-bg:after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top, rgba(6, 179, 253, 0.1) 0%, transparent 50%);
+    }
+    
+    .reset-hero-content {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      z-index: 1;
+    }
+    
+    .reset-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: var(--heading-hero-desktop);
+      font-weight: 400;
+      background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    
+    @media (max-width: 768px) {
+      .reset-hero {
+        padding: 60px 20px 40px;
+      }
+      .reset-title {
+        font-size: var(--heading-hero-mobile);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .reset-hero {
+        padding: 50px 20px 35px;
+      }
+      .reset-title {
+        font-size: var(--heading-hero-mobile);
+      }
+    }
+    
+    /* MAIN CONTAINER */
+    .reset-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+    
+    /* RESET CARD */
+    .reset-card {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      border: 1px solid var(--border);
+    }
+    
+    .reset-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .reset-header h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: var(--heading-section);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    
+    .reset-header p {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--text-ui);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    
+    /* RESET FORM */
+    .reset-form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: var(--text-small);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .reset-form input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: var(--text-ui);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    
+    .reset-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(6, 179, 253, 0.1);
+    }
+    
+    .reset-form button {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      font-size: var(--text-ui);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .reset-form button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(6, 179, 253, 0.3);
+    }
+    
+    .reset-form button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: var(--text-small);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* SUCCESS STATE */
+    .success-message {
+      display: none;
+      text-align: center;
+    }
+    
+    .success-message.show {
+      display: block;
+    }
+    
+    .success-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    
+    .success-message h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: var(--heading-section);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+    
+    .success-message p {
+      font-size: var(--text-ui);
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+    
+    .btn-login {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: var(--text-ui);
+      transition: all 0.2s;
+    }
+    
+    .btn-login:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(6, 179, 253, 0.3);
+    }
+    
+    /* LOADING STATE */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .loading.show {
+      display: block;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* ERROR STATE */
+    .error-message {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background: #fee;
+      border: 1px solid #fcc;
+      border-radius: 10px;
+      color: #c00;
+      font-size: var(--text-ui);
+      margin-bottom: 20px;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    /* MOBILE */
+    @media (max-width: 768px) {
+      .reset-card {
+        padding: 32px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .reset-card {
+        padding: 28px;
+      }
+      .reset-header h2 {
+        font-size: var(--heading-card);
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- HERO HEADER -->
+  <div class="reset-hero">
+    <div class="reset-hero-bg"></div>
+    <div class="reset-hero-content">
+      <h1 class="reset-title">Reset Password</h1>
+    </div>
+  </div>
+  
+  <!-- MAIN CONTENT -->
+  <div class="reset-container">
+    
+    <div class="reset-card">
+      
+      <!-- LOADING STATE -->
+      <div id="loading-state" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Verifying reset link...</p>
+      </div>
+      
+      <!-- ERROR STATE (invalid/expired link) -->
+      <div id="error-state" style="display: none;">
+        <div class="reset-header">
+          <h2>Invalid Link</h2>
+          <p>This password reset link is invalid or has expired</p>
+        </div>
+        <div style="text-align: center;">
+          <a href="/members.html" class="btn-login">Back to Login</a>
+        </div>
+      </div>
+      
+      <!-- RESET FORM -->
+      <div id="reset-form-container" style="display: none;">
+        <div class="reset-header">
+          <h2>Create New Password</h2>
+          <p>Enter your new password below</p>
+        </div>
+        
+        <div id="error-display" class="error-message"></div>
+        
+        <form class="reset-form" id="resetForm">
+          <label for="new-password">New Password *</label>
+          <input type="password" id="new-password" autocomplete="new-password" required minlength="6">
+          
+          <label for="confirm-password">Confirm Password *</label>
+          <input type="password" id="confirm-password" autocomplete="new-password" required minlength="6">
+          
+          <button type="submit" id="reset-btn">Reset Password</button>
+          
+          <a href="/members.html" class="back-link">Back to Login</a>
+        </form>
+      </div>
+      
+      <!-- SUCCESS STATE -->
+      <div id="success-state" class="success-message">
+        <div class="success-icon">✓</div>
+        <h3>Password Reset!</h3>
+        <p>Your password has been successfully reset. You can now log in with your new password.</p>
+        <a href="/members.html" class="btn-login">Go to Login</a>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  <script>
+    // Wait for Firebase to initialize
+    function waitForFirebase() {
+      return new Promise((resolve) => {
+        if (window.firebase && firebase.auth) {
+          resolve();
+        } else {
+          setTimeout(() => waitForFirebase().then(resolve), 100);
+        }
+      });
+    }
+    
+    // Initialize the reset password flow
+    async function initResetPassword() {
+      await waitForFirebase();
+      
+      const auth = firebase.auth();
+      const urlParams = new URLSearchParams(window.location.search);
+      const oobCode = urlParams.get('oobCode'); // Firebase action code from email link
+      
+      const loadingState = document.getElementById('loading-state');
+      const errorState = document.getElementById('error-state');
+      const formContainer = document.getElementById('reset-form-container');
+      const successState = document.getElementById('success-state');
+      
+      // Check if we have a valid action code
+      if (!oobCode) {
+        loadingState.style.display = 'none';
+        errorState.style.display = 'block';
+        return;
+      }
+      
+      try {
+        // Verify the password reset code is valid
+        await auth.verifyPasswordResetCode(oobCode);
+        
+        // Code is valid, show the reset form
+        loadingState.style.display = 'none';
+        formContainer.style.display = 'block';
+        
+        // Handle form submission
+        const form = document.getElementById('resetForm');
+        const resetBtn = document.getElementById('reset-btn');
+        const errorDisplay = document.getElementById('error-display');
+        const newPassword = document.getElementById('new-password');
+        const confirmPassword = document.getElementById('confirm-password');
+        
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          // Clear previous errors
+          errorDisplay.classList.remove('show');
+          errorDisplay.textContent = '';
+          
+          // Validate passwords match
+          if (newPassword.value !== confirmPassword.value) {
+            errorDisplay.textContent = 'Passwords do not match';
+            errorDisplay.classList.add('show');
+            return;
+          }
+          
+          // Validate password length
+          if (newPassword.value.length < 6) {
+            errorDisplay.textContent = 'Password must be at least 6 characters';
+            errorDisplay.classList.add('show');
+            return;
+          }
+          
+          // Disable button and show loading state
+          resetBtn.disabled = true;
+          resetBtn.textContent = 'Resetting...';
+          
+          try {
+            // Confirm the password reset with Firebase
+            await auth.confirmPasswordReset(oobCode, newPassword.value);
+            
+            // Success! Show success message
+            formContainer.style.display = 'none';
+            successState.classList.add('show');
+            
+            // Use VaultToast if available
+            if (window.VaultToast) {
+              window.VaultToast.success('Password reset successfully!');
+            }
+            
+          } catch (error) {
+            console.error('Password reset error:', error);
+            
+            let errorMessage = 'Failed to reset password. Please try again.';
+            
+            switch (error.code) {
+              case 'auth/weak-password':
+                errorMessage = 'Password is too weak. Please use a stronger password.';
+                break;
+              case 'auth/expired-action-code':
+                errorMessage = 'This reset link has expired. Please request a new one.';
+                break;
+              case 'auth/invalid-action-code':
+                errorMessage = 'This reset link is invalid. Please request a new one.';
+                break;
+            }
+            
+            errorDisplay.textContent = errorMessage;
+            errorDisplay.classList.add('show');
+            
+            // Use VaultToast if available
+            if (window.VaultToast) {
+              window.VaultToast.error(errorMessage);
+            }
+            
+          } finally {
+            // Re-enable button
+            resetBtn.disabled = false;
+            resetBtn.textContent = 'Reset Password';
+          }
+        });
+        
+      } catch (error) {
+        console.error('Invalid reset code:', error);
+        
+        // Code is invalid or expired
+        loadingState.style.display = 'none';
+        errorState.style.display = 'block';
+      }
+    }
+    
+    // Initialize when page loads
+    initResetPassword();
+  </script>
+  
+</body>
+</html>
