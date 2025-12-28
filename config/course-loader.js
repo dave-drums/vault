@@ -478,7 +478,7 @@
         const match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
         if (match) {
           const titlePart = match[1];
-          const pattern = new RegExp('[A-Z]+' + lessonId.replace('.', '\\.'), 'i');
+          const pattern = new RegExp(lessonId.replace('.', '\\.'), 'i');
           
           if (pattern.test(titlePart)) {
             return titlePart; // Returns e.g., "G1.01 Start Here"
@@ -506,7 +506,7 @@
           const titlePart = match[1];
           
           // Check if this title contains our lesson ID
-          const pattern = new RegExp('[A-Z]+' + lessonId.replace('.', '\\.'), 'i');
+          const pattern = new RegExp(lessonId.replace('.', '\\.'), 'i');
           
           if (pattern.test(titlePart)) {
             inLesson = true;
