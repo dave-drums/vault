@@ -19,7 +19,7 @@
   window.VAULT_COURSES = {
     'gs1': {
       name: 'Groove Studies',
-      level: 'Beginner – Level 1',
+      level: 'Level 1 – Beginner',
       pathway: 'groove',
       lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
                 '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16',
