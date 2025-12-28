@@ -16,7 +16,7 @@
   style.textContent = `
 .vault-comments{
   width: min(860px, 100%);
-  margin: 800px auto 0;
+  margin: 80px auto 0;
   padding: 24px;
   background: #fff;
   border-radius: 12px;
