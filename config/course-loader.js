@@ -192,7 +192,7 @@
           const fullTitle = match[1].trim();
           
           // Extract lesson ID (matches pattern like G1.01, F1.02, 1.01, etc)
-          const idMatch = fullTitle.match(/^[A-Z]*(\d+\.\d+)/i);
+          const idMatch = fullTitle.match(/^([A-Z]+\d+\.\d+)/i);
           
           if (idMatch) {
             const lessonId = idMatch[1]; // Just the numeric part (1.01)
@@ -370,7 +370,7 @@
       const heroBadge = document.getElementById('hero-course-level');
       if (heroBadge && lessonTitle) {
         // Replace first space after lesson ID with dash (G1.01 Start Here -> G1.01 – Start Here)
-        const formattedTitle = lessonTitle.replace(/^([A-Z]*\d+\.\d+)\s+/, '$1 – ');
+        const formattedTitle = lessonTitle.replace(/^([A-Z]+\d+\.\d+)\s+/, '$1 – ');
         heroBadge.textContent = 'Lesson ' + formattedTitle;
       }
       
@@ -478,7 +478,7 @@
         const match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
         if (match) {
           const titlePart = match[1];
-          const pattern = new RegExp('[A-Z]*' + lessonId.replace('.', '\\.'), 'i');
+          const pattern = new RegExp('[A-Z]+' + lessonId.replace('.', '\\.'), 'i');
           
           if (pattern.test(titlePart)) {
             return titlePart; // Returns e.g., "G1.01 Start Here"
@@ -506,7 +506,7 @@
           const titlePart = match[1];
           
           // Check if this title contains our lesson ID
-          const pattern = new RegExp('[A-Z]*' + lessonId.replace('.', '\\.'), 'i');
+          const pattern = new RegExp('[A-Z]+' + lessonId.replace('.', '\\.'), 'i');
           
           if (pattern.test(titlePart)) {
             inLesson = true;
