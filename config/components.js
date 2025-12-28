@@ -289,7 +289,7 @@
       justify-content: space-between;
     }
     .vault-menu-logo {
-      height: 65px;
+      height: 68px;
       width: auto;
       opacity: 0.9;
     }
