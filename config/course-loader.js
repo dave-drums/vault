@@ -192,7 +192,7 @@
           const fullTitle = match[1].trim();
           
           // Extract lesson ID (matches pattern like G1.01, F1.02, 1.01, etc)
-          const idMatch = fullTitle.match(/^[A-Z]?(\d+\.\d+)/i);
+          const idMatch = fullTitle.match(/^[A-Z]*(\d+\.\d+)/i);
           
           if (idMatch) {
             const lessonId = idMatch[1]; // Just the numeric part (1.01)
