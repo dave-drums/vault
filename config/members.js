@@ -213,7 +213,7 @@
   console.log('[DEBUG] isProtectedPage:', isProtectedPage());
   console.log('[DEBUG] isLeader:', isLeader());
   
-  if (!currentUser || !isLeader()) {
+  if (!currentUser || !isLeader() || window.location.pathname === '/members.html' || window.location.pathname === '/members' || window.location.pathname === '/contact.html' || window.location.pathname === '/contact') {
     console.log('[DEBUG] startSession BLOCKED - condition failed');
     return;
   }
@@ -2481,6 +2481,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
