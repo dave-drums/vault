@@ -112,7 +112,7 @@
     hamburger.innerHTML = '<span></span><span></span><span></span>';
     
     // Find hero and insert hamburger
-    var hero = document.querySelector('.course-hero, .vault-hero, .members-hero, .create-hero, .groove-hero');
+    var hero = document.querySelector('.course-hero, .vault-hero, .members-hero, .create-hero, .groove-hero, .contact-hero');
     if (hero) {
       hero.appendChild(hamburger);
     } else {
@@ -268,7 +268,7 @@
       top: 0;
       right: -100%;
       width: 100%;
-      max-width: 320px;
+      max-width: 280px;
       height: 100vh;
       background: rgba(26, 26, 46, 0.85);
       backdrop-filter: blur(20px);
@@ -378,7 +378,7 @@
     }
     @media (max-width: 768px) {
       .vault-menu-overlay {
-        max-width: 280px;
+        max-width: 260px;
       }
     }
     `;
