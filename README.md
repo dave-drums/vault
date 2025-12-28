@@ -59,6 +59,8 @@ vault.davedrums.com.au/
 ├── index.html              → Course pathways (home)
 ├── members.html            → User dashboard/login
 ├── create-account.html     → Registration
+├── contact.html            → Contact form ⭐NEW
+├── reset-pass.html         → Password reset ⭐NEW
 ├── admin.html              → Admin console
 ├── groove.html             → GrooveScribe tool
 ├── gs.html                 → Groove Studies (template)
@@ -76,6 +78,8 @@ vault.davedrums.com.au/
 - `/` or `/index.html` → Course pathways overview (PROTECTED)
 - `/members.html` → Login/dashboard (PUBLIC - handles both states)
 - `/create-account.html` → Registration (PUBLIC)
+- `/contact.html` → Contact support form (PROTECTED) ⭐NEW
+- `/reset-pass.html` → Password reset handler (PUBLIC) ⭐NEW
 - `/admin.html` → Admin console (PROTECTED + ADMIN ONLY)
 - `/groove.html` → GrooveScribe embed (PROTECTED)
 
@@ -167,6 +171,8 @@ Examples:
 ├── members.html            # Login/dashboard
 ├── create-account.html     # Registration
 ├── admin.html              # Admin console
+├── contact.html            # Contact form (members-only) ⭐NEW
+├── reset-pass.html         # Password reset handler ⭐NEW
 ├── groove.html             # GrooveScribe embed
 ├── gs.html                 # Groove Studies template
 ├── fs.html                 # Fill Studies template
@@ -178,6 +184,7 @@ Examples:
 │   ├── fill-studies.webp
 │   ├── stick-studies.webp
 │   ├── kick-studies.webp
+│   ├── other-courses.webp  ⭐NEW
 │   ├── members.webp
 │   ├── dwd-logo-500px.webp
 │   ├── drum-blue-200.png
@@ -263,9 +270,14 @@ All font sizes are controlled by CSS custom properties:
 #### `components.js` - Global UI Components
 Provides:
 - Toast notifications (`window.VaultToast.success()`, `.error()`, `.info()`)
+  - ⭐NEW: Vertical slide animations (up/down instead of left/right)
 - Hamburger menu (auto-injected)
+  - ⭐NEW: Glass morphism styling with blur effect
+  - ⭐NEW: Compact width (280px desktop, 260px mobile)
+  - ⭐NEW: Thin blue left border matching hero headers
 - Footer (auto-injected)
 - Scroll-to-top button
+  - ⭐NEW: Thick chevron design (more visible than previous arrow)
 
 #### `render.js` - Content Parser
 Converts Squarespace markdown syntax to HTML:
@@ -1396,6 +1408,34 @@ If logged in:
 
 ## Changelog & Version History
 
+### December 28, 2024 - UI/UX Enhancements & New Pages
+- ✅ Created `/contact.html` - Members-only contact form
+  - Web3Forms integration (free service)
+  - VaultToast notifications
+  - Standalone toast fallback system
+- ✅ Created `/reset-pass.html` - Firebase password reset handler
+  - Extracts oobCode from email links
+  - Password validation (6+ characters)
+  - Success/error state handling
+- ✅ Updated `components.js`:
+  - Glass morphism sidebar (blurred background, 85% opacity)
+  - Vertical toast animations (slide up/down)
+  - Thick chevron scroll-to-top button
+  - Compact sidebar width (280px → better use of space)
+  - Thin blue border on sidebar (matches hero headers)
+- ✅ Updated `course-data.js`:
+  - Removed dynamic progress loading for course cards
+  - Hardcoded lesson counts (23 for GS1, 15 for FS1)
+  - Simplified index page (no progress tracking display)
+- ✅ Updated `index.html`:
+  - Added "Learning to Read Rhythms" to Other Courses
+  - Static lesson counts (no JavaScript updating)
+- ✅ Updated `groove.html`:
+  - Added "Drum Notation Editor" badge below title
+- ✅ Updated `admin.js`:
+  - Added scrolling to invites modal (max-height: 80vh)
+  - Prevents overflow when invite list is large
+
 ### December 28, 2024 - Typography Centralization
 - ✅ Created `/config/typography.css`
 - ✅ Converted all hardcoded font-sizes to CSS variables
@@ -1429,4 +1469,4 @@ If logged in:
 ---
 
 *Last Updated: December 28, 2024*  
-*Version: 2.0 (Typography Centralized)*
+*Version: 2.1 (UI/UX Enhancements)*
