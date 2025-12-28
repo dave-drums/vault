@@ -208,9 +208,18 @@
     }
 
     function startSession(){
-      if (!currentUser || !isProtectedPage() || !isLeader()) return;
-
-      writeLock();
+  console.log('[DEBUG] startSession called');
+  console.log('[DEBUG] currentUser:', !!currentUser);
+  console.log('[DEBUG] isProtectedPage:', isProtectedPage());
+  console.log('[DEBUG] isLeader:', isLeader());
+  
+  if (!currentUser || !isProtectedPage() || !isLeader()) {
+    console.log('[DEBUG] startSession BLOCKED - condition failed');
+    return;
+  }
+  
+  console.log('[DEBUG] startSession STARTING...');
+  writeLock();
       sessionActive = true;
       endedByIdle = false;
 
@@ -2472,6 +2481,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
