@@ -1969,7 +1969,7 @@ function createGoalsContent(user){
       
       var emailNote = document.createElement('p');
       emailNote.className = 'profile-note';
-      emailNote.innerHTML = 'To change your email address, please <a href="https://davedrums.com.au/contact">contact support</a>.';
+      emailNote.innerHTML = 'To change your email address, please <a href="https://vault.davedrums.com.au/contact">contact support</a>.';
       emailCard.appendChild(emailNote);
       panel.appendChild(emailCard);
 
@@ -2468,3 +2468,4 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
