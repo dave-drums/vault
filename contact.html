@@ -14,16 +14,6 @@
   <!-- Typography Variables -->
   <link rel="stylesheet" href="/config/typography.css">
   
-  <!-- Firebase -->
-  <script src="/firebase/firebase-app-compat.js"></script>
-  <script src="/firebase/firebase-auth-compat.js"></script>
-  <script src="/firebase/firebase-init.js"></script>
-  
-  <!-- Vault Scripts -->
-  <script src="/config/auth-guard.js"></script>
-  <script src="/config/components.js"></script>
-  <script src="/config/error-handler.js"></script>
-  
   <style>
     * {
       margin: 0;
@@ -303,6 +293,17 @@
         font-size: var(--heading-card);
       }
     }
+    
+    /* TOAST ANIMATIONS */
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -311,7 +312,7 @@
   <div class="contact-hero">
     <div class="contact-hero-bg"></div>
     <div class="contact-hero-content">
-      <h1 class="contact-title">Contact</h1>
+      <h1 class="contact-title">Get in Touch</h1>
     </div>
   </div>
   
@@ -321,7 +322,7 @@
     <div class="contact-card">
       <div class="contact-header">
         <h2>Send a Message</h2>
-        <p>Fill out the form below and I'll get back to you soon</p>
+        <p>Fill out the form below and we'll get back to you soon</p>
       </div>
       
       <!-- Web3Forms Contact Form -->
@@ -371,7 +372,42 @@
   </div>
   
   <script>
-    // Handle form submission with Web3Forms and VaultToast system
+    // Standalone toast system
+    const Toast = {
+      show: function(message, type) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 16px 24px;
+          background: ${type === 'success' ? '#10b981' : '#ef4444'};
+          color: white;
+          border-radius: 10px;
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          font-weight: 500;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 10000;
+          animation: slideIn 0.3s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }, 4000);
+      },
+      success: function(message) {
+        this.show(message, 'success');
+      },
+      error: function(message) {
+        this.show(message, 'error');
+      }
+    };
+    
+    // Handle form submission
     const form = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
     
@@ -392,20 +428,14 @@
         const data = await response.json();
         
         if (data.success) {
-          // Use VaultToast for success message
-          if (window.VaultToast) {
-            window.VaultToast.success('Message sent successfully! We\'ll get back to you soon.');
-          }
+          Toast.success('Message sent successfully! We\'ll get back to you soon.');
           form.reset();
         } else {
           throw new Error(data.message || 'Something went wrong');
         }
       } catch (error) {
         console.error('Form submission error:', error);
-        // Use VaultToast for error message
-        if (window.VaultToast) {
-          window.VaultToast.error('Sorry, there was an error sending your message. Please try again or email us directly.');
-        }
+        Toast.error('Sorry, there was an error sending your message. Please try again or email us directly.');
       } finally {
         // Re-enable button
         submitBtn.disabled = false;
