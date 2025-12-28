@@ -45,6 +45,9 @@
     'ks1': { name: 'Kick Studies', level: 'Single Pedal', pathway: 'kicks', lessons: [] },
     'ks2': { name: 'Kick Studies', level: 'Double Pedal', pathway: 'kicks', lessons: [] },
     'ks3': { name: 'Kick Studies', level: 'Technique & Pedal Settings', pathway: 'kicks', lessons: [] }
+    'sc1': { name: 'Standalone Courses', level: 'Intro to Drums', pathway: 'standalone', lessons: [] }
+    'sc2': { name: 'Standalone Courses', level: 'Learning to Read Rhythms', pathway: 'standalone', lessons: [] }
+    'sc3': { name: 'Standalone Courses', level: 'Drum Kit Ergonomics', pathway: 'standalone', lessons: [] }
   };
   
   // ===========================================
