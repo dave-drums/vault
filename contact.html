@@ -14,6 +14,16 @@
   <!-- Typography Variables -->
   <link rel="stylesheet" href="/config/typography.css">
   
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+  
+  <!-- Vault Scripts -->
+  <script src="/config/auth-guard.js"></script>
+  <script src="/config/components.js"></script>
+  <script src="/config/error-handler.js"></script>
+  
   <style>
     * {
       margin: 0;
@@ -116,6 +126,7 @@
       .contact-title {
         font-size: var(--heading-hero-mobile);
       }
+    }
     
     @media (max-width: 480px) {
       .contact-hero {
@@ -325,10 +336,10 @@
         <p>Fill out the form below and we'll get back to you soon</p>
       </div>
       
-      <!-- Web3Forms Contact Form -->
-      <form action="https://api.web3forms.com/submit" method="POST" class="contact-form" id="contactForm">
+      <!-- Web3Forms Contact Form - No action attribute, JavaScript handles submission -->
+      <form class="contact-form" id="contactForm">
         
-        <!-- Web3Forms Access Key -->
+        <!-- Web3Forms Access Key (hidden) -->
         <input type="hidden" name="access_key" value="2326bcf2-bf0e-466f-86f7-9ffea5dddcfd">
         
         <!-- Honeypot Spam Protection -->
@@ -372,8 +383,8 @@
   </div>
   
   <script>
-    // Standalone toast system
-    const Toast = {
+    // Toast system - use VaultToast if available from components.js, otherwise use standalone
+    const Toast = window.VaultToast || {
       show: function(message, type) {
         const toast = document.createElement('div');
         toast.style.cssText = `
