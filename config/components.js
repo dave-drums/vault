@@ -510,7 +510,7 @@
     var btn = document.createElement('button');
     btn.id = 'vault-scroll-top';
     btn.className = 'vault-scroll-top';
-    btn.innerHTML = '↑';
+    btn.innerHTML = '';
     btn.setAttribute('aria-label', 'Scroll to top');
     document.body.appendChild(btn);
     
@@ -547,7 +547,6 @@
       border: none;
       border-radius: 50%;
       color: #fff;
-      font-size: var(--heading-section);
       cursor: pointer;
       z-index: 9997;
       opacity: 0;
@@ -557,6 +556,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .vault-scroll-top::before {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border-top: 4px solid white;
+      border-right: 4px solid white;
+      transform: rotate(-45deg);
+      margin-top: 5px;
     }
     .vault-scroll-top.visible {
       opacity: 1;
@@ -573,7 +581,12 @@
         right: 20px;
         width: 44px;
         height: 44px;
-        font-size: var(--heading-card);
+      }
+      .vault-scroll-top::before {
+        width: 14px;
+        height: 14px;
+        border-top: 3px solid white;
+        border-right: 3px solid white;
       }
     }
     `;
