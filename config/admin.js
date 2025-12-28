@@ -232,7 +232,7 @@ function openInvitesModal(db){
   var overlay = makeOverlay();
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:900px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
+  box.style.cssText = 'width:100%;max-width:900px;max-height:80vh;overflow-y:auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
   pvApplyFontFromBase(box);
 
   box.innerHTML =
