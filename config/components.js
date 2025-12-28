@@ -152,7 +152,7 @@
       '  </div>' +
       '  <div class="vault-menu-divider"></div>' +
       '  <div class="vault-menu-section">' +
-      '    <a href="https://www.davedrums.com.au/contact" target="_blank" class="vault-menu-link">Contact Support</a>' +
+      '    <a href="https://vault.davedrums.com.au/contact" target="_blank" class="vault-menu-link">Contact Support</a>' +
       '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
       '  </div>' +
       '</div>';
@@ -460,7 +460,7 @@
       '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-footer-logo">' +
       '  <nav class="vault-footer-links">' +
       '    <a href="https://www.davedrums.com.au/about" target="_blank" rel="noopener">About</a>' +
-      '    <a href="https://www.davedrums.com.au/contact" target="_blank" rel="noopener">Contact</a>' +
+      '    <a href="https://vault.davedrums.com.au/contact" target="_blank" rel="noopener">Contact</a>' +
       '    <a href="https://www.davedrums.com.au/terms" target="_blank" rel="noopener">Terms</a>' +
       '    <a href="https://www.davedrums.com.au/privacy" target="_blank" rel="noopener">Privacy</a>' +
       '  </nav>' +
