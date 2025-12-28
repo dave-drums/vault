@@ -213,7 +213,7 @@
   console.log('[DEBUG] isProtectedPage:', isProtectedPage());
   console.log('[DEBUG] isLeader:', isLeader());
   
-  if (!currentUser || !isProtectedPage() || !isLeader()) {
+  if (!currentUser || !isLeader()) {
     console.log('[DEBUG] startSession BLOCKED - condition failed');
     return;
   }
@@ -2481,6 +2481,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
