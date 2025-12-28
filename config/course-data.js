@@ -21,9 +21,9 @@
       name: 'Groove Studies',
       level: 'Level 1 – Beginner',
       pathway: 'groove',
-      lessons: ['GS1.01', 'GS1.02', 'GS1.03', 'GS1.04', 'GS1.05', 'GS1.06', 'GS1.07', 'GS1.08', 
-                'GS1.09', 'GS1.10', 'GS1.11', 'GS1.12', 'GS1.13', 'GS1.14', 'GS1.15', 'GS1.16',
-                'GS1.17', 'GS1.18', 'GS1.19', 'GS1.20', 'GS1.21', 'GS1.22', 'GS1.23']
+      lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
+                '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16',
+                '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23']
     },
     'gs2': { name: 'Groove Studies', level: 'Level 2 – Intermediate 1', pathway: 'groove', lessons: [] },
     'gs3': { name: 'Groove Studies', level: 'Level 3 – Intermediate 2', pathway: 'groove', lessons: [] },
@@ -32,8 +32,8 @@
        name: 'Fill Studies',
        level: 'Level 1 – Beginner',
        pathway: 'fills', 
-       lessons: ['FS1.01', 'FS1.02', 'FS1.03', 'FS1.04', 'FS1.05', 'FS1.06', 'FS1.07', 'FS1.08', 
-                'FS1.09', 'FS1.10', 'FS1.11', 'FS1.12', 'FS1.13', 'FS1.14', 'FS1.15']
+       lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
+                '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15']
     },
     'fs2': { name: 'Fill Studies', level: 'Level 2 – Intermediate 1', pathway: 'fills', lessons: [] },
     'fs3': { name: 'Fill Studies', level: 'Level 3 – Intermediate 2', pathway: 'fills', lessons: [] },
