@@ -401,7 +401,7 @@
         container.insertAdjacentHTML('beforeend', topNavHtml);
         
         container.appendChild(renderedContent);
-        
+
         // Add bottom navigation buttons
         const bottomNavHtml = `
           <div class="lesson-nav-bottom">
@@ -415,22 +415,8 @@
         `;
         container.insertAdjacentHTML('beforeend', bottomNavHtml);
         
-        // Add comments section
-        const commentsHtml = `
-          <div id="vault-comments" class="vault-comments">
-            <h3>Lesson Comments</h3>
-            <div id="vault-comments-meta" class="vault-comments-meta">Loading comments...</div>
-            <ul id="vault-comments-list" class="vault-comments-list"></ul>
-            <form id="vault-comment-form" class="vault-comment-form">
-              <textarea id="vault-comment-text" class="vault-comment-textarea" placeholder="Add a comment..." rows="3"></textarea>
-              <div class="vault-comment-actions">
-                <button type="submit" id="vault-comment-post" class="vault-comment-post-btn">Post Comment</button>
-                <span id="vault-comment-status" class="vault-comment-status"></span>
-              </div>
-            </form>
-          </div>
-        `;
-        container.insertAdjacentHTML('beforeend', commentsHtml);
+        // Add comments section - JUST EMPTY CONTAINER NOW
+        container.insertAdjacentHTML('beforeend', '<div id="vault-comments"></div>');
         
         // Initialize comments system
         if (typeof window.initVaultComments === 'function') {
