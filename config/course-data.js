@@ -19,29 +19,28 @@
   window.VAULT_COURSES = {
     'gs1': {
       name: 'Groove Studies',
-      level: 'Level 1 – Beginner',
+      level: 'Beginner',
       pathway: 'groove',
       lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
                 '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16',
                 '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23']
     },
-    'gs2': { name: 'Groove Studies', level: 'Level 2 – Intermediate 1', pathway: 'groove', lessons: [] },
-    'gs3': { name: 'Groove Studies', level: 'Level 3 – Intermediate 2', pathway: 'groove', lessons: [] },
-    'gs4': { name: 'Groove Studies', level: 'Level 4 – Advanced', pathway: 'groove', lessons: [] },
+    'gs2': { name: 'Groove Studies', level: 'Intermediate 1', pathway: 'groove', lessons: [] },
+    'gs3': { name: 'Groove Studies', level: 'Intermediate 2', pathway: 'groove', lessons: [] },
+    'gs4': { name: 'Groove Studies', level: 'Advanced', pathway: 'groove', lessons: [] },
     'fs1': { 
        name: 'Fill Studies',
-       level: 'Level 1 – Beginner',
+       level: 'Beginner',
        pathway: 'fills', 
        lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
                 '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15']
     },
-    'fs2': { name: 'Fill Studies', level: 'Level 2 – Intermediate 1', pathway: 'fills', lessons: [] },
-    'fs3': { name: 'Fill Studies', level: 'Level 3 – Intermediate 2', pathway: 'fills', lessons: [] },
-    'fs4': { name: 'Fill Studies', level: 'Level 4 – Advanced', pathway: 'fills', lessons: [] },
+    'fs2': { name: 'Fill Studies', level: 'Intermediate 1', pathway: 'fills', lessons: [] },
+    'fs3': { name: 'Fill Studies', level: 'Intermediate 2', pathway: 'fills', lessons: [] },
+    'fs4': { name: 'Fill Studies', level: 'Advanced', pathway: 'fills', lessons: [] },
     'ss1': { name: 'Stick Studies', level: 'Hand Speed & Endurance', pathway: 'sticks', lessons: [] },
     'ss2': { name: 'Stick Studies', level: 'Rudiments & Patterns', pathway: 'sticks', lessons: [] },
     'ss3': { name: 'Stick Studies', level: 'Technique', pathway: 'sticks', lessons: [] },
-    'ss4': { name: 'Stick Studies', level: 'Weak Hand Development', pathway: 'sticks', lessons: [] },
     'ks1': { name: 'Kick Studies', level: 'Single Pedal', pathway: 'kicks', lessons: [] },
     'ks2': { name: 'Kick Studies', level: 'Double Pedal', pathway: 'kicks', lessons: [] },
     'ks3': { name: 'Kick Studies', level: 'Technique & Pedal Settings', pathway: 'kicks', lessons: [] }
