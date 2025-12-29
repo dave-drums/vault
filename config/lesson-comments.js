@@ -300,6 +300,26 @@
     if (container.dataset.initialized === 'true') return;
     container.dataset.initialized = 'true';
 
+    // Create the comment form HTML structure
+  container.innerHTML = `
+    <h3>Lesson Comments</h3>
+    <div id="vault-comments-meta" class="vault-comments-meta"></div>
+    <ul id="vault-comments-list" class="vault-comments-list"></ul>
+    
+    <form id="vault-comment-form" class="vault-comment-form">
+      <textarea 
+        id="vault-comment-text" 
+        maxlength="1000" 
+        placeholder="Share your progress or ask a question..."
+        rows="3">
+      </textarea>
+      <div class="vault-comment-form-actions">
+        <span id="vault-comment-status" class="vault-comment-status"></span>
+        <button id="vault-comment-post" type="button">Post Comment</button>
+      </div>
+    </form>
+  `;
+    
     // Get Firebase instances from window (must be loaded first)
     if (!window.firebase || !window.firebase.auth || !window.firebase.firestore) {
       console.error('Vault Comments: Firebase not loaded');
