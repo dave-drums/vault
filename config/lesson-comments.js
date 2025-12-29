@@ -219,6 +219,7 @@
       display: none;
       grid-template-rows: 1fr auto;
       gap: 10px;
+      margin-top: 20px;
     }
 
     .vault-comment-form textarea{
