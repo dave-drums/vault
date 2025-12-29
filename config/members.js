@@ -1,8 +1,6 @@
 /* members.js
-   Purpose: Members page UI, practice tracking, progress management
+   Purpose: Members page UI
 */
-
-/* vault-metrics.js - Consolidated metrics, tracking, and progress */
 
 (function(){
   'use strict';
@@ -2248,3 +2246,4 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
