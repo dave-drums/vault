@@ -238,6 +238,11 @@
       outline: none;
       border-color: #06b3fd;
     }
+    
+    .vault-comment-form textarea::placeholder{
+      color: #999;
+      opacity: 1;
+    }
 
     .vault-comment-form-actions{
       display: flex;
