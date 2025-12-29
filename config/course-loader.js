@@ -398,7 +398,7 @@
             </button>
           </div>
         `;
-        container.insertAdjacentHTML('beforeend', topNavHtml);
+        container.insertAdjacentHTML('beforeend', '<div id="vault-comments" class="vault-comments"></div>');
         
         container.appendChild(renderedContent);
 
