@@ -313,12 +313,7 @@
     <ul id="vault-comments-list" class="vault-comments-list"></ul>
     
     <form id="vault-comment-form" class="vault-comment-form">
-      <textarea 
-        id="vault-comment-text" 
-        maxlength="1000" 
-        placeholder="Share your successes, progress, or challenges…"
-        rows="3">
-      </textarea>
+      <textarea id="vault-comment-text" maxlength="1000" placeholder="Share your successes, progress, or challenges…" rows="3"></textarea>
       <div class="vault-comment-form-actions">
         <span id="vault-comment-status" class="vault-comment-status"></span>
         <button id="vault-comment-post" type="button">Post Comment</button>
