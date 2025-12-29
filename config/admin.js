@@ -54,6 +54,17 @@ function formatTs(ts){
     timeZone: 'Australia/Brisbane'
   });
 }
+function formatTsNoYear(ts){
+  if (!ts || !ts.toDate) return '-';
+  return ts.toDate().toLocaleString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Australia/Brisbane'
+  });
+}
 function formatDateOnly(ts){
   if (!ts || !ts.toDate) return '-';
   return ts.toDate().toLocaleDateString('en-AU', {
@@ -150,121 +161,170 @@ function makeOverlay(){
   var overlay = document.createElement('div');
   overlay.setAttribute('role','dialog');
   overlay.setAttribute('aria-modal','true');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;font-family:Inter,sans-serif;';
   overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
   return overlay;
 }
 
+// NEW: Add User Modal with two-step process
 function openAddUserModal(db){
   var overlay = makeOverlay();
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:760px;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
-  pvApplyFontFromBase(box);
+  box.style.cssText = 'width:100%;max-width:500px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:Inter,sans-serif;';
 
-  box.innerHTML =
-    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:300;font-family:Oswald,sans-serif;">Add User</h4>' +
-    '<div style="margin:0 0 12px 0;line-height:1.4;color:#111;font-size:15px;">Create an invite link (expires in 7 days)</div>' +
-    '<label style="display:block;margin:0 0 6px 0;color:#111;font:inherit;">Email</label>' +
-    '<input id="pv-invite-email" type="email" style="display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;margin:0 0 14px 0;font:inherit;">' +
-    '<div id="pv-invite-out" style="display:none;margin:10px 0 0 0;padding:12px;border:1px solid #ddd;background:#f3f3f3;border-radius:12px;word-break:break-word;color:#111;font:inherit;"></div>' +
-    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
-      '<button id="pv-invite-cancel" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
-      '<button id="pv-invite-create" style="padding:6px 10px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font:inherit;font-size:14px;">Create Invite</button>' +
-    '</div>' +
-    '<div id="pv-invite-msg" style="text-align:center;margin-top:12px;min-height:18px;color:#c00;line-height:1.4;font:inherit;"></div>';
+  var headerHtml = 
+    '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
+      '<div>' +
+        '<div style="font-size:20px;font-weight:600;color:#1a1a2e;">Add User</div>' +
+        '<div style="font-size:14px;color:#999;margin-top:4px;">Create an invite link (7-day expiry)</div>' +
+      '</div>' +
+      '<button id="modal-close-btn" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:20px;cursor:pointer;color:#666;">&times;</button>' +
+    '</div>';
 
+  var step1Html = 
+    '<div id="email-step" style="padding:24px;">' +
+      '<div style="margin-bottom:20px;">' +
+        '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;">Email Address</label>' +
+        '<input type="email" id="invite-email" placeholder="user@example.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box;">' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button id="invite-close" style="flex:1;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+        '<button id="invite-create" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Create Invite</button>' +
+      '</div>' +
+    '</div>';
+
+  var step2Html = 
+    '<div id="invite-link-step" style="padding:24px;display:none;">' +
+      '<div style="background:#d1fae5;border:1px solid #10b981;border-radius:8px;padding:16px;margin-bottom:20px;text-align:center;">' +
+        '<div style="font-size:24px;margin-bottom:8px;">✓</div>' +
+        '<div style="font-size:15px;font-weight:600;color:#059669;font-family:Inter,sans-serif;">Invite Created Successfully</div>' +
+      '</div>' +
+      '<div style="margin-bottom:6px;">' +
+        '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Invite Link</label>' +
+        '<textarea id="invite-url" readonly style="width:100%;min-height:80px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:Courier New,monospace;background:#f8f9fa;color:#444;box-sizing:border-box;resize:none;"></textarea>' +
+      '</div>' +
+      '<div style="font-size:12px;color:#999;margin-bottom:16px;font-family:Inter,sans-serif;">Link expires in 7 days</div>' +
+      '<button id="copy-invite" style="width:100%;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;">📋 Copy Link</button>' +
+      '<button id="reset-modal" style="width:100%;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+    '</div>';
+
+  box.innerHTML = headerHtml + step1Html + step2Html;
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
   function close(){ overlay.remove(); }
-  box.querySelector('#pv-invite-cancel').addEventListener('click', close);
+  
+  box.querySelector('#modal-close-btn').addEventListener('click', close);
+  box.querySelector('#invite-close').addEventListener('click', close);
 
-  var createBtn = box.querySelector('#pv-invite-create');
-  var emailEl = box.querySelector('#pv-invite-email');
-  var outEl = box.querySelector('#pv-invite-out');
-  var msgEl = box.querySelector('#pv-invite-msg');
-  function setMsg(t){ msgEl.textContent = t || ''; }
+  var emailInput = box.querySelector('#invite-email');
+  var createBtn = box.querySelector('#invite-create');
+  var step1 = box.querySelector('#email-step');
+  var step2 = box.querySelector('#invite-link-step');
+  var urlTextarea = box.querySelector('#invite-url');
 
-  function createInvite(email){
+  function resetModal(){
+    step1.style.display = 'block';
+    step2.style.display = 'none';
+    emailInput.value = '';
+  }
+
+  box.querySelector('#reset-modal').addEventListener('click', close);
+
+  createBtn.addEventListener('click', function(){
+    var email = (emailInput.value || '').trim().toLowerCase();
+    if (!email) {
+      if (window.VaultErrors) window.VaultErrors.info('Please enter an email address');
+      return;
+    }
+
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+
     var token = randomToken(16);
     var expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    return db.collection(INVITES_COL).doc(token).set({
+    
+    db.collection(INVITES_COL).doc(token).set({
       email: email,
       used: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       expiresAt: firebase.firestore.Timestamp.fromDate(expires)
     }).then(function(){
-      return { token: token, link: CREATE_ACCOUNT_URL_BASE + token };
-    });
-  }
-
-  createBtn.addEventListener('click', function(){
-    setMsg('');
-    var email = (emailEl.value || '').trim().toLowerCase();
-    if (!email) { setMsg('Enter an email.'); return; }
-
-    createBtn.disabled = true;
-
-    createInvite(email).then(function(res){
+      var link = CREATE_ACCOUNT_URL_BASE + token;
+      
+      step1.style.display = 'none';
+      step2.style.display = 'block';
+      urlTextarea.value = link;
+      
       createBtn.disabled = false;
-
-      outEl.style.display = 'block';
-      outEl.innerHTML =
-        '<div style="font-weight:600;margin:0 0 6px 0;font-family:Inter,sans-serif;color:#111;">Invite link</div>' +
-        '<div style="display:flex;gap:10px;align-items:center;justify-content:space-between;">' +
-          '<div style="word-break:break-word;flex:1;font:inherit;color:#111;">' + escapeHtml(res.link) + '</div>' +
-          '<button id="pv-invite-copy" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;white-space:nowrap;">Copy</button>' +
-        '</div>';
-
-      box.querySelector('#pv-invite-copy').addEventListener('click', function(){
-        copyText(res.link).catch(function(){});
-      });
+      createBtn.textContent = 'Create Invite';
     }).catch(function(err){
       createBtn.disabled = false;
-      setMsg('Could not create invite. Please try again.');
-      try { console.warn(err); } catch(e){}
+      createBtn.textContent = 'Create Invite';
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(err, 'Create Invite');
+      } else {
+        alert('Failed to create invite');
+      }
+    });
+  });
+
+  box.querySelector('#copy-invite').addEventListener('click', function(){
+    copyText(urlTextarea.value).then(function(){
+      if (window.VaultErrors) {
+        window.VaultErrors.success('Invite link copied!');
+      }
+    }).catch(function(){
+      if (window.VaultErrors) {
+        window.VaultErrors.info('Failed to copy link');
+      }
     });
   });
 }
 
+// NEW: Invites Modal with revoke for all invites
 function openInvitesModal(db){
   var overlay = makeOverlay();
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:900px;max-height:80vh;overflow-y:auto;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;';
-  pvApplyFontFromBase(box);
+  box.style.cssText = 'width:100%;max-width:900px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:85vh;display:flex;flex-direction:column;font-family:Inter,sans-serif;';
 
   box.innerHTML =
-    '<h4 style="margin:0 0 12px 0;color:#111;font-size:16px;font-weight:300;font-family:Oswald,sans-serif;">Invites</h4>' +
-    '<div id="pv-invites-list" style="margin-top:10px;font:inherit;color:#111;"></div>' +
-    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">' +
-      '<button id="pv-invites-close" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Close</button>' +
-    '</div>';
+    '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
+      '<div>' +
+        '<div style="font-size:20px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">Invitation Links</div>' +
+        '<div style="font-size:14px;color:#999;margin-top:4px;font-family:Inter,sans-serif;">Manage user invitations</div>' +
+      '</div>' +
+      '<button id="invites-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:20px;cursor:pointer;color:#666;">&times;</button>' +
+    '</div>' +
+    '<div id="invites-list-container" style="flex:1;overflow-y:auto;padding:20px;"></div>';
 
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
   function close(){ overlay.remove(); }
-  box.querySelector('#pv-invites-close').addEventListener('click', close);
+  box.querySelector('#invites-close').addEventListener('click', close);
 
-  var listEl = box.querySelector('#pv-invites-list');
+  var listContainer = box.querySelector('#invites-list-container');
+  listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading...</div>';
 
-  db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(50).get()
+  db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(100).get()
     .then(function(snap){
       if (snap.empty) {
-        listEl.textContent = 'No invites yet.';
+        listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No invites yet.</div>';
         return;
       }
 
-      var tbl = '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
-                '<thead><tr>' +
-                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Email</th>' +
-                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Status</th>' +
-                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Created</th>' +
-                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Expires</th>' +
-                '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Actions</th>' +
-                '</tr></thead><tbody>';
+      var tableHtml = 
+        '<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;overflow:hidden;">' +
+          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;background:#e9ecef;font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;font-family:Inter,sans-serif;">' +
+            '<div>Email</div>' +
+            '<div>Status</div>' +
+            '<div>Created</div>' +
+            '<div>Expires</div>' +
+            '<div>Action</div>' +
+          '</div>';
 
       snap.forEach(function(doc){
         var d = doc.data();
@@ -272,44 +332,74 @@ function openInvitesModal(db){
         var used = d.used === true;
         var createdAt = d.createdAt ? formatDateOnly(d.createdAt) : '-';
         var expiresAt = d.expiresAt ? formatDateOnly(d.expiresAt) : '-';
+        
+        var now = Date.now();
+        var expiryMs = tsToMs(d.expiresAt);
+        var isExpired = expiryMs > 0 && now > expiryMs;
 
-        var status = used ? 'Used' : 'Active';
-        var statusColor = used ? '#999' : '#0a0';
-
-        tbl += '<tr>';
-        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(email) + '</td>';
-        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;color:' + statusColor + ';">' + status + '</td>';
-        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + createdAt + '</td>';
-        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">' + expiresAt + '</td>';
-        tbl += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;">';
-        if (!used) {
-          tbl += '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:4px 8px;border-radius:4px;border:1px solid #d00;background:#ffe;color:#d00;cursor:pointer;font-size:12px;">Revoke</button>';
+        var status, statusBg, statusColor;
+        if (used) {
+          status = 'Used';
+          statusBg = '#e0f2fe';
+          statusColor = '#0284c7';
+        } else if (isExpired) {
+          status = 'Expired';
+          statusBg = '#fee2e2';
+          statusColor = '#dc2626';
+        } else {
+          status = 'Active';
+          statusBg = '#d1fae5';
+          statusColor = '#059669';
         }
-        tbl += '</td>';
-        tbl += '</tr>';
+
+        var opacity = (used || isExpired) ? '0.6' : '1';
+
+        tableHtml += 
+          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;border-bottom:1px solid #e9ecef;background:white;align-items:center;font-family:Inter,sans-serif;opacity:' + opacity + ';">' +
+            '<div style="font-size:14px;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(email) + '</div>' +
+            '<div>' +
+              '<span style="display:inline-block;padding:4px 10px;background:' + statusBg + ';color:' + statusColor + ';border-radius:12px;font-size:12px;font-weight:600;">' + status + '</span>' +
+            '</div>' +
+            '<div style="font-size:13px;color:#666;">' + createdAt + '</div>' +
+            '<div style="font-size:13px;color:#666;">' + expiresAt + '</div>' +
+            '<div>' +
+              (used ? '<span style="font-size:12px;color:#999;font-style:italic;">—</span>' : 
+                '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:6px 12px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Revoke</button>') +
+            '</div>' +
+          '</div>';
       });
 
-      tbl += '</tbody></table>';
-      listEl.innerHTML = tbl;
-      
-      listEl.querySelectorAll('.revoke-invite-btn').forEach(function(btn){
+      tableHtml += '</div>';
+      listContainer.innerHTML = tableHtml;
+
+      listContainer.querySelectorAll('.revoke-invite-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
           var inviteId = btn.getAttribute('data-invite-id');
-          if (confirm('Delete this invite?')) {
+          if (confirm('Revoke this invitation? The link will no longer work.')) {
             db.collection(INVITES_COL).doc(inviteId).delete()
               .then(function(){
+                if (window.VaultErrors) {
+                  window.VaultErrors.success('Invitation revoked');
+                }
                 overlay.remove();
                 openInvitesModal(db);
               })
               .catch(function(e){
-                alert('Failed to delete invite.');
+                if (window.VaultErrors) {
+                  window.VaultErrors.handle(e, 'Revoke Invite');
+                } else {
+                  alert('Failed to revoke invite');
+                }
               });
           }
         });
       });
     })
-    .catch(function(){
-      listEl.textContent = 'Error loading invites.';
+    .catch(function(e){
+      listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading invites</div>';
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(e, 'Load Invites');
+      }
     });
 }
 
@@ -330,118 +420,36 @@ document.addEventListener('DOMContentLoaded', function(){
       .catch(function(){ return false; });
   }
 
-  function openUserDetailsModal(uid){
-    var userDoc = db.collection('users').doc(uid);
-    var statsDoc = userDoc.collection('metrics').doc('stats');
-    var notesDoc = userDoc.collection('admin').doc('notes');
-    
-    Promise.all([
-      userDoc.get(),
-      statsDoc.get(),
-      notesDoc.get()
-    ]).then(function(results){
-      var userData = results[0].exists ? results[0].data() : {};
-      var statsData = results[1].exists ? results[1].data() : {};
-      var notesData = results[2].exists ? results[2].data() : {};
-      
-      var joinedAt = userData.createdAt;
-      var lastLogin = statsData.lastLoginAt;
-      
-      var overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999;';
-      
-      var modal = document.createElement('div');
-      modal.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.3);';
-      pvApplyFontFromBase(modal);
-      
-      modal.innerHTML = 
-        '<h4 style="margin:0 0 20px 0;font-size:20px;font-weight:300;font-family:Oswald,sans-serif;">Student Details</h4>' +
-        '<div class="p2" style="margin:0 0 20px 0;padding-bottom:20px;border-bottom:1px solid #ddd;">👤 ' + escapeHtml(userData.email || '') + '</div>' +
-        
-        '<div style="margin-bottom:16px;">' +
-          '<div style="font-size:13px;color:#666;margin-bottom:4px;">Joined</div>' +
-          '<div style="font-size:15px;">' + formatDateOnly(joinedAt) + ' <span style="color:#999;font-size:14px;">' + formatRelativeTime(joinedAt) + '</span></div>' +
-        '</div>' +
-        
-        '<div style="margin-bottom:16px;">' +
-          '<div style="font-size:13px;color:#666;margin-bottom:4px;">Last Login</div>' +
-          '<div style="font-size:15px;">' + formatTs(lastLogin) + ' <span style="color:#999;font-size:14px;">' + formatRelativeTime(lastLogin) + '</span></div>' +
-        '</div>' +
-        
-        '<div style="margin-bottom:16px;">' +
-          '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Username</label>' +
-          '<input type="text" id="modal-username" value="' + escapeHtml(userData.displayName || '') + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
-        '</div>' +
-        
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
-          '<div>' +
-            '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">First Name</label>' +
-            '<input type="text" id="modal-firstname" value="' + escapeHtml(userData.firstName || '') + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
-          '</div>' +
-          '<div>' +
-            '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Last Name</label>' +
-            '<input type="text" id="modal-lastname" value="' + escapeHtml(userData.lastName || '') + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:15px;">' +
-          '</div>' +
-        '</div>' +
-        
-        '<div style="margin-bottom:16px;">' +
-          '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#333;">' +
-            '<input type="checkbox" id="modal-age-confirmed" style="width:18px;height:18px;cursor:pointer;">' +
-            '<span>Above 16 years of age</span>' +
-          '</label>' +
-        '</div>' +
-        
-        '<div style="margin-bottom:20px;">' +
-          '<label style="display:block;font-size:13px;color:#666;margin-bottom:4px;">Notes</label>' +
-          '<textarea id="modal-notes" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:14px;resize:vertical;">' + escapeHtml(notesData.text || '') + '</textarea>' +
-        '</div>' +
-        
-        '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
-          '<button id="modal-cancel" style="padding:10px 20px;border:1px solid #ccc;background:#f3f3f3;border-radius:8px;cursor:pointer;font-size:14px;">Cancel</button>' +
-          '<button id="modal-save" style="padding:10px 20px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;border-radius:8px;cursor:pointer;font-size:14px;">Save</button>' +
-        '</div>';
-      
-      overlay.appendChild(modal);
-      document.body.appendChild(overlay);
-      
-      // Load ageConfirmed status
-      var ageConfirmed = userData.ageConfirmed === true;
-      modal.querySelector('#modal-age-confirmed').checked = ageConfirmed;
-      
-      overlay.addEventListener('click', function(e){
-        if (e.target === overlay) overlay.remove();
+  // NEW: Inline accordion editing - no separate profile modal
+  function saveUserChanges(uid, accordionEl){
+    var firstName = accordionEl.querySelector('.edit-firstname').value.trim();
+    var lastName = accordionEl.querySelector('.edit-lastname').value.trim();
+    var displayName = accordionEl.querySelector('.edit-displayname').value.trim();
+    var ageConfirmed = accordionEl.querySelector('.edit-age-confirmed').checked;
+    var selfProgress = accordionEl.querySelector('.edit-self-progress').checked;
+
+    var updates = {
+      firstName: firstName,
+      lastName: lastName,
+      displayName: displayName,
+      ageConfirmed: ageConfirmed,
+      selfProgress: selfProgress
+    };
+
+    db.collection('users').doc(uid).set(updates, { merge: true })
+      .then(function(){
+        if (window.VaultErrors) {
+          window.VaultErrors.success('Changes saved');
+        }
+        loadOnce();
+      })
+      .catch(function(e){
+        if (window.VaultErrors) {
+          window.VaultErrors.handle(e, 'Save Changes');
+        } else {
+          alert('Save failed');
+        }
       });
-      
-      modal.querySelector('#modal-cancel').addEventListener('click', function(){
-        overlay.remove();
-      });
-      
-      modal.querySelector('#modal-save').addEventListener('click', function(){
-        var ageConfirmed = modal.querySelector('#modal-age-confirmed').checked;
-        
-        var updates = {
-          displayName: modal.querySelector('#modal-username').value.trim(),
-          firstName: modal.querySelector('#modal-firstname').value.trim(),
-          lastName: modal.querySelector('#modal-lastname').value.trim(),
-          ageConfirmed: ageConfirmed
-        };
-        
-        var notesText = modal.querySelector('#modal-notes').value.trim();
-        
-        Promise.all([
-          userDoc.set(updates, { merge: true }),
-          notesDoc.set({ text: notesText, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
-        ]).then(function(){
-          overlay.remove();
-          loadOnce();
-        }).catch(function(e){
-          alert('Save failed: ' + (e.message || e));
-        });
-      });
-      
-    }).catch(function(e){
-      alert('Failed to load user data: ' + (e.message || e));
-    });
   }
 
   function openProgressModal(db, uid, displayName){
@@ -449,8 +457,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var box = document.createElement('div');
     box.style.cssText = 'width:100%;max-width:600px;background:#fff;border-radius:12px;' +
-      'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;max-height:90vh;overflow-y:auto;';
-    pvApplyFontFromBase(box);
+      'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;max-height:90vh;overflow-y:auto;font-family:Inter,sans-serif;';
 
     var header = document.createElement('h4');
     header.textContent = 'Progress: ' + displayName;
@@ -470,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function(){
     
     var selfProgressText = document.createElement('span');
     selfProgressText.textContent = 'Allow self-progress (user can mark lessons complete)';
-    selfProgressText.style.cssText = 'font-size:14px;color:#333;';
+    selfProgressText.style.cssText = 'font-size:14px;color:#333;font-family:Inter,sans-serif;';
     
     selfProgressLabel.appendChild(selfProgressCheckbox);
     selfProgressLabel.appendChild(selfProgressText);
@@ -498,51 +505,128 @@ document.addEventListener('DOMContentLoaded', function(){
 
     var courseLabel = document.createElement('label');
     courseLabel.textContent = 'Select Course:';
-    courseLabel.style.cssText = 'display:block;margin:0 0 6px 0;font-weight:600;color:#111;font-family:Inter,sans-serif;';
+    courseLabel.style.cssText = 'display:block;margin:0 0 8px 0;font-weight:600;color:#111;font-family:Inter,sans-serif;';
     box.appendChild(courseLabel);
 
     var courseSelect = document.createElement('select');
-    courseSelect.style.cssText = 'display:block;width:100%;padding:10px;border:1px solid #ccc;' +
-      'border-radius:6px;margin-bottom:16px;font:inherit;';
-    
-    var defaultOption = document.createElement('option');
-    defaultOption.value = '';
-    defaultOption.textContent = '-- Choose a course --';
-    courseSelect.appendChild(defaultOption);
+    courseSelect.style.cssText = 'width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:16px;font-family:Inter,sans-serif;';
 
-    if (window.VAULT_COURSES) {
-      Object.keys(window.VAULT_COURSES).forEach(function(courseId){
-        var course = window.VAULT_COURSES[courseId];
+    if (typeof window.VAULT_COURSES !== 'undefined' && window.VAULT_COURSES.length) {
+      window.VAULT_COURSES.forEach(function(c){
         var opt = document.createElement('option');
-        opt.value = courseId;
-        opt.textContent = course.name + ' (' + courseId + ')';
+        opt.value = c.id;
+        opt.textContent = c.name;
         courseSelect.appendChild(opt);
       });
+    } else {
+      var opt = document.createElement('option');
+      opt.textContent = 'No courses available';
+      opt.disabled = true;
+      courseSelect.appendChild(opt);
     }
 
     box.appendChild(courseSelect);
 
-    var checklistContainer = document.createElement('div');
-    checklistContainer.id = 'admin-lesson-checklist';
-    checklistContainer.style.cssText = 'display:none;max-height:400px;overflow-y:auto;' +
-      'border:1px solid #ddd;border-radius:8px;padding:12px;background:#fafafa;';
-    box.appendChild(checklistContainer);
+    var container = document.createElement('div');
+    container.style.cssText = 'margin-top:12px;';
+    box.appendChild(container);
 
-    courseSelect.addEventListener('change', function(){
-      var courseId = courseSelect.value;
-      if (!courseId) {
-        checklistContainer.style.display = 'none';
+    function loadCourseProgress(courseId){
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-family:Inter,sans-serif;">Loading...</div>';
+
+      var course = null;
+      if (window.VAULT_COURSES) {
+        for (var i = 0; i < window.VAULT_COURSES.length; i++) {
+          if (window.VAULT_COURSES[i].id === courseId) {
+            course = window.VAULT_COURSES[i];
+            break;
+          }
+        }
+      }
+
+      if (!course || !course.lessons || !course.lessons.length) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-family:Inter,sans-serif;">No lessons found for this course.</div>';
         return;
       }
 
-      renderLessonChecklist(db, uid, courseId, checklistContainer);
+      db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+        .then(function(doc){
+          var data = doc.exists ? (doc.data() || {}) : {};
+          var completed = data.completed || {};
+
+          var list = document.createElement('div');
+          list.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+          course.lessons.forEach(function(lessonId){
+            var isCompleted = completed[lessonId] === true;
+
+            var item = document.createElement('label');
+            item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;';
+
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = isCompleted;
+            checkbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+
+            checkbox.addEventListener('change', function(){
+              var newState = checkbox.checked;
+              checkbox.disabled = true;
+              toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox);
+            });
+
+            var label = document.createElement('span');
+            label.textContent = 'Lesson ' + lessonId;
+            label.style.cssText = 'font-size:14px;color:#333;font-family:Inter,sans-serif;';
+
+            item.appendChild(checkbox);
+            item.appendChild(label);
+            list.appendChild(item);
+          });
+
+          container.appendChild(list);
+        })
+        .catch(function(e){
+          console.error('Failed to load progress:', e);
+          container.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;font-family:Inter,sans-serif;">Error loading progress</div>';
+        });
+    }
+
+    function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
+      db.collection('users').doc(uid).collection('progress').doc(courseId)
+        .set({
+          completed: {
+            [lessonId]: newState
+          },
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true })
+        .then(function(){
+          checkbox.disabled = false;
+          if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+        })
+        .catch(function(e){
+          checkbox.checked = !newState;
+          checkbox.disabled = false;
+          console.error('Failed to update:', e);
+          
+          if(window.VaultToast) {
+            window.VaultToast.error('Update failed: ' + e.message);
+          } else {
+            alert('Update failed: ' + e.message);
+          }
+        });
+    }
+
+    courseSelect.addEventListener('change', function(){
+      loadCourseProgress(courseSelect.value);
     });
+
+    if (courseSelect.options.length > 0 && courseSelect.value) {
+      loadCourseProgress(courseSelect.value);
+    }
 
     var closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
-    closeBtn.type = 'button';
-    closeBtn.style.cssText = 'margin-top:16px;padding:10px 20px;border-radius:6px;border:1px solid #ccc;' +
-      'background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;';
+    closeBtn.style.cssText = 'margin-top:20px;width:100%;padding:10px;border:1px solid #ccc;background:#f3f3f3;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-size:14px;';
     closeBtn.addEventListener('click', function(){ overlay.remove(); });
     box.appendChild(closeBtn);
 
@@ -550,121 +634,37 @@ document.addEventListener('DOMContentLoaded', function(){
     document.body.appendChild(overlay);
   }
 
-  function renderLessonChecklist(db, uid, courseId, container){
-    container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Loading...</div>';
-    container.style.display = 'block';
+  function bindHandlers(){
+    // Toggle accordion
+    rootEl.querySelectorAll('.accordion-header').forEach(function(header){
+      header.addEventListener('click', function(){
+        var item = header.closest('.accordion-item');
+        var wasOpen = item.classList.contains('open');
 
-    var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
-    if (!courseConfig) {
-      container.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">Course not configured</div>';
-      return;
-    }
-
-    if (!courseConfig.lessons || courseConfig.lessons.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">No lessons configured for this course yet.</div>';
-      return;
-    }
-
-    db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-      .then(function(snap){
-        var completed = {};
-        if (snap.exists) {
-          completed = snap.data().completed || {};
-        }
-
-        container.innerHTML = '';
-
-        var list = document.createElement('div');
-        list.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
-
-        courseConfig.lessons.forEach(function(lessonId){
-          var item = document.createElement('label');
-          item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px;' +
-            'background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer;' +
-            'transition:all 0.2s ease;';
-          
-          item.addEventListener('mouseenter', function(){
-            item.style.background = '#f5f5f5';
-          });
-          item.addEventListener('mouseleave', function(){
-            item.style.background = '#fff';
-          });
-
-          var checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.checked = completed[lessonId] === true;
-          checkbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
-          
-          checkbox.addEventListener('change', function(){
-            var newState = checkbox.checked;
-            checkbox.disabled = true;
-            toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox);
-          });
-
-          var label = document.createElement('span');
-          // Note: Lesson IDs come from VAULT_COURSES config
-          // Lesson TITLES are in master course files (e.g. gs1.txt: === LESSON 1.01 | Start Here ===)
-          // To show titles here, would need to either:
-          // 1) Fetch and parse course .txt file, or
-          // 2) Add lesson titles to VAULT_COURSES config
-          label.textContent = 'Lesson ' + lessonId;
-          label.style.cssText = 'font-size:14px;color:#333;';
-
-          item.appendChild(checkbox);
-          item.appendChild(label);
-          list.appendChild(item);
+        // Close all
+        rootEl.querySelectorAll('.accordion-item').forEach(function(i){
+          i.classList.remove('open');
         });
 
-        container.appendChild(list);
-      })
-      .catch(function(e){
-        console.error('Failed to load progress:', e);
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">Error loading progress</div>';
-      });
-  }
-
-function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
-    db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .set({
-        completed: {
-          [lessonId]: newState
-        },
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true })
-      .then(function(){
-        checkbox.disabled = false;
-        if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
-      })
-      .catch(function(e){
-        checkbox.checked = !newState;
-        checkbox.disabled = false;
-        console.error('Failed to update:', e);
-        
-        if(window.VaultToast) {
-          window.VaultToast.error('Update failed: ' + e.message);
-        } else {
-          alert('Update failed: ' + e.message);
+        // Open clicked if wasn't open
+        if (!wasOpen) {
+          item.classList.add('open');
         }
-      });
-  }
-
-  function bindHandlers(){
-    rootEl.querySelectorAll('.pv-name-link').forEach(function(link){
-      link.addEventListener('click', function(e){
-        e.preventDefault();
-        openUserDetailsModal(link.getAttribute('data-uid'));
       });
     });
 
-    rootEl.querySelectorAll('.pv-profile-btn').forEach(function(btn){
+    // Save Changes buttons
+    rootEl.querySelectorAll('.save-changes-btn').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
         var uid = btn.getAttribute('data-uid');
-        openUserDetailsModal(uid);
+        var accordionEl = btn.closest('.accordion-item');
+        saveUserChanges(uid, accordionEl);
       });
     });
 
-    rootEl.querySelectorAll('.pv-progress-btn').forEach(function(btn){
+    // View Progress buttons
+    rootEl.querySelectorAll('.view-progress-btn').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
         var uid = btn.getAttribute('data-uid');
@@ -680,6 +680,7 @@ function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
     if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
   }
 
+  // NEW: Render accordion layout
   function render(users){
     var nowMs = Date.now();
 
@@ -698,127 +699,228 @@ function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
       : 'No one online right now.';
 
     var html = '';
-    html += '<div style="margin:0 0 18px 0;padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<h4 class="members-title" style="margin:0 0 10px 0;">CURRENTLY ONLINE</h4>';
-    html += '<div style="font-size:14px;line-height:1.5;word-break:break-word;">' + onlineText + '</div>';
+    
+    // Currently Online section
+    html += '<div style="margin:0 0 18px 0;padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
+    html += '<h4 style="margin:0 0 10px 0;font-family:Oswald,sans-serif;font-size:16px;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;">CURRENTLY ONLINE</h4>';
+    html += '<div style="font-size:14px;line-height:1.5;word-break:break-word;font-family:Inter,sans-serif;">' + onlineText + '</div>';
     html += '</div>';
 
-    html += '<div style="padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 8px 28px rgba(0,0,0,0.12);">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px 0;">' +
-              '<h4 class="members-title" style="margin:0;">STUDENT LIST</h4>' +
-              '<div style="display:flex;gap:10px;align-items:center;">' +
-                '<button id="pv-add-user-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Add user</button>' +
-                '<button id="pv-invites-btn" style="padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#f3f3f3;cursor:pointer;font:inherit;font-size:14px;">Invites</button>' +
+    // Student List section with accordion
+    html += '<div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
+    html += '<div style="padding:20px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;">' +
+              '<div style="font-family:Oswald,sans-serif;font-size:18px;font-weight:600;color:#1a1a2e;">Student List (' + users.length + ')</div>' +
+              '<div style="display:flex;gap:10px;">' +
+                '<button id="pv-invites-btn" style="padding:10px 18px;background:#6b7280;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Invites</button>' +
+                '<button id="pv-add-user-btn" style="padding:10px 18px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">+ Add User</button>' +
               '</div>' +
             '</div>';
 
-    html += '<div style="overflow-x:auto;">';
-    html += '<table style="width:100%;border-collapse:collapse;font-size:14px;">';
-    html += '<thead><tr>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Account</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Name</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Last Login</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Avg Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Total Time</th>';
-    html += '<th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;white-space:nowrap;">Actions</th>';
-    html += '</tr></thead><tbody>';
+    html += '<div style="padding:12px;">';
 
     if (!users.length) {
-      html += '<tr><td colspan="6" style="padding:12px;opacity:.75;">No students yet.</td></tr>';
+      html += '<div style="padding:40px 20px;text-align:center;color:#999;font-family:Inter,sans-serif;">No students yet.</div>';
     } else {
       users.forEach(function(u){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
-        var dot = statusDot(u.lastLogin, u.joinedAt);
-        var device = String(u.lastDeviceEmoji || '').trim() || '❓';
+        var activityDot = statusDot(u.lastLogin, u.joinedAt);
+        
+        var statusBadgeClass = isOnline ? '' : ' offline';
+        var statusText = isOnline ? 'Online' : 'Offline';
 
-        html += '<tr>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;"><a href="#" class="pv-name-link" data-uid="' + escapeHtml(u.uid) + '" style="color:#06b3fd;text-decoration:none;cursor:pointer;">' + (isOnline ? '🥁 ' : '') + escapeHtml(u.email) + '</a></td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + escapeHtml(u.fullName || '-') + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + dot + ' ' + formatTs(u.lastLogin) + ' ' + device + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' + formatDuration(u.totalSeconds) + '</td>';
-        html += '<td style="padding:8px;border-bottom:1px solid #f0f0f0;white-space:nowrap;">' +
-          '<button class="pv-profile-btn" data-uid="' + escapeHtml(u.uid) + '" style="padding:4px 10px;margin-right:6px;border-radius:6px;border:1px solid #06b3fd;background:#06b3fd;color:#fff;cursor:pointer;font-size:12px;">Profile</button>' +
-          '<button class="pv-progress-btn" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.email) + '" style="padding:4px 10px;border-radius:6px;border:1px solid #10b981;background:#10b981;color:#fff;cursor:pointer;font-size:12px;">Progress</button>' +
-        '</td>';
-        html += '</tr>';
+        html += '<div class="accordion-item" style="background:#fafafa;border:1px solid #e0e0e0;margin-bottom:10px;border-radius:10px;overflow:hidden;transition:all 0.2s;">';
+        
+        // Accordion Header (collapsed view)
+        html += '<div class="accordion-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;transition:background 0.2s;">';
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<div style="font-weight:600;font-size:15px;color:#1a1a2e;margin-bottom:4px;font-family:Inter,sans-serif;">' + escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
+        html += '<div style="font-size:13px;color:#999;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:Inter,sans-serif;">';
+        html += '<span>' + escapeHtml(u.email) + '</span>';
+        html += '<span>•</span>';
+        html += '<span>Last: ' + formatTsNoYear(u.lastLogin) + '</span>';
+        html += '<span style="font-size:16px;">' + activityDot + '</span>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div style="display:flex;align-items:center;gap:12px;">';
+        html += '<div class="status-badge' + statusBadgeClass + '" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:' + (isOnline ? '#e8f9f3' : '#f3f4f6') + ';color:' + (isOnline ? '#059669' : '#999') + ';border-radius:14px;font-size:15px;font-weight:600;white-space:nowrap;font-family:Inter,sans-serif;">';
+        html += '<span style="width:8px;height:8px;border-radius:50%;background:' + (isOnline ? '#059669' : '#999') + ';"></span>';
+        html += statusText;
+        html += '</div>';
+        html += '<div class="chevron" style="color:#999;font-size:20px;transition:transform 0.2s;">›</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Accordion Body (expanded view) - inline editing
+        html += '<div class="accordion-body" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease;">';
+        html += '<div class="accordion-content" style="padding:20px;border-top:1px solid #f0f0f0;background:white;">';
+        
+        // Practice Statistics
+        html += '<span style="display:block;font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Practice Statistics</span>';
+        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
+        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
+        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
+        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
+        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Profile Information (3 columns)
+        html += '<div style="margin-bottom:24px;">';
+        html += '<span style="display:block;font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Profile Information</span>';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">';
+        html += '<div>';
+        html += '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">First Name</label>';
+        html += '<input type="text" class="edit-firstname" value="' + escapeHtml(u.firstName) + '" placeholder="First name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '</div>';
+        html += '<div>';
+        html += '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Last Name</label>';
+        html += '<input type="text" class="edit-lastname" value="' + escapeHtml(u.lastName) + '" placeholder="Last name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '</div>';
+        html += '<div>';
+        html += '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Display Name</label>';
+        html += '<input type="text" class="edit-displayname" value="' + escapeHtml(u.displayName) + '" placeholder="Display name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Account Permissions (2 columns)
+        html += '<div style="margin-bottom:24px;">';
+        html += '<span style="display:block;font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Account Permissions</span>';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0;">';
+        html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#06b3fd;">';
+        html += '<span style="flex:1;font-size:14px;color:#1a1a2e;cursor:pointer;font-family:Inter,sans-serif;">16+ years old (can access comments)</span>';
+        html += '</label>';
+        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0;">';
+        html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#06b3fd;">';
+        html += '<span style="flex:1;font-size:14px;color:#1a1a2e;cursor:pointer;font-family:Inter,sans-serif;">Allow self-progress (can complete lessons)</span>';
+        html += '</label>';
+        html += '</div>';
+        html += '</div>';
+
+        // Action Buttons
+        html += '<div style="display:flex;gap:10px;padding-top:16px;border-top:1px solid #f0f0f0;">';
+        html += '<button class="save-changes-btn" data-uid="' + escapeHtml(u.uid) + '" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;">Save Changes</button>';
+        html += '<button class="view-progress-btn" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '" style="flex:1;padding:10px 16px;background:#10b981;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;">View Progress</button>';
+        html += '</div>';
+
+        html += '</div>';
+        html += '</div>';
+
+        html += '</div>';
       });
     }
 
-    html += '</tbody></table></div></div>';
+    html += '</div>';
+    html += '</div>';
 
     rootEl.innerHTML = html;
+    
+    // Add CSS for accordion animations
+    if (!document.getElementById('admin-accordion-css')) {
+      var style = document.createElement('style');
+      style.id = 'admin-accordion-css';
+      style.textContent = 
+        '.accordion-item.open { background: white !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }' +
+        '.accordion-item.open .accordion-body { max-height: 2000px !important; }' +
+        '.accordion-item.open .chevron { transform: rotate(90deg); }' +
+        '.accordion-header:hover { background: rgba(6,179,253,0.05); }' +
+        '.save-changes-btn:hover { background: #0590d4; transform: translateY(-1px); }' +
+        '.view-progress-btn:hover { background: #059669; transform: translateY(-1px); }' +
+        '@media (max-width: 768px) {' +
+          '.accordion-item .accordion-content > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }' +
+        '}';
+      document.head.appendChild(style);
+    }
+
     bindHandlers();
   }
 
-function loadOnce(){
-  return Promise.all([
-    db.collection('users').get(),
-    db.collection('admins').get()
-  ]).then(function(results){
-    var usersSnap = results[0];
-    var adminSnap = results[1];
-    
-    var adminUids = {};
-    adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
-    
-    var users = [];
-    usersSnap.forEach(function(d){
-      var data = d.data() || {};
+  function loadOnce(){
+    return Promise.all([
+      db.collection('users').get(),
+      db.collection('admins').get()
+    ]).then(function(results){
+      var usersSnap = results[0];
+      var adminSnap = results[1];
       
-      if (adminUids[d.id]) return;
+      var adminUids = {};
+      adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
       
-      users.push({
-        uid: d.id,
-        email: data.email || '',
-        firstName: data.firstName || '',
-        lastName: data.lastName || '',
-        displayName: data.displayName || '',
-        joinedAt: data.createdAt || null,
-        fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
-      });
-    });
-
-    var statGets = users.map(function(u){
-      return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
-        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
-    });
-
-    var progGets = users.map(function(u){
-      return db.collection('users').doc(u.uid).collection('metrics').doc('progress').get()
-        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
-    });
-
-    return Promise.all([Promise.all(statGets), Promise.all(progGets)]).then(function(res){
-      var statsArr = res[0];
-      var progArr = res[1];
-
-      var statsByUid = {};
-      statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
-
-      var progByUid = {};
-      progArr.forEach(function(x){ progByUid[x.uid] = x.data || {}; });
-
-      users.forEach(function(u){
-        var st = statsByUid[u.uid] || {};
-        var pr = progByUid[u.uid] || {};
-
-        u.lastLogin = st.lastLoginAt || null;
-        u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
-        u.lastDeviceType = st.lastDeviceType || '';
-        u.lastDeviceEmoji = st.lastDeviceEmoji || '';
-        u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
-        u.totalSeconds = (typeof st.totalSeconds === 'number') ? st.totalSeconds : 0;
-        u.progress = pr || {};
+      var users = [];
+      usersSnap.forEach(function(d){
+        var data = d.data() || {};
+        
+        if (adminUids[d.id]) return;
+        
+        users.push({
+          uid: d.id,
+          email: data.email || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          displayName: data.displayName || '',
+          ageConfirmed: data.ageConfirmed === true,
+          selfProgress: data.selfProgress === true,
+          joinedAt: data.createdAt || null,
+          fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
+        });
       });
 
-      render(users);
+      var statGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
+          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+      });
+
+      var progGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('metrics').doc('progress').get()
+          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+      });
+
+      return Promise.all([Promise.all(statGets), Promise.all(progGets)]).then(function(res){
+        var statsArr = res[0];
+        var progArr = res[1];
+
+        var statsByUid = {};
+        statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
+
+        var progByUid = {};
+        progArr.forEach(function(x){ progByUid[x.uid] = x.data || {}; });
+
+        users.forEach(function(u){
+          var st = statsByUid[u.uid] || {};
+          var pr = progByUid[u.uid] || {};
+
+          u.lastLogin = st.lastLoginAt || null;
+          u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
+          u.lastDeviceType = st.lastDeviceType || '';
+          u.lastDeviceEmoji = st.lastDeviceEmoji || '';
+          u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
+          u.totalSeconds = (typeof st.totalSeconds === 'number') ? st.totalSeconds : 0;
+          u.progress = pr || {};
+        });
+
+        render(users);
+      });
+    }).catch(function(e){
+      console.error(e);
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(e, 'Load Admin Data');
+      } else {
+        alert('Load error: ' + (e && e.message || e));
+      }
     });
-  }).catch(function(e){
-    console.error(e);
-    alert('Load error: ' + (e && e.message || e));
-  });
-}
+  }
 
   auth.onAuthStateChanged(function(user){
     showBody();
