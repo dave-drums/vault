@@ -30,7 +30,7 @@
 
     .vault-comments-meta{
       font-family: 'Inter', sans-serif;
-      font-size: var(--text-small);
+      font-size: var(--text-tiny);
       opacity: .6;
       margin-bottom: 20px;
     }
@@ -66,7 +66,7 @@
     .vault-comment-name{
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: var(--text-tiny);
+      font-size: var(--text-ui);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -92,7 +92,7 @@
       font-family: 'Inter', sans-serif;
       white-space: pre-wrap;
       line-height: 1.5;
-      font-size: var(--text-tiny);
+      font-size: var(--text-small);
       margin-bottom: 10px;
       word-break: break-word;
     }
@@ -165,7 +165,7 @@
       padding: 10px;
       resize: vertical;
       min-height: 80px;
-      font-size: var(--text-large);
+      font-size: var(--text-small);
       color: #111;
       box-sizing: border-box;
       margin-bottom: 10px;
@@ -229,7 +229,7 @@
       padding: 12px;
       resize: vertical;
       min-height: 100px;
-      font-size: var(--text-large);
+      font-size: var(--text-small);
       color: #111;
       box-sizing: border-box;
     }
