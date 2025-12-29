@@ -66,7 +66,7 @@
     .vault-comment-name{
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: var(--text-ui);
+      font-size: var(--text-small);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -192,7 +192,7 @@
       transition: all 0.2s ease;
       border: 1px solid #ddd;
       background: #fff;
-      font-size: var(--text-body);
+      font-size: var(--text-ui);
     }
 
     .vault-reply-form-actions button:hover{
