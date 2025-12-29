@@ -398,6 +398,8 @@
             </button>
           </div>
         `;
+
+        container.insertAdjacentHTML('beforeend', topNavHtml);
         
         container.appendChild(renderedContent);
 
