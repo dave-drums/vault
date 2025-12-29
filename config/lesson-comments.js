@@ -1,6 +1,5 @@
 /**
  * Vault Lesson Comments System
- * Version: 2.0 (Optimized)
  * Load this once per page before the comments container
  */
 
@@ -208,6 +207,7 @@
 
     .vault-reply-form-actions .reply-post-btn:hover{
       background: #0590d4;
+      border-color: #0590d4;
     }
 
     .vault-reply-form-actions .reply-cancel-btn{
@@ -248,12 +248,12 @@
 
     .vault-comment-form-actions button{
       font-family: 'Inter', sans-serif;
-      padding: 10px 20px;
+      padding: 12px 24px;
       background: #06b3fd;
       color: #fff;
       border: 1px solid #06b3fd;
       border-radius: 8px;
-      font-size: var(--text-ui);
+      font-size: var(--text-body);
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
