@@ -26,6 +26,8 @@
 
     .vault-comments h3{
       margin: 0 0 6px 0;
+      font-size: var(--text-large);
+      font-weight: 600;
     }
 
     .vault-comments-meta{
