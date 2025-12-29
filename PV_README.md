@@ -59,15 +59,15 @@ vault.davedrums.com.au/
 ├── index.html              → Course pathways (home)
 ├── members.html            → User dashboard/login
 ├── create-account.html     → Registration
-├── contact.html            → Contact form ⭐NEW
-├── reset-pass.html         → Password reset ⭐NEW
+├── contact.html            → Contact form 
+├── reset-pass.html         → Password reset
 ├── admin.html              → Admin console
 ├── groove.html             → GrooveScribe tool
 ├── gs.html                 → Groove Studies (template)
 ├── fs.html                 → Fill Studies (template)
 ├── CNAME                   → Domain configuration
 ├── LICENSE                 → License file
-└── README.md               → Project documentation
+└── PV_README.md            → Project documentation
 ```
 
 **Note**: ss.html (Stick Studies) and ks.html (Kick Studies) are planned for future implementation.
@@ -78,8 +78,8 @@ vault.davedrums.com.au/
 - `/` or `/index.html` → Course pathways overview (PROTECTED)
 - `/members.html` → Login/dashboard (PUBLIC - handles both states)
 - `/create-account.html` → Registration (PUBLIC)
-- `/contact.html` → Contact support form (PROTECTED) ⭐NEW
-- `/reset-pass.html` → Password reset handler (PUBLIC) ⭐NEW
+- `/contact.html` → Contact support form (PROTECTED)
+- `/reset-pass.html` → Password reset handler (PUBLIC) 
 - `/admin.html` → Admin console (PROTECTED + ADMIN ONLY)
 - `/groove.html` → GrooveScribe embed (PROTECTED)
 
@@ -171,8 +171,8 @@ Examples:
 ├── members.html            # Login/dashboard
 ├── create-account.html     # Registration
 ├── admin.html              # Admin console
-├── contact.html            # Contact form (members-only) ⭐NEW
-├── reset-pass.html         # Password reset handler ⭐NEW
+├── contact.html            # Contact form (members-only)
+├── reset-pass.html         # Password reset handler
 ├── groove.html             # GrooveScribe embed
 ├── gs.html                 # Groove Studies template
 ├── fs.html                 # Fill Studies template
@@ -184,7 +184,7 @@ Examples:
 │   ├── fill-studies.webp
 │   ├── stick-studies.webp
 │   ├── kick-studies.webp
-│   ├── other-courses.webp  ⭐NEW
+│   ├── other-courses.webp  
 │   ├── members.webp
 │   ├── dwd-logo-500px.webp
 │   ├── drum-blue-200.png
@@ -199,24 +199,25 @@ Examples:
 │   └── firebase-init.js            # Firebase config
 │
 └── /config/                # JavaScript modules
-    ├── typography.css              # Central typography variables ⭐NEW
+    ├── typography.css              # Central typography variables 
     ├── components.js               # UI components (menu, footer, toasts)
-    ├── course-data.js              # ⭐ SINGLE SOURCE OF TRUTH for courses
+    ├── course-data.js              # SINGLE SOURCE OF TRUTH for courses
     ├── course-loader.js            # Dynamic course routing
-    ├── members.js                  # Members page logic
+    ├── members.js                  # Members page logic (dashboard UI only)
+    ├── metrics.js                  # NEW Session & practice time tracking
     ├── admin.js                    # Admin console logic
     ├── render.js                   # Lesson content renderer
     ├── lesson-comments.js          # Comment system
     ├── error-handler.js            # Error handling
     ├── cues.js                     # Daily motivational quotes
     ├── auth-guard.js               # Auth protection
-    ├── progress-manager.js         # Progress tracking
+    ├── progress-manager.js         # Progress tracking (unused)
     └── audio-player.js             # Custom audio player
 ```
 
 ### Critical Files Explained
 
-#### `course-data.js` - SINGLE SOURCE OF TRUTH ⭐
+#### `course-data.js` - SINGLE SOURCE OF TRUTH 
 **CRITICAL**: This is the ONLY place course definitions exist. All other files reference it.
 
 ```javascript
@@ -235,7 +236,7 @@ window.VAULT_COURSES = {
 
 **Load order requirement**: Must load BEFORE any script that references courses.
 
-#### `typography.css` - Central Typography Control ⭐NEW
+#### `typography.css` - Central Typography Control
 All font sizes are controlled by CSS custom properties:
 
 ```css
@@ -261,6 +262,44 @@ All font sizes are controlled by CSS custom properties:
 
 **To change a font size site-wide**: Edit typography.css once, all pages update.
 
+#### `members.js` - Members Dashboard UI
+**Purpose**: Handles the members page dashboard interface only (no tracking)
+- Login/logout UI
+- Practice statistics display (Chart.js)
+- Course progress cards
+- Profile management
+- Goals editor
+
+**Note**: Session tracking was extracted to `metrics.js` for separation of concerns.
+
+#### `metrics.js` - Session & Practice Time Tracking 
+**Purpose**: Standalone tracking system for user activity and practice time
+
+**Tracks**:
+- `lastLoginAt` - Timestamp when user logged in (once per session)
+- `loginCount` - Increments on each login
+- `lastSeenAt` - Updates every 30 seconds while active (heartbeat)
+- `totalSeconds` - Accumulated practice time
+- `lastDeviceType` - "mobile" or "desktop"
+- `lastDeviceEmoji` - 📱 or 🖥️
+- Daily practice sessions (separate collection)
+
+**How it works**:
+1. Loads on course pages (gs.html, fs.html, groove.html)
+2. Waits for Firebase auth
+3. When user logs in → writes login stats
+4. Every 30 seconds → updates lastSeenAt + totalSeconds
+5. On page hide/unload → saves final time increment
+6. Excludes: /members, /contact (no tracking on these pages)
+
+**Tab leader election**: Uses localStorage to ensure only one tab tracks time per user
+
+**Firestore paths**:
+- `/users/{uid}/metrics/stats` - Main metrics doc
+- `/users/{uid}/metrics/daily/sessions/{YYYY-MM-DD}` - Daily practice records
+
+**Load order**: Must load AFTER firebase-init.js, BEFORE other app scripts
+
 #### `course-loader.js` - Dynamic Routing Engine
 - Extracts pathway from URL filename
 - Gets course number from `?c=` parameter
@@ -270,14 +309,48 @@ All font sizes are controlled by CSS custom properties:
 #### `components.js` - Global UI Components
 Provides:
 - Toast notifications (`window.VaultToast.success()`, `.error()`, `.info()`)
-  - ⭐NEW: Vertical slide animations (up/down instead of left/right)
+  - Vertical slide animations (up/down instead of left/right)
 - Hamburger menu (auto-injected)
-  - ⭐NEW: Glass morphism styling with blur effect
-  - ⭐NEW: Compact width (280px desktop, 260px mobile)
-  - ⭐NEW: Thin blue left border matching hero headers
-- Footer (auto-injected)
-- Scroll-to-top button
-  - ⭐NEW: Thick chevron design (more visible than previous arrow)
+  - Glass morphism styling with blur effect
+  - Compact width (280px desktop, 260px mobile)
+  - Thin blue left border matching hero headers
+  - Footer (auto-injected)
+  - Scroll-to-top button
+  - Thick chevron design (more visible than previous arrow)
+
+**Example Script Load Order (Course Pages)**:
+```html
+<!-- 1. Firebase SDK -->
+<script src="/firebase/firebase-init.js"></script>
+
+<!-- 2. Metrics tracking (BEFORE auth-guard) -->
+<script src="/config/metrics.js"></script>
+
+<!-- 3. Auth protection -->
+<script>document.documentElement.dataset.protected = 'true';</script>
+<script src="/config/auth-guard.js"></script>
+
+<!-- 4. Core functionality -->
+<script src="/config/components.js"></script>
+<script src="/config/course-data.js"></script>
+
+<!-- 5. Course loader (at bottom of body) -->
+<script src="/config/course-loader.js"></script>
+```
+
+**Example Script Load Order (Members Page - NO metrics.js)**:
+```html
+<!-- 1. Firebase SDK -->
+<script src="/firebase/firebase-init.js"></script>
+
+<!-- 2. Core functionality (no metrics.js) -->
+<script src="/config/components.js"></script>
+<script src="/config/course-data.js"></script>
+
+<!-- 3. Members UI -->
+<script src="/config/members.js" defer></script>
+```
+
 
 #### `render.js` - Content Parser
 Converts Squarespace markdown syntax to HTML:
@@ -418,12 +491,26 @@ Daily practice logs
 }
 ```
 
-#### `/users/{uid}/metrics/daily/sessions/{YYYY-MM-DD}`
-Daily session tracking (for streak counting)
+#### `/users/{uid}/metrics/stats` 
+User activity and practice time metrics (tracked by metrics.js)
 ```javascript
 {
-  lastSessionAt: timestamp,
-  sessionCount: 1
+  lastLoginAt: timestamp,       // When user last logged in
+  lastSeenAt: timestamp,        // Updated every 30 seconds while active
+  loginCount: 42,               // Total number of logins
+  totalSeconds: 18640,          // Total practice time (seconds)
+  lastDeviceType: "desktop",    // "mobile" or "desktop"
+  lastDeviceEmoji: "🖥️"         // 📱 or 🖥️
+}
+```
+
+#### `/users/{uid}/metrics/daily/sessions/{YYYY-MM-DD}` 
+Daily practice sessions (for streak counting and daily stats)
+```javascript
+{
+  practiced: true,              // true if user practiced this day
+  lastSessionAt: timestamp,     // Last activity timestamp for this day
+  totalSeconds: 2700            // Total practice time for this day (seconds)
 }
 ```
 
@@ -1408,6 +1495,24 @@ If logged in:
 
 ## Changelog & Version History
 
+### December 29, 2024 - Metrics System Extraction ⭐NEW
+- ✅ Extracted session tracking from `members.js` into standalone `metrics.js`
+  - **Separation of concerns**: members.js now handles UI only
+  - **Cleaner architecture**: Tracking logic isolated and reusable
+  - **Load on any page**: Can add tracking to new pages easily
+- ✅ Updated tracking behavior:
+  - Loads on: gs.html, fs.html, groove.html (course/practice pages)
+  - Excludes: members.html, contact.html (dashboard browsing)
+  - Tracks: lastLoginAt, loginCount, lastSeenAt, totalSeconds, device info
+  - Updates lastSeenAt every 30 seconds while active
+  - Tab leader election prevents duplicate tracking
+- ✅ Updated Firestore structure:
+  - `/users/{uid}/metrics/stats` - Main metrics doc
+  - `/users/{uid}/metrics/daily/sessions/{YYYY-MM-DD}` - Daily practice records
+- ✅ Script loading order optimized:
+  - metrics.js loads after firebase-init.js
+  - metrics.js loads before auth-guard.js (so it can init before redirect)
+
 ### December 28, 2024 - UI/UX Enhancements & New Pages
 - ✅ Created `/contact.html` - Members-only contact form
   - Web3Forms integration (free service)
@@ -1468,5 +1573,5 @@ If logged in:
 
 ---
 
-*Last Updated: December 28, 2024*  
-*Version: 2.1 (UI/UX Enhancements)*
+*Last Updated: December 29, 2024*  
+*Version: 2.2 (Metrics System Extraction)*
