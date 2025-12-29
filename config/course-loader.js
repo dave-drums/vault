@@ -398,7 +398,6 @@
             </button>
           </div>
         `;
-        container.insertAdjacentHTML('beforeend', '<div id="vault-comments" class="vault-comments"></div>');
         
         container.appendChild(renderedContent);
 
@@ -416,7 +415,7 @@
         container.insertAdjacentHTML('beforeend', bottomNavHtml);
         
         // Add comments section - JUST EMPTY CONTAINER NOW
-        container.insertAdjacentHTML('beforeend', '<div id="vault-comments"></div>');
+        container.insertAdjacentHTML('beforeend', '<div id="vault-comments" class="vault-comments"></div>');
         
         // Initialize comments system
         if (typeof window.initVaultComments === 'function') {
