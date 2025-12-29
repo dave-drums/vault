@@ -805,7 +805,7 @@ document.addEventListener('DOMContentLoaded', function(){
         
         // Course header
         coursesHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e9ecef;">';
-        coursesHtml += '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">' + escapeHtml(courseData.name) + '</div>';
+        coursesHtml += '<div style="font-size:var(--heading-large);font-weight:600;color:#1a1a2e;">' + escapeHtml(courseData.name) + '</div>';
         coursesHtml += '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:' + levelBadgeColor + ';color:' + levelTextColor + ';border-radius:8px;font-size:var(--text-tiny);font-weight:600;">' + escapeHtml(courseData.level) + '</div>';
         coursesHtml += '</div>';
         
@@ -818,7 +818,7 @@ document.addEventListener('DOMContentLoaded', function(){
         coursesHtml += '</div>';
         
         // Lesson grid (7 per row desktop, 4 per row mobile)
-        coursesHtml += '<div class="lesson-grid-modal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;">';
+        coursesHtml += '<div class="lesson-grid-modal" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">';
         
         courseData.lessons.forEach(function(lessonId){
           var isCompleted = progress.completedLessons[lessonId] === true;
@@ -1008,19 +1008,19 @@ document.addEventListener('DOMContentLoaded', function(){
         html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
-        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + '</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
-        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
-        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
-        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
         html += '</div>';
         html += '</div>';
 
@@ -1090,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', function(){
         '@media (max-width: 768px) {' +
           '.profile-grid { grid-template-columns: 1fr !important; }' +
           '.permissions-grid { grid-template-columns: 1fr !important; }' +
-          '.lesson-grid-modal { grid-template-columns: repeat(4,1fr) !important; }' +
+          '.lesson-grid-modal { grid-template-columns: repeat(5,1fr) !important; }' +
         '}';
       document.head.appendChild(style);
     }
