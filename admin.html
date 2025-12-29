@@ -987,7 +987,6 @@ document.addEventListener('DOMContentLoaded', function(){
         html += '<span>' + escapeHtml(u.email) + '</span>';
         html += '<span>•</span>';
         html += '<span>Last: ' + formatTsNoYear(u.lastLogin) + '</span>';
-        html += '<span style="font-size:var(--text-body);">' + activityDot + '</span>';
         html += '</div>';
         html += '</div>';
         html += '<div style="display:flex;align-items:center;gap:12px;">';
@@ -1008,19 +1007,19 @@ document.addEventListener('DOMContentLoaded', function(){
         html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + '</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + ' ' + activityDot + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
         html += '</div>';
         html += '</div>';
 
