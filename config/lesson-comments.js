@@ -30,8 +30,9 @@
     }
 
     .vault-comments-meta{
-      font-size: var(--text-body);
-      opacity: .7;
+      font-family: 'Inter', sans-serif;
+      font-size: var(--text-small);
+      opacity: .6;
       margin-bottom: 20px;
     }
 
@@ -64,8 +65,9 @@
     }
 
     .vault-comment-name{
-      font-weight: 700;
-      font-size: var(--text-large);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: var(--text-small);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -80,21 +82,18 @@
       color: #06b3fd;
     }
 
-    .vault-comment-admin-badge{
-      font-size: var(--text-small);
-      line-height: 1;
-    }
-
     .vault-comment-date{
-      font-size: var(--text-small);
-      opacity: .6;
+      font-family: 'Inter', sans-serif;
+      font-size: var(--text-tiny);
+      opacity: .5;
       white-space: nowrap;
     }
 
     .vault-comment-text{
+      font-family: 'Inter', sans-serif;
       white-space: pre-wrap;
       line-height: 1.5;
-      font-size: var(--text-large);
+      font-size: var(--text-small);
       margin-bottom: 10px;
       word-break: break-word;
     }
@@ -112,12 +111,13 @@
     }
 
     .vault-comment-actions button{
+      font-family: 'Inter', sans-serif;
       appearance: none;
       background: none;
       border: none;
       cursor: pointer;
-      font-size: var(--text-small);
-      opacity: .7;
+      font-size: var(--text-tiny);
+      opacity: .65;
       transition: opacity 0.2s ease;
       font-weight: 500;
       padding: 4px 0;
@@ -159,6 +159,7 @@
     }
 
     .vault-reply-form textarea{
+      font-family: 'Inter', sans-serif;
       width: 100%;
       border: 1px solid #ddd;
       border-radius: 6px;
@@ -166,7 +167,6 @@
       resize: vertical;
       min-height: 80px;
       font-size: var(--text-body);
-      font-family: inherit;
       color: #111;
       box-sizing: border-box;
       margin-bottom: 10px;
@@ -185,6 +185,7 @@
     }
 
     .vault-reply-form-actions button{
+      font-family: 'Inter', sans-serif;
       padding: 8px 16px;
       border-radius: 6px;
       font-weight: 600;
@@ -192,7 +193,7 @@
       transition: all 0.2s ease;
       border: 1px solid #ddd;
       background: #fff;
-      font-size: var(--text-body);
+      font-size: var(--text-ui);
     }
 
     .vault-reply-form-actions button:hover{
@@ -221,14 +222,14 @@
     }
 
     .vault-comment-form textarea{
+      font-family: 'Inter', sans-serif;
       width: 100%;
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 12px;
       resize: vertical;
       min-height: 100px;
-      font-size: var(--text-large);
-      font-family: inherit;
+      font-size: var(--text-body);
       color: #111;
       box-sizing: border-box;
     }
@@ -246,15 +247,16 @@
     }
 
     .vault-comment-form-actions button{
-      padding: 10px 24px;
+      font-family: 'Inter', sans-serif;
+      padding: 10px 20px;
       background: #06b3fd;
       color: #fff;
-      border: none;
+      border: 1px solid #06b3fd;
       border-radius: 8px;
-      font-size: var(--text-body);
+      font-size: var(--text-ui);
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: all 0.2s ease;
     }
 
     .vault-comment-form-actions button:disabled{
@@ -264,6 +266,7 @@
 
     .vault-comment-form-actions button:not(:disabled):hover{
       background: #0590d4;
+      border-color: #0590d4;
     }
 
     .vault-comment-status{
@@ -445,11 +448,10 @@ function getThreadId(){
       }
 
       const nameClass = commentAuthorIsAdmin ? 'vault-comment-name admin' : 'vault-comment-name';
-      const adminBadge = commentAuthorIsAdmin ? '<span class="vault-comment-admin-badge">⭐</span>' : '';
 
       li.innerHTML = `
         <div class="vault-comment-top">
-          <div class="${nameClass}">${adminBadge}${esc(displayName)}</div>
+          <div class="${nameClass}">${esc(displayName)}</div>
           <div class="vault-comment-date">${fmt(comment.createdAt)}</div>
         </div>
         <div class="vault-comment-text ${isDeleted ? 'vault-comment-deleted' : ''}">${displayText}</div>
