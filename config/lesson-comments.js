@@ -192,7 +192,7 @@
       transition: all 0.2s ease;
       border: 1px solid #ddd;
       background: #fff;
-      font-size: var(--text-ui);
+      font-size: var(--text-small);
     }
 
     .vault-reply-form-actions button:hover{
@@ -259,7 +259,7 @@
       color: #fff;
       border: 1px solid #06b3fd;
       border-radius: 8px;
-      font-size: var(--text-body);
+      font-size: var(--text-small);
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
