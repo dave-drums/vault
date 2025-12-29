@@ -310,7 +310,7 @@
       <textarea 
         id="vault-comment-text" 
         maxlength="1000" 
-        placeholder="Share your progress or ask a question..."
+        placeholder="Share your successes, progress, or challenges…"
         rows="3">
       </textarea>
       <div class="vault-comment-form-actions">
