@@ -29,11 +29,24 @@
   
   var authCheckComplete = false;
   
-  function showBody() {
-    if (authCheckComplete) return;
-    authCheckComplete = true;
-    if (document.body) document.body.style.opacity = '1';
-  }
+function showBody() {
+  if (authCheckComplete) return;
+  authCheckComplete = true;
+  
+  // Minimum 2 second delay for admin page security
+  var delay = isAdminPage ? 2000 : 0;
+  
+  setTimeout(function() {
+    if (document.body) {
+      document.body.style.opacity = '1';
+      document.body.classList.add('auth-checked');
+      
+      // Remove loading screen if present
+      var loading = document.querySelector('.auth-loading');
+      if (loading) loading.remove();
+    }
+  }, delay);
+}
   
   function redirectToMembers() {
     var next = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
