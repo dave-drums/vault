@@ -691,182 +691,273 @@ document.addEventListener('DOMContentLoaded', function(){
     var overlay = makeOverlay();
 
     var box = document.createElement('div');
-    box.style.cssText = 'width:100%;max-width:600px;background:#fff;border-radius:12px;' +
-      'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;max-height:90vh;overflow-y:auto;font-family:Inter,sans-serif;';
+    box.style.cssText = 'width:100%;max-width:700px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:85vh;display:flex;flex-direction:column;font-family:Inter,sans-serif;';
 
-    var header = document.createElement('h4');
-    header.textContent = 'Progress: ' + displayName;
-    header.style.cssText = 'margin:0 0 16px 0;color:#111;font-size:16px;font-weight:300;font-family:Oswald,sans-serif;';
-    box.appendChild(header);
+    // Modal Header
+    var headerHtml = 
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:24px;border-bottom:1px solid #e9ecef;">' +
+        '<div>' +
+          '<div style="font-size:20px;font-weight:600;color:#1a1a2e;">Progress Report: ' + escapeHtml(displayName) + '</div>' +
+          '<div style="font-size:14px;color:#999;margin-top:4px;">View and manage lesson completion</div>' +
+        '</div>' +
+        '<button id="progress-modal-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:20px;cursor:pointer;color:#666;">&times;</button>' +
+      '</div>';
 
-    var selfProgressContainer = document.createElement('div');
-    selfProgressContainer.style.cssText = 'margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:8px;';
+    box.innerHTML = headerHtml;
     
-    var selfProgressLabel = document.createElement('label');
-    selfProgressLabel.style.cssText = 'display:flex;align-items:center;gap:10px;cursor:pointer;';
+    // Modal Body (scrollable)
+    var modalBody = document.createElement('div');
+    modalBody.style.cssText = 'flex:1;overflow-y:auto;padding:24px;';
     
-    var selfProgressCheckbox = document.createElement('input');
-    selfProgressCheckbox.type = 'checkbox';
-    selfProgressCheckbox.id = 'admin-self-progress';
-    selfProgressCheckbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+    // Self-progress checkbox
+    var selfProgressHtml = 
+      '<div style="margin-bottom:24px;padding:12px;background:#f9f9f9;border-radius:8px;">' +
+        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;">' +
+          '<input type="checkbox" id="admin-self-progress-modal" style="width:18px;height:18px;cursor:pointer;">' +
+          '<span style="font-size:14px;color:#333;">Allow self-progress (user can mark lessons complete)</span>' +
+        '</label>' +
+      '</div>';
     
-    var selfProgressText = document.createElement('span');
-    selfProgressText.textContent = 'Allow self-progress (user can mark lessons complete)';
-    selfProgressText.style.cssText = 'font-size:14px;color:#333;font-family:Inter,sans-serif;';
+    modalBody.innerHTML = selfProgressHtml;
     
-    selfProgressLabel.appendChild(selfProgressCheckbox);
-    selfProgressLabel.appendChild(selfProgressText);
-    selfProgressContainer.appendChild(selfProgressLabel);
-    box.appendChild(selfProgressContainer);
-
+    // Load self-progress status
     db.collection('users').doc(uid).get().then(function(userSnap){
       if (userSnap.exists) {
-        selfProgressCheckbox.checked = userSnap.data().selfProgress === true;
+        document.getElementById('admin-self-progress-modal').checked = userSnap.data().selfProgress === true;
       }
     });
-
-    selfProgressCheckbox.addEventListener('change', function(){
+    
+    // Self-progress change handler
+    modalBody.querySelector('#admin-self-progress-modal').addEventListener('change', function(){
+      var checkbox = this;
       db.collection('users').doc(uid).set({
-        selfProgress: selfProgressCheckbox.checked
+        selfProgress: checkbox.checked
       }, { merge: true })
       .then(function(){
-        if(window.VaultToast) window.VaultToast.success('Self-progress ' + (selfProgressCheckbox.checked ? 'enabled' : 'disabled'));
+        if(window.VaultToast) window.VaultToast.success('Self-progress ' + (checkbox.checked ? 'enabled' : 'disabled'));
       })
       .catch(function(e){
         console.error('Failed to update selfProgress:', e);
         if(window.VaultToast) window.VaultToast.error('Failed to update');
       });
     });
-
-    var courseLabel = document.createElement('label');
-    courseLabel.textContent = 'Select Course:';
-    courseLabel.style.cssText = 'display:block;margin:0 0 8px 0;font-weight:600;color:#111;font-family:Inter,sans-serif;';
-    box.appendChild(courseLabel);
-
-    var courseSelect = document.createElement('select');
-    courseSelect.style.cssText = 'width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:16px;font-family:Inter,sans-serif;';
-
-    if (typeof window.VAULT_COURSES !== 'undefined' && window.VAULT_COURSES.length) {
-      window.VAULT_COURSES.forEach(function(c){
-        var opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name;
-        courseSelect.appendChild(opt);
-      });
-    } else {
-      var opt = document.createElement('option');
-      opt.textContent = 'No courses available';
-      opt.disabled = true;
-      courseSelect.appendChild(opt);
-    }
-
-    box.appendChild(courseSelect);
-
-    var container = document.createElement('div');
-    container.style.cssText = 'margin-top:12px;';
-    box.appendChild(container);
-
-    function loadCourseProgress(courseId){
-      container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-family:Inter,sans-serif;">Loading...</div>';
-
-      var course = null;
-      if (window.VAULT_COURSES) {
-        for (var i = 0; i < window.VAULT_COURSES.length; i++) {
-          if (window.VAULT_COURSES[i].id === courseId) {
-            course = window.VAULT_COURSES[i];
-            break;
-          }
-        }
-      }
-
-      if (!course || !course.lessons || !course.lessons.length) {
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-family:Inter,sans-serif;">No lessons found for this course.</div>';
-        return;
-      }
-
-      db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-        .then(function(doc){
-          var data = doc.exists ? (doc.data() || {}) : {};
-          var completed = data.completed || {};
-
-          var list = document.createElement('div');
-          list.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
-
-          course.lessons.forEach(function(lessonId){
-            var isCompleted = completed[lessonId] === true;
-
-            var item = document.createElement('label');
-            item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;';
-
-            var checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = isCompleted;
-            checkbox.style.cssText = 'width:18px;height:18px;cursor:pointer;';
-
-            checkbox.addEventListener('change', function(){
-              var newState = checkbox.checked;
-              checkbox.disabled = true;
-              toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox);
-            });
-
-            var label = document.createElement('span');
-            label.textContent = 'Lesson ' + lessonId;
-            label.style.cssText = 'font-size:14px;color:#333;font-family:Inter,sans-serif;';
-
-            item.appendChild(checkbox);
-            item.appendChild(label);
-            list.appendChild(item);
-          });
-
-          container.appendChild(list);
-        })
-        .catch(function(e){
-          console.error('Failed to load progress:', e);
-          container.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;font-family:Inter,sans-serif;">Error loading progress</div>';
-        });
-    }
-
-    function toggleAdminCompletion(db, uid, courseId, lessonId, newState, checkbox){
-      db.collection('users').doc(uid).collection('progress').doc(courseId)
-        .set({
-          completed: {
-            [lessonId]: newState
-          },
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true })
-        .then(function(){
-          checkbox.disabled = false;
-          if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
-        })
-        .catch(function(e){
-          checkbox.checked = !newState;
-          checkbox.disabled = false;
-          console.error('Failed to update:', e);
-          
-          if(window.VaultToast) {
-            window.VaultToast.error('Update failed: ' + e.message);
-          } else {
-            alert('Update failed: ' + e.message);
-          }
-        });
-    }
-
-    courseSelect.addEventListener('change', function(){
-      loadCourseProgress(courseSelect.value);
+    
+    // Stats summary container
+    var statsContainer = document.createElement('div');
+    statsContainer.id = 'progress-stats-summary';
+    statsContainer.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;padding:16px;background:#f8f9fa;border-radius:12px;';
+    statsContainer.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">Loading stats...</div>';
+    modalBody.appendChild(statsContainer);
+    
+    // Course sections container
+    var coursesContainer = document.createElement('div');
+    coursesContainer.id = 'progress-courses-container';
+    modalBody.appendChild(coursesContainer);
+    
+    box.appendChild(modalBody);
+    
+    // Close button handler
+    box.querySelector('#progress-modal-close').addEventListener('click', function(){
+      overlay.remove();
     });
-
-    if (courseSelect.options.length > 0 && courseSelect.value) {
-      loadCourseProgress(courseSelect.value);
-    }
-
-    var closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Close';
-    closeBtn.style.cssText = 'margin-top:20px;width:100%;padding:10px;border:1px solid #ccc;background:#f3f3f3;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-size:14px;';
-    closeBtn.addEventListener('click', function(){ overlay.remove(); });
-    box.appendChild(closeBtn);
-
+    
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+    
+    // Load all progress data
+    loadAllProgress(db, uid, statsContainer, coursesContainer);
+  }
+  
+  function loadAllProgress(db, uid, statsContainer, coursesContainer){
+    if (!window.VAULT_COURSES) {
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No courses available</div>';
+      return;
+    }
+    
+    // Get all course IDs that have lessons
+    var courseIds = [];
+    for (var cId in window.VAULT_COURSES) {
+      if (window.VAULT_COURSES[cId].lessons && window.VAULT_COURSES[cId].lessons.length > 0) {
+        courseIds.push(cId);
+      }
+    }
+    
+    if (courseIds.length === 0) {
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No courses with lessons yet</div>';
+      return;
+    }
+    
+    // Load progress for all courses
+    var progressPromises = courseIds.map(function(courseId){
+      return db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+        .then(function(snap){
+          return {
+            courseId: courseId,
+            data: snap.exists ? snap.data() : {}
+          };
+        });
+    });
+    
+    Promise.all(progressPromises).then(function(results){
+      var totalCompleted = 0;
+      var totalLessons = 0;
+      var inProgressCount = 0;
+      var notStartedCount = 0;
+      
+      var courseProgress = {};
+      
+      results.forEach(function(result){
+        var courseId = result.courseId;
+        var courseData = window.VAULT_COURSES[courseId];
+        var progressData = result.data;
+        var completed = progressData.completed || {};
+        
+        var lessonCount = courseData.lessons.length;
+        var completedCount = 0;
+        
+        courseData.lessons.forEach(function(lessonId){
+          if (completed[lessonId] === true) {
+            completedCount++;
+            totalCompleted++;
+          }
+        });
+        
+        totalLessons += lessonCount;
+        
+        if (completedCount === 0) {
+          notStartedCount++;
+        } else if (completedCount < lessonCount) {
+          inProgressCount++;
+        }
+        
+        courseProgress[courseId] = {
+          completed: completedCount,
+          total: lessonCount,
+          completedLessons: completed
+        };
+      });
+      
+      // Render stats summary
+      var statsHtml = 
+        '<div style="text-align:center;">' +
+          '<div style="font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">' + totalCompleted + '</div>' +
+          '<div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Completed</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+          '<div style="font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">' + inProgressCount + '</div>' +
+          '<div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">In Progress</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+          '<div style="font-size:24px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">' + notStartedCount + '</div>' +
+          '<div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Not Started</div>' +
+        '</div>';
+      
+      statsContainer.innerHTML = statsHtml;
+      
+      // Render course sections
+      var coursesHtml = '';
+      
+      courseIds.forEach(function(courseId){
+        var courseData = window.VAULT_COURSES[courseId];
+        var progress = courseProgress[courseId];
+        var percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+        
+        var levelBadgeColor = '#e0f2fe';
+        var levelTextColor = '#0284c7';
+        if (courseData.level.includes('Intermediate')) {
+          levelBadgeColor = '#fef3c7';
+          levelTextColor = '#d97706';
+        } else if (courseData.level.includes('Advanced')) {
+          levelBadgeColor = '#fee2e2';
+          levelTextColor = '#dc2626';
+        }
+        
+        coursesHtml += '<div style="margin-bottom:32px;">';
+        
+        // Course header
+        coursesHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e9ecef;">';
+        coursesHtml += '<div style="font-size:18px;font-weight:600;color:#1a1a2e;">' + escapeHtml(courseData.name) + '</div>';
+        coursesHtml += '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:' + levelBadgeColor + ';color:' + levelTextColor + ';border-radius:8px;font-size:13px;font-weight:600;">' + escapeHtml(courseData.level) + '</div>';
+        coursesHtml += '</div>';
+        
+        // Progress text
+        coursesHtml += '<div style="font-size:14px;color:#666;margin-bottom:12px;"><strong>' + progress.completed + ' of ' + progress.total + ' lessons completed</strong> (' + percentage + '%)</div>';
+        
+        // Progress bar
+        coursesHtml += '<div style="width:100%;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin-bottom:16px;">';
+        coursesHtml += '<div style="height:100%;background:linear-gradient(90deg,#06b3fd,#0284c7);border-radius:4px;width:' + percentage + '%;transition:width 0.3s ease;"></div>';
+        coursesHtml += '</div>';
+        
+        // Lesson grid
+        coursesHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;">';
+        
+        courseData.lessons.forEach(function(lessonId){
+          var isCompleted = progress.completedLessons[lessonId] === true;
+          var badgeClass = isCompleted ? 'completed' : '';
+          var bgColor = isCompleted ? '#d1fae5' : '#f8f9fa';
+          var borderColor = isCompleted ? '#10b981' : '#e9ecef';
+          var textColor = isCompleted ? '#059669' : '#666';
+          var icon = isCompleted ? ' ✓' : '';
+          
+          coursesHtml += '<div class="lesson-badge-modal ' + badgeClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '" style="padding:10px;background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:8px;text-align:center;font-size:13px;font-weight:500;color:' + textColor + ';cursor:pointer;transition:all 0.2s;">';
+          coursesHtml += lessonId + icon;
+          coursesHtml += '</div>';
+        });
+        
+        coursesHtml += '</div>';
+        coursesHtml += '</div>';
+      });
+      
+      coursesContainer.innerHTML = coursesHtml;
+      
+      // Add click handlers for lesson badges
+      coursesContainer.querySelectorAll('.lesson-badge-modal').forEach(function(badge){
+        badge.addEventListener('click', function(){
+          var courseId = badge.getAttribute('data-course');
+          var lessonId = badge.getAttribute('data-lesson');
+          var isCompleted = badge.classList.contains('completed');
+          var newState = !isCompleted;
+          
+          // Update Firestore
+          db.collection('users').doc(uid).collection('progress').doc(courseId)
+            .set({
+              completed: {
+                [lessonId]: newState
+              },
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true })
+            .then(function(){
+              if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+              // Reload progress
+              loadAllProgress(db, uid, statsContainer, coursesContainer);
+            })
+            .catch(function(e){
+              console.error('Failed to update:', e);
+              if(window.VaultToast) {
+                window.VaultToast.error('Update failed: ' + e.message);
+              }
+            });
+        });
+        
+        badge.addEventListener('mouseenter', function(){
+          if (!badge.classList.contains('completed')) {
+            badge.style.borderColor = '#06b3fd';
+            badge.style.background = '#f0f9ff';
+          }
+        });
+        
+        badge.addEventListener('mouseleave', function(){
+          if (!badge.classList.contains('completed')) {
+            badge.style.borderColor = '#e9ecef';
+            badge.style.background = '#f8f9fa';
+          }
+        });
+      });
+      
+    }).catch(function(e){
+      console.error('Failed to load progress:', e);
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading progress data</div>';
+    });
   }
 
   function bindHandlers(){
@@ -934,12 +1025,6 @@ document.addEventListener('DOMContentLoaded', function(){
       : 'No one online right now.';
 
     var html = '';
-    
-    // Currently Online section
-    html += '<div style="margin:0 0 18px 0;padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
-    html += '<h4 style="margin:0 0 10px 0;font-family:Oswald,sans-serif;font-size:16px;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;">CURRENTLY ONLINE</h4>';
-    html += '<div style="font-size:14px;line-height:1.5;word-break:break-word;font-family:Inter,sans-serif;">' + onlineText + '</div>';
-    html += '</div>';
 
     // Student List section with accordion
     html += '<div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
