@@ -411,21 +411,21 @@ function openAddUserModal(db){
   var headerHtml = 
     '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
       '<div>' +
-        '<div style="font-size:20px;font-weight:600;color:#1a1a2e;">Add User</div>' +
-        '<div style="font-size:14px;color:#999;margin-top:4px;">Create an invite link (7-day expiry)</div>' +
+        '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">Add User</div>' +
+        '<div style="font-size:var(--text-small);color:#999;margin-top:4px;">Create an invite link (7-day expiry)</div>' +
       '</div>' +
-      '<button id="modal-close-btn" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:20px;cursor:pointer;color:#666;">&times;</button>' +
+      '<button id="modal-close-btn" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
     '</div>';
 
   var step1Html = 
     '<div id="email-step" style="padding:24px;">' +
       '<div style="margin-bottom:20px;">' +
-        '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;">Email Address</label>' +
-        '<input type="email" id="invite-email" placeholder="user@example.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box;">' +
+        '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;">Email Address</label>' +
+        '<input type="email" id="invite-email" placeholder="user@example.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">' +
       '</div>' +
       '<div style="display:flex;gap:10px;">' +
-        '<button id="invite-close" style="flex:1;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
-        '<button id="invite-create" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Create Invite</button>' +
+        '<button id="invite-close" style="flex:1;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+        '<button id="invite-create" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Create Invite</button>' +
       '</div>' +
     '</div>';
 
@@ -433,15 +433,15 @@ function openAddUserModal(db){
     '<div id="invite-link-step" style="padding:24px;display:none;">' +
       '<div style="background:#d1fae5;border:1px solid #10b981;border-radius:8px;padding:16px;margin-bottom:20px;text-align:center;">' +
         '<div style="font-size:24px;margin-bottom:8px;">✓</div>' +
-        '<div style="font-size:15px;font-weight:600;color:#059669;font-family:Inter,sans-serif;">Invite Created Successfully</div>' +
+        '<div style="font-size:var(--text-ui);font-weight:600;color:#059669;font-family:Inter,sans-serif;">Invite Created Successfully</div>' +
       '</div>' +
       '<div style="margin-bottom:6px;">' +
-        '<label style="display:block;font-size:13px;font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Invite Link</label>' +
-        '<textarea id="invite-url" readonly style="width:100%;min-height:80px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:Courier New,monospace;background:#f8f9fa;color:#444;box-sizing:border-box;resize:none;"></textarea>' +
+        '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Invite Link</label>' +
+        '<textarea id="invite-url" readonly style="width:100%;min-height:80px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-tiny);font-family:Courier New,monospace;background:#f8f9fa;color:#444;box-sizing:border-box;resize:none;"></textarea>' +
       '</div>' +
-      '<div style="font-size:12px;color:#999;margin-bottom:16px;font-family:Inter,sans-serif;">Link expires in 7 days</div>' +
-      '<button id="copy-invite" style="width:100%;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;">📋 Copy Link</button>' +
-      '<button id="reset-modal" style="width:100%;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+      '<div style="font-size:var(--text-micro);color:#999;margin-bottom:16px;font-family:Inter,sans-serif;">Link expires in 7 days</div>' +
+      '<button id="copy-invite" style="width:100%;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;">📋 Copy Link</button>' +
+      '<button id="reset-modal" style="width:100%;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
     '</div>';
 
   box.innerHTML = headerHtml + step1Html + step2Html;
@@ -528,10 +528,10 @@ function openInvitesModal(db){
   box.innerHTML =
     '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
       '<div>' +
-        '<div style="font-size:20px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">Invitation Links</div>' +
-        '<div style="font-size:14px;color:#999;margin-top:4px;font-family:Inter,sans-serif;">Manage user invitations</div>' +
+        '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">Invitation Links</div>' +
+        '<div style="font-size:var(--text-small);color:#999;margin-top:4px;font-family:Inter,sans-serif;">Manage user invitations</div>' +
       '</div>' +
-      '<button id="invites-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:20px;cursor:pointer;color:#666;">&times;</button>' +
+      '<button id="invites-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
     '</div>' +
     '<div id="invites-list-container" style="flex:1;overflow-y:auto;padding:20px;"></div>';
 
@@ -553,7 +553,7 @@ function openInvitesModal(db){
 
       var tableHtml = 
         '<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;overflow:hidden;">' +
-          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;background:#e9ecef;font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;font-family:Inter,sans-serif;">' +
+          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;background:#e9ecef;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;font-family:Inter,sans-serif;">' +
             '<div>Email</div>' +
             '<div>Status</div>' +
             '<div>Created</div>' +
@@ -591,15 +591,15 @@ function openInvitesModal(db){
 
         tableHtml += 
           '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;border-bottom:1px solid #e9ecef;background:white;align-items:center;font-family:Inter,sans-serif;opacity:' + opacity + ';">' +
-            '<div style="font-size:14px;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(email) + '</div>' +
+            '<div style="font-size:var(--text-small);color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(email) + '</div>' +
             '<div>' +
-              '<span style="display:inline-block;padding:4px 10px;background:' + statusBg + ';color:' + statusColor + ';border-radius:12px;font-size:12px;font-weight:600;">' + status + '</span>' +
+              '<span style="display:inline-block;padding:4px 10px;background:' + statusBg + ';color:' + statusColor + ';border-radius:12px;font-size:var(--text-micro);font-weight:600;">' + status + '</span>' +
             '</div>' +
-            '<div style="font-size:13px;color:#666;">' + createdAt + '</div>' +
-            '<div style="font-size:13px;color:#666;">' + expiresAt + '</div>' +
+            '<div style="font-size:var(--text-tiny);color:#666;">' + createdAt + '</div>' +
+            '<div style="font-size:var(--text-tiny);color:#666;">' + expiresAt + '</div>' +
             '<div>' +
-              (used ? '<span style="font-size:12px;color:#999;font-style:italic;">—</span>' : 
-                '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:6px 12px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Revoke</button>') +
+              (used ? '<span style="font-size:var(--text-micro);color:#999;font-style:italic;">—</span>' : 
+                '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:6px 12px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:var(--text-micro);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Revoke</button>') +
             '</div>' +
           '</div>';
       });
@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function(){
           '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">Progress Report: ' + escapeHtml(displayName) + '</div>' +
           '<div style="font-size:var(--text-small);color:#999;margin-top:4px;">View and manage lesson completion</div>' +
         '</div>' +
-        '<button id="progress-modal-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:20px;cursor:pointer;color:#666;">&times;</button>' +
+        '<button id="progress-modal-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
       '</div>';
 
     box.innerHTML = headerHtml;
@@ -954,20 +954,14 @@ document.addEventListener('DOMContentLoaded', function(){
       : 'No one online right now.';
 
     var html = '';
-    
-    // Currently Online section
-    html += '<div style="margin:0 0 18px 0;padding:18px 20px;border-radius:12px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
-    html += '<h4 style="margin:0 0 10px 0;font-family:Oswald,sans-serif;font-size:16px;font-weight:400;text-transform:uppercase;letter-spacing:0.5px;">CURRENTLY ONLINE</h4>';
-    html += '<div style="font-size:14px;line-height:1.5;word-break:break-word;font-family:Inter,sans-serif;">' + onlineText + '</div>';
-    html += '</div>';
 
     // Student List section with accordion
     html += '<div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
     html += '<div style="padding:20px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;">' +
-              '<div style="font-family:Oswald,sans-serif;font-size:18px;font-weight:600;color:#1a1a2e;">Student List (' + users.length + ')</div>' +
+              '<div style="font-family:Oswald,sans-serif;font-size:var(--text-large);font-weight:400;color:#1a1a2e;">Student List (' + users.length + ')</div>' +
               '<div style="display:flex;gap:10px;">' +
-                '<button id="pv-invites-btn" style="padding:10px 18px;background:#6b7280;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Invites</button>' +
-                '<button id="pv-add-user-btn" style="padding:10px 18px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">+ Add User</button>' +
+                '<button id="pv-invites-btn" style="padding:10px 18px;background:#6b7280;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Invites</button>' +
+                '<button id="pv-add-user-btn" style="padding:10px 18px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">+ Add User</button>' +
               '</div>' +
             '</div>';
 
@@ -988,20 +982,20 @@ document.addEventListener('DOMContentLoaded', function(){
         // Accordion Header (collapsed view)
         html += '<div class="accordion-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;transition:background 0.2s;">';
         html += '<div style="flex:1;min-width:0;">';
-        html += '<div style="font-weight:600;font-size:15px;color:#1a1a2e;margin-bottom:4px;font-family:Inter,sans-serif;">' + escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
-        html += '<div style="font-size:13px;color:#999;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:Inter,sans-serif;">';
+        html += '<div style="font-weight:600;font-size:var(--text-ui);color:#1a1a2e;margin-bottom:4px;font-family:Inter,sans-serif;">' + escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
+        html += '<div style="font-size:var(--text-tiny);color:#999;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:Inter,sans-serif;">';
         html += '<span>' + escapeHtml(u.email) + '</span>';
         html += '<span>•</span>';
         html += '<span>Last: ' + formatTsNoYear(u.lastLogin) + '</span>';
-        html += '<span style="font-size:16px;">' + activityDot + '</span>';
+        html += '<span style="font-size:var(--text-body);">' + activityDot + '</span>';
         html += '</div>';
         html += '</div>';
         html += '<div style="display:flex;align-items:center;gap:12px;">';
-        html += '<div class="status-badge' + statusBadgeClass + '" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:' + (isOnline ? '#e8f9f3' : '#f3f4f6') + ';color:' + (isOnline ? '#059669' : '#999') + ';border-radius:14px;font-size:15px;font-weight:600;white-space:nowrap;font-family:Inter,sans-serif;">';
+        html += '<div class="status-badge' + statusBadgeClass + '" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:' + (isOnline ? '#e8f9f3' : '#f3f4f6') + ';color:' + (isOnline ? '#059669' : '#999') + ';border-radius:14px;font-size:var(--text-ui);font-weight:600;white-space:nowrap;font-family:Inter,sans-serif;">';
         html += '<span style="width:8px;height:8px;border-radius:50%;background:' + (isOnline ? '#059669' : '#999') + ';"></span>';
         html += statusText;
         html += '</div>';
-        html += '<div class="chevron" style="color:#999;font-size:20px;transition:transform 0.2s;">›</div>';
+        html += '<div class="chevron" style="color:#999;font-size:var(--heading-card);transition:transform 0.2s;">›</div>';
         html += '</div>';
         html += '</div>';
 
@@ -1010,23 +1004,23 @@ document.addEventListener('DOMContentLoaded', function(){
         html += '<div class="accordion-content" style="padding:20px;border-top:1px solid #f0f0f0;background:white;">';
         
         // Practice Statistics
-        html += '<span style="display:block;font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Practice Statistics</span>';
+        html += '<span style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Practice Statistics</span>';
         html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
-        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + '</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
+        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
-        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
+        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
-        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
+        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
-        html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
+        html += '<div style="font-size:var(--text-body);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
         html += '</div>';
         html += '</div>';
 
