@@ -66,7 +66,7 @@
     .vault-comment-name{
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: var(--text-small);
+      font-size: var(--text-tiny);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -92,7 +92,7 @@
       font-family: 'Inter', sans-serif;
       white-space: pre-wrap;
       line-height: 1.5;
-      font-size: var(--text-small);
+      font-size: var(--text-tiny);
       margin-bottom: 10px;
       word-break: break-word;
     }
@@ -165,7 +165,7 @@
       padding: 10px;
       resize: vertical;
       min-height: 80px;
-      font-size: var(--text-body);
+      font-size: var(--text-large);
       color: #111;
       box-sizing: border-box;
       margin-bottom: 10px;
@@ -185,14 +185,14 @@
 
     .vault-reply-form-actions button{
       font-family: 'Inter', sans-serif;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 12px 24px;
+      border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       border: 1px solid #ddd;
       background: #fff;
-      font-size: var(--text-ui);
+      font-size: var(--text-body);
     }
 
     .vault-reply-form-actions button:hover{
@@ -229,7 +229,7 @@
       padding: 12px;
       resize: vertical;
       min-height: 100px;
-      font-size: var(--text-body);
+      font-size: var(--text-large);
       color: #111;
       box-sizing: border-box;
     }
