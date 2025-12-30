@@ -359,7 +359,12 @@
     function injectUI() {
       // Check if we're on a lesson page (not course index)
       var lessonContent = document.getElementById('lesson-content');
-      if (!lessonContent || lessonContent.style.display === 'none') return;
+      if (!lessonContent) return;
+      
+      // Check if it's hidden using computed style instead of inline style
+      var isHidden = lessonContent.hasAttribute('style') && 
+                     lessonContent.getAttribute('style').includes('display: none');
+      if (isHidden) return;
       
       // Find the hero element
       var hero = document.querySelector('.course-hero');
@@ -1090,14 +1095,24 @@
       currentUser = user;
       
       if (user) {
-        // Wait for page to be ready
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(injectUI, 500);
-          });
-        } else {
-          setTimeout(injectUI, 500);
+        // Wait for page AND styles to be ready
+        function waitForStyles() {
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              // Extra delay to ensure styles are loaded
+              setTimeout(injectUI, 500);
+            });
+          } else {
+            // Check if styles are loaded
+            if (document.styleSheets.length > 0) {
+              setTimeout(injectUI, 500);
+            } else {
+              // Wait a bit more for styles
+              setTimeout(waitForStyles, 100);
+            }
+          }
         }
+        waitForStyles();
       }
     });
   });
