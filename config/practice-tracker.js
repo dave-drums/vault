@@ -168,7 +168,7 @@
       if (playDropdownBtn) {
         if (isPlaying) {
           playDropdownBtn.classList.add('active');
-          playDropdownText.textContent = 'Pause ⏸';
+          playDropdownText.textContent = 'Stop ⏹';
         } else {
           playDropdownBtn.classList.remove('active');
           playDropdownText.textContent = 'Start ▶';
@@ -227,9 +227,57 @@
         startTimer();
       } else {
         stopTimer();
+        // When stopping, save the session immediately
+        if (seconds > 0) {
+          saveSessionQuiet();
+        }
       }
       
       updateUI();
+    }
+
+    function saveSessionQuiet() {
+      if (!currentUser || seconds === 0) {
+        resetTimer();
+        return;
+      }
+      
+      var lessonInfo = getCurrentLessonInfo();
+      
+      var sessionId = Date.now().toString();
+      var dateKey = getTodayDateKey();
+      var device = getDeviceType();
+      
+      var sessionData = {
+        courseId: lessonInfo.courseId,
+        lessonId: lessonInfo.lessonId,
+        lessonTitle: lessonInfo.lessonTitle,
+        duration: seconds,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        date: dateKey,
+        device: device
+      };
+      
+      // Save session
+      db.collection('users').doc(currentUser.uid).collection('practice').doc('sessions')
+        .collection('items').doc(sessionId)
+        .set(sessionData)
+        .then(function() {
+          // Update aggregate stats
+          return updatePracticeStats(seconds);
+        })
+        .then(function() {
+          if (window.VaultToast) {
+            window.VaultToast.success('Practice session logged');
+          }
+          resetTimer();
+        })
+        .catch(function(err) {
+          console.error('Error saving session:', err);
+          if (window.VaultToast) {
+            window.VaultToast.error('Failed to save session');
+          }
+        });
     }
 
     function showModal() {
@@ -403,7 +451,6 @@
                 <button class="btn-play-dropdown" id="btn-play-dropdown">
                   <span id="play-dropdown-text">Start ▶</span>
                 </button>
-                <button class="btn-end-dropdown" id="btn-end-dropdown">End Session ✓</button>
               </div>
               
               <div class="dropdown-divider"></div>
@@ -486,7 +533,6 @@
     function bindEvents() {
       var practiceBtn = document.getElementById('practice-btn');
       var playDropdownBtn = document.getElementById('btn-play-dropdown');
-      var endDropdownBtn = document.getElementById('btn-end-dropdown');
       var modalClose = document.getElementById('modal-close');
       var btnCancel = document.getElementById('btn-cancel');
       var btnSave = document.getElementById('btn-save');
@@ -501,10 +547,6 @@
       
       if (playDropdownBtn) {
         playDropdownBtn.addEventListener('click', togglePlayPause);
-      }
-      
-      if (endDropdownBtn) {
-        endDropdownBtn.addEventListener('click', showModal);
       }
       
       if (modalClose) modalClose.addEventListener('click', hideModal);
@@ -797,9 +839,8 @@
           margin-bottom: 12px;
         }
         
-        .btn-play-dropdown,
-        .btn-end-dropdown {
-          flex: 1;
+        .btn-play-dropdown {
+          width: 100%;
           padding: 10px;
           border: none;
           border-radius: 8px;
@@ -808,9 +849,6 @@
           cursor: pointer;
           transition: all 0.2s;
           font-family: 'Inter', sans-serif;
-        }
-        
-        .btn-play-dropdown {
           background: rgba(255,255,255,0.1);
           color: white;
           border: 1px solid rgba(255,255,255,0.2);
@@ -825,16 +863,6 @@
           background: rgba(6,179,253,0.2);
           border-color: rgba(6,179,253,0.5);
           color: #38bdf8;
-        }
-        
-        .btn-end-dropdown {
-          background: #06b3fd;
-          color: white;
-        }
-        
-        .btn-end-dropdown:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(6,179,253,0.3);
         }
         
         .dropdown-divider {
@@ -1029,6 +1057,81 @@
       
       document.head.appendChild(style);
     }
+
+    // ============================================
+    // PAGE UNLOAD HANDLER - Save session before leaving
+    // ============================================
+    var lastSaveTime = 0;
+    var SAVE_COOLDOWN = 2000; // 2 seconds cooldown to prevent multiple saves
+    
+    function saveSessionOnUnload() {
+      // Only save if there's an active session with time
+      if (!currentUser || seconds === 0 || !isPlaying && seconds < 10) {
+        return;
+      }
+      
+      // Prevent multiple rapid saves
+      var now = Date.now();
+      if (now - lastSaveTime < SAVE_COOLDOWN) {
+        return;
+      }
+      lastSaveTime = now;
+      
+      var lessonInfo = getCurrentLessonInfo();
+      var sessionId = Date.now().toString();
+      var dateKey = getTodayDateKey();
+      var device = getDeviceType();
+      
+      var sessionData = {
+        courseId: lessonInfo.courseId,
+        lessonId: lessonInfo.lessonId,
+        lessonTitle: lessonInfo.lessonTitle,
+        duration: seconds,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        date: dateKey,
+        device: device
+      };
+      
+      // Use sendBeacon for reliable delivery during page unload
+      // Fallback to synchronous fetch if sendBeacon not available
+      try {
+        var endpoint = 'https://firestore.googleapis.com/v1/projects/' + 
+                      firebase.app().options.projectId + 
+                      '/databases/(default)/documents/users/' + 
+                      currentUser.uid + '/practice/sessions/items/' + sessionId;
+        
+        // For beforeunload, we'll just use the regular Firestore API
+        // It will queue the write and Firebase SDK handles it
+        db.collection('users').doc(currentUser.uid).collection('practice').doc('sessions')
+          .collection('items').doc(sessionId)
+          .set(sessionData);
+          
+        // Also update stats
+        var statsRef = db.collection('users').doc(currentUser.uid).collection('practice').doc('stats');
+        statsRef.set({
+          totalSeconds: firebase.firestore.FieldValue.increment(seconds),
+          sessionCount: firebase.firestore.FieldValue.increment(1),
+          lastPracticeDate: dateKey
+        }, { merge: true });
+        
+      } catch (e) {
+        console.error('Error saving session on unload:', e);
+      }
+    }
+    
+    // Bind to beforeunload and visibilitychange
+    window.addEventListener('beforeunload', saveSessionOnUnload);
+    window.addEventListener('pagehide', saveSessionOnUnload);
+    
+    // Also save when page becomes hidden (tab switch, minimize)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden && isPlaying && seconds > 0) {
+        // Stop the timer and save
+        isPlaying = false;
+        stopTimer();
+        saveSessionOnUnload();
+      }
+    });
 
     // ============================================
     // INITIALIZE
