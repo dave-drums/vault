@@ -569,23 +569,29 @@
     
     .stat-card {
       background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
       padding: 20px;
       text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(6, 179, 253, 0.15);
     }
     
     .stat-value {
-      font-size: var(--text-body);
+      font-size: var(--heading-section);
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       font-family: 'Inter', sans-serif;
     }
     
     .stat-label {
-      font-size: var(--text-tiny);
-      font-weight: 600;
+      font-size: var(--text-micro);
       color: var(--text-secondary);
       font-family: 'Inter', sans-serif;
     }
