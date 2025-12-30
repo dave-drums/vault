@@ -795,8 +795,8 @@
           border-radius: 12px;
           border: 1px solid rgba(6, 179, 253, 0.3);
           box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-          padding: 20px;
-          width: 300px;
+          padding: 16px;
+          width: 200px;
           display: none;
           z-index: 100;
         }
@@ -1032,7 +1032,7 @@
           }
           
           .practice-dropdown {
-            width: 280px;
+            width: 200px;
           }
         }
         
