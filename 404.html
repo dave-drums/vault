@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 | Practice Vault</title>
+
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Typography -->
+  <link rel="stylesheet" href="/config/typography.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:#f8f9fa;
+      --surface:#ffffff;
+      --text-primary:#1a1a1a;
+      --text-secondary:#6c757d;
+      --accent:#06b3fd;
+      --border:#dee2e6;
+      --shadow:0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      background: #1a1a2e;
+      padding: 100px 20px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
+      background-size: 200% auto;
+      animation: shift 3s linear infinite;
+    }
+
+    @keyframes shift {
+      from { background-position: 0% center; }
+      to { background-position: 200% center; }
+    }
+
+    .hero h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: var(--heading-hero-desktop);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      background: linear-
