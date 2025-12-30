@@ -387,34 +387,7 @@
         const renderedContent = window.vaultParse.render(tokens);
         container.innerHTML = '';
         
-        // Add top navigation buttons
-        const topNavHtml = `
-          <div class="lesson-nav-top">
-            <button class="lesson-nav-back" onclick="window.location.href='${window.location.pathname}?c=${courseId.charAt(courseId.length - 1)}'">
-              ← Back to Course
-            </button>
-            <button class="lesson-nav-complete" id="complete-lesson-top">
-              Complete Lesson →
-            </button>
-          </div>
-        `;
-
-        container.insertAdjacentHTML('beforeend', topNavHtml);
-        
         container.appendChild(renderedContent);
-
-        // Add bottom navigation buttons
-        const bottomNavHtml = `
-          <div class="lesson-nav-bottom">
-            <button class="lesson-nav-back" onclick="window.location.href='${window.location.pathname}?c=${courseId.charAt(courseId.length - 1)}'">
-              ← Back to Course
-            </button>
-            <button class="lesson-nav-complete" id="complete-lesson-bottom">
-              Complete Lesson →
-            </button>
-          </div>
-        `;
-        container.insertAdjacentHTML('beforeend', bottomNavHtml);
         
         // Add comments section - JUST EMPTY CONTAINER NOW
         container.insertAdjacentHTML('beforeend', '<div id="vault-comments" class="vault-comments"></div>');
