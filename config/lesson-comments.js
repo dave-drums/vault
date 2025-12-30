@@ -350,15 +350,16 @@ function getThreadId(){
   const parts = path.split('/').filter(p => p.length > 0);
   const params = new URLSearchParams(window.location.search);
   
-  if (parts.length < 2 || parts[0] !== 'vault') return 'vault_home';
+  // Handle direct pathway URLs: /gs, /fs, /ss, /ks, /rs
+  if (parts.length === 0) return 'vault_home';
   
-  const pathway = parts[1]; // gs, fs, ss, ks
+  const pathway = parts[parts.length - 1]; // Last part is the pathway (gs, fs, etc)
   const courseNum = params.get('c');
   const lesson = params.get('l');
   
   if (!courseNum) return 'vault_home';
   
-  const courseId = pathway + courseNum; // gs1, fs2, etc
+  const courseId = pathway + courseNum; // gs1, fs2, rs1, etc
   const base = 'vault_' + courseId;
   return lesson ? base + '_lesson_' + lesson : base;
 }
