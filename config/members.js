@@ -781,32 +781,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    function mkPrimaryBtn(text, href, isButton){
-      var el;
-      if (isButton) {
-        el = document.createElement('button');
-        el.type = 'button';
-      } else {
-        el = document.createElement('a');
-        el.href = href;
-      }
-      
-      el.textContent = text;
-      el.style.cssText = 'display:block;padding:14px 20px;background:#06b3fd;border:1px solid #06b3fd;' +
-        'border-radius:8px;color:#fff;font-weight:500;text-align:center;cursor:pointer;' +
-        'text-decoration:none;transition:all 0.2s ease;line-height:1.4;box-sizing:border-box;';
-
-      el.addEventListener('mouseenter', function(){
-        el.style.background = '#0599dc';
-        el.style.borderColor = '#0599dc';
-      });
-      el.addEventListener('mouseleave', function(){
-        el.style.background = '#06b3fd';
-        el.style.borderColor = '#06b3fd';
-      });
-
-      return el;
-    }
 
     function loadLastLesson(user, btnEl, labelEl, titleEl){
       if (!user || !btnEl) return;
@@ -895,89 +869,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function createDropdownSection(title, contentBuilder){
-
-
-      var section = document.createElement('div');
-      section.style.cssText = 'margin-bottom:12px;';
-
-      var header = document.createElement('button');
-      header.type = 'button';
-      header.className = 'vault-dropdown-header';
-      header.style.cssText = 'width:100%;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;text-align:left;font-weight:500;font-size:15px;' +
-        'display:flex;justify-content:space-between;align-items:center;transition:all 0.2s ease;';
-      
-      var titleSpan = document.createElement('span');
-      titleSpan.textContent = title;
-      
-      var arrow = document.createElement('span');
-      arrow.textContent = '▼';
-      arrow.style.cssText = 'font-size:10px;transition:transform 0.2s ease;color:#666;';
-      
-      header.appendChild(titleSpan);
-      header.appendChild(arrow);
-
-      var contentWrapper = document.createElement('div');
-      contentWrapper.className = 'vault-dropdown-content';
-      contentWrapper.style.cssText = 'display:none;padding:18px;background:#fafafa;border:1px solid #ddd;' +
-        'border-top:none;border-radius:0 0 8px 8px;margin-top:-1px;';
-
-      var isOpen = false;
-
-      header.addEventListener('click', function(){
-        if (isOpen) {
-          // Close
-          contentWrapper.style.maxHeight = contentWrapper.scrollHeight + 'px';
-          setTimeout(function(){
-            contentWrapper.style.maxHeight = '0';
-            contentWrapper.style.padding = '0 18px';
-          }, 10);
-          setTimeout(function(){
-            contentWrapper.style.display = 'none';
-            contentWrapper.style.padding = '18px';
-          }, 200);
-          arrow.style.transform = 'rotate(0deg)';
-          header.style.borderRadius = '8px';
-        } else {
-          // Open (build content lazily)
-          if (contentWrapper.children.length === 0) {
-            var content = contentBuilder();
-            contentWrapper.appendChild(content);
-          }
-          
-          contentWrapper.style.display = 'block';
-          contentWrapper.style.maxHeight = '0';
-          contentWrapper.style.overflow = 'hidden';
-          contentWrapper.style.transition = 'max-height 0.2s ease, padding 0.2s ease';
-          
-          setTimeout(function(){
-            contentWrapper.style.maxHeight = contentWrapper.scrollHeight + 'px';
-          }, 10);
-          
-          setTimeout(function(){
-            contentWrapper.style.maxHeight = 'none';
-            contentWrapper.style.overflow = 'visible';
-          }, 200);
-          
-          arrow.style.transform = 'rotate(180deg)';
-          header.style.borderRadius = '8px 8px 0 0';
-        }
-        isOpen = !isOpen;
-      });
-
-      header.addEventListener('mouseenter', function(){
-        header.style.background = '#f5f5f5';
-      });
-      header.addEventListener('mouseleave', function(){
-        header.style.background = '#fff';
-      });
-
-      section.appendChild(header);
-      section.appendChild(contentWrapper);
-
-      return section;
-    }
 
     function createPracticeContent(user){
   var content = document.createElement('div');
@@ -1949,30 +1840,6 @@ function createGoalsContent(user){
     }
 
 
-    function mkAccountBtn(tag, text, href) {
-      var el = document.createElement(tag);
-      el.className = 'account-btn';
-      el.textContent = text;
-      el.style.cssText = 'display:block;padding:14px 18px;background:#fff;border:1px solid #ddd;' +
-        'border-radius:8px;cursor:pointer;font-weight:500;text-align:left;transition:all 0.2s ease;font-size:15px;';
-
-      if (tag === 'a') {
-        el.href = href || '#';
-        el.style.textDecoration = 'none';
-        el.style.color = 'inherit';
-      } else {
-        el.type = 'button';
-      }
-
-      el.addEventListener('mouseenter', function(){
-        el.style.background = '#f5f5f5';
-      });
-      el.addEventListener('mouseleave', function(){
-        el.style.background = '#fff';
-      });
-
-      return el;
-    }
 
     function createEmailSection(user){
       var section = document.createElement('div');
@@ -2322,42 +2189,6 @@ var c = String(newPw2.value || '').trim();
       return b;
     }
 
-    function openModal(title, bodyText) {
-      var overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;' +
-        'background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;' +
-        'padding:18px;z-index:99999;';
-
-      var box = document.createElement('div');
-      box.style.cssText = 'width:100%;max-width:360px;background:#fff;border-radius:10px;' +
-        'box-shadow:0 10px 40px rgba(0,0,0,.25);padding:22px;color:#111;';
-
-      var h = document.createElement('h3');
-      h.textContent = title;
-      h.style.cssText = 'margin:0 0 10px 0;';
-
-      var p = document.createElement('p');
-      p.className = 'p2';
-      p.textContent = bodyText;
-      p.style.cssText = 'line-height:1.5;margin:0 0 16px 0;';
-
-      var actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;justify-content:flex-end;';
-
-      var closeBtn = mkInlineBtn('Close', false);
-      closeBtn.addEventListener('click', function(){ overlay.remove(); });
-
-      actions.appendChild(closeBtn);
-
-      box.appendChild(h);
-      box.appendChild(p);
-      box.appendChild(actions);
-
-      overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
-
-      overlay.appendChild(box);
-      document.body.appendChild(overlay);
-    }
 
     // ============================================
     // AUTH WIRING
