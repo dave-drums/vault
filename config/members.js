@@ -1061,18 +1061,17 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
     var courseId = activeCourses[pathway] || null;
 
     var box = document.createElement('div');
-    box.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px;' +
-      'min-height:100px;display:flex;flex-direction:column;justify-content:center;';
+    box.className = 'pathway-card';
 
     var labelEl = document.createElement('div');
-    labelEl.style.cssText = 'font-size:13px;font-weight:600;color:#333;margin-bottom:8px;text-align:center;';
+    labelEl.className = 'pathway-name';
     labelEl.textContent = config.label;
 
     var statusEl = document.createElement('div');
-    statusEl.style.cssText = 'font-size:11px;color:#666;text-align:center;margin-bottom:4px;';
+    statusEl.className = 'pathway-label';
     
     var progressEl = document.createElement('div');
-    progressEl.style.cssText = 'font-size:16px;font-weight:700;color:#06b3fd;text-align:center;margin-bottom:6px;';
+    progressEl.className = 'pathway-stat';
 
     var barContainer = document.createElement('div');
     barContainer.style.cssText = 'width:100%;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;';
