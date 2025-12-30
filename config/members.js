@@ -1398,14 +1398,19 @@ function createGoalsContent(user){
       // Load practice stats
       db.collection('users').doc(user.uid).collection('practice').doc('stats').get()
         .then(function(snap){
-          if (!snap.exists) return;
+          if (!snap.exists) {
+            console.log('[Stats] No stats document found yet');
+            return;
+          }
           var data = snap.data() || {};
+          console.log('[Stats] Loaded data:', data);
 
           // Total time
           var totalSeconds = data.totalSeconds || 0;
           var totalEl = document.getElementById('stat-total-time');
           if (totalEl) {
             totalEl.textContent = formatDuration(totalSeconds);
+            console.log('[Stats] Total time:', formatDuration(totalSeconds));
           }
 
           // Avg per session
@@ -1417,9 +1422,12 @@ function createGoalsContent(user){
             } else {
               avgEl.textContent = '0 min';
             }
+            console.log('[Stats] Avg session time:', avgEl.textContent);
           }
         })
-        .catch(function(){});
+        .catch(function(err){
+          console.error('[Stats] Error loading stats:', err);
+        });
 
 
       // Load days practiced this week
@@ -1579,7 +1587,10 @@ function createGoalsContent(user){
 
     function loadDaysThisWeek(user){
       var daysEl = document.getElementById('stat-days-week');
-      if (!daysEl) return;
+      if (!daysEl) {
+        console.log('[Stats] Day streak element not found');
+        return;
+      }
 
       // Get Monday-Sunday date range for current week
       var now = new Date();
@@ -1603,6 +1614,7 @@ function createGoalsContent(user){
           String(d.getDate()).padStart(2, '0');
         weekDateKeys.push(dateKey);
       }
+      console.log('[Stats] Week date keys:', weekDateKeys);
 
       // Get all practice sessions and count unique days this week
       db.collection('users').doc(user.uid).collection('practice').doc('sessions')
@@ -1619,8 +1631,10 @@ function createGoalsContent(user){
           });
           var count = Object.keys(uniqueDays).length;
           daysEl.textContent = count;
+          console.log('[Stats] Day streak:', count, 'days this week');
         })
-        .catch(function(){
+        .catch(function(err){
+          console.error('[Stats] Error loading day streak:', err);
           daysEl.textContent = '—';
         });
     }
