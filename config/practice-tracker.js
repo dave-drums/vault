@@ -402,7 +402,7 @@
                 <button class="btn-play-dropdown" id="btn-play-dropdown">
                   <span id="play-dropdown-text">▶ Start</span>
                 </button>
-                <button class="btn-end-dropdown" id="btn-end-dropdown">✓ End Session</button>
+                <button class="btn-end-dropdown" id="btn-end-dropdown">End Session ✔</button>
               </div>
               
               <div class="dropdown-divider"></div>
@@ -414,7 +414,7 @@
           </div>
           
           <button class="lesson-nav-complete" id="complete-lesson-btn">
-            ${selfProgress ? 'Complete ✓' : 'Next →'}
+            Next →
           </button>
         </div>
       `;
@@ -463,6 +463,31 @@
         dropdownLesson.textContent = lessonInfo.lessonTitle;
       }
       
+      // Load today's total practice time
+      if (currentUser) {
+        var todayKey = getTodayDateKey();
+        db.collection('users').doc(currentUser.uid).collection('practice')
+          .doc('sessions').collection('items')
+          .where('date', '==', todayKey)
+          .get()
+          .then(function(snap) {
+            var totalSeconds = 0;
+            snap.forEach(function(doc) {
+              totalSeconds += doc.data().duration || 0;
+            });
+            var mins = Math.floor(totalSeconds / 60);
+            var secs = totalSeconds % 60;
+            var timeStr = mins + ':' + String(secs).padStart(2, '0');
+            var statsEl = document.querySelector('.dropdown-stats');
+            if (statsEl) {
+              statsEl.textContent = 'Total today: ' + timeStr;
+            }
+          })
+          .catch(function(err) {
+            console.error('Error loading today total:', err);
+          });
+      }
+      
       // Bind events
       bindEvents();
       
@@ -498,15 +523,97 @@
       if (btnCancel) btnCancel.addEventListener('click', hideModal);
       if (btnSave) btnSave.addEventListener('click', saveSession);
       
-      // Complete lesson button - find existing handler
-      if (completeBtn) {
-        var existingCompleteBtn = document.getElementById('complete-lesson-top') || 
-                                   document.getElementById('complete-lesson-bottom');
-        if (existingCompleteBtn) {
+      // Complete lesson button - implement the logic directly
+      if (completeBtn && currentUser) {
+        var lessonInfo = getCurrentLessonInfo();
+        var courseNum = urlParams.get('c');
+        
+        // Get user's selfProgress setting and setup button
+        db.doc('users/' + currentUser.uid).get().then(function(userSnap) {
+          var selfProgress = userSnap.exists && userSnap.data().selfProgress === true;
+          
+          // Update button text based on selfProgress
+          if (selfProgress) {
+            completeBtn.innerHTML = 'Complete ✔';
+          } else {
+            completeBtn.innerHTML = 'Next →';
+          }
+          
+          // Check if already completed (only if selfProgress)
+          if (selfProgress) {
+            db.collection('users').doc(currentUser.uid).collection('progress')
+              .doc(lessonInfo.courseId).get()
+              .then(function(progressSnap) {
+                if (progressSnap.exists && progressSnap.data().completed) {
+                  var completedData = progressSnap.data().completed;
+                  var completed = Array.isArray(completedData) ? completedData : 
+                                 (typeof completedData === 'object' ? Object.keys(completedData).filter(function(k) { return completedData[k]; }) : []);
+                  
+                  if (completed.indexOf(lessonInfo.lessonId) !== -1) {
+                    completeBtn.classList.add('completed');
+                  }
+                }
+              });
+          }
+          
+          // Add click handler
           completeBtn.addEventListener('click', function() {
-            existingCompleteBtn.click();
+            // Get course config to find next lesson
+            var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[lessonInfo.courseId];
+            if (!courseConfig) return;
+            
+            var currentIndex = courseConfig.lessons.indexOf(lessonInfo.lessonId);
+            var nextLesson = currentIndex < courseConfig.lessons.length - 1 ? 
+                            courseConfig.lessons[currentIndex + 1] : null;
+            
+            if (selfProgress) {
+              // Check if already completed
+              db.collection('users').doc(currentUser.uid).collection('progress')
+                .doc(lessonInfo.courseId).get()
+                .then(function(progressSnap) {
+                  var completed = [];
+                  if (progressSnap.exists && progressSnap.data().completed) {
+                    var completedData = progressSnap.data().completed;
+                    completed = Array.isArray(completedData) ? completedData : 
+                               (typeof completedData === 'object' ? Object.keys(completedData).filter(function(k) { return completedData[k]; }) : []);
+                  }
+                  
+                  var isCompleted = completed.indexOf(lessonInfo.lessonId) !== -1;
+                  
+                  if (!isCompleted) {
+                    // Mark as complete
+                    var newCompleted = completed.concat([lessonInfo.lessonId]);
+                    db.collection('users').doc(currentUser.uid).collection('progress')
+                      .doc(lessonInfo.courseId).set({
+                        completed: newCompleted,
+                        lastLesson: lessonInfo.lessonId,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                      }, { merge: true })
+                      .then(function() {
+                        navigate();
+                      })
+                      .catch(function(err) {
+                        console.error('Error marking complete:', err);
+                      });
+                  } else {
+                    navigate();
+                  }
+                });
+            } else {
+              navigate();
+            }
+            
+            function navigate() {
+              if (nextLesson) {
+                window.location.href = window.location.pathname + '?c=' + courseNum + '&l=' + nextLesson;
+              } else {
+                window.location.href = window.location.pathname + '?c=' + courseNum;
+              }
+            }
           });
-        }
+        }).catch(function(err) {
+          console.error('Error setting up complete button:', err);
+        });
       }
       
       // Close dropdown when clicking outside
@@ -545,24 +652,24 @@
           max-width: 860px;
           margin: 0 auto;
           padding: 14px 20px;
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          display: flex;
           align-items: center;
-          gap: 16px;
+          justify-content: space-between;
+          gap: 12px;
         }
         
         .lesson-nav-back {
-          justify-self: start;
           background: rgba(255,255,255,0.1);
           border: 1px solid rgba(255,255,255,0.2);
           color: white;
           padding: 10px 20px;
           border-radius: 8px;
-          font-size: 14px;
+          font-size: var(--text-small);
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
           font-family: 'Inter', sans-serif;
+          white-space: nowrap;
         }
         
         .lesson-nav-back:hover {
@@ -571,7 +678,6 @@
         }
         
         .practice-center-btn {
-          justify-self: center;
           position: relative;
         }
         
@@ -586,9 +692,10 @@
           align-items: center;
           gap: 8px;
           font-family: 'Inter', sans-serif;
-          font-size: 14px;
+          font-size: var(--text-small);
           font-weight: 600;
           color: white;
+          white-space: nowrap;
         }
         
         .practice-btn:hover {
@@ -608,37 +715,42 @@
         }
         
         .practice-text {
-          font-size: 14px;
+          font-size: var(--text-small);
           font-weight: 600;
           font-family: 'Inter', sans-serif;
         }
         
         .practice-time {
           font-family: 'Inter', sans-serif;
-          font-size: 14px;
+          font-size: var(--text-small);
           font-weight: 600;
           font-variant-numeric: tabular-nums;
           color: #38bdf8;
         }
         
         .lesson-nav-complete {
-          justify-self: end;
           background: linear-gradient(135deg, #06b3fd 0%, #38bdf8 100%);
           border: none;
           color: #fff;
           padding: 10px 20px;
           border-radius: 8px;
-          font-size: 14px;
+          font-size: var(--text-small);
           font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
           font-family: 'Inter', sans-serif;
           box-shadow: 0 2px 8px rgba(6,179,253,0.3);
+          white-space: nowrap;
         }
         
         .lesson-nav-complete:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(6,179,253,0.4);
+        }
+        
+        .lesson-nav-complete.completed {
+          background: #10b981;
+          box-shadow: 0 2px 8px rgba(16,185,129,0.3);
         }
         
         /* Dropdown */
@@ -787,7 +899,7 @@
         }
         
         .modal-header {
-          padding: 24px;
+          padding: 20px;
           border-bottom: 1px solid #e9ecef;
           display: flex;
           align-items: center;
@@ -796,7 +908,7 @@
         
         .modal-header h2 {
           font-family: 'Inter', sans-serif;
-          font-size: 18px;
+          font-size: var(--text-large);
           font-weight: 500;
           color: #1a1a1a;
         }
@@ -804,13 +916,13 @@
         .modal-close {
           background: none;
           border: none;
-          font-size: 28px;
+          font-size: 24px;
           color: #6c757d;
           cursor: pointer;
           line-height: 1;
           padding: 0;
-          width: 32px;
-          height: 32px;
+          width: 28px;
+          height: 28px;
         }
         
         .modal-close:hover {
@@ -818,7 +930,7 @@
         }
         
         .modal-body {
-          padding: 24px;
+          padding: 20px;
         }
         
         .session-summary {
@@ -885,17 +997,17 @@
         .modal-actions {
           display: flex;
           gap: 12px;
-          padding: 20px 24px;
+          padding: 16px 20px;
           border-top: 1px solid #e9ecef;
         }
         
         .btn-cancel,
         .btn-save {
           flex: 1;
-          padding: 14px;
+          padding: 10px 20px;
           border-radius: 8px;
           font-weight: 600;
-          font-size: 15px;
+          font-size: var(--text-small);
           cursor: pointer;
           transition: all 0.2s;
           font-family: 'Inter', sans-serif;
