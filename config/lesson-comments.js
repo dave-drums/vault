@@ -26,7 +26,7 @@
 
     .vault-comments h3{
       margin: 0 0 6px 0;
-      font-size: var(--text-large);
+      font-size: var(--text-body);
       font-weight: 600;
     }
 
