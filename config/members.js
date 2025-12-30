@@ -1045,14 +1045,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function renderPathwayCards(container, uid, activeCourses, lastActivePathway, lastActiveCourseId){
   var grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;';
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:12px;';
 
-  var pathways = ['groove', 'fills', 'sticks', 'kicks'];
+  var pathways = ['groove', 'fills', 'sticks', 'kicks', 'reading'];
   var pathwayConfig = {
     groove: { label: 'Groove Studies', key: 'groove' },
     fills: { label: 'Fill Studies', key: 'fills' },
     sticks: { label: 'Stick Studies', key: 'sticks' },
-    kicks: { label: 'Kick Studies', key: 'kicks' }
+    kicks: { label: 'Kick Studies', key: 'kicks' },
+    reading: { label: 'Rhythm Studies', key: 'reading' }
   };
 
   pathways.forEach(function(pathway){
@@ -1112,6 +1113,16 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
   });
 
   container.appendChild(grid);
+  
+  // Mobile: 2 columns instead of 3
+  if (!document.getElementById("pathway-grid-mobile-css")) {
+    var style = document.createElement("style");
+    style.id = "pathway-grid-mobile-css";
+    style.textContent = "@media (max-width: 768px) { " +
+      "[style*=\"grid-template-columns:repeat(3,1fr)\"] { grid-template-columns: repeat(2,1fr) !important; }" +
+    " }";
+    document.head.appendChild(style);
+  }
 }
 
 function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
@@ -2246,4 +2257,3 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
-
