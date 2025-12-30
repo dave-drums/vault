@@ -1389,8 +1389,8 @@ function createGoalsContent(user){
     function loadStatsAndChart(user, canvas){
       if (!user) return;
 
-      // Load main stats
-      db.collection('users').doc(user.uid).collection('metrics').doc('stats').get()
+      // Load practice stats
+      db.collection('users').doc(user.uid).collection('practice').doc('stats').get()
         .then(function(snap){
           if (!snap.exists) return;
           var data = snap.data() || {};
@@ -1403,17 +1403,18 @@ function createGoalsContent(user){
           }
 
           // Avg per session
-          var loginCount = data.loginCount || 0;
+          var sessionCount = data.sessionCount || 0;
           var avgEl = document.getElementById('stat-avg-time');
           if (avgEl) {
-            if (totalSeconds > 0 && loginCount > 0) {
-              avgEl.textContent = formatDuration(Math.round(totalSeconds / loginCount));
+            if (totalSeconds > 0 && sessionCount > 0) {
+              avgEl.textContent = formatDuration(Math.round(totalSeconds / sessionCount));
             } else {
               avgEl.textContent = '0 min';
             }
           }
         })
         .catch(function(){});
+
 
       // Load days practiced this week
       loadDaysThisWeek(user);
@@ -1431,18 +1432,21 @@ function createGoalsContent(user){
       thirtyDaysAgo.setDate(today.getDate() - 29); // -29 to include today = 30 days total
       
       // Query last 30 days of practice sessions
-      db.collection('users').doc(user.uid).collection('metrics')
-        .doc('daily').collection('sessions')
-        .where('lastSessionAt', '>=', firebase.firestore.Timestamp.fromDate(thirtyDaysAgo))
+      db.collection('users').doc(user.uid).collection('practice').doc('sessions')
+        .collection('items')
+        .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(thirtyDaysAgo))
         .get()
         .then(function(snap){
           // Build data structure: date -> minutes
           var dataByDate = {};
           snap.forEach(function(doc){
             var data = doc.data();
-            var seconds = data.totalSeconds || 0;
+            var seconds = data.duration || 0;
             var minutes = Math.round(seconds / 60);
-            dataByDate[doc.id] = minutes; // doc.id is YYYY-MM-DD
+            var date = data.date; // YYYY-MM-DD format
+            if (date) {
+              dataByDate[date] = (dataByDate[date] || 0) + minutes;
+            }
           });
           
           // Build arrays for chart (last 30 days)
@@ -1591,17 +1595,20 @@ function createGoalsContent(user){
         weekDateKeys.push(dateKey);
       }
 
-      // Get all daily sessions and count how many are in this week
-      db.collection('users').doc(user.uid).collection('metrics')
-        .doc('daily').collection('sessions')
+      // Get all practice sessions and count unique days this week
+      db.collection('users').doc(user.uid).collection('practice').doc('sessions')
+        .collection('items')
         .get()
         .then(function(snap){
-          var count = 0;
+          var uniqueDays = {};
           snap.forEach(function(doc){
-            if (weekDateKeys.indexOf(doc.id) !== -1) {
-              count++;
+            var data = doc.data();
+            var date = data.date;
+            if (date && weekDateKeys.indexOf(date) !== -1) {
+              uniqueDays[date] = true;
             }
           });
+          var count = Object.keys(uniqueDays).length;
           daysEl.textContent = count;
         })
         .catch(function(){
@@ -2257,3 +2264,4 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
