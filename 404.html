@@ -16,13 +16,9 @@
   <link rel="stylesheet" href="/config/typography.css">
 
   <style>
-    html[data-protected] body {
-      opacity: 1 !important;
-    }
-    
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
+    :root{
       --bg:#f8f9fa;
       --surface:#ffffff;
       --text-primary:#1a1a1a;
@@ -32,15 +28,19 @@
       --shadow:0 4px 16px rgba(0,0,0,0.08);
     }
 
-    body {
+    /* Absolute hard override so it can never render “blank” */
+    html, body { height: 100%; }
+    body{
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
       font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text-primary);
       min-height: 100vh;
     }
 
-    /* HERO */
-    .hero {
+    .hero{
       position: relative;
       background: #1a1a2e;
       padding: 100px 20px 80px;
@@ -48,27 +48,107 @@
       overflow: hidden;
     }
 
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
-      background-size: 200% auto;
-      animation: shift 3s linear infinite;
+    .hero::after{
+      content:'';
+      position:absolute;
+      bottom:0; left:0; right:0;
+      height:4px;
+      background:linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
+      background-size:200% auto;
+      animation:shift 3s linear infinite;
     }
 
-    @keyframes shift {
-      from { background-position: 0% center; }
-      to { background-position: 200% center; }
+    @keyframes shift{
+      from{background-position:0% center}
+      to{background-position:200% center}
     }
 
-    .hero h1 {
+    .hero h1{
       font-family: 'Oswald', sans-serif;
       font-size: var(--heading-hero-desktop);
       font-weight: 400;
       text-transform: uppercase;
       letter-spacing: -1px;
-      background: linear-
+      line-height: 1.1;
+
+      /* Fallback that always shows */
+      color: #ffffff;
+    }
+
+    /* Apply gradient text only when supported */
+    @supports (-webkit-background-clip: text) or (background-clip: text) {
+      .hero h1{
+        background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        /* Only set transparent fill when clip is supported */
+        -webkit-text-fill-color: transparent;
+      }
+    }
+
+    .hero p{
+      margin-top: 16px;
+      font-size: var(--text-body);
+      color: #cbd5e1;
+    }
+
+    .content{
+      max-width: 520px;
+      margin: -40px auto 0;
+      background: var(--surface);
+      padding: 32px 28px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .content p{
+      font-size: var(--text-body);
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .home-btn{
+      display:inline-block;
+      padding:12px 24px;
+      font-size: var(--text-ui);
+      font-weight:600;
+      color:#ffffff;
+      background: linear-gradient(135deg, #06b3fd, #38bdf8);
+      border-radius: 8px;
+      text-decoration:none;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: 0 4px 12px rgba(6,179,253,0.35);
+    }
+
+    .home-btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(6,179,253,0.45);
+    }
+
+    @media (max-width: 768px){
+      .hero{ padding: 70px 20px 50px; }
+      .hero h1{ font-size: var(--heading-hero-mobile); }
+      .content{ margin: -32px 16px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <h1>404</h1>
+    <p>This page doesn’t exist in the Practice Vault</p>
+  </section>
+
+  <div class="content">
+    <p>
+      The link may be broken, expired, or the content has moved.
+      Head back to the vault and continue where you left off.
+    </p>
+    <a href="/" class="home-btn">Back to Practice Vault</a>
+  </div>
+
+</body>
+</html>
