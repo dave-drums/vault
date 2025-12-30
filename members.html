@@ -472,19 +472,18 @@
     }
     
     .pathway-name {
-      font-family: 'Oswald', sans-serif;
-      font-size: var(--heading-card);
-      font-weight: 400;
-      text-transform: uppercase;
-      letter-spacing: -0.5px;
-      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: var(--text-small);
+      font-weight: 600;
       margin-bottom: 12px;
+      color: var(--text-primary);
     }
     
     .pathway-stat {
-      font-size: var(--text-large);
+      font-size: var(--heading-section);
+      font-weight: 700;
       color: var(--accent);
-      font-weight: 600;
+      margin-bottom: 8px;
       font-family: 'Inter', sans-serif;
     }
     
@@ -539,11 +538,18 @@
     
     /* STATS */
     .stats-chart-container {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+      border: 2px solid var(--border);
+      border-radius: 14px;
       padding: 20px;
       margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    
+    .stats-chart-container:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(6, 179, 253, 0.15);
     }
     
     .chart-title {
