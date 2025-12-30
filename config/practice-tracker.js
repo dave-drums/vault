@@ -365,13 +365,24 @@
       var hero = document.querySelector('.course-hero');
       if (!hero) return;
       
+      // Check if user has selfProgress enabled
+      var selfProgress = false;
+      if (currentUser) {
+        db.doc('users/' + currentUser.uid).get().then(function(snap) {
+          if (snap.exists) {
+            var data = snap.data();
+            selfProgress = data.selfProgress === true;
+          }
+        }).catch(function() {});
+      }
+      
       // Create sticky bar
       var stickyBar = document.createElement('div');
       stickyBar.className = 'practice-sticky-bar';
       stickyBar.innerHTML = `
         <div class="practice-bar-inner">
           <button class="lesson-nav-back" onclick="window.location.href=window.location.pathname + '?c=' + new URLSearchParams(window.location.search).get('c')">
-            ← Back to Course
+            ← Back
           </button>
           
           <div class="practice-center-btn">
@@ -403,7 +414,7 @@
           </div>
           
           <button class="lesson-nav-complete" id="complete-lesson-btn">
-            Complete Lesson →
+            ${selfProgress ? 'Complete ✓' : 'Next →'}
           </button>
         </div>
       `;
@@ -524,13 +535,14 @@
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           border-bottom: 2px solid rgba(6, 179, 253, 0.3);
-          box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
           z-index: 50;
           transition: all 0.3s;
+          margin-top: -4px;
         }
         
         .practice-bar-inner {
-          max-width: 1200px;
+          max-width: 860px;
           margin: 0 auto;
           padding: 14px 20px;
           display: grid;
@@ -815,19 +827,22 @@
           padding: 20px;
           margin-bottom: 24px;
           text-align: center;
+          display: flex;
+          align-items: baseline;
+          justify-content: center;
+          gap: 8px;
         }
         
         .summary-timer {
           font-family: 'Oswald', sans-serif;
-          font-size: 42px;
+          font-size: 32px;
           color: #06b3fd;
           font-weight: 400;
-          margin-bottom: 8px;
           letter-spacing: -1px;
         }
         
         .summary-label {
-          font-size: 13px;
+          font-size: 14px;
           color: #6c757d;
         }
         
