@@ -765,17 +765,17 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       panel.appendChild(progressSection);
 
+      // Stats section
+      var statsSection = createOpenSection('My Stats', function(){
+        return createStatsContent(user);
+      });
+      panel.appendChild(statsSection);
+
       // My Goals section
       var goalsSection = createOpenSection('My Goals', function(){
         return createGoalsContent(user);
       });
       panel.appendChild(goalsSection);
-
-      // Stats section
-      var statsSection = createOpenSection('Stats', function(){
-        return createStatsContent(user);
-      });
-      panel.appendChild(statsSection);
 
       return panel;
     }
@@ -1380,6 +1380,12 @@ function createGoalsContent(user){
       });
 
       content.appendChild(statsCards);
+      
+      // Recent Practice Timeline
+      var timelineContainer = document.createElement('div');
+      timelineContainer.id = 'recent-practice-timeline';
+      content.appendChild(timelineContainer);
+      
       loadStatsAndChart(user, canvas);
 
       return content;
@@ -1421,6 +1427,9 @@ function createGoalsContent(user){
       
       // Load and render 30-day chart
       load30DayChart(user, canvas);
+      
+      // Load recent practice timeline
+      loadRecentPracticeTimeline(user);
     }
 
     function load30DayChart(user, canvas){
@@ -1614,6 +1623,140 @@ function createGoalsContent(user){
         .catch(function(){
           daysEl.textContent = '—';
         });
+    }
+
+    function loadRecentPracticeTimeline(user){
+      var container = document.getElementById('recent-practice-timeline');
+      if (!container || !user) return;
+      
+      // Load last 5 practice sessions
+      db.collection('users').doc(user.uid).collection('practice')
+        .doc('sessions').collection('items')
+        .orderBy('timestamp', 'desc')
+        .limit(5)
+        .get()
+        .then(function(snap){
+          if (snap.empty) {
+            container.innerHTML = '';
+            return;
+          }
+          
+          // Group sessions by date
+          var sessionsByDate = {};
+          snap.forEach(function(doc){
+            var data = doc.data();
+            var date = data.date; // YYYY-MM-DD
+            if (!date) return;
+            
+            if (!sessionsByDate[date]) {
+              sessionsByDate[date] = [];
+            }
+            sessionsByDate[date].push(data);
+          });
+          
+          // Render timeline
+          container.innerHTML = '';
+          
+          var header = document.createElement('div');
+          header.className = 'sessions-header';
+          header.textContent = 'RECENT PRACTICE';
+          container.appendChild(header);
+          
+          var timeline = document.createElement('div');
+          timeline.className = 'timeline';
+          
+          // Get dates in order
+          var dates = Object.keys(sessionsByDate).sort().reverse();
+          
+          dates.forEach(function(dateKey){
+            var sessions = sessionsByDate[dateKey];
+            
+            var dateGroup = document.createElement('div');
+            dateGroup.className = 'timeline-date';
+            
+            var dateLabel = document.createElement('div');
+            dateLabel.className = 'date-label';
+            dateLabel.textContent = formatDateLabel(dateKey);
+            dateGroup.appendChild(dateLabel);
+            
+            sessions.forEach(function(session){
+              var item = document.createElement('div');
+              item.className = 'timeline-item';
+              
+              var lesson = document.createElement('div');
+              lesson.className = 'timeline-lesson';
+              var icon = getPathwayIcon(session.courseId);
+              lesson.textContent = icon + ' ' + (session.lessonTitle || 'Practice Session');
+              item.appendChild(lesson);
+              
+              var duration = document.createElement('div');
+              duration.className = 'timeline-duration';
+              var mins = Math.round((session.duration || 0) / 60);
+              duration.textContent = mins + ' min';
+              item.appendChild(duration);
+              
+              if (session.notes && session.notes.trim()) {
+                var notes = document.createElement('div');
+                notes.className = 'timeline-notes';
+                notes.textContent = '"' + session.notes + '"';
+                item.appendChild(notes);
+              }
+              
+              dateGroup.appendChild(item);
+            });
+            
+            timeline.appendChild(dateGroup);
+          });
+          
+          container.appendChild(timeline);
+          
+          var viewAll = document.createElement('a');
+          viewAll.href = '#';
+          viewAll.className = 'view-all';
+          viewAll.textContent = 'View All →';
+          viewAll.onclick = function(e){
+            e.preventDefault();
+            // Future: link to full session history page
+          };
+          container.appendChild(viewAll);
+        })
+        .catch(function(err){
+          console.error('Failed to load recent practice:', err);
+        });
+    }
+    
+    function formatDateLabel(dateKey){
+      var today = new Date();
+      var yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      var todayKey = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getDate()).padStart(2, '0');
+      
+      var yesterdayKey = yesterday.getFullYear() + '-' + 
+        String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(yesterday.getDate()).padStart(2, '0');
+      
+      if (dateKey === todayKey) return 'Today';
+      if (dateKey === yesterdayKey) return 'Yesterday';
+      
+      // Parse date and format as "Dec 28"
+      var parts = dateKey.split('-');
+      var d = new Date(parts[0], parts[1] - 1, parts[2]);
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return months[d.getMonth()] + ' ' + d.getDate();
+    }
+    
+    function getPathwayIcon(courseId){
+      if (!courseId) return '🥁';
+      var pathway = courseId.substring(0, 2);
+      if (pathway === 'gs') return '🥁';
+      if (pathway === 'fs') return '🎵';
+      if (pathway === 'rs') return '📖';
+      if (pathway === 'ss') return '🥢';
+      if (pathway === 'ks') return '🦶';
+      return '🥁';
     }
 
     function formatDuration(sec){
@@ -2264,4 +2407,3 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
-
