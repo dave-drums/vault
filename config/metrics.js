@@ -53,16 +53,40 @@
       return ref.set(data, { merge: true });
     }
 
-    function writeDeviceInfoOnce(ref) {
+    var LOGIN_TRACKED_KEY = 'vault_login_tracked';
+    
+    function writeDeviceInfoOnce(ref, isNewLogin) {
       var type = getDeviceType();
       var emoji = getDeviceEmoji(type);
-      return safeMergeSet(ref, {
+      
+      var updateData = {
         lastDeviceType: type,
         lastDeviceEmoji: emoji,
-        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
-        loginCount: firebase.firestore.FieldValue.increment(1)
-      });
+        lastSeenAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      // Only update lastLoginAt and increment loginCount on new logins
+      if (isNewLogin) {
+        updateData.lastLoginAt = firebase.firestore.FieldValue.serverTimestamp();
+        updateData.loginCount = firebase.firestore.FieldValue.increment(1);
+      }
+      
+      return safeMergeSet(ref, updateData);
+    }
+    
+    function isLoginAlreadyTracked() {
+      try {
+        var tracked = sessionStorage.getItem(LOGIN_TRACKED_KEY);
+        return tracked === 'true';
+      } catch(e) {
+        return false;
+      }
+    }
+    
+    function markLoginTracked() {
+      try {
+        sessionStorage.setItem(LOGIN_TRACKED_KEY, 'true');
+      } catch(e) {}
     }
 
     function stopTimers() {
@@ -81,7 +105,17 @@
       if (!currentUser) return;
 
       var ref = userDocRef(currentUser.uid);
-      writeDeviceInfoOnce(ref);
+      
+      // Check if we've already tracked login in this browser session
+      var isNewLogin = !isLoginAlreadyTracked();
+      
+      // Write device info and conditionally track login
+      writeDeviceInfoOnce(ref, isNewLogin);
+      
+      // Mark login as tracked for this session
+      if (isNewLogin) {
+        markLoginTracked();
+      }
 
       // Heartbeat every 30 seconds
       tickTimer = setInterval(function() {
