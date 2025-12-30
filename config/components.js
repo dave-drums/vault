@@ -141,6 +141,7 @@
       '    <a href="/" class="vault-menu-link">Practice Vault Home</a>' +
       '    <a href="/members" class="vault-menu-link">Members Area</a>' +
       '    <a href="https://vault.davedrums.com.au/groove" class="vault-menu-link">GrooveScribe</a>' +
+      '    <a href="/updates" class="vault-menu-link">News & Updates</a>' + 
       '  </div>' +
       '  <div class="vault-menu-divider"></div>' +
       '  <div class="vault-menu-section">' +
