@@ -168,10 +168,10 @@
       if (playDropdownBtn) {
         if (isPlaying) {
           playDropdownBtn.classList.add('active');
-          playDropdownText.textContent = '⏸ Pause';
+          playDropdownText.textContent = 'Pause ⏸';
         } else {
           playDropdownBtn.classList.remove('active');
-          playDropdownText.textContent = '▶ Start';
+          playDropdownText.textContent = 'Start ▶';
         }
       }
     }
@@ -400,20 +400,19 @@
             <div class="practice-dropdown" id="practice-dropdown">
               <div class="dropdown-header">
                 <div class="dropdown-timer" id="dropdown-timer">00:00</div>
-                <div class="dropdown-lesson">Loading...</div>
               </div>
               
               <div class="dropdown-controls">
                 <button class="btn-play-dropdown" id="btn-play-dropdown">
-                  <span id="play-dropdown-text">▶ Start</span>
+                  <span id="play-dropdown-text">Start ▶</span>
                 </button>
-                <button class="btn-end-dropdown" id="btn-end-dropdown">End Session ✔</button>
+                <button class="btn-end-dropdown" id="btn-end-dropdown">End Session ✓</button>
               </div>
               
               <div class="dropdown-divider"></div>
               
               <div class="dropdown-stats">
-                Total today: 0:00
+                Today's total: 0:00
               </div>
             </div>
           </div>
@@ -461,13 +460,6 @@
       
       document.body.appendChild(modal);
       
-      // Update lesson name in dropdown
-      var lessonInfo = getCurrentLessonInfo();
-      var dropdownLesson = document.querySelector('.dropdown-lesson');
-      if (dropdownLesson && lessonInfo.lessonTitle) {
-        dropdownLesson.textContent = lessonInfo.lessonTitle;
-      }
-      
       // Load today's total practice time
       if (currentUser) {
         var todayKey = getTodayDateKey();
@@ -485,7 +477,7 @@
             var timeStr = mins + ':' + String(secs).padStart(2, '0');
             var statsEl = document.querySelector('.dropdown-stats');
             if (statsEl) {
-              statsEl.textContent = 'Total today: ' + timeStr;
+              statsEl.textContent = 'Today\'s total: ' + timeStr;
             }
           })
           .catch(function(err) {
@@ -539,7 +531,7 @@
           
           // Update button text based on selfProgress
           if (selfProgress) {
-            completeBtn.innerHTML = 'Complete ✔';
+            completeBtn.innerHTML = 'Complete ✓';
           } else {
             completeBtn.innerHTML = 'Next →';
           }
@@ -803,15 +795,9 @@
           font-size: 36px;
           color: #38bdf8;
           font-weight: 400;
-          margin-bottom: 8px;
+          margin-bottom: 16px;
           letter-spacing: -1px;
           font-variant-numeric: tabular-nums;
-        }
-        
-        .dropdown-lesson {
-          font-size: 13px;
-          color: rgba(255,255,255,0.6);
-          margin-bottom: 16px;
         }
         
         .dropdown-controls {
@@ -867,7 +853,7 @@
         }
         
         .dropdown-stats {
-          font-size: 12px;
+          font-size: var(--text-small);
           color: rgba(255,255,255,0.5);
           text-align: center;
         }
@@ -1048,13 +1034,13 @@
           
           .lesson-nav-back,
           .lesson-nav-complete {
-            font-size: 13px;
-            padding: 8px 12px;
+            font-size: var(--text-small);
+            padding: 12px 16px;
           }
           
           .practice-btn {
-            font-size: 13px;
-            padding: 8px 14px;
+            font-size: var(--text-small);
+            padding: 12px 18px;
           }
           
           .practice-icon {
@@ -1074,8 +1060,8 @@
           .lesson-nav-back,
           .lesson-nav-complete,
           .practice-btn {
-            font-size: 12px;
-            padding: 10px 12px;
+            font-size: var(--text-small);
+            padding: 12px 14px;
           }
           
           .practice-dropdown {
