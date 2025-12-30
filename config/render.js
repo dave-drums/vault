@@ -285,7 +285,7 @@
         iframe.src = normaliseGrooveUrl(t.url);
         iframe.loading = "lazy";
         iframe.setAttribute("frameborder","0");
-        iframe.setAttribute("allow","autoplay");
+        iframe.setAttribute("allow","accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture");
 
         /* IMPORTANT: small default height, then GrooveEmbed auto-resizes it */
         iframe.style.height = "150px";
