@@ -437,7 +437,7 @@
           <div class="modal-body">
             <div class="session-summary">
               <div class="summary-timer" id="summary-timer">00:00</div>
-              <div class="summary-label">Total Practice Time</div>
+              <div class="summary-label">practice time</div>
             </div>
             
             <div class="form-group">
@@ -824,7 +824,7 @@
         .session-summary {
           background: linear-gradient(135deg, rgba(6,179,253,0.05), rgba(56,189,248,0.05));
           border-radius: 12px;
-          padding: 20px;
+          padding: 16px 20px;
           margin-bottom: 24px;
           text-align: center;
           display: flex;
@@ -835,14 +835,14 @@
         
         .summary-timer {
           font-family: 'Oswald', sans-serif;
-          font-size: 32px;
+          font-size: var(--heading-stat-mobile);
           color: #06b3fd;
           font-weight: 400;
           letter-spacing: -1px;
         }
         
         .summary-label {
-          font-size: 14px;
+          font-size: var(--text-small);
           color: #6c757d;
         }
         
@@ -853,18 +853,18 @@
         .form-group label {
           display: block;
           font-weight: 600;
-          font-size: 14px;
+          font-size: var(--text-small);
           color: #1a1a1a;
           margin-bottom: 8px;
         }
         
         .form-group textarea {
           width: 100%;
-          min-height: 120px;
+          min-height: 80px;
           padding: 12px;
           border: 2px solid #e9ecef;
           border-radius: 10px;
-          font-size: 14px;
+          font-size: var(--text-small);
           font-family: 'Inter', sans-serif;
           resize: vertical;
           transition: all 0.2s;
@@ -951,32 +951,14 @@
         
         @media (max-width: 640px) {
           .practice-bar-inner {
-            grid-template-columns: 1fr;
-            grid-template-rows: auto auto;
-            gap: 8px;
+            gap: 6px;
           }
           
-          .lesson-nav-back {
-            justify-self: stretch;
-            grid-row: 1;
-            grid-column: 1;
-          }
-          
-          .practice-center-btn {
-            justify-self: stretch;
-            grid-row: 2;
-            grid-column: 1;
-          }
-          
+          .lesson-nav-back,
+          .lesson-nav-complete,
           .practice-btn {
-            width: 100%;
-            justify-content: center;
-          }
-          
-          .lesson-nav-complete {
-            justify-self: stretch;
-            grid-row: 3;
-            grid-column: 1;
+            font-size: 12px;
+            padding: 10px 12px;
           }
           
           .practice-dropdown {
