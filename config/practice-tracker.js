@@ -267,8 +267,6 @@
       }
       
       var lessonInfo = getCurrentLessonInfo();
-      var notes = document.getElementById('practice-notes');
-      var notesText = notes ? notes.value.trim() : '';
       
       var sessionId = Date.now().toString();
       var dateKey = getTodayDateKey();
@@ -279,7 +277,6 @@
         lessonId: lessonInfo.lessonId,
         lessonTitle: lessonInfo.lessonTitle,
         duration: seconds,
-        notes: notesText,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         date: dateKey,
         device: device
@@ -442,12 +439,6 @@
             <div class="session-summary">
               <div class="summary-timer" id="summary-timer">00:00</div>
               <div class="summary-label">practice time</div>
-            </div>
-            
-            <div class="form-group">
-              <label for="practice-notes">Practice Notes (Optional)</label>
-              <textarea id="practice-notes" placeholder="What did you work on? Any breakthroughs or challenges?"></textarea>
-              <p class="form-hint">Jot down what you practiced, any struggles, or improvements you noticed.</p>
             </div>
           </div>
           
@@ -949,41 +940,6 @@
           color: #6c757d;
         }
         
-        .form-group {
-          margin-bottom: 20px;
-        }
-        
-        .form-group label {
-          display: block;
-          font-weight: 600;
-          font-size: var(--text-small);
-          color: #1a1a1a;
-          margin-bottom: 8px;
-        }
-        
-        .form-group textarea {
-          width: 100%;
-          min-height: 80px;
-          padding: 12px;
-          border: 2px solid #e9ecef;
-          border-radius: 10px;
-          font-size: var(--text-small);
-          font-family: 'Inter', sans-serif;
-          resize: vertical;
-          transition: all 0.2s;
-        }
-        
-        .form-group textarea:focus {
-          outline: none;
-          border-color: #06b3fd;
-          box-shadow: 0 0 0 3px rgba(6,179,253,0.1);
-        }
-        
-        .form-hint {
-          font-size: 12px;
-          color: #6c757d;
-          margin-top: 6px;
-        }
         
         .modal-actions {
           display: flex;
