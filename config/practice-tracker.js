@@ -38,7 +38,6 @@
     var timerInterval = null;
     var lastActivityTime = Date.now();
     var idleCheckInterval = null;
-    var wasPlayingBeforeModal = false;
     
     var IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
@@ -227,23 +226,22 @@
         startTimer();
       } else {
         stopTimer();
-        // When stopping, save the session immediately
+        // Save session when stopping
         if (seconds > 0) {
-          saveSessionQuiet();
+          saveSession();
         }
       }
       
       updateUI();
     }
 
-    function saveSessionQuiet() {
+    function saveSession() {
       if (!currentUser || seconds === 0) {
         resetTimer();
         return;
       }
       
       var lessonInfo = getCurrentLessonInfo();
-      
       var sessionId = Date.now().toString();
       var dateKey = getTodayDateKey();
       var device = getDeviceType();
@@ -280,79 +278,6 @@
         });
     }
 
-    function showModal() {
-      wasPlayingBeforeModal = isPlaying;
-      
-      if (isPlaying) {
-        isPlaying = false;
-        stopTimer();
-        updateUI();
-      }
-      
-      var modal = document.getElementById('end-session-modal');
-      if (modal) modal.classList.add('show');
-      
-      closeDropdown();
-    }
-
-    function hideModal() {
-      var modal = document.getElementById('end-session-modal');
-      if (modal) modal.classList.remove('show');
-      
-      if (wasPlayingBeforeModal) {
-        isPlaying = true;
-        startTimer();
-        updateUI();
-        wasPlayingBeforeModal = false;
-      }
-    }
-
-    function saveSession() {
-      if (!currentUser || seconds === 0) {
-        hideModal();
-        resetTimer();
-        return;
-      }
-      
-      var lessonInfo = getCurrentLessonInfo();
-      
-      var sessionId = Date.now().toString();
-      var dateKey = getTodayDateKey();
-      var device = getDeviceType();
-      
-      var sessionData = {
-        courseId: lessonInfo.courseId,
-        lessonId: lessonInfo.lessonId,
-        lessonTitle: lessonInfo.lessonTitle,
-        duration: seconds,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        date: dateKey,
-        device: device
-      };
-      
-      // Save session
-      db.collection('users').doc(currentUser.uid).collection('practice').doc('sessions')
-        .collection('items').doc(sessionId)
-        .set(sessionData)
-        .then(function() {
-          // Update aggregate stats
-          return updatePracticeStats(seconds);
-        })
-        .then(function() {
-          if (window.VaultToast) {
-            window.VaultToast.success('Practice session saved!');
-          }
-          hideModal();
-          resetTimer();
-        })
-        .catch(function(err) {
-          console.error('Error saving session:', err);
-          if (window.VaultToast) {
-            window.VaultToast.error('Failed to save session');
-          }
-        });
-    }
-
     function updatePracticeStats(sessionSeconds) {
       var statsRef = db.collection('users').doc(currentUser.uid).collection('practice').doc('stats');
       var dateKey = getTodayDateKey();
@@ -368,13 +293,9 @@
       isPlaying = false;
       isPaused = false;
       seconds = 0;
-      wasPlayingBeforeModal = false;
       stopTimer();
       updateTimerDisplays();
       updateUI();
-      
-      var notes = document.getElementById('practice-notes');
-      if (notes) notes.value = '';
     }
 
     // ============================================
@@ -470,34 +391,6 @@
       // Insert after hero
       hero.parentNode.insertBefore(stickyBar, hero.nextSibling);
       
-      // Create modal
-      var modal = document.createElement('div');
-      modal.className = 'end-session-modal';
-      modal.id = 'end-session-modal';
-      modal.innerHTML = `
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2>End Practice Session</h2>
-            <button class="modal-close" id="modal-close">&times;</button>
-          </div>
-          
-          <div class="modal-body">
-            <div class="session-summary">
-              <div class="summary-timer" id="summary-timer">00:00</div>
-              <div class="summary-label">practice time</div>
-            </div>
-          </div>
-          
-          <div class="modal-actions">
-            <button class="btn-cancel" id="btn-cancel">Cancel</button>
-            <button class="btn-save" id="btn-save">Save Session</button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(modal);
-      
       // Load today's total practice time
       if (currentUser) {
         var todayKey = getTodayDateKey();
@@ -533,9 +426,6 @@
     function bindEvents() {
       var practiceBtn = document.getElementById('practice-btn');
       var playDropdownBtn = document.getElementById('btn-play-dropdown');
-      var modalClose = document.getElementById('modal-close');
-      var btnCancel = document.getElementById('btn-cancel');
-      var btnSave = document.getElementById('btn-save');
       var completeBtn = document.getElementById('complete-lesson-btn');
       
       if (practiceBtn) {
@@ -548,10 +438,6 @@
       if (playDropdownBtn) {
         playDropdownBtn.addEventListener('click', togglePlayPause);
       }
-      
-      if (modalClose) modalClose.addEventListener('click', hideModal);
-      if (btnCancel) btnCancel.addEventListener('click', hideModal);
-      if (btnSave) btnSave.addEventListener('click', saveSession);
       
       // Complete lesson button - implement the logic directly
       if (completeBtn && currentUser) {
@@ -877,138 +763,6 @@
           text-align: center;
         }
         
-        /* Modal */
-        .end-session-modal {
-          position: fixed;
-          inset: 0;
-          display: none;
-          align-items: center;
-          justify-content: center;
-          z-index: 10000;
-        }
-        
-        .end-session-modal.show {
-          display: flex;
-        }
-        
-        .modal-overlay {
-          position: absolute;
-          inset: 0;
-          background: rgba(0,0,0,0.5);
-        }
-        
-        .modal-content {
-          position: relative;
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-          width: 90%;
-          max-width: 500px;
-          max-height: 90vh;
-          overflow-y: auto;
-        }
-        
-        .modal-header {
-          padding: 20px;
-          border-bottom: 1px solid #e9ecef;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        
-        .modal-header h2 {
-          font-family: 'Inter', sans-serif;
-          font-size: var(--text-large);
-          font-weight: 500;
-          color: #1a1a1a;
-        }
-        
-        .modal-close {
-          background: none;
-          border: none;
-          font-size: 24px;
-          color: #6c757d;
-          cursor: pointer;
-          line-height: 1;
-          padding: 0;
-          width: 28px;
-          height: 28px;
-        }
-        
-        .modal-close:hover {
-          color: #1a1a1a;
-        }
-        
-        .modal-body {
-          padding: 20px;
-        }
-        
-        .session-summary {
-          background: linear-gradient(135deg, rgba(6,179,253,0.05), rgba(56,189,248,0.05));
-          border-radius: 12px;
-          padding: 16px 20px;
-          margin-bottom: 24px;
-          text-align: center;
-          display: flex;
-          align-items: baseline;
-          justify-content: center;
-          gap: 8px;
-        }
-        
-        .summary-timer {
-          font-family: 'Oswald', sans-serif;
-          font-size: var(--heading-stat-mobile);
-          color: #06b3fd;
-          font-weight: 400;
-          letter-spacing: -1px;
-        }
-        
-        .summary-label {
-          font-size: var(--text-small);
-          color: #6c757d;
-        }
-        
-        
-        .modal-actions {
-          display: flex;
-          gap: 12px;
-          padding: 16px 20px;
-          border-top: 1px solid #e9ecef;
-        }
-        
-        .btn-cancel,
-        .btn-save {
-          flex: 1;
-          padding: 10px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: var(--text-small);
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: 'Inter', sans-serif;
-        }
-        
-        .btn-cancel {
-          background: white;
-          border: 1px solid #e9ecef;
-          color: #1a1a1a;
-        }
-        
-        .btn-cancel:hover {
-          background: #f8f9fa;
-        }
-        
-        .btn-save {
-          background: #06b3fd;
-          border: none;
-          color: white;
-        }
-        
-        .btn-save:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(6,179,253,0.3);
-        }
-        
         /* Mobile */
         @media (max-width: 768px) {
           .practice-bar-inner {
@@ -1059,81 +813,6 @@
     }
 
     // ============================================
-    // PAGE UNLOAD HANDLER - Save session before leaving
-    // ============================================
-    var lastSaveTime = 0;
-    var SAVE_COOLDOWN = 2000; // 2 seconds cooldown to prevent multiple saves
-    
-    function saveSessionOnUnload() {
-      // Only save if there's an active session with time
-      if (!currentUser || seconds === 0 || !isPlaying && seconds < 10) {
-        return;
-      }
-      
-      // Prevent multiple rapid saves
-      var now = Date.now();
-      if (now - lastSaveTime < SAVE_COOLDOWN) {
-        return;
-      }
-      lastSaveTime = now;
-      
-      var lessonInfo = getCurrentLessonInfo();
-      var sessionId = Date.now().toString();
-      var dateKey = getTodayDateKey();
-      var device = getDeviceType();
-      
-      var sessionData = {
-        courseId: lessonInfo.courseId,
-        lessonId: lessonInfo.lessonId,
-        lessonTitle: lessonInfo.lessonTitle,
-        duration: seconds,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        date: dateKey,
-        device: device
-      };
-      
-      // Use sendBeacon for reliable delivery during page unload
-      // Fallback to synchronous fetch if sendBeacon not available
-      try {
-        var endpoint = 'https://firestore.googleapis.com/v1/projects/' + 
-                      firebase.app().options.projectId + 
-                      '/databases/(default)/documents/users/' + 
-                      currentUser.uid + '/practice/sessions/items/' + sessionId;
-        
-        // For beforeunload, we'll just use the regular Firestore API
-        // It will queue the write and Firebase SDK handles it
-        db.collection('users').doc(currentUser.uid).collection('practice').doc('sessions')
-          .collection('items').doc(sessionId)
-          .set(sessionData);
-          
-        // Also update stats
-        var statsRef = db.collection('users').doc(currentUser.uid).collection('practice').doc('stats');
-        statsRef.set({
-          totalSeconds: firebase.firestore.FieldValue.increment(seconds),
-          sessionCount: firebase.firestore.FieldValue.increment(1),
-          lastPracticeDate: dateKey
-        }, { merge: true });
-        
-      } catch (e) {
-        console.error('Error saving session on unload:', e);
-      }
-    }
-    
-    // Bind to beforeunload and visibilitychange
-    window.addEventListener('beforeunload', saveSessionOnUnload);
-    window.addEventListener('pagehide', saveSessionOnUnload);
-    
-    // Also save when page becomes hidden (tab switch, minimize)
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden && isPlaying && seconds > 0) {
-        // Stop the timer and save
-        isPlaying = false;
-        stopTimer();
-        saveSessionOnUnload();
-      }
-    });
-
-    // ============================================
     // INITIALIZE
     // ============================================
     auth.onAuthStateChanged(function(user) {
@@ -1158,6 +837,51 @@
           }
         }
         waitForStyles();
+        
+        // Auto-save on page close/navigation
+        var lastAutoSave = 0;
+        
+        function autoSave() {
+          // Only if timer has meaningful time
+          if (seconds < 10 || !currentUser) return;
+          
+          // Prevent duplicate saves (5 second cooldown)
+          var now = Date.now();
+          if (now - lastAutoSave < 5000) return;
+          lastAutoSave = now;
+          
+          var lessonInfo = getCurrentLessonInfo();
+          var sessionId = Date.now().toString();
+          var dateKey = getTodayDateKey();
+          var device = getDeviceType();
+          
+          var sessionData = {
+            courseId: lessonInfo.courseId,
+            lessonId: lessonInfo.lessonId,
+            lessonTitle: lessonInfo.lessonTitle,
+            duration: seconds,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            date: dateKey,
+            device: device
+          };
+          
+          // Queue writes - Firebase handles delivery
+          db.collection('users').doc(currentUser.uid).collection('practice').doc('sessions')
+            .collection('items').doc(sessionId).set(sessionData);
+            
+          db.collection('users').doc(currentUser.uid).collection('practice').doc('stats')
+            .set({
+              totalSeconds: firebase.firestore.FieldValue.increment(seconds),
+              sessionCount: firebase.firestore.FieldValue.increment(1),
+              lastPracticeDate: dateKey
+            }, { merge: true });
+        }
+        
+        window.addEventListener('beforeunload', autoSave);
+        window.addEventListener('pagehide', autoSave);
+        document.addEventListener('visibilitychange', function() {
+          if (document.hidden) autoSave();
+        });
       }
     });
   });
