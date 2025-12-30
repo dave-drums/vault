@@ -21,9 +21,7 @@
       name: 'Groove Studies',
       level: 'Beginner Course',
       pathway: 'groove',
-      lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
-                '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16',
-                '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23']
+      lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23']
     },
     'gs2': { name: 'Groove Studies', level: 'Intermediate Course 1', pathway: 'groove', lessons: [] },
     'gs3': { name: 'Groove Studies', level: 'Intermediate Course 2', pathway: 'groove', lessons: [] },
@@ -32,8 +30,7 @@
        name: 'Fill Studies',
        level: 'Beginner Course',
        pathway: 'fills', 
-       lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', 
-                '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15']
+       lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15']
     },
     'fs2': { name: 'Fill Studies', level: 'Intermediate Course 1', pathway: 'fills', lessons: [] },
     'fs3': { name: 'Fill Studies', level: 'Intermediate Course 2', pathway: 'fills', lessons: [] },
@@ -43,7 +40,13 @@
     'ss3': { name: 'Stick Studies', level: 'Technique Course', pathway: 'sticks', lessons: [] },
     'ks1': { name: 'Kick Studies', level: 'Single Pedal Course', pathway: 'kicks', lessons: [] },
     'ks2': { name: 'Kick Studies', level: 'Double Pedal Course', pathway: 'kicks', lessons: [] },
-    'ks3': { name: 'Kick Studies', level: 'Technique & Pedal Settings Course', pathway: 'kicks', lessons: [] }
+    'ks3': { name: 'Kick Studies', level: 'Technique & Pedal Settings Course', pathway: 'kicks', lessons: [] },
+    'rr1': { 
+        name: 'Reading Rhythms', 
+        level: 'Beginner', 
+        pathway: 'reading', 
+        lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17', '1.18', '1.19', '1.20'] 
+    },
   };
   
   // ===========================================
