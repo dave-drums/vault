@@ -1365,15 +1365,23 @@ function createGoalsContent(user){
         var card = document.createElement('div');
         card.className = 'stat-card';
 
+        // Top: Label (like pathway-name)
+        var nameEl = document.createElement('div');
+        nameEl.className = 'stat-name';
+        nameEl.textContent = stat.label;
+        
+        // Middle: Big value (like pathway-stat)
         var valueEl = document.createElement('div');
         valueEl.className = 'stat-value';
         valueEl.id = stat.id;
         valueEl.textContent = stat.value;
 
+        // Bottom: Empty for now (like pathway-label)
         var labelEl = document.createElement('div');
         labelEl.className = 'stat-label';
-        labelEl.textContent = stat.label;
+        labelEl.textContent = '\u00A0'; // nbsp to maintain spacing
 
+        card.appendChild(nameEl);
         card.appendChild(valueEl);
         card.appendChild(labelEl);
         statsCards.appendChild(card);
