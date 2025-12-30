@@ -404,10 +404,22 @@
           ageConfirmed: ageConfirmed,
           selfProgress: false
         }, { merge: true });
-
+        
+        const deviceType = window.innerWidth <= 768 ? 'mobile' : 'desktop';
+        const deviceEmoji = deviceType === 'mobile' ? '📱' : '🖥️';
+        
         batch.set(metricsRef, {
-          createdAt: inviteCreatedAt
-        }, { merge: true });
+          createdAt: inviteCreatedAt,
+          lastLoginAt: nowServer,
+          lastSeenAt: nowServer,
+          loginCount: 1,
+          totalSeconds: 0,
+          lastDeviceType: deviceType,
+          lastDeviceEmoji: deviceEmoji
+        }, 
+                  { 
+                    merge: true 
+                  });
 
         batch.set(inviteRef, {
           used: true,
