@@ -46,8 +46,8 @@
   let pathway = null;
   for (let i = pathParts.length - 1; i >= 0; i--) {
     const part = pathParts[i];
-    // Check if this part is a known pathway (gs, fs, ss, ks)
-    if (part === 'gs' || part === 'fs' || part === 'ss' || part === 'ks') {
+    // Check if this part is a known pathway (gs, fs, ss, ks, rs)
+    if (part === 'gs' || part === 'fs' || part === 'ss' || part === 'ks' || part === 'rs') {
       pathway = part;
       break;
     }
