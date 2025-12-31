@@ -71,7 +71,7 @@ body {
 .vault-hero,
 .contact-hero,
 .reset-hero,
-.create-hero
+.create-hero,
 .groove-hero {
   position: relative;
   background: #1a1a2e;
@@ -170,6 +170,7 @@ body {
 @media (max-width: 768px) {
   .vault-hero,
   .contact-hero,
+  .create-hero,
   .reset-hero,
   .groove-hero {
     padding: 60px 20px 40px;
@@ -177,6 +178,7 @@ body {
   
   .vault-hero-title,
   .contact-title,
+  .create-title
   .reset-title,
   .groove-hero-title {
     font-size: var(--heading-hero-mobile);
@@ -186,6 +188,7 @@ body {
 @media (max-width: 480px) {
   .vault-hero,
   .contact-hero,
+  .create-hero,
   .reset-hero,
   .groove-hero {
     padding: 50px 20px 35px;
@@ -195,6 +198,7 @@ body {
 /* MAIN CONTAINERS */
 .container,
 .contact-container,
+.create-container,
 .reset-container,
 .groove-container {
   max-width: 1200px;
@@ -203,6 +207,7 @@ body {
 }
 
 .contact-container,
+.create-container,
 .reset-container {
   max-width: 800px;
   padding: 0 20px 80px;
