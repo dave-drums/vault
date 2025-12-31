@@ -993,9 +993,11 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
       } else {
         progressEl.textContent = '—';
         statusEl.textContent = 'Course not configured';
+         barFill.style.width = '0%'; 
       }
     } else {
       statusEl.textContent = 'No active course';
+       barFill.style.width = '0%';
       progressEl.textContent = '—';
     }
 
@@ -2255,4 +2257,5 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
