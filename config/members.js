@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function renderPathwayCards(container, uid, activeCourses, lastActivePathway, lastActiveCourseId){
   var grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:12px;';
+  grid.className = 'stats-grid';  
 
   var pathways = ['groove', 'fills', 'sticks', 'kicks', 'reading'];
   var pathwayConfig = {
@@ -952,30 +952,34 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
     var courseId = activeCourses[pathway] || null;
 
     var box = document.createElement('div');
-    box.className = 'pathway-card';
+    box.className = 'stat-card'; 
 
     var labelEl = document.createElement('div');
-    labelEl.className = 'pathway-name';
+    labelEl.className = 'stat-label'; 
     labelEl.textContent = config.label;
 
     var statusEl = document.createElement('div');
-    statusEl.className = 'pathway-label';
+    statusEl.className = 'stat-subtitle'; 
     
     var progressEl = document.createElement('div');
-    progressEl.className = 'pathway-stat';
+    progressEl.className = 'stat-value'; 
 
+    var progressContainer = document.createElement('div');
+    progressContainer.className = 'stat-progress'; 
+    
     var barContainer = document.createElement('div');
-    barContainer.style.cssText = 'width:100%;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;';
+    barContainer.className = 'stat-bar-bg';  
     
     var barFill = document.createElement('div');
-    barFill.style.cssText = 'height:100%;background:#06b3fd;transition:width 0.3s ease;width:0%;';
+    barFill.className = 'stat-bar-fill';
     
     barContainer.appendChild(barFill);
+    progressContainer.appendChild(barContainer); 
 
     box.appendChild(labelEl);
     box.appendChild(statusEl);
     box.appendChild(progressEl);
-    box.appendChild(barContainer);
+    box.appendChild(progressContainer); 
 
     grid.appendChild(box);
 
@@ -1243,7 +1247,7 @@ function createGoalsContent(user){
 
       // Stats Cards
       var statsCards = document.createElement('div');
-      statsCards.className = 'stats-cards';
+       statsCards.className = 'stats-grid'; 
 
       var stats = [
         { label: 'Total Time', id: 'stat-total-time', value: '—' },
@@ -1251,16 +1255,16 @@ function createGoalsContent(user){
         { label: 'Avg. Session Time', id: 'stat-avg-time', value: '—' }
       ];
 
-      stats.forEach(function(stat){
+       stats.forEach(function(stat){
         var box = document.createElement('div');
-        box.className = 'pathway-card';
+        box.className = 'stat-card'; 
 
         var labelEl = document.createElement('div');
-        labelEl.className = 'pathway-name';
+        labelEl.className = 'stat-label'; 
         labelEl.textContent = stat.label;
         
         var progressEl = document.createElement('div');
-        progressEl.className = 'pathway-stat';
+        progressEl.className = 'stat-value'; 
         progressEl.id = stat.id;
         progressEl.textContent = stat.value;
 
@@ -2251,3 +2255,4 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
