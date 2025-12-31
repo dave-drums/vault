@@ -953,16 +953,19 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
 
     var box = document.createElement('div');
     box.className = 'stat-card'; 
+     
+    var headerEl = document.createElement('div');
+    headerEl.className = 'stat-header';
 
     var labelEl = document.createElement('div');
-    labelEl.className = 'stat-label'; 
+    labelEl.className = 'stat-label';
     labelEl.textContent = config.label;
 
     var statusEl = document.createElement('div');
-    statusEl.className = 'stat-subtitle'; 
+    statusEl.className = 'stat-subtitle';
     
     var progressEl = document.createElement('div');
-    progressEl.className = 'stat-value'; 
+    progressEl.className = 'stat-value';
 
     var progressContainer = document.createElement('div');
     progressContainer.className = 'stat-progress'; 
@@ -976,9 +979,12 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
     barContainer.appendChild(barFill);
     progressContainer.appendChild(barContainer); 
 
-    box.appendChild(labelEl);
-    box.appendChild(statusEl);
+    headerEl.appendChild(labelEl);
+    headerEl.appendChild(statusEl);
+    
+    box.appendChild(headerEl);
     box.appendChild(progressEl);
+
     box.appendChild(progressContainer); 
 
     grid.appendChild(box);
@@ -2257,6 +2263,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
