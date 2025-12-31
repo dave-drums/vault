@@ -58,7 +58,7 @@
   
   if (!courseId) {
     document.getElementById('course-index').innerHTML = 
-      '<div style="text-align:center;padding:40px;color:#c00;">Invalid course URL</div>';
+      '<div class="error-message">Invalid course URL</div>';
     return;
   }
   
@@ -66,14 +66,14 @@
   const courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
   if (!courseConfig) {
     document.getElementById('course-index').innerHTML = 
-      '<div style="text-align:center;padding:40px;color:#c00;">Course "' + courseId + '" not found</div>';
+      '<div class="error-message">Course "' + courseId + '" not found</div>';
     return;
   }
   
   if (lessonId) {
     // Show individual lesson
-    document.getElementById('course-index').style.display = 'none';
-    document.getElementById('lesson-content').style.display = 'block';
+    document.getElementById('course-index').classList.add('hidden');
+    document.getElementById('lesson-content').classList.remove('hidden');
     
     // Wait for Firebase to be fully initialized
     waitForFirebase(function() {
@@ -112,7 +112,7 @@
       }
       var container = document.getElementById('course-index') || document.getElementById('lesson-content');
       if (container) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Failed to load Firebase. Please refresh the page.</div>';
+        container.innerHTML = '<div class="error-message">Failed to load Firebase. Please refresh the page.</div>';
       }
     });
   }
@@ -158,7 +158,7 @@
       if (window.VaultErrors) {
         window.VaultErrors.handle(err, 'Load Course');
       }
-      container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Error loading course content</div>';
+      container.innerHTML = '<div class="error-message">Error loading course content</div>';
     });
   }
   
@@ -230,7 +230,7 @@
     html += '</div>';
     html += '</div>';
     
-    html += '<div style="height: 32px;"></div>'; // Gap before chapters
+    html += '<div class="spacer-32"></div>'; // Gap before chapters
     
     // Chapters
     structure.chapters.forEach(chapter => {
@@ -337,12 +337,12 @@
     }
     
     // Show loading state
-    container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-secondary)"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite"></div><div style="font-weight:500">Loading lesson...</div></div>';
+    container.innerHTML = '<div class="vault-loading"><div class="vault-loading-spinner"></div><div class="vault-loading-text">Loading lesson...</div></div>';
     
     // Show back button
     const backBtn = document.getElementById('back-to-course');
     if (backBtn) {
-      backBtn.style.display = 'block';
+      backBtn.classList.remove('hidden');
       backBtn.onclick = function() {
         window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
       };
@@ -376,7 +376,7 @@
       
       if (!lessonContent) {
         console.error('No lesson content extracted!');
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Lesson not found</div>';
+        container.innerHTML = '<div class="error-message">Lesson not found</div>';
         return;
       }
       
@@ -398,7 +398,7 @@
         }
       } else {
         console.warn('vaultParse not found, using fallback');
-        container.innerHTML = '<div style="max-width:800px;margin:0 auto;padding:20px"><pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#f5f5f5;border-radius:8px">' + lessonContent.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>';
+        container.innerHTML = '<div class="lesson-code-wrapper"><pre class="lesson-code-pre">' + lessonContent.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre></div>';
       }
       
       // Add complete lesson handler
@@ -423,7 +423,7 @@
       if (window.VaultErrors) {
         window.VaultErrors.handle(err, 'Load Lesson');
       }
-      container.innerHTML = '<div style="text-align:center;padding:40px;color:#c00;">Error loading lesson</div>';
+      container.innerHTML = '<div class="error-message">Error loading lesson</div>';
     });
   }
   
@@ -501,8 +501,8 @@
     
     auth.onAuthStateChanged(function(user) {
       if (!user) {
-        topBtn.style.display = 'none';
-        bottomBtn.style.display = 'none';
+        topBtn.classList.add('hidden');
+        bottomBtn.classList.add('hidden');
         return;
       }
       
