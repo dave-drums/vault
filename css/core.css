@@ -70,7 +70,7 @@ body {
 /* HERO HEADER - SHARED */
 .vault-hero,
 .contact-hero,
-.reset-hero,
+.-hero,
 .create-hero,
 .groove-hero {
   position: relative;
@@ -83,7 +83,7 @@ body {
 .vault-hero:after,
 .contact-hero:after,
 .create-hero:after,
-.reset-hero:after,
+.-hero:after,
 .groove-hero:after {
   content: '';
   position: absolute;
@@ -100,7 +100,7 @@ body {
 .vault-hero-bg,
 .contact-hero-bg,
 .create-hero-bg,
-.reset-hero-bg,
+.-hero-bg,
 .groove-hero-bg {
   position: absolute;
   inset: 0;
@@ -114,7 +114,7 @@ body {
 .vault-hero-bg:after,
 .contact-hero-bg:after,
 .create-hero-bg:after,
-.reset-hero-bg:after,
+.-hero-bg:after,
 .groove-hero-bg:after {
   content: '';
   position: absolute;
@@ -125,7 +125,7 @@ body {
 .vault-hero-content,
 .contact-hero-content,
 .create-hero-content,
-.reset-hero-content,
+.-hero-content,
 .groove-hero-content {
   position: relative;
   max-width: 1200px;
@@ -137,7 +137,7 @@ body {
 .vault-hero-title,
 .contact-title,
 .create-hero-title,
-.reset-title,
+.-title,
 .groove-hero-title {
   font-family: 'Oswald', sans-serif;
   font-size: var(--heading-hero-desktop);
@@ -171,7 +171,7 @@ body {
   .vault-hero,
   .contact-hero,
   .create-hero,
-  .reset-hero,
+  .-hero,
   .groove-hero {
     padding: 60px 20px 40px;
   }
@@ -179,7 +179,7 @@ body {
   .vault-hero-title,
   .contact-title,
   .create-title
-  .reset-title,
+  .-title,
   .groove-hero-title {
     font-size: var(--heading-hero-mobile);
   }
@@ -251,12 +251,14 @@ body {
 
 /* CARD HEADERS */
 .contact-header,
+.create-header,
 .reset-header {
   text-align: center;
   margin-bottom: 32px;
 }
 
 .contact-header h2,
+.create-header h2,
 .reset-header h2 {
   font-family: 'Oswald', sans-serif;
   font-size: var(--heading-section);
@@ -268,6 +270,7 @@ body {
 }
 
 .contact-header p,
+.create-header p,
 .reset-header p {
   font-family: 'Inter', sans-serif;
   font-size: var(--text-ui);
