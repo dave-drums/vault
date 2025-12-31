@@ -1,0 +1,302 @@
+/* members.css
+   Styles for members page
+   Extracted from inline styles in members.js
+*/
+
+/* ============================================
+   LESSON COMPLETION BUTTONS
+   (Used on course pages - gs, fs, rs)
+   ============================================ */
+
+.vault-lesson-complete-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.vault-lesson-complete-btn.inactive {
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.vault-lesson-complete-btn.inactive:hover {
+  background: #e8e8e8;
+}
+
+.vault-lesson-complete-btn.active {
+  background: #06b3fd;
+  border: 1px solid #06b3fd;
+  color: #fff;
+}
+
+.vault-lesson-complete-btn.active:hover {
+  opacity: 0.9;
+}
+
+.vault-lesson-complete-btn.completed {
+  background: #10b981;
+  border: 1px solid #10b981;
+  color: #fff;
+}
+
+.vault-lesson-complete-btn.completed:hover {
+  opacity: 0.9;
+}
+
+/* ============================================
+   MEMBERS PAGE CONTAINER
+   ============================================ */
+
+.vault-members-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   TAB NAVIGATION
+   ============================================ */
+
+.vault-tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.vault-tab-content {
+  padding: 24px 0;
+}
+
+.vault-tab {
+  flex: 1;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.vault-tab:hover {
+  background: #f8f8f8;
+  color: #333;
+}
+
+.vault-tab.active {
+  border-bottom-color: #06b3fd;
+  color: #06b3fd;
+  background: #f0f9ff;
+}
+
+/* ============================================
+   TAB PANELS
+   ============================================ */
+
+.vault-tab-panel {
+  display: none;
+}
+
+.vault-tab-panel.active {
+  display: block;
+}
+
+/* ============================================
+   CONTINUE BUTTON
+   ============================================ */
+
+.vault-continue-btn {
+  display: block;
+  padding: 14px 20px;
+  background: #06b3fd;
+  border: 1px solid #06b3fd;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.vault-continue-btn:hover {
+  background: #0590d4;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(6, 179, 253, 0.2);
+}
+
+/* ============================================
+   COLLAPSIBLE SECTIONS
+   ============================================ */
+
+.vault-section {
+  margin-bottom: 12px;
+}
+
+.vault-section-header {
+  width: 100%;
+  padding: 14px 18px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.vault-section-header:hover {
+  background: #f8f8f8;
+}
+
+.vault-section-arrow {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+  color: #666;
+}
+
+.vault-section.open .vault-section-arrow {
+  transform: rotate(90deg);
+}
+
+.vault-section-content {
+  display: none;
+  padding: 18px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.vault-section.open .vault-section-content {
+  display: block;
+}
+
+/* ============================================
+   PROGRESS GRID
+   ============================================ */
+
+.vault-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.vault-progress-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.vault-progress-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.vault-progress-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.vault-progress-status {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.vault-progress-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: #06b3fd;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.vault-progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.vault-progress-bar-fill {
+  height: 100%;
+  background: #06b3fd;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+.vault-form-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.vault-form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  gap: 12px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .vault-progress-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .vault-tab {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vault-progress-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .vault-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
