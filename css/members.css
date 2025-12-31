@@ -476,20 +476,29 @@
   box-shadow: 0 8px 20px rgba(6, 179, 253, 0.15);
 }
 
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .stat-label {
   font-family: 'Inter', sans-serif;
   font-size: var(--text-small);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-ui);
+  color: var(--text-primary);
   margin-bottom: 0px;
 }
 
 .stat-subtitle {
   font-size: var(--text-small);
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 0px;
+  white-space: nowrap;
 }
 
 .stat-value {
