@@ -1,0 +1,45 @@
+/* typography.css
+   Central typography definitions for Practice Vault
+   Change font sizes site-wide by editing this file
+*/
+
+:root {
+  /* ============================================
+     INTER FONT SIZES (Body/UI Text)
+     ============================================ */
+  
+  --text-large: 18px;        /* Emphasis text, large UI elements */
+  --text-body: 16px;         /* Standard body text, paragraphs */
+  --text-ui: 15px;           /* Buttons, form labels, UI elements */
+  --text-small: 14px;        /* Metadata, timestamps, secondary info */
+  --text-tiny: 13px;         /* Captions, hints, non-critical text */
+  --text-micro: 12px;        /* Very small captions (use sparingly) */
+  
+  
+  /* ============================================
+     OSWALD FONT SIZES (Headings)
+     ============================================ */
+  
+  /* Hero Titles (Page headers) */
+  --heading-hero-desktop: 42px;
+  --heading-hero-mobile: 36px;
+  
+  /* Section Headings (H2 equivalent) */
+  --heading-section: 28px;
+  
+  /* Card/Component Titles (H3 equivalent) */
+  --heading-card: 20px;
+  
+  /* Badges/Subtitles */
+  --heading-badge: 16px;
+  
+  /* Stat Numbers */
+  --heading-stat-desktop: 36px;
+  --heading-stat-mobile: 32px;
+  
+  /* Lesson Index Titles */
+  --heading-lesson-index: 28px;
+  
+  /* Pathway Titles */
+  --heading-pathway: 28px;
+}
