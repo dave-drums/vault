@@ -71,6 +71,7 @@ body {
 .vault-hero,
 .contact-hero,
 .reset-hero,
+.create-hero
 .groove-hero {
   position: relative;
   background: #1a1a2e;
@@ -81,6 +82,7 @@ body {
 
 .vault-hero:after,
 .contact-hero:after,
+.create-hero:after,
 .reset-hero:after,
 .groove-hero:after {
   content: '';
@@ -97,6 +99,7 @@ body {
 
 .vault-hero-bg,
 .contact-hero-bg,
+.create-hero-bg,
 .reset-hero-bg,
 .groove-hero-bg {
   position: absolute;
@@ -110,6 +113,7 @@ body {
 
 .vault-hero-bg:after,
 .contact-hero-bg:after,
+.create-hero-bg:after,
 .reset-hero-bg:after,
 .groove-hero-bg:after {
   content: '';
@@ -120,6 +124,7 @@ body {
 
 .vault-hero-content,
 .contact-hero-content,
+.create-hero-content,
 .reset-hero-content,
 .groove-hero-content {
   position: relative;
@@ -131,6 +136,7 @@ body {
 
 .vault-hero-title,
 .contact-title,
+.create-hero-title,
 .reset-title,
 .groove-hero-title {
   font-family: 'Oswald', sans-serif;
