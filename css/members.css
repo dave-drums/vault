@@ -223,9 +223,9 @@
   border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer;
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: var(--text-body);
-  font-weight: 400;
+  font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
