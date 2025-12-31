@@ -13,6 +13,7 @@
   
   <!-- Typography Variables -->
   <link rel="stylesheet" href="/config/typography.css">
+  <link rel="stylesheet" href="/config/core.css">
   
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
@@ -24,138 +25,6 @@
   <script src="/config/components.js"></script>
   <script src="/config/error-handler.js"></script>
   
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    :root {
-      --accent: #06b3fd;
-      --text-primary: #1a1a1a;
-      --text-secondary: #6c757d;
-      --surface: #fff;
-      --border: #e9ecef;
-    }
-    
-    html {
-      font-size: 16px;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f8f9fa;
-      color: var(--text-primary);
-      line-height: 1.6;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    /* HERO HEADER */
-    .create-hero {
-      position: relative;
-      background: #1a1a2e;
-      padding: 80px 20px 60px;
-      margin-bottom: 40px;
-      overflow: hidden;
-    }
-    
-    .create-hero:after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
-      background-size: 200% auto;
-      animation: gradient-shift 3s linear infinite;
-      z-index: 3;
-    }
-    
-    @keyframes gradient-shift {
-      0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
-    }
-    
-    .create-hero-bg {
-      position: absolute;
-      inset: 0;
-      background-image: url('/assets/members.webp');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.15;
-      z-index: 0;
-    }
-    
-    .create-hero-bg:after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at top, rgba(6, 179, 253, 0.1) 0%, transparent 50%);
-    }
-    
-    .create-hero-content {
-      position: relative;
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-      z-index: 1;
-    }
-    
-    /* Logo - Top Left */
-    .create-hero-logo {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 3;
-    }
-    .create-hero-logo a {
-      display: block;
-    }
-    .create-hero-logo img {
-      height: 64px;
-      width: auto;
-      opacity: 0.9;
-      transition: opacity 0.2s;
-    }
-    .create-hero-logo img:hover {
-      opacity: 1;
-    }
-    
-    .create-hero-title {
-      font-family: 'Oswald', sans-serif;
-      font-size: var(--heading-hero-desktop);
-      font-weight: 400;
-      background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
-      letter-spacing: -1px;
-      line-height: 1.1;
-      text-transform: uppercase;
-    }
-    
-    @media (max-width: 768px) {
-      .create-hero {
-        padding: 60px 20px 40px;
-      }
-      .create-hero-title {
-        font-size: var(--heading-hero-mobile);
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .create-hero {
-        padding: 50px 20px 35px;
-      }
-      .create-hero-title {
-        font-size: var(--heading-hero-mobile);
-      }
-      }
-    }
   </style>
 </head>
 <body>
