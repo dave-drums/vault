@@ -4541,3 +4541,39 @@ body.auth-checked {
         box-shadow: 0 0 0 2px #06b3fd;
       }
     }
+
+/* ============================================
+   COURSE LOADING
+   ============================================ */
+
+.course-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.course-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 1s linear infinite;
+}
+
+.course-loading-text {
+  font-weight: 500;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.reset-state-hidden {
+  display: none;
+}
+
+.text-center {
+  text-align: center;
+}
