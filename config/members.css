@@ -287,9 +287,9 @@
 }
 
 .section-title {
-  font-family: 'Oswald', sans-serif;
-  font-size: var(--heading-section);
-  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-large);
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: -0.5px;
   margin-bottom: 24px;
@@ -493,12 +493,12 @@
 }
 
 .pathway-name {
-  font-family: 'Oswald', sans-serif;
-  font-size: var(--text-large);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-small);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin: 0;
+  margin-bottom: 12px;
   color: var(--text-primary);
 }
 
@@ -681,11 +681,11 @@
 }
 
 .profile-card-title {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: var(--text-large);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.5px;
   margin-bottom: 20px;
   color: var(--text-primary);
 }
