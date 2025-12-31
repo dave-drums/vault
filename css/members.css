@@ -473,7 +473,8 @@
 
 .stat-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 4px 12px rgba(6, 179, 253, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(6, 179, 253, 0.15);
 }
 
 .stat-label {
