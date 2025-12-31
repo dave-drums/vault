@@ -4577,3 +4577,31 @@ body.auth-checked {
 .text-center {
   text-align: center;
 }
+
+/* ============================================
+   PATHWAY IMAGE BACKGROUNDS
+   ============================================ */
+
+.pathway-image-groove {
+  background-image: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/groove-studies.webp');
+}
+
+.pathway-image-fills {
+  background-image: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/fill-studies.webp');
+}
+
+.pathway-image-sticks {
+  background-image: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/stick-studies.webp');
+}
+
+.pathway-image-kicks {
+  background-image: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/kick-studies.webp');
+}
+
+.pathway-image-reading {
+  background-image: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/reading.webp');
+}
+
+.pathway-image-other {
+  background-image: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), url('/assets/other-courses.webp');
+}
