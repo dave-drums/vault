@@ -19,7 +19,6 @@
 
 
 
-  }
 
   function isCourseIndexPage(){
     var courseId = VaultUtils.getCourseIdFromUrl();
