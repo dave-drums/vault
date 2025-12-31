@@ -12,19 +12,28 @@
   'use strict';
 
   // Wait for Firebase
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+    console.warn('[Practice Tracker] Firebase not available');
+    return;
+  }
 
-    // ============================================
-    // TIMER STATE
-    // ============================================
-    var isPlaying = false;
-    var isPaused = false;
-    var seconds = 0;
-    var timerInterval = null;
-    var lastActivityTime = Date.now();
-    var idleCheckInterval = null;
-    var wasPlayingBeforeModal = false;
-    
-    var IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+  var currentUser = null;
+  var urlParams = new URLSearchParams(window.location.search);
+
+  // ============================================
+  // TIMER STATE
+  // ============================================
+  var isPlaying = false;
+  var isPaused = false;
+  var seconds = 0;
+  var timerInterval = null;
+  var lastActivityTime = Date.now();
+  var idleCheckInterval = null;
+  var wasPlayingBeforeModal = false;
+  
+  var IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
     // ============================================
     // GET LESSON INFO
@@ -1041,5 +1050,4 @@
         waitForStyles();
       }
     });
-  });
 })();
