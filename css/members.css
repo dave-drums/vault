@@ -956,14 +956,6 @@
     padding: 16px 20px;
   }
   
-  .progress-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .stats-cards {
-    grid-template-columns: 1fr;
-  }
-  
   .section {
     padding: 24px;
   }
@@ -1004,7 +996,7 @@
     padding: 20px;
   }
   
-  .pathway-card {
+  .stat-card {
     padding: 18px;
   }
   
