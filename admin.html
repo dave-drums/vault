@@ -12,6 +12,7 @@
   <!-- Typography Variables -->
   <link rel="stylesheet" href="/config/typography.css">
   <link rel="stylesheet" href="/config/core.css">
+  <link rel="stylesheet" href="/config/admin.css">
   
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
@@ -29,7 +30,6 @@
   <!-- Components for Toast notifications -->
   <script src="/config/components.js"></script>
   
-  </style>
 </head>
 <body>
     <div class="auth-loading">
@@ -215,9 +215,9 @@ function randomToken(len){
 
 function makeOverlay(){
   var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
   overlay.setAttribute('role','dialog');
   overlay.setAttribute('aria-modal','true');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;font-family:Inter,sans-serif;';
   overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
   return overlay;
 }
@@ -227,42 +227,42 @@ function openAddUserModal(db){
   var overlay = makeOverlay();
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:500px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:Inter,sans-serif;';
+  box.className = 'modal-box';
 
   var headerHtml = 
-    '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
+    '<div class="modal-header">' +
       '<div>' +
-        '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">Add User</div>' +
-        '<div style="font-size:var(--text-small);color:#999;margin-top:4px;">Create an invite link (7-day expiry)</div>' +
+        '<div class="modal-title">Add User</div>' +
+        '<div class="modal-subtitle">Create an invite link (7-day expiry)</div>' +
       '</div>' +
-      '<button id="modal-close-btn" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
+      '<button id="modal-close-btn" class="modal-close-btn">&times;</button>' +
     '</div>';
 
   var step1Html = 
-    '<div id="email-step" style="padding:24px;">' +
-      '<div style="margin-bottom:20px;">' +
-        '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;">Email Address</label>' +
-        '<input type="email" id="invite-email" placeholder="user@example.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">' +
+    '<div id="email-step" class="step-container">' +
+      '<div class="form-group">' +
+        '<label class="form-label">Email Address</label>' +
+        '<input type="email" id="invite-email" placeholder="user@example.com" class="form-input">' +
       '</div>' +
-      '<div style="display:flex;gap:10px;">' +
-        '<button id="invite-close" style="flex:1;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
-        '<button id="invite-create" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Create Invite</button>' +
+      '<div class="button-group">' +
+        '<button id="invite-close" class="btn btn-secondary">Close</button>' +
+        '<button id="invite-create" class="btn btn-primary">Create Invite</button>' +
       '</div>' +
     '</div>';
 
   var step2Html = 
-    '<div id="invite-link-step" style="padding:24px;display:none;">' +
-      '<div style="background:#d1fae5;border:1px solid #10b981;border-radius:8px;padding:16px;margin-bottom:20px;text-align:center;">' +
-        '<div style="font-size:24px;margin-bottom:8px;">✓</div>' +
-        '<div style="font-size:var(--text-ui);font-weight:600;color:#059669;font-family:Inter,sans-serif;">Invite Created Successfully</div>' +
+    '<div id="invite-link-step" class="step-container hidden">' +
+      '<div class="success-message">' +
+        '<div class="success-icon">✓</div>' +
+        '<div class="success-text">Invite Created Successfully</div>' +
       '</div>' +
-      '<div style="margin-bottom:6px;">' +
-        '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Invite Link</label>' +
-        '<textarea id="invite-url" readonly style="width:100%;min-height:80px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-tiny);font-family:Courier New,monospace;background:#f8f9fa;color:#444;box-sizing:border-box;resize:none;"></textarea>' +
+      '<div class="form-group">' +
+        '<label class="form-label">Invite Link</label>' +
+        '<textarea id="invite-url" readonly class="form-textarea"></textarea>' +
       '</div>' +
-      '<div style="font-size:var(--text-micro);color:#999;margin-bottom:16px;font-family:Inter,sans-serif;">Link expires in 7 days</div>' +
-      '<button id="copy-invite" style="width:100%;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;">📋 Copy Link</button>' +
-      '<button id="reset-modal" style="width:100%;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+      '<div class="form-help-text">Link expires in 7 days</div>' +
+      '<button id="copy-invite" class="btn btn-primary btn-full">📋 Copy Link</button>' +
+      '<button id="reset-modal" class="btn btn-secondary btn-full">Close</button>' +
     '</div>';
 
   box.innerHTML = headerHtml + step1Html + step2Html;
@@ -281,8 +281,8 @@ function openAddUserModal(db){
   var urlTextarea = box.querySelector('#invite-url');
 
   function resetModal(){
-    step1.style.display = 'block';
-    step2.style.display = 'none';
+    step1.classList.remove('hidden');
+    step2.classList.add('hidden');
     emailInput.value = '';
   }
 
@@ -309,8 +309,8 @@ function openAddUserModal(db){
     }).then(function(){
       var link = CREATE_ACCOUNT_URL_BASE + token;
       
-      step1.style.display = 'none';
-      step2.style.display = 'block';
+      step1.classList.add('hidden');
+      step2.classList.remove('hidden');
       urlTextarea.value = link;
       
       createBtn.disabled = false;
@@ -344,17 +344,17 @@ function openInvitesModal(db){
   var overlay = makeOverlay();
 
   var box = document.createElement('div');
-  box.style.cssText = 'width:100%;max-width:900px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:85vh;display:flex;flex-direction:column;font-family:Inter,sans-serif;';
+  box.className = 'modal-box modal-box-wide modal-box-full-height';
 
   box.innerHTML =
-    '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
+    '<div class="modal-header">' +
       '<div>' +
-        '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">Invitation Links</div>' +
-        '<div style="font-size:var(--text-small);color:#999;margin-top:4px;font-family:Inter,sans-serif;">Manage user invitations</div>' +
+        '<div class="modal-title">Invitation Links</div>' +
+        '<div class="modal-subtitle">Manage user invitations</div>' +
       '</div>' +
-      '<button id="invites-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
+      '<button id="invites-close" class="modal-close-btn">&times;</button>' +
     '</div>' +
-    '<div id="invites-list-container" style="flex:1;overflow-y:auto;padding:20px;"></div>';
+    '<div id="invites-list-container" class="modal-body-scrollable"></div>';
 
   overlay.appendChild(box);
   document.body.appendChild(overlay);
@@ -363,18 +363,18 @@ function openInvitesModal(db){
   box.querySelector('#invites-close').addEventListener('click', close);
 
   var listContainer = box.querySelector('#invites-list-container');
-  listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading...</div>';
+  listContainer.innerHTML = '<div class="empty-message">Loading...</div>';
 
   db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(100).get()
     .then(function(snap){
       if (snap.empty) {
-        listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No invites yet.</div>';
+        listContainer.innerHTML = '<div class="empty-message">No invites yet.</div>';
         return;
       }
 
       var tableHtml = 
-        '<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;overflow:hidden;">' +
-          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;background:#e9ecef;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;font-family:Inter,sans-serif;">' +
+        '<div class="invite-table">' +
+          '<div class="invite-table-header" style="grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;">' +
             '<div>Email</div>' +
             '<div>Status</div>' +
             '<div>Created</div>' +
@@ -393,34 +393,29 @@ function openInvitesModal(db){
         var expiryMs = tsToMs(d.expiresAt);
         var isExpired = expiryMs > 0 && now > expiryMs;
 
-        var status, statusBg, statusColor;
+        var statusClass, statusText;
         if (used) {
-          status = 'Used';
-          statusBg = '#e0f2fe';
-          statusColor = '#0284c7';
+          statusClass = 'invite-status-used';
+          statusText = 'Used';
         } else if (isExpired) {
-          status = 'Expired';
-          statusBg = '#fee2e2';
-          statusColor = '#dc2626';
+          statusClass = 'invite-status-pending'; // Reuse pending style for expired
+          statusText = 'Expired';
         } else {
-          status = 'Active';
-          statusBg = '#d1fae5';
-          statusColor = '#059669';
+          statusClass = 'invite-status-pending';
+          statusText = 'Active';
         }
 
         var opacity = (used || isExpired) ? '0.6' : '1';
 
         tableHtml += 
-          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;border-bottom:1px solid #e9ecef;background:white;align-items:center;font-family:Inter,sans-serif;opacity:' + opacity + ';">' +
-            '<div style="font-size:var(--text-small);color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(email) + '</div>' +
+          '<div class="invite-table-row" style="grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;opacity:' + opacity + ';">' +
+            '<div class="invite-email">' + escapeHtml(email) + '</div>' +
+            '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>' +
+            '<div class="invite-date">' + createdAt + '</div>' +
+            '<div class="invite-date">' + expiresAt + '</div>' +
             '<div>' +
-              '<span style="display:inline-block;padding:4px 10px;background:' + statusBg + ';color:' + statusColor + ';border-radius:12px;font-size:var(--text-micro);font-weight:600;">' + status + '</span>' +
-            '</div>' +
-            '<div style="font-size:var(--text-tiny);color:#666;">' + createdAt + '</div>' +
-            '<div style="font-size:var(--text-tiny);color:#666;">' + expiresAt + '</div>' +
-            '<div>' +
-              (used ? '<span style="font-size:var(--text-micro);color:#999;font-style:italic;">—</span>' : 
-                '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:6px 12px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:var(--text-micro);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Revoke</button>') +
+              (used ? '<span class="invite-placeholder">—</span>' : 
+                '<button class="revoke-invite-btn btn btn-danger btn-icon" data-invite-id="' + doc.id + '">Revoke</button>') +
             '</div>' +
           '</div>';
       });
@@ -452,7 +447,7 @@ function openInvitesModal(db){
       });
     })
     .catch(function(e){
-      listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading invites</div>';
+      listContainer.innerHTML = '<div class="error-message">Error loading invites</div>';
       if (window.VaultErrors) {
         window.VaultErrors.handle(e, 'Load Invites');
       }
@@ -512,23 +507,23 @@ document.addEventListener('DOMContentLoaded', function(){
     var overlay = makeOverlay();
 
     var box = document.createElement('div');
-    box.style.cssText = 'width:100%;max-width:700px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:85vh;display:flex;flex-direction:column;font-family:Inter,sans-serif;';
+    box.className = 'modal-box modal-box-wide modal-box-full-height';
 
     // Modal Header
     var headerHtml = 
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:24px;border-bottom:1px solid #e9ecef;">' +
+      '<div class="modal-header">' +
         '<div>' +
-          '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">Progress Report: ' + escapeHtml(displayName) + '</div>' +
-          '<div style="font-size:var(--text-small);color:#999;margin-top:4px;">View and manage lesson completion</div>' +
+          '<div class="modal-title">Progress Report: ' + escapeHtml(displayName) + '</div>' +
+          '<div class="modal-subtitle">View and manage lesson completion</div>' +
         '</div>' +
-        '<button id="progress-modal-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
+        '<button id="progress-modal-close" class="modal-close-btn">&times;</button>' +
       '</div>';
 
     box.innerHTML = headerHtml;
     
     // Modal Body (scrollable)
     var modalBody = document.createElement('div');
-    modalBody.style.cssText = 'flex:1;overflow-y:auto;padding:24px;';
+    modalBody.className = 'modal-body-scrollable';
     
     // Course sections container (no self-progress, no stats)
     var coursesContainer = document.createElement('div');
@@ -551,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function(){
   
   function loadAllProgress(db, uid, coursesContainer){
     if (!window.VAULT_COURSES) {
-      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No courses available</div>';
+      coursesContainer.innerHTML = '<div class="empty-message">No courses available</div>';
       return;
     }
     
@@ -564,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     
     if (courseIds.length === 0) {
-      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No courses with lessons yet</div>';
+      coursesContainer.innerHTML = '<div class="empty-message">No courses with lessons yet</div>';
       return;
     }
     
@@ -622,35 +617,34 @@ document.addEventListener('DOMContentLoaded', function(){
           levelTextColor = '#dc2626';
         }
         
-        coursesHtml += '<div style="margin-bottom:32px;">';
+        coursesHtml += '<div class="course-section">';
         
         // Course header
-        coursesHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e9ecef;">';
-        coursesHtml += '<div style="font-size:var(--heading-large);font-weight:600;color:#1a1a2e;">' + escapeHtml(courseData.name) + '</div>';
-        coursesHtml += '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:' + levelBadgeColor + ';color:' + levelTextColor + ';border-radius:8px;font-size:var(--text-tiny);font-weight:600;">' + escapeHtml(courseData.level) + '</div>';
+        coursesHtml += '<div class="course-section-header">';
+        coursesHtml += '<div class="course-info">';
+        coursesHtml += '<div class="course-name">' + escapeHtml(courseData.name) + '</div>';
+        coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.level) + '</div>';
+        coursesHtml += '</div>';
         coursesHtml += '</div>';
         
         // Progress text
-        coursesHtml += '<div style="font-size:var(--text-small);color:#666;margin-bottom:12px;"><strong>' + progress.completed + ' of ' + progress.total + ' lessons completed</strong> (' + percentage + '%)</div>';
+        coursesHtml += '<div class="course-stat"><strong>' + progress.completed + ' of ' + progress.total + ' lessons completed</strong> (' + percentage + '%)</div>';
         
         // Progress bar
-        coursesHtml += '<div style="width:100%;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin-bottom:16px;">';
-        coursesHtml += '<div style="height:100%;background:linear-gradient(90deg,#06b3fd,#0284c7);border-radius:4px;width:' + percentage + '%;transition:width 0.3s ease;"></div>';
+        coursesHtml += '<div class="course-progress-bar">';
+        coursesHtml += '<div class="course-progress-fill" style="width:' + percentage + '%;"></div>';
         coursesHtml += '</div>';
         
-        // Lesson grid (7 per row desktop, 4 per row mobile)
-        coursesHtml += '<div class="lesson-grid-modal" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">';
+        // Lesson grid
+        coursesHtml += '<div class="lesson-grid">';
         
         courseData.lessons.forEach(function(lessonId){
           var isCompleted = progress.completedLessons[lessonId] === true;
-          var badgeClass = isCompleted ? 'completed' : '';
-          var bgColor = isCompleted ? '#d1fae5' : '#f8f9fa';
-          var borderColor = isCompleted ? '#10b981' : '#e9ecef';
-          var textColor = isCompleted ? '#059669' : '#666';
-          var icon = isCompleted ? ' ✓' : '';
+          var completedClass = isCompleted ? ' completed' : '';
           
-          coursesHtml += '<div class="lesson-badge-modal ' + badgeClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '" style="padding:8px 6px;background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:6px;text-align:center;font-size:var(--text-tiny);font-weight:500;color:' + textColor + ';cursor:pointer;transition:all 0.2s;">';
-          coursesHtml += lessonId + icon;
+          coursesHtml += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '">';
+          coursesHtml += '<span class="lesson-id">' + lessonId + '</span>';
+          coursesHtml += '<div class="lesson-toggle' + completedClass + '"></div>';
           coursesHtml += '</div>';
         });
         
@@ -660,12 +654,12 @@ document.addEventListener('DOMContentLoaded', function(){
       
       coursesContainer.innerHTML = coursesHtml;
       
-      // Add click handlers for lesson badges
-      coursesContainer.querySelectorAll('.lesson-badge-modal').forEach(function(badge){
-        badge.addEventListener('click', function(){
-          var courseId = badge.getAttribute('data-course');
-          var lessonId = badge.getAttribute('data-lesson');
-          var isCompleted = badge.classList.contains('completed');
+      // Add click handlers for lesson items
+      coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
+        item.addEventListener('click', function(){
+          var courseId = item.getAttribute('data-course');
+          var lessonId = item.getAttribute('data-lesson');
+          var isCompleted = item.classList.contains('completed');
           var newState = !isCompleted;
           
           // Update Firestore
@@ -711,20 +705,21 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function bindHandlers(){
-    // Toggle accordion
-    rootEl.querySelectorAll('.accordion-header').forEach(function(header){
+    // Toggle user accordion
+    rootEl.querySelectorAll('.user-item-header').forEach(function(header){
       header.addEventListener('click', function(){
-        var item = header.closest('.accordion-item');
-        var wasOpen = item.classList.contains('open');
+        var item = header.closest('.user-item');
+        var accordion = item.querySelector('.user-accordion');
+        var wasOpen = accordion.classList.contains('expanded');
 
         // Close all
-        rootEl.querySelectorAll('.accordion-item').forEach(function(i){
-          i.classList.remove('open');
+        rootEl.querySelectorAll('.user-accordion').forEach(function(a){
+          a.classList.remove('expanded');
         });
 
         // Open clicked if wasn't open
         if (!wasOpen) {
-          item.classList.add('open');
+          accordion.classList.add('expanded');
         }
       });
     });
@@ -734,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function(){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
         var uid = btn.getAttribute('data-uid');
-        var accordionEl = btn.closest('.accordion-item');
+        var accordionEl = btn.closest('.user-item');
         saveUserChanges(uid, accordionEl);
       });
     });
@@ -777,111 +772,109 @@ document.addEventListener('DOMContentLoaded', function(){
     var html = '';
 
     // Student List section with accordion
-    html += '<div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
-    html += '<div style="padding:20px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;">' +
-              '<div style="font-family:Oswald,sans-serif;font-size:22;font-weight:400;color:#1a1a2e;">STUDENT LIST (' + users.length + ')</div>' +
+    html += '<div class="admin-section">';
+    html += '<div class="admin-section-header">' +
+              '<div class="admin-section-title">STUDENT LIST <span class="admin-section-count">(' + users.length + ')</span></div>' +
               '<div style="display:flex;gap:10px;">' +
-                '<button id="pv-invites-btn" style="padding:10px 18px;background:#6b7280;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Invites</button>' +
-                '<button id="pv-add-user-btn" style="padding:10px 18px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">+ Add User</button>' +
+                '<button id="pv-invites-btn" class="btn btn-header">Invites</button>' +
+                '<button id="pv-add-user-btn" class="btn btn-header btn-header-primary">+ Add User</button>' +
               '</div>' +
             '</div>';
 
     html += '<div style="padding:12px;">';
 
     if (!users.length) {
-      html += '<div style="padding:40px 20px;text-align:center;color:#999;font-family:Inter,sans-serif;">No students yet.</div>';
+      html += '<div class="empty-message">No students yet.</div>';
     } else {
       users.forEach(function(u){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
         var activityDot = statusDot(u.lastLogin, u.joinedAt);
         
-        var statusBadgeClass = isOnline ? '' : ' offline';
+        var statusClass = isOnline ? 'status-dot' : 'status-dot-offline';
         var statusText = isOnline ? 'Online' : 'Offline';
 
-        html += '<div class="accordion-item" style="background:#fafafa;border:1px solid #e0e0e0;margin-bottom:10px;border-radius:10px;overflow:hidden;transition:all 0.2s;">';
+        html += '<div class="user-item">';
         
-        // Accordion Header (collapsed view)
-        html += '<div class="accordion-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;transition:background 0.2s;">';
+        // User Header (collapsed view)
+        html += '<div class="user-item-header">';
         html += '<div style="flex:1;min-width:0;">';
-        html += '<div style="font-weight:600;font-size:var(--text-ui);color:#1a1a2e;margin-bottom:4px;font-family:Inter,sans-serif;">' + escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
-        html += '<div style="font-size:var(--text-tiny);color:#999;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:Inter,sans-serif;">';
-        html += '<span>' + escapeHtml(u.email) + '</span>';
-        html += '<span>•</span>';
-        html += '<span>Last: ' + formatTsNoYear(u.lastLogin) + '</span>';
+        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
+        html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last: ' + formatTsNoYear(u.lastLogin) + '</div>';
         html += '</div>';
-        html += '</div>';
-        html += '<div style="display:flex;align-items:center;gap:12px;">';
-        html += '<div class="status-badge' + statusBadgeClass + '" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:' + (isOnline ? '#e8f9f3' : '#f3f4f6') + ';color:' + (isOnline ? '#059669' : '#999') + ';border-radius:14px;font-size:var(--text-ui);font-weight:600;white-space:nowrap;font-family:Inter,sans-serif;">';
-        html += '<span style="width:8px;height:8px;border-radius:50%;background:' + (isOnline ? '#059669' : '#999') + ';"></span>';
+        html += '<div class="user-meta">';
+        html += '<div class="user-status">';
+        html += '<span class="' + statusClass + '"></span>';
         html += statusText;
         html += '</div>';
-        html += '<div class="chevron" style="color:#999;font-size:var(--heading-card);transition:transform 0.2s;">›</div>';
+        html += '<div class="chevron">›</div>';
         html += '</div>';
         html += '</div>';
 
-        // Accordion Body (expanded view) - inline editing
-        html += '<div class="accordion-body" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease;">';
-        html += '<div class="accordion-content" style="padding:20px;border-top:1px solid #f0f0f0;background:white;">';
+        // User Accordion Body (expanded view)
+        html += '<div class="user-accordion">';
+        html += '<div class="accordion-content">';
         
         // Practice Statistics
-        html += '<span style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Practice Statistics</span>';
-        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
+        html += '<div class="accordion-section">';
+        html += '<div class="accordion-section-title">Practice Statistics</div>';
+        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + ' ' + activityDot + '</div>';
-        html += '</div>';
-        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Login</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatTs(u.lastLogin) + ' ' + activityDot + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Avg Session</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Total Practice</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatDuration(u.totalSeconds) + '</div>';
         html += '</div>';
-        html += '</div>';
-
-        // Profile Information (3 columns desktop, 1 column mobile)
-        html += '<div style="margin-bottom:24px;">';
-        html += '<span class="section-label" style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Profile Information</span>';
-        html += '<div class="profile-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">';
-        html += '<div>';
-        html += '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">First Name</label>';
-        html += '<input type="text" class="edit-firstname" value="' + escapeHtml(u.firstName) + '" placeholder="First name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">';
-        html += '</div>';
-        html += '<div>';
-        html += '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Last Name</label>';
-        html += '<input type="text" class="edit-lastname" value="' + escapeHtml(u.lastName) + '" placeholder="Last name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">';
-        html += '</div>';
-        html += '<div>';
-        html += '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Display Name</label>';
-        html += '<input type="text" class="edit-displayname" value="' + escapeHtml(u.displayName) + '" placeholder="Display name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
         html += '</div>';
         html += '</div>';
         html += '</div>';
 
-        // Account Permissions (2 columns desktop, 1 column mobile)
-        html += '<div style="margin-bottom:24px;">';
-        html += '<span class="section-label" style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Account Permissions</span>';
-        html += '<div class="permissions-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
-        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0;">';
-        html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#06b3fd;">';
-        html += '<span style="flex:1;font-size:var(--text-small);color:#1a1a2e;cursor:pointer;font-family:Inter,sans-serif;">16+ years old (can access comments)</span>';
+        // Profile Information
+        html += '<div class="accordion-section">';
+        html += '<div class="accordion-section-title">Profile Information</div>';
+        html += '<div class="accordion-row">';
+        html += '<div class="accordion-field">';
+        html += '<label class="form-label">First Name</label>';
+        html += '<input type="text" class="edit-firstname form-input" value="' + escapeHtml(u.firstName) + '" placeholder="First name">';
+        html += '</div>';
+        html += '<div class="accordion-field">';
+        html += '<label class="form-label">Last Name</label>';
+        html += '<input type="text" class="edit-lastname form-input" value="' + escapeHtml(u.lastName) + '" placeholder="Last name">';
+        html += '</div>';
+        html += '<div class="accordion-field">';
+        html += '<label class="form-label">Display Name</label>';
+        html += '<input type="text" class="edit-displayname form-input" value="' + escapeHtml(u.displayName) + '" placeholder="Display name">';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Account Permissions
+        html += '<div class="accordion-section">';
+        html += '<div class="accordion-section-title">Account Permissions</div>';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+        html += '<label class="checkbox-label">';
+        html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + '>';
+        html += '<span>16+ years old (can access comments)</span>';
         html += '</label>';
-        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0;">';
-        html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#06b3fd;">';
-        html += '<span style="flex:1;font-size:var(--text-small);color:#1a1a2e;cursor:pointer;font-family:Inter,sans-serif;">Allow self-progress (can complete lessons)</span>';
+        html += '<label class="checkbox-label">';
+        html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + '>';
+        html += '<span>Allow self-progress (can complete lessons)</span>';
         html += '</label>';
         html += '</div>';
         html += '</div>';
 
         // Action Buttons
-        html += '<div style="display:flex;gap:10px;padding-top:16px;border-top:1px solid #f0f0f0;">';
-        html += '<button class="save-changes-btn" data-uid="' + escapeHtml(u.uid) + '" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;">Save Changes</button>';
-        html += '<button class="view-progress-btn" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '" style="flex:1;padding:10px 16px;background:#10b981;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;">View Progress</button>';
+        html += '<div class="user-actions">';
+        html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
+        html += '<button class="view-progress-btn btn btn-primary" style="background:#10b981;border-color:#10b981;" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '">View Progress</button>';
         html += '</div>';
 
         html += '</div>';
@@ -895,25 +888,6 @@ document.addEventListener('DOMContentLoaded', function(){
     html += '</div>';
 
     rootEl.innerHTML = html;
-    
-    // Add CSS for accordion animations and responsive layout
-    if (!document.getElementById('admin-accordion-css')) {
-      var style = document.createElement('style');
-      style.id = 'admin-accordion-css';
-      style.textContent = 
-        '.accordion-item.open { background: white !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }' +
-        '.accordion-item.open .accordion-body { max-height: 2000px !important; }' +
-        '.accordion-item.open .chevron { transform: rotate(90deg); }' +
-        '.accordion-header:hover { background: rgba(6,179,253,0.05); }' +
-        '.save-changes-btn:hover { background: #0590d4; transform: translateY(-1px); }' +
-        '.view-progress-btn:hover { background: #059669; transform: translateY(-1px); }' +
-        '@media (max-width: 768px) {' +
-          '.profile-grid { grid-template-columns: 1fr !important; }' +
-          '.permissions-grid { grid-template-columns: 1fr !important; }' +
-          '.lesson-grid-modal { grid-template-columns: repeat(5,1fr) !important; }' +
-        '}';
-      document.head.appendChild(style);
-    }
 
     bindHandlers();
   }
