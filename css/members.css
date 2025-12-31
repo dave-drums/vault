@@ -467,7 +467,7 @@
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 18px;
   transition: all 0.2s;
 }
 
@@ -483,13 +483,13 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-primary);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .stat-subtitle {
   font-size: var(--text-small);
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .stat-value {
@@ -497,11 +497,11 @@
   font-size: var(--text-large);
   font-weight: 700;
   color: var(--accent);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .stat-progress {
-  margin-top: 14px;
+  margin-top: 8px;
 }
 
 .stat-bar-bg {
