@@ -455,15 +455,15 @@
   color: var(--text-primary);
 }
 
-/* PROGRESS GRID */
-.progress-grid {
+/* UNIFIED STATS/PROGRESS CARDS */
+.stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 16px;
   margin-bottom: 32px;
 }
 
-.pathway-card {
+.stat-card {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -471,58 +471,40 @@
   transition: all 0.2s;
 }
 
-.pathway-card:hover {
+.stat-card:hover {
   border-color: var(--accent);
   box-shadow: 0 4px 12px rgba(6, 179, 253, 0.1);
 }
 
-.pathway-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.pathway-icon {
-  font-size: var(--heading-section);
-}
-
-.pathway-info {
-  flex: 1;
-}
-
-.pathway-name {
+.stat-label {
   font-family: 'Inter', sans-serif;
   font-size: var(--text-small);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 12px;
   color: var(--text-primary);
+  margin-bottom: 12px;
 }
 
-.pathway-course {
+.stat-subtitle {
   font-size: var(--text-small);
   color: var(--text-secondary);
-  margin: 0;
+  margin-bottom: 12px;
 }
 
-.pathway-stat {
+.stat-value {
+  font-family: 'Inter', sans-serif;
   font-size: var(--text-large);
   font-weight: 700;
   color: var(--accent);
   margin-bottom: 8px;
-  font-family: 'Inter', sans-serif;
 }
 
-.pathway-label {
-  font-size: var(--text-micro);
-  color: var(--text-secondary);
-  margin-bottom: 14px;
-  font-family: 'Inter', sans-serif;
+.stat-progress {
+  margin-top: 14px;
 }
 
-.pathway-bar-bg {
+.stat-bar-bg {
   width: 100%;
   height: 6px;
   background: #e0e0e0;
@@ -530,22 +512,13 @@
   overflow: hidden;
 }
 
-.pathway-bar-fill {
+.stat-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #06b3fd, #38bdf8);
   transition: width 0.6s ease;
 }
 
-.pathway-progress {
-  margin-bottom: 12px;
-}
-
-.pathway-stats {
-  font-size: var(--text-tiny);
-  color: var(--text-secondary);
-}
-
-.pathway-link {
+.stat-link {
   display: inline-block;
   margin-top: 12px;
   color: var(--accent);
@@ -554,44 +527,8 @@
   font-weight: 600;
 }
 
-.pathway-link:hover {
+.stat-link:hover {
   text-decoration: underline;
-}
-
-/* STATS CARDS */
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-}
-
-.stat-icon {
-  font-size: var(--heading-section);
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-family: 'Oswald', sans-serif;
-  font-size: var(--heading-section);
-  font-weight: 400;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: var(--text-tiny);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 /* STATS CHART */
