@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groove Studies | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400&display=swap" rel="stylesheet">
+  
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="/css/core.css">
+  
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-functions-compat.js"></script>
+  <script src="/firebase/firebase-storage-compat.js"></script>
+  <script src="/config/sys-firebase.js"></script>
+  <script src="/config/utils.js"></script>
+
+  <script src="/config/user-metrics.js"></script>
+  
+  <script>document.documentElement.dataset.protected = 'true';</script>
+  <script src="/config/sys-auth.js"></script>
+  
+  <script src="/config/sys-components.js"></script>
+  <script src="/config/user-practice.js"></script>
+  <script src="/config/sys-alerts.js"></script>
+  <script src="/config/course-data.js"></script>
+  
+  <script src="/config/course-renderer.js" defer></script>
+  <script src="/config/user-progress.js"></script>
+  <script src="/config/lesson-completion.js"></script>
+  <script src="/config/user-comments.js" defer></script>
+  
+</head>
+<body>
+
+  <!-- EPIC COURSE HEADER -->
+  <div class="course-hero">
+    <div class="course-hero-bg"></div>
+    
+    <div class="course-hero-content">
+      <h1 class="course-hero-title" id="hero-course-name">Loading...</h1>
+      <div class="course-hero-badge" id="hero-course-level"></div>
+    </div>
+  </div>
+
+  <div id="course-index" class="course-container">
+    <div style="text-align:center;padding:60px 20px;color:var(--text-secondary)">
+      <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite"></div>
+      <div style="font-weight:500">Loading course...</div>
+    </div>
+  </div>
+
+  <div id="lesson-content" style="display:none"></div>
+
+  <script src="/config/course-loader.js"></script>
+  
+</body>
+</html>

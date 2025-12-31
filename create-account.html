@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="/css/core.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/config/sys-firebase.js"></script>
+  <script src="/config/utils.js"></script>
+  
+  <!-- Toast notifications -->
+  <script src="/config/sys-components.js"></script>
+  <script src="/config/sys-alerts.js"></script>
+  
+</head>
+<body>
+  
+  <!-- HERO HEADER -->
+  <div class="create-hero">
+    <div class="create-hero-bg"></div>
+    
+    <div class="create-hero-content">
+      <h1 class="create-hero-title">Create Account</h1>
+    </div>
+  </div>
+  
+  <!-- Account creation form will be injected here -->
+  <div id="vault-create-account-root"></div>
+  
+  
+  <script src="/config/create-account.js"></script>
+  
+</body>
+</html>

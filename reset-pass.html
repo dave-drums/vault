@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="/css/core.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/config/sys-firebase.js"></script>
+  <script src="/config/utils.js"></script>
+  
+  <!-- Vault Scripts -->
+  <script src="/config/sys-components.js"></script>
+  <script src="/config/sys-alerts.js"></script>
+  
+</head>
+<body>
+  
+  <!-- HERO HEADER -->
+  <div class="reset-hero">
+    <div class="reset-hero-bg"></div>
+    <div class="reset-hero-content">
+      <h1 class="reset-title">Reset Password</h1>
+    </div>
+  </div>
+  
+  <!-- MAIN CONTENT -->
+  <div class="reset-container">
+    
+    <div class="reset-card">
+      
+      <!-- LOADING STATE -->
+      <div id="loading-state" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Verifying reset link...</p>
+      </div>
+      
+      <!-- ERROR STATE (invalid/expired link) -->
+      <div id="error-state" style="display: none;">
+        <div class="reset-header">
+          <h2>Invalid Link</h2>
+          <p>This password reset link is invalid or has expired</p>
+        </div>
+        <div style="text-align: center;">
+          <a href="/members.html" class="btn-login">Back to Login</a>
+        </div>
+      </div>
+      
+      <!-- RESET FORM -->
+      <div id="reset-form-container" style="display: none;">
+        <div class="reset-header">
+          <h2>Create New Password</h2>
+          <p>Enter your new password below</p>
+        </div>
+        
+        <div id="error-display" class="error-message"></div>
+        
+        <form class="reset-form" id="resetForm">
+          <label for="new-password">New Password *</label>
+          <input type="password" id="new-password" autocomplete="new-password" required minlength="6">
+          
+          <label for="confirm-password">Confirm Password *</label>
+          <input type="password" id="confirm-password" autocomplete="new-password" required minlength="6">
+          
+          <button type="submit" id="reset-btn">Reset Password</button>
+          
+          <a href="/members.html" class="back-link">Back to Login</a>
+        </form>
+      </div>
+      
+      <!-- SUCCESS STATE -->
+      <div id="success-state" class="success-message">
+        <div class="success-icon">✓</div>
+        <h3>Password Reset!</h3>
+        <p>Your password has been successfully reset. You can now log in with your new password.</p>
+        <a href="/members.html" class="btn-login">Go to Login</a>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  
+  <script src="/config/reset-pass.js"></script>
+  
+</body>
+</html>

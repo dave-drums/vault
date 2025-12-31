@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/config/typography.css">
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="/css/core.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/config/sys-firebase.js"></script>
+  <script src="/config/utils.js"></script>
+  
+  <!-- Vault Scripts -->
+  <script src="/config/sys-auth.js"></script>
+  <script src="/config/sys-components.js"></script>
+  <script src="/config/sys-alerts.js"></script>
+  
+</head>
+<body>
+  
+  <!-- HERO HEADER -->
+  <div class="contact-hero">
+    <div class="contact-hero-bg"></div>
+    <div class="contact-hero-content">
+      <h1 class="contact-title">Contact</h1>
+    </div>
+  </div>
+  
+  <!-- MAIN CONTENT -->
+  <div class="contact-container">
+    
+    <div class="contact-card">
+      <div class="contact-header">
+        <h2>Get In Touch</h2>
+        <p>Fill out the form below and I'll get back to you soon</p>
+      </div>
+      
+      <!-- Web3Forms Contact Form - No action attribute, JavaScript handles submission -->
+      <form class="contact-form" id="contactForm">
+        
+        <!-- Web3Forms Access Key (hidden) -->
+        <input type="hidden" name="access_key" value="2326bcf2-bf0e-466f-86f7-9ffea5dddcfd">
+        
+        <!-- Honeypot Spam Protection -->
+        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+        
+        <label for="name">Name *</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject">
+        
+        <label for="message">Message *</label>
+        <textarea id="message" name="message" required></textarea>
+        
+        <button type="submit" id="submitBtn">Send Message</button>
+      </form>
+      
+      <!-- Additional Contact Info -->
+      <div class="contact-info">
+        <div class="info-item">
+          <div class="info-icon">📧</div>
+          <div class="info-content">
+            <h3>Email</h3>
+            <p><a href="/cdn-cgi/l/email-protection#4d3e383d3d223f390d292c3b28293f38203e632e2220632c38"><span class="__cf_email__" data-cfemail="9deee8ededf2efe9ddf9fcebf8f9efe8f0eeb3fef2f0b3fce8">[email&#160;protected]</span></a></p>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-icon">⏱️</div>
+          <div class="info-content">
+            <h3>Response Time</h3>
+            <p>Typically within 24-48 hours</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Toast system - use VaultToast if available from components.js, otherwise use standalone
+    const Toast = window.VaultToast || {
+      show: function(message, type) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 16px 24px;
+          background: ${type === 'success' ? '#10b981' : '#ef4444'};
+          color: white;
+          border-radius: 10px;
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          font-weight: 500;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 10000;
+          animation: slideIn 0.3s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }, 4000);
+      },
+      success: function(message) {
+        this.show(message, 'success');
+      },
+      error: function(message) {
+        this.show(message, 'error');
+      }
+    };
+    
+    // Handle form submission
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Disable button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      
+      try {
+        const formData = new FormData(form);
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          Toast.success('Message sent successfully! We\'ll get back to you soon.');
+          form.reset();
+        } else {
+          throw new Error(data.message || 'Something went wrong');
+        }
+      } catch (error) {
+        console.error('Form submission error:', error);
+        Toast.error('Sorry, there w
