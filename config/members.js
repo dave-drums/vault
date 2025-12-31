@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded', function () {
       tab.className = 'vault-tab' + (isActive ? ' active' : '');
       tab.type = 'button';
       tab.style.cssText = 'flex:1;padding:14px 20px;background:none;border:none;border-bottom:' + 
-        (isActive ? '3px solid #06b3fd' : 'none') + ';cursor:pointer;font-size:16px;font-weight:500;' +
+        (isActive ? '3px solid #06b3fd' : 'none') + ';cursor:pointer;font-size:17px;font-weight:600;' +
         'color:' + (isActive ? '#111' : '#666') + ';transition:all 0.2s ease;display:flex;align-items:center;' +
         'justify-content:center;gap:8px;';
 
@@ -2257,5 +2257,6 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
