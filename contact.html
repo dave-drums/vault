@@ -13,6 +13,7 @@
   
   <!-- Typography Variables -->
   <link rel="stylesheet" href="/config/typography.css">
+  <link rel="stylesheet" href="/config/core.css">
   
   <!-- Firebase -->
   <script src="/firebase/firebase-app-compat.js"></script>
@@ -24,298 +25,6 @@
   <script src="/config/components.js"></script>
   <script src="/config/error-handler.js"></script>
   
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    :root {
-      --accent: #06b3fd;
-      --accent-hover: #0599dc;
-      --text-primary: #1a1a1a;
-      --text-secondary: #6c757d;
-      --surface: #fff;
-      --surface-hover: #f8f9fa;
-      --border: #e9ecef;
-      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    
-    html {
-      font-size: 16px;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f8f9fa;
-      color: var(--text-primary);
-      line-height: 1.6;
-    }
-    
-    /* HERO HEADER */
-    .contact-hero {
-      position: relative;
-      background: #1a1a2e;
-      padding: 80px 20px 60px;
-      margin-bottom: 40px;
-      overflow: hidden;
-    }
-    
-    .contact-hero:after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #06b3fd, #38bdf8, #06b3fd);
-      background-size: 200% auto;
-      animation: gradient-shift 3s linear infinite;
-      z-index: 3;
-    }
-    
-    @keyframes gradient-shift {
-      0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
-    }
-    
-    .contact-hero-bg {
-      position: absolute;
-      inset: 0;
-      background-image: url('/assets/members.webp');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.15;
-      z-index: 0;
-    }
-    
-    .contact-hero-bg:after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at top, rgba(6, 179, 253, 0.1) 0%, transparent 50%);
-    }
-    
-    .contact-hero-content {
-      position: relative;
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-      z-index: 1;
-    }
-    
-    .contact-title {
-      font-family: 'Oswald', sans-serif;
-      font-size: var(--heading-hero-desktop);
-      font-weight: 400;
-      background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
-      letter-spacing: -1px;
-      line-height: 1.1;
-      text-transform: uppercase;
-    }
-    
-    @media (max-width: 768px) {
-      .contact-hero {
-        padding: 60px 20px 40px;
-      }
-      .contact-title {
-        font-size: var(--heading-hero-mobile);
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .contact-hero {
-        padding: 50px 20px 35px;
-      }
-      .contact-title {
-        font-size: var(--heading-hero-mobile);
-      }
-    }
-    
-    /* MAIN CONTAINER */
-    .contact-container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 20px 80px;
-    }
-    
-    /* CONTACT CARD */
-    .contact-card {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 40px;
-      border: 1px solid var(--border);
-    }
-    
-    .contact-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    
-    .contact-header h2 {
-      font-family: 'Oswald', sans-serif;
-      font-size: var(--heading-section);
-      font-weight: 400;
-      text-transform: uppercase;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-      color: var(--text-primary);
-    }
-    
-    .contact-header p {
-      font-family: 'Inter', sans-serif;
-      font-size: var(--text-ui);
-      color: var(--text-secondary);
-      margin: 0;
-    }
-    
-    /* CONTACT FORM */
-    .contact-form label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: var(--text-small);
-      color: var(--text-primary);
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .contact-form input,
-    .contact-form textarea {
-      display: block;
-      width: 100%;
-      box-sizing: border-box;
-      padding: 14px 16px;
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 20px;
-      font-size: var(--text-ui);
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s;
-    }
-    
-    .contact-form textarea {
-      min-height: 150px;
-      resize: vertical;
-    }
-    
-    .contact-form input:focus,
-    .contact-form textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(6, 179, 253, 0.1);
-    }
-    
-    .contact-form button {
-      width: 100%;
-      padding: 16px 24px;
-      background: var(--accent);
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-weight: 600;
-      font-size: var(--text-ui);
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .contact-form button:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(6, 179, 253, 0.3);
-    }
-    
-    .contact-form button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    /* INFO SECTION */
-    .contact-info {
-      margin-top: 40px;
-      padding-top: 32px;
-      border-top: 1px solid var(--border);
-    }
-    
-    .info-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    
-    .info-item:last-child {
-      margin-bottom: 0;
-    }
-    
-    .info-icon {
-      font-size: var(--text-large);
-      color: var(--accent);
-      margin-top: 2px;
-    }
-    
-    .info-content h3 {
-      font-family: 'Oswald', sans-serif;
-      font-size: var(--text-body);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-      color: var(--text-primary);
-    }
-    
-    .info-content p {
-      font-size: var(--text-ui);
-      color: var(--text-secondary);
-      margin: 0;
-    }
-    
-    .info-content a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    
-    .info-content a:hover {
-      text-decoration: underline;
-    }
-    
-    /* MOBILE */
-    @media (max-width: 768px) {
-      .contact-card {
-        padding: 32px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .contact-card {
-        padding: 28px;
-      }
-      .contact-header h2 {
-        font-size: var(--heading-card);
-      }
-    }
-    
-    /* TOAST ANIMATIONS */
-    @keyframes slideIn {
-      from { transform: translateX(400px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideOut {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(400px); opacity: 0; }
-    }
-  </style>
 </head>
 <body>
   
@@ -366,7 +75,7 @@
           <div class="info-icon">📧</div>
           <div class="info-content">
             <h3>Email</h3>
-            <p><a href="mailto:support@davedrums.com.au">support@davedrums.com.au</a></p>
+            <p><a href="/cdn-cgi/l/email-protection#5d2e282d2d322f291d393c2b38392f28302e733e3230733c28"><span class="__cf_email__" data-cfemail="e3909693938c9197a3878295868791968e90cd808c8ecd8296">[email&#160;protected]</span></a></p>
           </div>
         </div>
         
@@ -382,7 +91,7 @@
     
   </div>
   
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // Toast system - use VaultToast if available from components.js, otherwise use standalone
     const Toast = window.VaultToast || {
       show: function(message, type) {
@@ -446,14 +155,4 @@
         }
       } catch (error) {
         console.error('Form submission error:', error);
-        Toast.error('Sorry, there was an error sending your message. Please try again or email us directly.');
-      } finally {
-        // Re-enable button
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Message';
-      }
-    });
-  </script>
-  
-</body>
-</html>
+        Toast.error('Sorry, there w
