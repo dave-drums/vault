@@ -1,0 +1,959 @@
+(function(){
+var db;
+var auth;
+var rootEl;
+
+// Load course configuration from shared file
+// This ensures consistency across all pages
+(function() {
+  if (window.VAULT_COURSES) return; // Already loaded
+  
+  var script = document.createElement('script');
+  script.src = 'course-data.js';
+  script.async = false; // Synchronous to ensure it's loaded before console code runs
+  document.head.appendChild(script);
+})();
+
+function pvGetFontBaseEl(){
+  return (
+    document.querySelector('.sqs-block-content') ||
+    document.querySelector('.sqs-layout') ||
+    document.getElementById('vault-admin-root') ||
+    document.body
+  );
+}
+function pvApplyFontFromBase(el){
+  var baseEl = pvGetFontBaseEl();
+  var cs = window.getComputedStyle(baseEl);
+  if (cs.font && cs.font !== 'normal') el.style.font = cs.font;
+  el.style.fontFamily = cs.fontFamily;
+  el.style.fontSize = cs.fontSize;
+  el.style.fontWeight = cs.fontWeight;
+  el.style.lineHeight = cs.lineHeight;
+  el.style.color = cs.color;
+}
+
+function tsToMs(ts){
+  if (!ts || !ts.toDate) return 0;
+  try { return ts.toDate().getTime(); } catch (e) { return 0; }
+}
+function formatTs(ts){
+  if (!ts || !ts.toDate) return '-';
+  return ts.toDate().toLocaleString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Australia/Brisbane'
+  });
+}
+function formatTsNoYear(ts){
+  if (!ts || !ts.toDate) return '-';
+  return ts.toDate().toLocaleString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Australia/Brisbane'
+  });
+}
+function formatDateOnly(ts){
+  if (!ts || !ts.toDate) return '-';
+  return ts.toDate().toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'Australia/Brisbane'
+  });
+}
+function formatDuration(sec){
+  sec = Number(sec || 0);
+  if (sec <= 0) return '0 min';
+  var mins = Math.round(sec / 60);
+  if (mins < 60) return mins + ' min';
+  var hours = Math.floor(mins / 60);
+  var rem = mins % 60;
+  return rem === 0 ? hours + ' hrs' : hours + ' hrs ' + rem + ' min';
+}
+function formatAvgTime(totalSeconds, loginCount){
+  totalSeconds = Number(totalSeconds || 0);
+  loginCount = Number(loginCount || 0);
+  if (totalSeconds <= 0 || loginCount <= 0) return '0 min';
+  return formatDuration(Math.round(totalSeconds / loginCount));
+}
+function statusDot(lastLoginTs, joinedAtTs){
+  var ms = tsToMs(lastLoginTs);
+  if (!ms) ms = tsToMs(joinedAtTs);
+  if (!ms) return '🔴';
+  var days = (Date.now() - ms) / (1000 * 60 * 60 * 24);
+  if (days < 14) return '🟢';
+  if (days < 30) return '🟡';
+  return '🔴';
+}
+function formatRelativeTime(ts){
+  if (!ts || !ts.toDate) return '';
+  var ms = tsToMs(ts);
+  if (!ms) return '';
+  
+  var now = Date.now();
+  var diff = now - ms;
+  var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  var weeks = Math.floor(days / 7);
+  var months = Math.floor(days / 30);
+  var years = Math.floor(days / 365);
+  
+  if (days < 7) return '(' + days + ' day' + (days === 1 ? '' : 's') + ' ago)';
+  if (weeks < 4) return '(' + weeks + ' week' + (weeks === 1 ? '' : 's') + ' ago)';
+  if (months < 12) return '(' + months + ' month' + (months === 1 ? '' : 's') + ' ago)';
+  
+  var remainingMonths = months - (years * 12);
+  if (remainingMonths === 0) return '(' + years + ' year' + (years === 1 ? '' : 's') + ' ago)';
+  return '(' + years + ' year' + (years === 1 ? '' : 's') + ', ' + remainingMonths + ' month' + (remainingMonths === 1 ? '' : 's') + ' ago)';
+}
+function copyText(text){
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise(function (resolve, reject) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject();
+    } catch (e) { reject(e); }
+  });
+}
+function showBody(){
+  if (document.body) document.body.style.opacity = '1';
+}
+
+var INVITES_COL = 'invites';
+var CREATE_ACCOUNT_URL_BASE = 'https://vault.davedrums.com.au/create-account?t=';
+
+function randomToken(len){
+  len = len || 16;
+  try {
+    var bytes = new Uint8Array(len);
+    (window.crypto || window.msCrypto).getRandomValues(bytes);
+    var out = '';
+    for (var i = 0; i < bytes.length; i++) out += ('0' + bytes[i].toString(16)).slice(-2);
+    return out;
+  } catch (e) {
+    return (Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2) + Date.now().toString(16)).slice(0, len * 2);
+  }
+}
+
+function makeOverlay(){
+  var overlay = document.createElement('div');
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99999;font-family:Inter,sans-serif;';
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+  return overlay;
+}
+
+// NEW: Add User Modal with two-step process
+function openAddUserModal(db){
+  var overlay = makeOverlay();
+
+  var box = document.createElement('div');
+  box.style.cssText = 'width:100%;max-width:500px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:Inter,sans-serif;';
+
+  var headerHtml = 
+    '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
+      '<div>' +
+        '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">Add User</div>' +
+        '<div style="font-size:var(--text-small);color:#999;margin-top:4px;">Create an invite link (7-day expiry)</div>' +
+      '</div>' +
+      '<button id="modal-close-btn" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
+    '</div>';
+
+  var step1Html = 
+    '<div id="email-step" style="padding:24px;">' +
+      '<div style="margin-bottom:20px;">' +
+        '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;">Email Address</label>' +
+        '<input type="email" id="invite-email" placeholder="user@example.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button id="invite-close" style="flex:1;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+        '<button id="invite-create" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Create Invite</button>' +
+      '</div>' +
+    '</div>';
+
+  var step2Html = 
+    '<div id="invite-link-step" style="padding:24px;display:none;">' +
+      '<div style="background:#d1fae5;border:1px solid #10b981;border-radius:8px;padding:16px;margin-bottom:20px;text-align:center;">' +
+        '<div style="font-size:24px;margin-bottom:8px;">✓</div>' +
+        '<div style="font-size:var(--text-ui);font-weight:600;color:#059669;font-family:Inter,sans-serif;">Invite Created Successfully</div>' +
+      '</div>' +
+      '<div style="margin-bottom:6px;">' +
+        '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Invite Link</label>' +
+        '<textarea id="invite-url" readonly style="width:100%;min-height:80px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-tiny);font-family:Courier New,monospace;background:#f8f9fa;color:#444;box-sizing:border-box;resize:none;"></textarea>' +
+      '</div>' +
+      '<div style="font-size:var(--text-micro);color:#999;margin-bottom:16px;font-family:Inter,sans-serif;">Link expires in 7 days</div>' +
+      '<button id="copy-invite" style="width:100%;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:12px;">📋 Copy Link</button>' +
+      '<button id="reset-modal" style="width:100%;padding:10px 16px;background:#f3f4f6;color:#444;border:1px solid #e5e7eb;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Close</button>' +
+    '</div>';
+
+  box.innerHTML = headerHtml + step1Html + step2Html;
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function close(){ overlay.remove(); }
+  
+  box.querySelector('#modal-close-btn').addEventListener('click', close);
+  box.querySelector('#invite-close').addEventListener('click', close);
+
+  var emailInput = box.querySelector('#invite-email');
+  var createBtn = box.querySelector('#invite-create');
+  var step1 = box.querySelector('#email-step');
+  var step2 = box.querySelector('#invite-link-step');
+  var urlTextarea = box.querySelector('#invite-url');
+
+  function resetModal(){
+    step1.style.display = 'block';
+    step2.style.display = 'none';
+    emailInput.value = '';
+  }
+
+  box.querySelector('#reset-modal').addEventListener('click', close);
+
+  createBtn.addEventListener('click', function(){
+    var email = (emailInput.value || '').trim().toLowerCase();
+    if (!email) {
+      if (window.VaultErrors) window.VaultErrors.info('Please enter an email address');
+      return;
+    }
+
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+
+    var token = randomToken(16);
+    var expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    
+    db.collection(INVITES_COL).doc(token).set({
+      email: email,
+      used: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt: firebase.firestore.Timestamp.fromDate(expires)
+    }).then(function(){
+      var link = CREATE_ACCOUNT_URL_BASE + token;
+      
+      step1.style.display = 'none';
+      step2.style.display = 'block';
+      urlTextarea.value = link;
+      
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create Invite';
+    }).catch(function(err){
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create Invite';
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(err, 'Create Invite');
+      } else {
+        alert('Failed to create invite');
+      }
+    });
+  });
+
+  box.querySelector('#copy-invite').addEventListener('click', function(){
+    copyText(urlTextarea.value).then(function(){
+      if (window.VaultErrors) {
+        window.VaultErrors.success('Invite link copied!');
+      }
+    }).catch(function(){
+      if (window.VaultErrors) {
+        window.VaultErrors.info('Failed to copy link');
+      }
+    });
+  });
+}
+
+// NEW: Invites Modal with revoke for all invites
+function openInvitesModal(db){
+  var overlay = makeOverlay();
+
+  var box = document.createElement('div');
+  box.style.cssText = 'width:100%;max-width:900px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:85vh;display:flex;flex-direction:column;font-family:Inter,sans-serif;';
+
+  box.innerHTML =
+    '<div style="padding:24px;border-bottom:1px solid #e9ecef;display:flex;justify-content:space-between;align-items:center;">' +
+      '<div>' +
+        '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;font-family:Inter,sans-serif;">Invitation Links</div>' +
+        '<div style="font-size:var(--text-small);color:#999;margin-top:4px;font-family:Inter,sans-serif;">Manage user invitations</div>' +
+      '</div>' +
+      '<button id="invites-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
+    '</div>' +
+    '<div id="invites-list-container" style="flex:1;overflow-y:auto;padding:20px;"></div>';
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function close(){ overlay.remove(); }
+  box.querySelector('#invites-close').addEventListener('click', close);
+
+  var listContainer = box.querySelector('#invites-list-container');
+  listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading...</div>';
+
+  db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(100).get()
+    .then(function(snap){
+      if (snap.empty) {
+        listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No invites yet.</div>';
+        return;
+      }
+
+      var tableHtml = 
+        '<div style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;overflow:hidden;">' +
+          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;background:#e9ecef;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;font-family:Inter,sans-serif;">' +
+            '<div>Email</div>' +
+            '<div>Status</div>' +
+            '<div>Created</div>' +
+            '<div>Expires</div>' +
+            '<div>Action</div>' +
+          '</div>';
+
+      snap.forEach(function(doc){
+        var d = doc.data();
+        var email = d.email || '-';
+        var used = d.used === true;
+        var createdAt = d.createdAt ? formatDateOnly(d.createdAt) : '-';
+        var expiresAt = d.expiresAt ? formatDateOnly(d.expiresAt) : '-';
+        
+        var now = Date.now();
+        var expiryMs = tsToMs(d.expiresAt);
+        var isExpired = expiryMs > 0 && now > expiryMs;
+
+        var status, statusBg, statusColor;
+        if (used) {
+          status = 'Used';
+          statusBg = '#e0f2fe';
+          statusColor = '#0284c7';
+        } else if (isExpired) {
+          status = 'Expired';
+          statusBg = '#fee2e2';
+          statusColor = '#dc2626';
+        } else {
+          status = 'Active';
+          statusBg = '#d1fae5';
+          statusColor = '#059669';
+        }
+
+        var opacity = (used || isExpired) ? '0.6' : '1';
+
+        tableHtml += 
+          '<div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;gap:12px;padding:14px 16px;border-bottom:1px solid #e9ecef;background:white;align-items:center;font-family:Inter,sans-serif;opacity:' + opacity + ';">' +
+            '<div style="font-size:var(--text-small);color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + VaultUtils.escapeHtml(email) + '</div>' +
+            '<div>' +
+              '<span style="display:inline-block;padding:4px 10px;background:' + statusBg + ';color:' + statusColor + ';border-radius:12px;font-size:var(--text-micro);font-weight:600;">' + status + '</span>' +
+            '</div>' +
+            '<div style="font-size:var(--text-tiny);color:#666;">' + createdAt + '</div>' +
+            '<div style="font-size:var(--text-tiny);color:#666;">' + expiresAt + '</div>' +
+            '<div>' +
+              (used ? '<span style="font-size:var(--text-micro);color:#999;font-style:italic;">—</span>' : 
+                '<button class="revoke-invite-btn" data-invite-id="' + doc.id + '" style="padding:6px 12px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:6px;font-size:var(--text-micro);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Revoke</button>') +
+            '</div>' +
+          '</div>';
+      });
+
+      tableHtml += '</div>';
+      listContainer.innerHTML = tableHtml;
+
+      listContainer.querySelectorAll('.revoke-invite-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var inviteId = btn.getAttribute('data-invite-id');
+          if (confirm('Revoke this invitation? The link will no longer work.')) {
+            db.collection(INVITES_COL).doc(inviteId).delete()
+              .then(function(){
+                if (window.VaultErrors) {
+                  window.VaultErrors.success('Invitation revoked');
+                }
+                overlay.remove();
+                openInvitesModal(db);
+              })
+              .catch(function(e){
+                if (window.VaultErrors) {
+                  window.VaultErrors.handle(e, 'Revoke Invite');
+                } else {
+                  alert('Failed to revoke invite');
+                }
+              });
+          }
+        });
+      });
+    })
+    .catch(function(e){
+      listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading invites</div>';
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(e, 'Load Invites');
+      }
+    });
+}
+
+var ONLINE_WINDOW_MS = 3 * 60 * 1000;
+
+document.addEventListener('DOMContentLoaded', function(){
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
+
+  auth = firebase.auth();
+  db = firebase.firestore();
+  rootEl = document.getElementById('vault-admin-root');
+  if (!rootEl) return;
+
+  function pvIsAdmin(user){
+    if (!user || !user.uid) return Promise.resolve(false);
+    return db.collection('admins').doc(user.uid).get()
+      .then(function(doc){ return doc.exists; })
+      .catch(function(){ return false; });
+  }
+
+  // NEW: Inline accordion editing - no separate profile modal
+  function saveUserChanges(uid, accordionEl){
+    var firstName = accordionEl.querySelector('.edit-firstname').value.trim();
+    var lastName = accordionEl.querySelector('.edit-lastname').value.trim();
+    var displayName = accordionEl.querySelector('.edit-displayname').value.trim();
+    var ageConfirmed = accordionEl.querySelector('.edit-age-confirmed').checked;
+    var selfProgress = accordionEl.querySelector('.edit-self-progress').checked;
+
+    var updates = {
+      firstName: firstName,
+      lastName: lastName,
+      displayName: displayName,
+      ageConfirmed: ageConfirmed,
+      selfProgress: selfProgress
+    };
+
+    db.collection('users').doc(uid).set(updates, { merge: true })
+      .then(function(){
+        if (window.VaultErrors) {
+          window.VaultErrors.success('Changes saved');
+        }
+        loadOnce();
+      })
+      .catch(function(e){
+        if (window.VaultErrors) {
+          window.VaultErrors.handle(e, 'Save Changes');
+        } else {
+          alert('Save failed');
+        }
+      });
+  }
+
+  function openProgressModal(db, uid, displayName){
+    var overlay = makeOverlay();
+
+    var box = document.createElement('div');
+    box.style.cssText = 'width:100%;max-width:700px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:85vh;display:flex;flex-direction:column;font-family:Inter,sans-serif;';
+
+    // Modal Header
+    var headerHtml = 
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:24px;border-bottom:1px solid #e9ecef;">' +
+        '<div>' +
+          '<div style="font-size:var(--heading-card);font-weight:600;color:#1a1a2e;">Progress Report: ' + VaultUtils.escapeHtml(displayName) + '</div>' +
+          '<div style="font-size:var(--text-small);color:#999;margin-top:4px;">View and manage lesson completion</div>' +
+        '</div>' +
+        '<button id="progress-modal-close" style="width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;font-size:var(--heading-card);cursor:pointer;color:#666;">&times;</button>' +
+      '</div>';
+
+    box.innerHTML = headerHtml;
+    
+    // Modal Body (scrollable)
+    var modalBody = document.createElement('div');
+    modalBody.style.cssText = 'flex:1;overflow-y:auto;padding:24px;';
+    
+    // Course sections container (no self-progress, no stats)
+    var coursesContainer = document.createElement('div');
+    coursesContainer.id = 'progress-courses-container';
+    modalBody.appendChild(coursesContainer);
+    
+    box.appendChild(modalBody);
+    
+    // Close button handler
+    box.querySelector('#progress-modal-close').addEventListener('click', function(){
+      overlay.remove();
+    });
+    
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    
+    // Load all progress data
+    loadAllProgress(db, uid, coursesContainer);
+  }
+  
+  function loadAllProgress(db, uid, coursesContainer){
+    if (!window.VAULT_COURSES) {
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No courses available</div>';
+      return;
+    }
+    
+    // Get all course IDs that have lessons
+    var courseIds = [];
+    for (var cId in window.VAULT_COURSES) {
+      if (window.VAULT_COURSES[cId].lessons && window.VAULT_COURSES[cId].lessons.length > 0) {
+        courseIds.push(cId);
+      }
+    }
+    
+    if (courseIds.length === 0) {
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">No courses with lessons yet</div>';
+      return;
+    }
+    
+    // Load progress for all courses
+    var progressPromises = courseIds.map(function(courseId){
+      return db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+        .then(function(snap){
+          return {
+            courseId: courseId,
+            data: snap.exists ? snap.data() : {}
+          };
+        });
+    });
+    
+    Promise.all(progressPromises).then(function(results){
+      var courseProgress = {};
+      
+      results.forEach(function(result){
+        var courseId = result.courseId;
+        var courseData = window.VAULT_COURSES[courseId];
+        var progressData = result.data;
+        var completed = progressData.completed || {};
+        
+        var lessonCount = courseData.lessons.length;
+        var completedCount = 0;
+        
+        courseData.lessons.forEach(function(lessonId){
+          if (completed[lessonId] === true) {
+            completedCount++;
+          }
+        });
+        
+        courseProgress[courseId] = {
+          completed: completedCount,
+          total: lessonCount,
+          completedLessons: completed
+        };
+      });
+      
+      // Render course sections
+      var coursesHtml = '';
+      
+      courseIds.forEach(function(courseId){
+        var courseData = window.VAULT_COURSES[courseId];
+        var progress = courseProgress[courseId];
+        var percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+        
+        var levelBadgeColor = '#e0f2fe';
+        var levelTextColor = '#0284c7';
+        if (courseData.level.includes('Intermediate')) {
+          levelBadgeColor = '#fef3c7';
+          levelTextColor = '#d97706';
+        } else if (courseData.level.includes('Advanced')) {
+          levelBadgeColor = '#fee2e2';
+          levelTextColor = '#dc2626';
+        }
+        
+        coursesHtml += '<div style="margin-bottom:32px;">';
+        
+        // Course header
+        coursesHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #e9ecef;">';
+        coursesHtml += '<div style="font-size:var(--heading-large);font-weight:600;color:#1a1a2e;">' + VaultUtils.escapeHtml(courseData.name) + '</div>';
+        coursesHtml += '<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:' + levelBadgeColor + ';color:' + levelTextColor + ';border-radius:8px;font-size:var(--text-tiny);font-weight:600;">' + VaultUtils.escapeHtml(courseData.level) + '</div>';
+        coursesHtml += '</div>';
+        
+        // Progress text
+        coursesHtml += '<div style="font-size:var(--text-small);color:#666;margin-bottom:12px;"><strong>' + progress.completed + ' of ' + progress.total + ' lessons completed</strong> (' + percentage + '%)</div>';
+        
+        // Progress bar
+        coursesHtml += '<div style="width:100%;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin-bottom:16px;">';
+        coursesHtml += '<div style="height:100%;background:linear-gradient(90deg,#06b3fd,#0284c7);border-radius:4px;width:' + percentage + '%;transition:width 0.3s ease;"></div>';
+        coursesHtml += '</div>';
+        
+        // Lesson grid (7 per row desktop, 4 per row mobile)
+        coursesHtml += '<div class="lesson-grid-modal" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;">';
+        
+        courseData.lessons.forEach(function(lessonId){
+          var isCompleted = progress.completedLessons[lessonId] === true;
+          var badgeClass = isCompleted ? 'completed' : '';
+          var bgColor = isCompleted ? '#d1fae5' : '#f8f9fa';
+          var borderColor = isCompleted ? '#10b981' : '#e9ecef';
+          var textColor = isCompleted ? '#059669' : '#666';
+          var icon = isCompleted ? ' ✓' : '';
+          
+          coursesHtml += '<div class="lesson-badge-modal ' + badgeClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '" style="padding:8px 6px;background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:6px;text-align:center;font-size:var(--text-tiny);font-weight:500;color:' + textColor + ';cursor:pointer;transition:all 0.2s;">';
+          coursesHtml += lessonId + icon;
+          coursesHtml += '</div>';
+        });
+        
+        coursesHtml += '</div>';
+        coursesHtml += '</div>';
+      });
+      
+      coursesContainer.innerHTML = coursesHtml;
+      
+      // Add click handlers for lesson badges
+      coursesContainer.querySelectorAll('.lesson-badge-modal').forEach(function(badge){
+        badge.addEventListener('click', function(){
+          var courseId = badge.getAttribute('data-course');
+          var lessonId = badge.getAttribute('data-lesson');
+          var isCompleted = badge.classList.contains('completed');
+          var newState = !isCompleted;
+          
+          // Update Firestore
+          db.collection('users').doc(uid).collection('progress').doc(courseId)
+            .set({
+              completed: {
+                [lessonId]: newState
+              },
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true })
+            .then(function(){
+              if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+              // Reload progress
+              loadAllProgress(db, uid, coursesContainer);
+            })
+            .catch(function(e){
+              console.error('Failed to update:', e);
+              if(window.VaultToast) {
+                window.VaultToast.error('Update failed: ' + e.message);
+              }
+            });
+        });
+        
+        badge.addEventListener('mouseenter', function(){
+          if (!badge.classList.contains('completed')) {
+            badge.style.borderColor = '#06b3fd';
+            badge.style.background = '#f0f9ff';
+          }
+        });
+        
+        badge.addEventListener('mouseleave', function(){
+          if (!badge.classList.contains('completed')) {
+            badge.style.borderColor = '#e9ecef';
+            badge.style.background = '#f8f9fa';
+          }
+        });
+      });
+      
+    }).catch(function(e){
+      console.error('Failed to load progress:', e);
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading progress data</div>';
+    });
+  }
+
+  function bindHandlers(){
+    // Toggle accordion
+    rootEl.querySelectorAll('.accordion-header').forEach(function(header){
+      header.addEventListener('click', function(){
+        var item = header.closest('.accordion-item');
+        var wasOpen = item.classList.contains('open');
+
+        // Close all
+        rootEl.querySelectorAll('.accordion-item').forEach(function(i){
+          i.classList.remove('open');
+        });
+
+        // Open clicked if wasn't open
+        if (!wasOpen) {
+          item.classList.add('open');
+        }
+      });
+    });
+
+    // Save Changes buttons
+    rootEl.querySelectorAll('.save-changes-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var uid = btn.getAttribute('data-uid');
+        var accordionEl = btn.closest('.accordion-item');
+        saveUserChanges(uid, accordionEl);
+      });
+    });
+
+    // View Progress buttons
+    rootEl.querySelectorAll('.view-progress-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var uid = btn.getAttribute('data-uid');
+        var displayName = btn.getAttribute('data-name');
+        openProgressModal(db, uid, displayName);
+      });
+    });
+
+    var addBtn = rootEl.querySelector('#pv-add-user-btn');
+    if (addBtn) addBtn.addEventListener('click', function(){ openAddUserModal(db); });
+
+    var invitesBtn = rootEl.querySelector('#pv-invites-btn');
+    if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
+  }
+
+  // NEW: Render accordion layout
+  function render(users){
+    var nowMs = Date.now();
+
+    var online = users.filter(function(u){
+      return (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
+    }).sort(function(a,b){ return tsToMs(b.lastActive) - tsToMs(a.lastActive); });
+
+    users.sort(function(a,b){
+      var aT = tsToMs(a.lastLogin) || tsToMs(a.joinedAt) || tsToMs(a.lastActive);
+      var bT = tsToMs(b.lastLogin) || tsToMs(b.joinedAt) || tsToMs(b.lastActive);
+      return bT - aT;
+    });
+
+    var onlineText = online.length
+      ? ('🥁 ' + online.map(function(u){ return VaultUtils.escapeHtml(u.email); }).join(', '))
+      : 'No one online right now.';
+
+    var html = '';
+
+    // Student List section with accordion
+    html += '<div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">';
+    html += '<div style="padding:20px;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center;">' +
+              '<div style="font-family:Oswald,sans-serif;font-size:22;font-weight:400;color:#1a1a2e;">STUDENT LIST (' + users.length + ')</div>' +
+              '<div style="display:flex;gap:10px;">' +
+                '<button id="pv-invites-btn" style="padding:10px 18px;background:#6b7280;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">Invites</button>' +
+                '<button id="pv-add-user-btn" style="padding:10px 18px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;">+ Add User</button>' +
+              '</div>' +
+            '</div>';
+
+    html += '<div style="padding:12px;">';
+
+    if (!users.length) {
+      html += '<div style="padding:40px 20px;text-align:center;color:#999;font-family:Inter,sans-serif;">No students yet.</div>';
+    } else {
+      users.forEach(function(u){
+        var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
+        var activityDot = statusDot(u.lastLogin, u.joinedAt);
+        
+        var statusBadgeClass = isOnline ? '' : ' offline';
+        var statusText = isOnline ? 'Online' : 'Offline';
+
+        html += '<div class="accordion-item" style="background:#fafafa;border:1px solid #e0e0e0;margin-bottom:10px;border-radius:10px;overflow:hidden;transition:all 0.2s;">';
+        
+        // Accordion Header (collapsed view)
+        html += '<div class="accordion-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px;cursor:pointer;transition:background 0.2s;">';
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<div style="font-weight:600;font-size:var(--text-ui);color:#1a1a2e;margin-bottom:4px;font-family:Inter,sans-serif;">' + VaultUtils.escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
+        html += '<div style="font-size:var(--text-tiny);color:#999;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:Inter,sans-serif;">';
+        html += '<span>' + VaultUtils.escapeHtml(u.email) + '</span>';
+        html += '<span>•</span>';
+        html += '<span>Last: ' + formatTsNoYear(u.lastLogin) + '</span>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div style="display:flex;align-items:center;gap:12px;">';
+        html += '<div class="status-badge' + statusBadgeClass + '" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:' + (isOnline ? '#e8f9f3' : '#f3f4f6') + ';color:' + (isOnline ? '#059669' : '#999') + ';border-radius:14px;font-size:var(--text-ui);font-weight:600;white-space:nowrap;font-family:Inter,sans-serif;">';
+        html += '<span style="width:8px;height:8px;border-radius:50%;background:' + (isOnline ? '#059669' : '#999') + ';"></span>';
+        html += statusText;
+        html += '</div>';
+        html += '<div class="chevron" style="color:#999;font-size:var(--heading-card);transition:transform 0.2s;">›</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Accordion Body (expanded view) - inline editing
+        html += '<div class="accordion-body" style="max-height:0;overflow:hidden;transition:max-height 0.3s ease;">';
+        html += '<div class="accordion-content" style="padding:20px;border-top:1px solid #f0f0f0;background:white;">';
+        
+        // Practice Statistics
+        html += '<span style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Practice Statistics</span>';
+        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;">';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Last Login</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatTs(u.lastLogin) + ' ' + activityDot + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Avg Session</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Total Practice</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;font-family:Inter,sans-serif;">Login Count</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;font-family:Inter,sans-serif;">' + (u.loginCount || 0) + ' times</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Profile Information (3 columns desktop, 1 column mobile)
+        html += '<div style="margin-bottom:24px;">';
+        html += '<span class="section-label" style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Profile Information</span>';
+        html += '<div class="profile-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">';
+        html += '<div>';
+        html += '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">First Name</label>';
+        html += '<input type="text" class="edit-firstname" value="' + VaultUtils.escapeHtml(u.firstName) + '" placeholder="First name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '</div>';
+        html += '<div>';
+        html += '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Last Name</label>';
+        html += '<input type="text" class="edit-lastname" value="' + VaultUtils.escapeHtml(u.lastName) + '" placeholder="Last name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '</div>';
+        html += '<div>';
+        html += '<label style="display:block;font-size:var(--text-tiny);font-weight:500;color:#444;margin-bottom:6px;font-family:Inter,sans-serif;">Display Name</label>';
+        html += '<input type="text" class="edit-displayname" value="' + VaultUtils.escapeHtml(u.displayName) + '" placeholder="Display name" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:var(--text-small);font-family:Inter,sans-serif;box-sizing:border-box;">';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Account Permissions (2 columns desktop, 1 column mobile)
+        html += '<div style="margin-bottom:24px;">';
+        html += '<span class="section-label" style="display:block;font-size:var(--text-micro);font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;font-family:Inter,sans-serif;">Account Permissions</span>';
+        html += '<div class="permissions-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
+        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0;">';
+        html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#06b3fd;">';
+        html += '<span style="flex:1;font-size:var(--text-small);color:#1a1a2e;cursor:pointer;font-family:Inter,sans-serif;">16+ years old (can access comments)</span>';
+        html += '</label>';
+        html += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all 0.2s;margin-bottom:0;">';
+        html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + ' style="width:18px;height:18px;cursor:pointer;accent-color:#06b3fd;">';
+        html += '<span style="flex:1;font-size:var(--text-small);color:#1a1a2e;cursor:pointer;font-family:Inter,sans-serif;">Allow self-progress (can complete lessons)</span>';
+        html += '</label>';
+        html += '</div>';
+        html += '</div>';
+
+        // Action Buttons
+        html += '<div style="display:flex;gap:10px;padding-top:16px;border-top:1px solid #f0f0f0;">';
+        html += '<button class="save-changes-btn" data-uid="' + VaultUtils.escapeHtml(u.uid) + '" style="flex:1;padding:10px 16px;background:#06b3fd;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;">Save Changes</button>';
+        html += '<button class="view-progress-btn" data-uid="' + VaultUtils.escapeHtml(u.uid) + '" data-name="' + VaultUtils.escapeHtml(u.fullName || u.displayName || u.email) + '" style="flex:1;padding:10px 16px;background:#10b981;color:white;border:none;border-radius:8px;font-size:var(--text-small);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.2s;">View Progress</button>';
+        html += '</div>';
+
+        html += '</div>';
+        html += '</div>';
+
+        html += '</div>';
+      });
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    rootEl.innerHTML = html;
+    
+    // Add CSS for accordion animations and responsive layout
+    if (!document.getElementById('admin-accordion-css')) {
+      var style = document.createElement('style');
+      style.id = 'admin-accordion-css';
+      style.textContent = 
+        '.accordion-item.open { background: white !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }' +
+        '.accordion-item.open .accordion-body { max-height: 2000px !important; }' +
+        '.accordion-item.open .chevron { transform: rotate(90deg); }' +
+        '.accordion-header:hover { background: rgba(6,179,253,0.05); }' +
+        '.save-changes-btn:hover { background: #0590d4; transform: translateY(-1px); }' +
+        '.view-progress-btn:hover { background: #059669; transform: translateY(-1px); }' +
+        '@media (max-width: 768px) {' +
+          '.profile-grid { grid-template-columns: 1fr !important; }' +
+          '.permissions-grid { grid-template-columns: 1fr !important; }' +
+          '.lesson-grid-modal { grid-template-columns: repeat(5,1fr) !important; }' +
+        '}';
+      document.head.appendChild(style);
+    }
+
+    bindHandlers();
+  }
+
+  function loadOnce(){
+    return Promise.all([
+      db.collection('users').get(),
+      db.collection('admins').get()
+    ]).then(function(results){
+      var usersSnap = results[0];
+      var adminSnap = results[1];
+      
+      var adminUids = {};
+      adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
+      
+      var users = [];
+      usersSnap.forEach(function(d){
+        var data = d.data() || {};
+        
+        if (adminUids[d.id]) return;
+        
+        users.push({
+          uid: d.id,
+          email: data.email || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          displayName: data.displayName || '',
+          ageConfirmed: data.ageConfirmed === true,
+          selfProgress: data.selfProgress === true,
+          joinedAt: data.createdAt || null,
+          fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
+        });
+      });
+
+      var statGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
+          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+      });
+
+      var progGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('metrics').doc('progress').get()
+          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+      });
+
+      return Promise.all([Promise.all(statGets), Promise.all(progGets)]).then(function(res){
+        var statsArr = res[0];
+        var progArr = res[1];
+
+        var statsByUid = {};
+        statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
+
+        var progByUid = {};
+        progArr.forEach(function(x){ progByUid[x.uid] = x.data || {}; });
+
+        users.forEach(function(u){
+          var st = statsByUid[u.uid] || {};
+          var pr = progByUid[u.uid] || {};
+
+          u.lastLogin = st.lastLoginAt || null;
+          u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
+          u.lastDeviceType = st.lastDeviceType || '';
+          u.lastDeviceEmoji = st.lastDeviceEmoji || '';
+          u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
+          u.totalSeconds = (typeof st.totalSeconds === 'number') ? st.totalSeconds : 0;
+          u.progress = pr || {};
+        });
+
+        render(users);
+      });
+    }).catch(function(e){
+      console.error(e);
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(e, 'Load Admin Data');
+      } else {
+        alert('Load error: ' + (e && e.message || e));
+      }
+    });
+  }
+
+  auth.onAuthStateChanged(function(user){
+    showBody();
+
+    if (!user) {
+      // Not logged in - redirect to login
+      window.location.href = '/members';
+      return;
+    }
+
+    pvIsAdmin(user).then(function(ok){
+      if (!ok) {
+        // Logged in but not admin - redirect to home
+        window.location.href = '/';
+        return;
+      }
+
+      loadOnce().catch(function(e){
+        rootEl.textContent = (e && e.message) ? e.message : 'Error loading admin data.';
+      });
+
+      setInterval(function(){ loadOnce().catch(function(){}); }, 15000);
+    });
+  });
+});
+})();
