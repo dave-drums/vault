@@ -310,7 +310,7 @@
   font-weight: 600;
   text-transform: uppercase;
   margin-bottom: 16px;
-  padding-bottom: 8px
+  padding-bottom: 8px;
   border-bottom: 2px solid var(--border);
   color: var(--text-primary);
 }
@@ -480,7 +480,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 0px;
 }
 
 .stat-card {
