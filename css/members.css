@@ -308,9 +308,19 @@
   font-weight: 600;
   text-transform: uppercase;
   margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+/* Border only when title is direct child of section (profile tabs) */
+.section > .section-title {
   padding-bottom: 8px;
   border-bottom: 2px solid var(--border);
-  color: var(--text-primary);
+}
+
+/* Border for section-header wrapper (practice tabs) */
+.section-header {
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
 }
 
 .section-subtitle {
