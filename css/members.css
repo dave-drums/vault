@@ -978,6 +978,12 @@
   .login-card {
     padding: 32px;
   }
+
+   .stat-label {
+    word-break: break-word;  /* Break "GROOVE STUDIES" into two lines */
+    max-width: 100%;
+  }
+}
 }
 
 @media (max-width: 480px) {
@@ -1011,16 +1017,8 @@
     font-size: var(--heading-card);
   }
   
-  .section-title {
-    font-size: var(--heading-card);
-  }
-  
   .profile-card {
     padding: 20px;
-  }
-  
-  .profile-card-title {
-    font-size: var(--heading-card);
   }
   
   .login-card {
