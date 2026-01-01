@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kick Studies | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400&display=swap" rel="stylesheet">
+  
+  <!-- Typography Variables -->
+  <link rel="stylesheet" href="/css/typography.css">
+  <link rel="stylesheet" href="/css/core.css">
+  <link rel="stylesheet" href="/css/courses.css">
+  
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-functions-compat.js"></script>
+  <script src="/firebase/firebase-storage-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+
+  <script src="/config/metrics.js"></script>
+  
+  <script>document.documentElement.dataset.protected = 'true';</script>
+  <script src="/config/auth-guard.js"></script>
+  
+  <script src="/config/components.js"></script>
+  <script src="/config/practice-tracker.js"></script>
+  <script src="/config/error-handler.js"></script>
+  <script src="/config/course-data.js"></script>
+  
+  <script src="/config/render.js" defer></script>
+  <script src="/config/lesson-comments.js" defer></script>
+  
+</head>
+<body>
+
+  <!-- EPIC COURSE HEADER -->
+  <div class="course-hero">
+    <div class="course-hero-bg"></div>
+    
+    <div class="course-hero-content">
+      <h1 class="course-hero-title" id="hero-course-name">Loading...</h1>
+      <div class="course-hero-badge" id="hero-course-level"></div>
+    </div>
+  </div>
+
+  <div id="course-index" class="course-container">
+    <div class="vault-loading">
+      <div class="vault-loading-spinner"></div>
+      <div class="vault-loading-text">Loading course...</div>
+    </div>
+  </div>
+
+  <div id="lesson-content" class="hidden"></div>
+
+  <script src="/config/course-loader.js"></script>
+  
+</body>
+</html>
