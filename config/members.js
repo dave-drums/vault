@@ -51,25 +51,6 @@
   }
 
 
-  // ============================================
-  // UNIFIED INITIALIZATION
-  // ============================================
-
-  function init(){
-    if (!hasFirebase()) return;
-
-    auth.onAuthStateChanged(function(user){
-      currentUser = user || null;
-    });
-  }
-
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-
 document.addEventListener('DOMContentLoaded', function () {
   var tries = 0;
 
@@ -1803,8 +1784,14 @@ var c = String(newPw2.value || '').trim();
     // ============================================
     // AUTH WIRING
     // ============================================
-
-    auth.onAuthStateChanged(function(user){
+   
+     auth.onAuthStateChanged(function(user){
+      currentUser = user || null;  // Update currentUser
+      
+      // Hide loading spinner
+      var loadingEl = document.querySelector('.loading');
+      if (loadingEl) loadingEl.classList.remove('show');
+      
       if (!user) {
         return showLogin();
       }
@@ -1861,6 +1848,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
