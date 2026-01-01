@@ -457,7 +457,7 @@
 /* UNIFIED STATS/PROGRESS CARDS */
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-bottom: 32px;
 }
@@ -468,6 +468,7 @@
   border-radius: 12px;
   padding: 16px;
   transition: all 0.2s;
+  text-align: center;
 }
 
 .stat-card:hover {
