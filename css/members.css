@@ -286,7 +286,7 @@
   background: #fff;
   border-radius: 12px;
   padding: 32px;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -637,7 +637,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 32px;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
   box-shadow: var(--shadow);
 }
 
@@ -651,6 +651,8 @@
   font-weight: 600;
   text-transform: uppercase;
   margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
   color: var(--text-primary);
 }
 
