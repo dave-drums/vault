@@ -1790,8 +1790,8 @@ var c = String(newPw2.value || '').trim();
       currentUser = user || null;  // Update currentUser
       
       // Hide loading spinner
-      var loadingEl = document.querySelector('.loading');
-      if (loadingEl) loadingEl.classList.remove('show');
+      var loadingEl = document.querySelector('.auth-loading');
+      if (loadingEl) loadingEl.style.display = 'none';
       
       if (!user) {
         return showLogin();
@@ -1849,6 +1849,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
