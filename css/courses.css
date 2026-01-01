@@ -83,15 +83,37 @@
   0%{background-position:0% center}
   100%{background-position:200% center}
 }
+
 .course-hero-bg{
   position:absolute;
   inset:0;
-  background-image:url('/assets/groove-studies.webp');
   background-size:cover;
   background-position:center;
   opacity:0.15;
   z-index:0;
 }
+
+/* Pathway-specific backgrounds */
+.course-hero-bg[data-pathway="groove"] {
+  background-image:url('/assets/groove-studies.webp');
+}
+
+.course-hero-bg[data-pathway="fills"] {
+  background-image:url('/assets/fill-studies.webp');
+}
+
+.course-hero-bg[data-pathway="sticks"] {
+  background-image:url('/assets/stick-studies.webp');
+}
+
+.course-hero-bg[data-pathway="kicks"] {
+  background-image:url('/assets/kick-studies.webp');
+}
+
+.course-hero-bg[data-pathway="reading"] {
+  background-image:url('/assets/rhythm-studies.webp');
+}
+
 .course-hero-bg:after{
   content:'';
   position:absolute;
