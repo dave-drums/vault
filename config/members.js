@@ -49,6 +49,7 @@
     });
     return params;
   }
+})();
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1848,6 +1849,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
