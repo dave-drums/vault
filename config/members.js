@@ -1308,7 +1308,7 @@ function createGoalsContent(user){
        var nameTitle = document.createElement('h2');
       nameTitle.className = 'section-title';
       nameTitle.textContent = 'Change Name';
-      nameCard.appendChild(nameTitle);
+      nameHeader.appendChild(nameTitle);
        nameCard.appendChild(nameHeader);
       
       db.collection('users').doc(user.uid).get().then(function(doc){
@@ -1356,7 +1356,7 @@ function createGoalsContent(user){
        var pwTitle = document.createElement('h2');
       pwTitle.className = 'section-title';
       pwTitle.textContent = 'Change Password';
-      pwCard.appendChild(pwTitle);
+      pwHeader.appendChild(pwTitle);
        pwCard.appendChild(pwHeader);
       
       var currentPwGroup = mkFormGroup('Current Password', 'password', '');
@@ -1408,7 +1408,7 @@ function createGoalsContent(user){
        var emailTitle = document.createElement('h2');
       emailTitle.className = 'section-title';
       emailTitle.textContent = 'Change Email';
-      emailCard.appendChild(emailTitle);
+      emailHeader.appendChild(emailTitle);
        emailCard.appendChild(emailHeader);
       
       var emailNote = document.createElement('p');
@@ -1858,6 +1858,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
