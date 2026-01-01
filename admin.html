@@ -932,19 +932,14 @@ document.addEventListener('DOMContentLoaded', function(){
           .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
       });
 
-      return Promise.all([Promise.all(statGets), Promise.all(progGets)]).then(function(res){
+      return Promise.all([Promise.all(statGets)]).then(function(res){
         var statsArr = res[0];
-        var progArr = res[1];
 
         var statsByUid = {};
         statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
 
-        var progByUid = {};
-        progArr.forEach(function(x){ progByUid[x.uid] = x.data || {}; });
-
         users.forEach(function(u){
           var st = statsByUid[u.uid] || {};
-          var pr = progByUid[u.uid] || {};
 
           u.lastLogin = st.lastLoginAt || null;
           u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
@@ -952,7 +947,6 @@ document.addEventListener('DOMContentLoaded', function(){
           u.lastDeviceEmoji = st.lastDeviceEmoji || '';
           u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
           u.totalSeconds = (typeof st.totalSeconds === 'number') ? st.totalSeconds : 0;
-          u.progress = pr || {};
         });
 
         render(users);
