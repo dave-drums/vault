@@ -1031,10 +1031,6 @@
     padding: 18px;
   }
   
-  .stat-value {
-    font-size: var(--heading-section);
-  }
-  
   .continue-title {
     font-size: var(--heading-card);
   }
