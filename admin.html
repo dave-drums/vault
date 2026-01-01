@@ -605,7 +605,6 @@ document.addEventListener('DOMContentLoaded', function(){
       courseIds.forEach(function(courseId){
         var courseData = window.VAULT_COURSES[courseId];
         var progress = courseProgress[courseId];
-        var percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
         
         var levelBadgeColor = '#e0f2fe';
         var levelTextColor = '#0284c7';
@@ -625,14 +624,6 @@ document.addEventListener('DOMContentLoaded', function(){
         coursesHtml += '<div class="course-name">' + escapeHtml(courseData.name) + '</div>';
         coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.level) + '</div>';
         coursesHtml += '</div>';
-        coursesHtml += '</div>';
-        
-        // Progress text
-        coursesHtml += '<div class="course-stat"><strong>' + progress.completed + ' of ' + progress.total + ' lessons completed</strong> (' + percentage + '%)</div>';
-        
-        // Progress bar
-        coursesHtml += '<div class="course-progress-bar">';
-        coursesHtml += '<div class="course-progress-fill" style="width:' + percentage + '%;"></div>';
         coursesHtml += '</div>';
         
         // Lesson grid
