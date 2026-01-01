@@ -46,7 +46,7 @@
     }
 
     function userDocRef(uid) {
-      return db.doc('users/' + uid);
+      return db.doc('users/' + uid + '/metrics/stats');
     }
 
     function safeMergeSet(ref, data) {
