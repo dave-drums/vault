@@ -667,6 +667,7 @@ body.auth-checked {
 .course-stat {
   font-size: var(--text-small);
   color: #666;
+   margin-bottom: 16px;
 }
 
 .course-stat strong {
