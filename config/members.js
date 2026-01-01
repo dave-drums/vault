@@ -50,24 +50,6 @@
     return params;
   }
 
-  function isCourseIndexPage(){
-    var courseId = getCourseIdFromUrl();
-    if (!courseId) return false;
-    var params = getQueryParams();
-    return !params.l;
-  }
-
-  function isSingleLessonPage(){
-    var params = getQueryParams();
-    return params.c && params.l;
-  }
-
-  function isProtectedPage(){
-    return document.documentElement && 
-           document.documentElement.dataset && 
-           document.documentElement.dataset.protected === 'true';
-  }
-   
 
   // ============================================
   // UNIFIED INITIALIZATION
@@ -76,13 +58,8 @@
   function init(){
     if (!hasFirebase()) return;
 
-    LessonTracker.init();
-    CourseProgress.init();
-
     auth.onAuthStateChanged(function(user){
       currentUser = user || null;
-      LessonTracker.onUserChange(user);
-      CourseProgress.onUserChange(user);
     });
   }
 
@@ -1884,6 +1861,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
