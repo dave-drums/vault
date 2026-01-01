@@ -340,19 +340,19 @@ document.addEventListener('DOMContentLoaded', function () {
       panel.appendChild(quoteContainer);
 
       // My Progress section
-      var progressSection = createOpenSection('My Progress', function(){
+      var progressSection = createOpenSection('→ My Progress', function(){
         return createPracticeContent(user);
       });
       panel.appendChild(progressSection);
 
       // Stats section
-      var statsSection = createOpenSection('My Stats', function(){
+      var statsSection = createOpenSection('→ My Stats', function(){
         return createStatsContent(user);
       });
       panel.appendChild(statsSection);
 
       // My Goals section
-      var goalsSection = createOpenSection('My Goals', function(){
+      var goalsSection = createOpenSection('→ My Goals', function(){
         return createGoalsContent(user);
       });
       panel.appendChild(goalsSection);
@@ -1305,7 +1305,7 @@ function createGoalsContent(user){
       
       var nameTitle = document.createElement('div');
       nameTitle.className = 'section-title';
-      nameTitle.textContent = 'Change Name';
+      nameTitle.textContent = '→ Change Name';
       nameCard.appendChild(nameTitle);
       
       db.collection('users').doc(user.uid).get().then(function(doc){
@@ -1350,7 +1350,7 @@ function createGoalsContent(user){
       
       var pwTitle = document.createElement('div');
       pwTitle.className = 'section-title';
-      pwTitle.textContent = 'Change Password';
+      pwTitle.textContent = '→ Change Password';
       pwCard.appendChild(pwTitle);
       
       var currentPwGroup = mkFormGroup('Current Password', 'password', '');
@@ -1399,7 +1399,7 @@ function createGoalsContent(user){
       
       var emailTitle = document.createElement('div');
       emailTitle.className = 'section-title';
-      emailTitle.textContent = 'Change Email';
+      emailTitle.textContent = '→ Change Email';
       emailCard.appendChild(emailTitle);
       
       var emailNote = document.createElement('p');
@@ -1849,6 +1849,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
