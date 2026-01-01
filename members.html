@@ -34,7 +34,13 @@
   <script src="/config/members.js" defer></script>
   
 </head>
+  
 <body>
+
+  <!-- LOADING SPINNER (shown first) -->
+  <div class="auth-loading">
+    <div class="auth-loading-spinner"></div>
+  </div>
   
   <!-- HERO HEADER -->
   <div class="members-hero">
@@ -48,7 +54,7 @@
   <div class="members-container">
     
     <!-- LOGIN (shown when logged out) -->
-    <div id="members-login">
+    <div id="members-login" style="display:none;">
       <div class="login-card">
         <div class="login-header">
           <h2>Welcome Back</h2>
