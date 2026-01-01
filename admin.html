@@ -639,7 +639,9 @@ document.addEventListener('DOMContentLoaded', function(){
         coursesHtml += '<div class="lesson-grid">';
         
         courseData.lessons.forEach(function(lessonId){
-          var isCompleted = progress.completedLessons[lessonId] === true;
+          var isCompleted = Array.isArray(progress.completedLessons)
+            ? progress.completedLessons.indexOf(lessonId) !== -1
+            : progress.completedLessons[lessonId] === true;
           var completedClass = isCompleted ? ' completed' : '';
           
           coursesHtml += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '">';
@@ -654,49 +656,53 @@ document.addEventListener('DOMContentLoaded', function(){
       
       coursesContainer.innerHTML = coursesHtml;
       
-      // Add click handlers for lesson items
-      coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
-        item.addEventListener('click', function(){
-          var courseId = item.getAttribute('data-course');
-          var lessonId = item.getAttribute('data-lesson');
-          var isCompleted = item.classList.contains('completed');
-          var newState = !isCompleted;
-          
-          // Update Firestore
-          db.collection('users').doc(uid).collection('progress').doc(courseId)
-            .set({
-              completed: {
-                [lessonId]: newState
-              },
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true })
-            .then(function(){
-              if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
-              // Reload progress
-              loadAllProgress(db, uid, coursesContainer);
-            })
-            .catch(function(e){
-              console.error('Failed to update:', e);
-              if(window.VaultToast) {
-                window.VaultToast.error('Update failed: ' + e.message);
-              }
-            });
-        });
-        
-        badge.addEventListener('mouseenter', function(){
-          if (!badge.classList.contains('completed')) {
-            badge.style.borderColor = '#06b3fd';
-            badge.style.background = '#f0f9ff';
-          }
-        });
-        
-        badge.addEventListener('mouseleave', function(){
-          if (!badge.classList.contains('completed')) {
-            badge.style.borderColor = '#e9ecef';
-            badge.style.background = '#f8f9fa';
-          }
-        });
+// Add click handlers for lesson items
+coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    var courseId = item.getAttribute('data-course');
+    var lessonId = item.getAttribute('data-lesson');
+    var isCompleted = item.classList.contains('completed');
+    var newState = !isCompleted;
+    
+    // Update Firestore - use ARRAY format
+    var currentProgress = courseProgress[courseId].completedLessons;
+    var newCompleted;
+    
+    if (Array.isArray(currentProgress)) {
+      // Array format
+      if (newState) {
+        newCompleted = currentProgress.concat([lessonId]);
+      } else {
+        newCompleted = currentProgress.filter(function(id){ return id !== lessonId; });
+      }
+    } else {
+      // Object format - convert to array
+      var arr = Object.keys(currentProgress).filter(function(k){ return currentProgress[k] === true; });
+      if (newState) {
+        newCompleted = arr.concat([lessonId]);
+      } else {
+        newCompleted = arr.filter(function(id){ return id !== lessonId; });
+      }
+    }
+    
+    db.collection('users').doc(uid).collection('progress').doc(courseId)
+      .set({
+        completed: newCompleted,
+        lastLesson: lessonId,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true })
+      .then(function(){
+        if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+        loadAllProgress(db, uid, coursesContainer);
+      })
+      .catch(function(e){
+        console.error('Failed to update:', e);
+        if(window.VaultToast) {
+          window.VaultToast.error('Update failed: ' + e.message);
+        }
       });
+  });
+});
       
     }).catch(function(e){
       console.error('Failed to load progress:', e);
