@@ -26,7 +26,6 @@
   
   <!-- Vault Scripts -->
   <script src="/config/components.js"></script>
-  <script src="/config/members.js"></script>
   
 </head>
 <body>
@@ -77,7 +76,8 @@
       var iframe = document.getElementById('groove-iframe');
       if (!iframe) return;
       
-      var params = window.location.search; // Gets ?TimeSig=4/4&Div=16...
+      // Gets ?TimeSig=4/4&Div=16...
+      var params = window.location.search; 
       if (params && params.length > 1) {
         iframe.src = 'https://groove.davedrums.com.au/' + params;
       }
