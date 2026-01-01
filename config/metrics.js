@@ -92,15 +92,13 @@
     function stopTimers() {
       if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
     }
-
-    function startSession() {
-      // Don't track on members dashboard or contact page
-      if (window.location.pathname === '/members.html' || 
-          window.location.pathname === '/members' || 
-          window.location.pathname === '/contact.html' || 
-          window.location.pathname === '/contact') {
-        return;
-      }
+     
+     function startSession() {
+        // Don't track on contact page only
+        if (window.location.pathname === '/contact.html' || 
+            window.location.pathname === '/contact') {
+           return;
+        }
 
       if (!currentUser) return;
 
