@@ -1301,10 +1301,10 @@ function createGoalsContent(user){
 
       // Change Name Card
       var nameCard = document.createElement('div');
-      nameCard.className = 'profile-card';
+      nameCard.className = 'section';
       
       var nameTitle = document.createElement('div');
-      nameTitle.className = 'profile-card-title';
+      nameTitle.className = 'section-title';
       nameTitle.textContent = 'Change Name';
       nameCard.appendChild(nameTitle);
       
@@ -1346,10 +1346,10 @@ function createGoalsContent(user){
 
       // Change Password Card
       var pwCard = document.createElement('div');
-      pwCard.className = 'profile-card';
+      pwCard.className = 'section';
       
       var pwTitle = document.createElement('div');
-      pwTitle.className = 'profile-card-title';
+      pwTitle.className = 'section-title';
       pwTitle.textContent = 'Change Password';
       pwCard.appendChild(pwTitle);
       
@@ -1395,10 +1395,10 @@ function createGoalsContent(user){
 
       // Change Email Card
       var emailCard = document.createElement('div');
-      emailCard.className = 'profile-card';
+      emailCard.className = 'section';
       
       var emailTitle = document.createElement('div');
-      emailTitle.className = 'profile-card-title';
+      emailTitle.className = 'section-title';
       emailTitle.textContent = 'Change Email';
       emailCard.appendChild(emailTitle);
       
@@ -1849,6 +1849,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
