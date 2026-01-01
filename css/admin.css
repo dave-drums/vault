@@ -188,7 +188,7 @@ body.auth-checked {
 }
 
 .modal-title {
-  font-size: var(--heading-card);
+  font-size: var(--text-body);
   font-weight: 600;
   color: #1a1a2e;
 }
