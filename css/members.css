@@ -500,7 +500,7 @@
 .stat-header {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 4px;
   margin-bottom: 8px;
 }
@@ -638,9 +638,13 @@
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px;
   margin-bottom: 20px;
+}
+
+.profile-card:not(:last-child) {
   border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 24px;
 }
 
 .profile-card:last-child {
@@ -649,7 +653,7 @@
 
 .profile-card-title {
   font-family: 'Inter', sans-serif;
-  font-size: var(--text-large);
+  font-size: var(--text-body);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: -0.5px;
