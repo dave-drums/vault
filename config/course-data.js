@@ -29,7 +29,7 @@
     'ss2': { name: 'Stick Studies', level: 'Rudiments & Patterns Course', pathway: 'sticks', lessons: [] },
     'ss3': { name: 'Stick Studies', level: 'Technique Course', pathway: 'sticks', lessons: [] },
     'ks1': { name: 'Kick Studies', level: 'Single Pedal Course', pathway: 'kicks', lessons: [] },
-    'ks2': { name: 'Kick Studies', level: 'Double Pedal Course', pathway: 'kicks', lessons: [1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07'] },
+    'ks2': { name: 'Kick Studies', level: 'Double Pedal Course', pathway: 'kicks', lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07'] },
     'ks3': { name: 'Kick Studies', level: 'Technique & Pedal Settings Course', pathway: 'kicks', lessons: [] },
     'rs1': { name: 'Rhythm Studies', level: 'The Basics', pathway: 'reading', lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17', '1.18', '1.19', '1.20'] },
      'rs2': { name: 'Rhythm Studies', level: 'Triple Meters', pathway: 'reading', lessons: [] },
@@ -97,5 +97,3 @@
   }
   
 })();
-
-// Updated: 2024-12-27
