@@ -532,42 +532,43 @@
           topBtn.classList.add('completed');
           bottomBtn.classList.add('completed');
         }
-        
         const handleComplete = function() {
-          // Find next lesson
-          const currentIndex = courseConfig.lessons.indexOf(lessonId);
-          const nextLesson = currentIndex < courseConfig.lessons.length - 1 
-            ? courseConfig.lessons[currentIndex + 1] 
-            : null;
-          
-          if (showProgress && !completed.includes(lessonId)) {
-            // Mark as complete in Firestore
-            const newCompleted = completed.concat([lessonId]);
-            
-            db.collection('users').doc(uid).collection('progress').doc(courseId).set({
-              completed: newCompleted,
-              lastLesson: lessonId,
-              lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).then(function() {
-              
-              // Navigate to next lesson or back to course
-              if (nextLesson) {
-                window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
-              } else {
-                window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
-              }
-            }).catch(function(err) {
-              console.error('Error marking complete:', err);
-            });
+  // Find next lesson (define ONCE at top)
+  const currentIndex = courseConfig.lessons.indexOf(lessonId);
+  const nextLesson = currentIndex < courseConfig.lessons.length - 1 
+    ? courseConfig.lessons[currentIndex + 1] 
+    : null;
+  
+  if (showProgress && !completed.includes(lessonId)) {
+    // Use progress-manager.js API
+    if (window.VaultProgress) {
+      window.VaultProgress.updateProgress(courseId, lessonId, uid)
+        .then(function() {
+          // Navigate (use variables from above, don't redefine)
+          if (nextLesson) {
+            window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
           } else {
-            // Just navigate without marking complete
-            if (nextLesson) {
-              window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
-            } else {
-              window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
-            }
+            window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
           }
-        };
+        })
+        .catch(function(err) {
+          console.error('Error marking complete:', err);
+          if (window.VaultToast) {
+            window.VaultToast.error('Failed to mark lesson complete');
+          }
+        });
+    } else {
+      console.error('VaultProgress not loaded!');
+    }
+  } else {
+    // Just navigate without marking complete
+    if (nextLesson) {
+      window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
+    } else {
+      window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
+    }
+  }
+};
         
         topBtn.addEventListener('click', handleComplete);
         bottomBtn.addEventListener('click', handleComplete);
