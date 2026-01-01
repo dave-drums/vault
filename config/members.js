@@ -1303,13 +1303,13 @@ function createGoalsContent(user){
       var nameCard = document.createElement('div');
       nameCard.className = 'section';
       
-      var nameTitle = document.createElement('div');
-       nameHeader.className = 'section-header';
-       var nameTitle = document.createElement('h2');
-      nameTitle.className = 'section-title';
-      nameTitle.textContent = 'Change Name';
-      nameHeader.appendChild(nameTitle);
-       nameCard.appendChild(nameHeader);
+var nameHeader = document.createElement('div');
+nameHeader.className = 'section-header';
+var nameTitle = document.createElement('h2');
+nameTitle.className = 'section-title';
+nameTitle.textContent = 'Change Name';
+nameHeader.appendChild(nameTitle);
+nameCard.appendChild(nameHeader);
       
       db.collection('users').doc(user.uid).get().then(function(doc){
         if (doc.exists) {
@@ -1351,13 +1351,13 @@ function createGoalsContent(user){
       var pwCard = document.createElement('div');
       pwCard.className = 'section';
       
-      var pwTitle = document.createElement('div');
-       pwHeader.className = 'section-header';
-       var pwTitle = document.createElement('h2');
-      pwTitle.className = 'section-title';
-      pwTitle.textContent = 'Change Password';
-      pwHeader.appendChild(pwTitle);
-       pwCard.appendChild(pwHeader);
+var pwHeader = document.createElement('div');
+pwHeader.className = 'section-header';
+var pwTitle = document.createElement('h2');
+pwTitle.className = 'section-title';
+pwTitle.textContent = 'Change Password';
+pwHeader.appendChild(pwTitle);
+pwCard.appendChild(pwHeader);
       
       var currentPwGroup = mkFormGroup('Current Password', 'password', '');
       var newPwGroup = mkFormGroup('New Password', 'password', '');
@@ -1403,13 +1403,13 @@ function createGoalsContent(user){
       var emailCard = document.createElement('div');
       emailCard.className = 'section';
       
-      var emailTitle = document.createElement('div');
-       emailHeader.className = 'section-header';
-       var emailTitle = document.createElement('h2');
-      emailTitle.className = 'section-title';
-      emailTitle.textContent = 'Change Email';
-      emailHeader.appendChild(emailTitle);
-       emailCard.appendChild(emailHeader);
+var emailHeader = document.createElement('div');
+emailHeader.className = 'section-header';
+var emailTitle = document.createElement('h2');
+emailTitle.className = 'section-title';
+emailTitle.textContent = 'Change Email';
+emailHeader.appendChild(emailTitle);
+emailCard.appendChild(emailHeader);
       
       var emailNote = document.createElement('p');
       emailNote.className = 'profile-note';
@@ -1858,6 +1858,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
