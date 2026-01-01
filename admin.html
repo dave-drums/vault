@@ -924,27 +924,33 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
           .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
       });
 
-      var progGets = users.map(function(u){
-        return db.collection('users').doc(u.uid).collection('metrics').doc('progress').get()
+      // ADD THIS - Load practice stats separately
+      var practiceGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('practice').doc('stats').get()
           .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
       });
 
-      return Promise.all([Promise.all(statGets)]).then(function(res){
-        var statsArr = res[0];
+     return Promise.all([Promise.all(statGets), Promise.all(practiceGets)]).then(function(res){
+  var statsArr = res[0];
+  var practiceArr = res[1];
 
         var statsByUid = {};
-        statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
+statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
 
-        users.forEach(function(u){
-          var st = statsByUid[u.uid] || {};
+var practiceByUid = {};
+practiceArr.forEach(function(x){ practiceByUid[x.uid] = x.data || {}; });
 
-          u.lastLogin = st.lastLoginAt || null;
-          u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
-          u.lastDeviceType = st.lastDeviceType || '';
-          u.lastDeviceEmoji = st.lastDeviceEmoji || '';
-          u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
-          u.totalSeconds = (typeof st.totalSeconds === 'number') ? st.totalSeconds : 0;
-        });
+users.forEach(function(u){
+  var st = statsByUid[u.uid] || {};
+  var pr = practiceByUid[u.uid] || {};
+
+  u.lastLogin = st.lastLoginAt || null;
+  u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
+  u.lastDeviceType = st.lastDeviceType || '';
+  u.lastDeviceEmoji = st.lastDeviceEmoji || '';
+  u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
+  u.totalSeconds = (typeof pr.totalSeconds === 'number') ? pr.totalSeconds : 0;
+});
 
         render(users);
       });
