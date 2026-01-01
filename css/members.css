@@ -474,7 +474,7 @@
   color: var(--text-primary);
 }
 
-/* UNIFIED STATS/PROGRESS CARDS */
+/* UNIFIED PROGRESS/STATS CARDS */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -516,7 +516,7 @@
 }
 
 .stat-subtitle {
-  font-size: var(--text-small);
+  font-size: var(--text-tiny);
   color: var(--text-secondary);
   margin-bottom: 0px;
   white-space: nowrap;
