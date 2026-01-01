@@ -307,10 +307,10 @@
 
 .section-title {
   font-family: 'Inter', sans-serif;
-  font-size: var(--text-large);
+  font-size: var(--text-body);
   font-weight: 600;
   text-transform: uppercase;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   color: var(--text-primary);
 }
 
@@ -499,9 +499,9 @@
 
 .stat-header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   margin-bottom: 8px;
 }
 
@@ -640,6 +640,7 @@
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .profile-card:last-child {
