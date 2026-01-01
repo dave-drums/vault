@@ -300,8 +300,6 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--border);
 }
 
 .section-title {
