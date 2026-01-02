@@ -175,6 +175,8 @@
   
   // ✅ PRESERVED: Mobile menu from original createHamburgerMenu function (lines 105-230)
   function createMobileMenu(uid, auth, db){
+  // Only create mobile menu on screens ≤768px
+  if(window.innerWidth > 768) return;
     removeMobileMenu();
     
     // ✅ PRESERVED: Create hamburger button (original lines 108-111)
@@ -565,7 +567,12 @@
       
       /* Hide mobile menu on desktop */
       .vault-hamburger-btn {
-        display: none !important;
+      display: none !important;
+      }
+      
+      .vault-menu-backdrop,
+      .vault-menu-overlay {
+      display: none !important;
       }
     }
     
