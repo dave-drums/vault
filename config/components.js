@@ -133,30 +133,16 @@
     db.collection('users').doc(uid).collection('metrics').doc('practice').get()
   ]).then(function(res){
     var firstName = (res[0].exists && res[0].data().firstName) || 'there';
-    var lastLessonUrl = (res[1].exists && res[1].data().lastLessonUrl) || null;
-    
-    // Parse lesson name from URL
-    var lessonButtonText = 'Resume Last Lesson';
-    if (lastLessonUrl) {
-      var match = lastLessonUrl.match(/\/([a-z]+)\?c=(\d+)(?:&l=([^&]+))?/);
-      if (match) {
-        var coursePrefix = match[1];
-        var courseNum = match[2];
-        var lessonId = match[3];
-        if (lessonId) {
-          lessonButtonText = (coursePrefix + courseNum).toUpperCase() + '.' + lessonId;
-        } else {
-          lessonButtonText = (coursePrefix + courseNum).toUpperCase() + ' Overview';
-        }
-      }
-    }
+    var practiceData = res[1].exists ? res[1].data() : {};
+    var lastLessonUrl = practiceData.lastLessonUrl || null;
+    var lastLessonTitle = practiceData.lastLessonTitle || 'Resume Last Lesson';
     
     // Build continue section if user has practiced
     var continueSection = lastLessonUrl 
       ? '<div class="vault-menu-section">' +
         '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
         '  <div class="vault-menu-section-title">Continue with:</div>' +
-        '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue">' + lessonButtonText + '</a>' +
+        '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue">' + lastLessonTitle + '</a>' +
         '</div><div class="vault-menu-divider"></div>'
       : '';
     
