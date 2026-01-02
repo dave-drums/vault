@@ -8,10 +8,10 @@
 (function(){
   'use strict';
 
-  // ✅ PRESERVED: Firebase check from original line 81
+  // Firebase check
   if (typeof firebase === 'undefined') return;
 
-  // ✅ NEW: SVG icon definitions (replacing emojis)
+  // SVG icon definitions
   var NAV_ICONS = {
     home: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>',
     music: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" /></svg>',
@@ -26,7 +26,7 @@
     chevronRight: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>'
   };
 
-  // ✅ PRESERVED: Init function from original lines 83-102
+  // Init function
   function init(){
     if (!firebase.auth || !firebase.firestore) {
       setTimeout(init, 100);
@@ -38,7 +38,7 @@
     
     injectStyles();
     
-    // ✅ PRESERVED: Auth state change listener from original lines 94-101
+    // Auth state change listener
     auth.onAuthStateChanged(function(user){
       if(user){
         document.body.classList.add('vault-logged-in');
@@ -51,7 +51,7 @@
     });
   }
   
-  // ✅ NEW: Desktop sidebar (≥769px)
+  // Desktop sidebar (≥769px)
   function createDesktopSidebar(uid, auth, db){
     if(window.innerWidth < 769) return;
     
@@ -82,9 +82,9 @@
       
       // ✅ MODIFIED: Greeting without emoji (original line 143 had emoji)
       var continueSection = lastLessonUrl 
-        ? '<div class="sidebar-greeting">Hi, ' + firstName + '</div>' +
+        ? '<div class="sidebar-greeting">Hi, ' + firstName + '.</div>' +
           '<div class="sidebar-section">' +
-          '  <div class="sidebar-section-title">Continue with ↓</div>' +
+          '  <div class="sidebar-section-title">Continue with</div>' +
           '  <a href="' + lastLessonUrl + '" class="sidebar-btn sidebar-continue">' +
           '    <span class="nav-icon">' + NAV_ICONS.play + '</span>' +
           '    <span class="sidebar-btn-text">' + lastLessonTitle + '</span>' +
@@ -109,10 +109,7 @@
         '    <a href="/stats" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
-        '  </div>' +
-        '  <div class="sidebar-divider"></div>' +
-        '  <div class="sidebar-section">' +
-        '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact Support</span></a>' +
+        '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
         '    <button class="sidebar-btn sidebar-logout" id="sidebar-logout">' +
         '      <span class="nav-icon">' + NAV_ICONS.logout + '</span>' +
         '      <span>Logout</span>' +
@@ -140,10 +137,7 @@
         '    <a href="/stats" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
-        '  </div>' +
-        '  <div class="sidebar-divider"></div>' +
-        '  <div class="sidebar-section">' +
-        '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact Support</span></a>' +
+        '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
         '    <button class="sidebar-btn sidebar-logout" id="sidebar-logout">' +
         '      <span class="nav-icon">' + NAV_ICONS.logout + '</span>' +
         '      <span>Logout</span>' +
@@ -222,8 +216,8 @@
       // ✅ MODIFIED: Greeting without emoji, SVG icons, Metronome added
       var continueSection = lastLessonUrl 
         ? '<div class="vault-menu-section">' +
-          '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '</div>' +
-          '  <div class="vault-menu-section-title">Continue with ↓</div>' +
+          '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
+          '  <div class="vault-menu-section-title">Continue with</div>' +
           '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue"><span class="nav-icon">' + NAV_ICONS.play + '</span><span>' + lastLessonTitle + '</span></a>' +
           '</div><div class="vault-menu-divider"></div>'
         : '';
@@ -243,10 +237,7 @@
         '    <a href="/stats" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
-        '  </div>' +
-        '  <div class="vault-menu-divider"></div>' +
-        '  <div class="vault-menu-section">' +
-        '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact Support</span></a>' +
+        '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
         '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout"><span class="nav-icon">' + NAV_ICONS.logout + '</span><span>Logout</span></button>' +
         '  </div>' +
         '</div>';
@@ -269,10 +260,7 @@
         '    <a href="/stats" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
-        '  </div>' +
-        '  <div class="vault-menu-divider"></div>' +
-        '  <div class="vault-menu-section">' +
-        '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact Support</span></a>' +
+        '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
         '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout"><span class="nav-icon">' + NAV_ICONS.logout + '</span><span>Logout</span></button>' +
         '  </div>' +
         '</div>';
