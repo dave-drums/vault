@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/typography.css">
+  <link rel="stylesheet" href="/css/core.css">
+  <link rel="stylesheet" href="/css/account.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+  
+  <!-- Components -->
+  <script src="/config/components.js"></script>
+  <script src="/config/error-handler.js"></script>
+</head>
+<body>
+
+  <!-- Loading spinner -->
+  <div class="auth-loading">
+    <div class="auth-loading-spinner"></div>
+  </div>
+  
+  <!-- HERO HEADER -->
+  <div class="members-hero">
+    <div class="members-hero-bg"></div>
+    <div class="members-hero-content">
+      <h1 class="members-title">My Profile</h1>
+    </div>
+  </div>
+  
+  <!-- PROFILE CONTENT -->
+  <div class="members-container">
+    <div id="profile-content"></div>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+    
+    // Wait for Firebase
+    var tries = 0;
+    function waitForFirebase(){
+      tries++;
+      if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+        if (tries < 80) return setTimeout(waitForFirebase, 50);
+        console.error('Firebase not loaded');
+        return;
+      }
+      init();
+    }
+    
+    function init(){
+      var auth = firebase.auth();
+      var db = firebase.firestore();
+      
+      var loadingEl = document.querySelector('.auth-loading');
+      var contentEl = document.getElementById('profile-content');
+      
+      // Auth guard - redirect if not logged in
+      auth.onAuthStateChanged(function(user){
+        // Hide loading spinner
+        if (loadingEl) loadingEl.style.display = 'none';
+        
+        if (!user) {
+          // Not logged in - redirect to login
+          window.location.href = '/login';
+          return;
+        }
+        
+        // Build profile UI
+        buildProfile(user);
+      });
+      
+      function buildProfile(user){
+        if (!contentEl) return;
+        
+        // Email display
+        var emailText = document.createElement('p');
+        emailText.className = 'profile-email';
+        emailText.innerHTML = '🟢 Logged in as <strong>' + (user.email || '') + '</strong>';
+        contentEl.appendChild(emailText);
+        
+        // Navigation link to stats
+        var navLink = document.createElement('div');
+        navLink.style.cssText = 'text-align:center;margin-bottom:24px;';
+        navLink.innerHTML = '<a href="/stats" style="color:var(--accent);text-decoration:none;font-weight:500;">View Practice Stats →</a>';
+        contentEl.appendChild(navLink);
+        
+        // Change Name Section
+        var nameSection = createNameSection(user);
+        contentEl.appendChild(nameSection);
+        
+        // Change Password Section
+        var passwordSection = createPasswordSection(user);
+        contentEl.appendChild(passwordSection);
+        
+        // Change Email Section
+        var emailSection = createEmailSection();
+        contentEl.appendChild(emailSection);
+        
+        // Logout Button
+        var actionsDiv = document.createElement('div');
+        actionsDiv.className = 'profile-actions';
+        
+        var logoutBtn = document.createElement('button');
+        logoutBtn.className = 'btn-logout';
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.onclick = function(){
+          // Clear login tracking from sessionStorage
+          try {
+            sessionStorage.removeItem('vault_login_tracked');
+          } catch(e) {}
+          
+          auth.signOut().then(function(){
+            window.VaultToast.info('Logged out');
+            window.location.href = '/login';
+          });
+        };
+        
+        actionsDiv.appendChild(logoutBtn);
+        contentEl.appendChild(actionsDiv);
+      }
+      
+      // Helper: Create form group
+      function mkFormGroup(label, type, value){
+        var group = document.createElement('div');
+        group.className = 'form-group';
+        
+        var labelEl = document.createElement('label');
+        labelEl.textContent = label;
+        
+        var input = document.createElement('input');
+        input.type = type;
+        input.value = value || '';
+        if (type === 'password') {
+          input.autocomplete = 'current-password';
+        }
+        
+        group.appendChild(labelEl);
+        group.appendChild(input);
+        
+        return group;
+      }
+      
+      // Create Name Section
+      function createNameSection(user){
+        var section = document.createElement('div');
+        section.className = 'section';
+        
+        var header = document.createElement('div');
+        header.className = 'section-header';
+        
+        var title = document.createElement('h2');
+        title.className = 'section-title';
+        title.textContent = 'Change Name';
+        
+        header.appendChild(title);
+        section.appendChild(header);
+        
+        // Load user data and build form
+        db.collection('users').doc(user.uid).get().then(function(doc){
+          if (!doc.exists) return;
+          
+          var userData = doc.data() || {};
+          
+          var fnGroup = mkFormGroup('First Name', 'text', userData.firstName || '');
+          var lnGroup = mkFormGroup('Last Name', 'text', userData.lastName || '');
+          var dnGroup = mkFormGroup('Display Name', 'text', userData.displayName || '');
+          
+          section.appendChild(fnGroup);
+          section.appendChild(lnGroup);
+          section.appendChild(dnGroup);
+          
+          var saveBtn = document.createElement('button');
+          saveBtn.className = 'btn-save';
+          saveBtn.textContent = 'Save Changes';
+          saveBtn.onclick = function(){
+            var firstName = fnGroup.querySelector('input').value.trim();
+            var lastName = lnGroup.querySelector('input').value.trim();
+            var displayName = dnGroup.querySelector('input').value.trim();
+            
+            if (!firstName || !lastName) {
+              window.VaultToast.error('Please enter your first and last name');
+              return;
+            }
+            
+            if (!displayName) {
+              window.VaultToast.error('Please enter a display name');
+              return;
+            }
+            
+            // Validate display name (letters, numbers, spaces, underscore, hyphen, apostrophe only)
+            var validPattern = /^[a-zA-Z0-9 _'\-]+$/;
+            if (!validPattern.test(displayName)) {
+              window.VaultToast.error('Display name can only contain letters, numbers, spaces, underscores, hyphens, and apostrophes');
+              return;
+            }
+            
+            // Disable button during save
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            
+            db.collection('users').doc(user.uid).set({
+              firstName: firstName,
+              lastName: lastName,
+              displayName: displayName
+            }, { merge: true }).then(function(){
+              window.VaultToast.success('Name updated');
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Save Changes';
+            }).catch(function(e){
+              saveBtn.disabled = false;
+              saveBtn.textContent = 'Save Changes';
+              
+              if (window.VaultErrors) {
+                window.VaultErrors.handle(e, 'Update Name');
+              } else {
+                window.VaultToast.error('Failed to update name');
+              }
+            });
+          };
+          
+          section.appendChild(saveBtn);
+        }).catch(function(e){
+          console.error('Failed to load user data:', e);
+        });
+        
+        return section;
+      }
+      
+      // Create Password Section
+      function createPasswordSection(user){
+        var section = document.createElement('div');
+        section.className = 'section';
+        
+        var header = document.createElement('div');
+        header.className = 'section-header';
+        
+        var title = document.createElement('h2');
+        title.className = 'section-title';
+        title.textContent = 'Change Password';
+        
+        header.appendChild(title);
+        section.appendChild(header);
+        
+        var currentPwGroup = mkFormGroup('Current Password', 'password', '');
+        var newPwGroup = mkFormGroup('New Password', 'password', '');
+        var confirmPwGroup = mkFormGroup('Confirm New Password', 'password', '');
+        
+        section.appendChild(currentPwGroup);
+        section.appendChild(newPwGroup);
+        section.appendChild(confirmPwGroup);
+        
+        var saveBtn = document.createElement('button');
+        saveBtn.className = 'btn-save';
+        saveBtn.textContent = 'Update Password';
+        saveBtn.onclick = function(){
+          var currentPw = currentPwGroup.querySelector('input').value;
+          var newPw = newPwGroup.querySelector('input').value;
+          var confirmPw = confirmPwGroup.querySelector('input').value;
+          
+          if (!currentPw || !newPw || !confirmPw) {
+            window.VaultToast.error('Please fill in all password fields');
+            return;
+          }
+          
+          if (newPw !== confirmPw) {
+            window.VaultToast.error('Passwords do not match');
+            return;
+          }
+          
+          if (newPw.length < 6) {
+            window.VaultToast.error('Password must be at least 6 characters');
+            return;
+          }
+          
+          // Disable button during save
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Updating...';
+          
+          var credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPw);
+          user.reauthenticateWithCredential(credential).then(function(){
+            return user.updatePassword(newPw);
+          }).then(function(){
+            window.VaultToast.success('Password updated');
+            currentPwGroup.querySelector('input').value = '';
+            newPwGroup.querySelector('input').value = '';
+            confirmPwGroup.querySelector('input').value = '';
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Update Password';
+          }).catch(function(e){
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Update Password';
+            
+            if (window.VaultErrors) {
+              window.VaultErrors.handle(e, 'Update Password');
+            } else {
+              window.VaultToast.error(e.message || 'Failed to update password');
+            }
+          });
+        };
+        
+        section.appendChild(saveBtn);
+        
+        return section;
+      }
+      
+      // Create Email Section
+      function createEmailSection(){
+        var section = document.createElement('div');
+        section.className = 'section';
+        
+        var header = document.createElement('div');
+        header.className = 'section-header';
+        
+        var title = document.createElement('h2');
+        title.className = 'section-title';
+        title.textContent = 'Change Email';
+        
+        header.appendChild(title);
+        section.appendChild(header);
+        
+        var note = document.createElement('p');
+        note.className = 'profile-note';
+        note.innerHTML = 'To change your email address, please <a href="/contact">contact support</a>.';
+        section.appendChild(note);
+        
+        return section;
+      }
+    }
+    
+    // Start when DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', waitForFirebase);
+    } else {
+      waitForFirebase();
+    }
+  })();
+  </script>
+  
+</body>
+</html>
