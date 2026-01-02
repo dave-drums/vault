@@ -12,9 +12,20 @@
 (function(){
   'use strict';
   
-  // ===========================================
-  // COURSE DEFINITIONS - SINGLE SOURCE OF TRUTH
-  // ===========================================
+  // ADD THIS FUNCTION HERE (line 12)
+  function normalizeCompleted(completed) {
+    if (!completed) return [];
+    if (Array.isArray(completed)) return completed;
+    if (typeof completed === 'object' && completed !== null) {
+      return Object.keys(completed).filter(function(key) {
+        return completed[key] === true;
+      });
+    }
+    return [];
+  }
+  
+  // Expose globally so other files can use it
+  window.normalizeCompleted = normalizeCompleted;
    
    window.VAULT_COURSES = {
       'gs1': { name: 'Groove Studies', level: 'Beginner Course', pathway: 'groove', lessons: ['1.01', '1.02', '1.03', '1.04', '1.05', '1.06', '1.07', '1.08', '1.09', '1.10', '1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17', '1.18', '1.19', '1.20', '1.21', '1.22', '1.23'] },
@@ -76,11 +87,11 @@
               var total = config.lessons.length;
               var count = 0;
               
-              if (snap.exists) {
-                var completed = snap.data().completed || {};
-                for (var key in completed) {
-                  if (completed[key] === true) count++;
-                }
+var completed = snap.exists ? snap.data().completed : null;
+var completedArray = normalizeCompleted(completed);
+config.lessons.forEach(function(lessonId) {
+  if (completedArray.indexOf(lessonId) !== -1) count++;
+});
               }
               
               el.textContent = total + ' lessons • ' + count + '/' + total + ' complete';
