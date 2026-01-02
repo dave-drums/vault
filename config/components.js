@@ -354,10 +354,10 @@
       background: rgba(255,255,255,0.1);
     }
     .vault-menu-content {
-      padding: 24px;
+      padding: 16px;
     }
     .vault-menu-section {
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
     .vault-menu-divider {
       height: 1px;
@@ -374,7 +374,7 @@
     }
     .vault-menu-link {
       display: block;
-      padding: 12px 16px;
+      padding: 10px 14px;
       color: #fff;
       text-decoration: none;
       border-radius: 8px;
@@ -393,7 +393,7 @@
     .vault-menu-btn {
       display: block;
       width: 100%;
-      padding: 14px 16px;
+      padding: 12px 14px;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 8px;
@@ -421,7 +421,7 @@
       .vault-menu-overlay {
         max-width: 260px;
       }
-     .vault-menu-continue {
+    .vault-menu-continue {
       background: rgba(6,179,253,0.15);
       border-color: rgba(6,179,253,0.3);
       color: #06b3fd;
