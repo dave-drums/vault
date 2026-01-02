@@ -357,7 +357,7 @@ function Metronome() {
           }}>
             <div style={{
               color: 'rgba(255,255,255,0.9)',
-              fontSize: '0.875rem',
+              fontSize: '14px',
               fontWeight: '600',
               marginBottom: '8px',
               textTransform: 'uppercase',
@@ -367,7 +367,7 @@ function Metronome() {
               Tempo
             </div>
             <div className="bpm-number" style={{
-              fontSize: '5rem',
+              fontSize: '60px',
               fontWeight: '600',
               color: '#fff',
               lineHeight: '1',
@@ -378,7 +378,7 @@ function Metronome() {
             </div>
             <div style={{
               color: 'rgba(255,255,255,0.9)',
-              fontSize: '0.875rem',
+              fontSize: '14px',
               fontWeight: '600',
               textTransform: 'uppercase',
               letterSpacing: '1px',
@@ -537,7 +537,7 @@ function Metronome() {
                   borderRadius: '8px',
                   background: '#f8f9fa',
                   border: '1px solid #e9ecef',
-                  fontSize: '1.5rem',
+                  fontSize: '24px',
                   fontWeight: '600',
                   color: '#1a1a1a',
                   cursor: 'pointer',
@@ -579,7 +579,7 @@ function Metronome() {
                   borderRadius: '8px',
                   background: '#f8f9fa',
                   border: '1px solid #e9ecef',
-                  fontSize: '1.5rem',
+                  fontSize: '24px',
                   fontWeight: '600',
                   color: '#1a1a1a',
                   cursor: 'pointer',
@@ -608,17 +608,17 @@ function Metronome() {
                 flex: 1,
                 padding: '16px',
                 borderRadius: '10px',
-                fontSize: '1rem',
+                fontSize: '16px',
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                border: 'none',
+                border: isPlaying ? '2px solid #06b3fd' : 'none',
                 background: isPlaying 
-                  ? '#1a1a1a'
+                  ? 'rgba(6,179,253,0.15)'
                   : 'linear-gradient(135deg, #06b3fd, #38bdf8)',
-                color: '#fff',
+                color: isPlaying ? '#06b3fd' : '#fff',
                 boxShadow: isPlaying
-                  ? '0 4px 12px rgba(0,0,0,0.3)'
+                  ? '0 4px 12px rgba(6,179,253,0.3)'
                   : '0 4px 12px rgba(6,179,253,0.3)',
                 fontFamily: "'Inter', sans-serif"
               }}
@@ -636,7 +636,7 @@ function Metronome() {
                 borderRadius: '10px',
                 background: '#f8f9fa',
                 border: '1px solid #e9ecef',
-                fontSize: '0.875rem',
+                fontSize: '14px',
                 fontWeight: '600',
                 color: '#1a1a1a',
                 cursor: 'pointer',
@@ -660,7 +660,7 @@ function Metronome() {
               display: 'block',
               marginBottom: '12px',
               fontWeight: '600',
-              fontSize: '0.875rem',
+              fontSize: '14px',
               color: '#1a1a1a',
               fontFamily: "'Inter', sans-serif"
             }}>
@@ -679,7 +679,7 @@ function Metronome() {
                   style={{
                     padding: '8px 4px',
                     borderRadius: '6px',
-                    fontSize: '0.813rem',
+                    fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -706,7 +706,7 @@ function Metronome() {
               display: 'block',
               marginBottom: '12px',
               fontWeight: '600',
-              fontSize: '0.875rem',
+              fontSize: '14px',
               color: '#1a1a1a',
               fontFamily: "'Inter', sans-serif"
             }}>
@@ -748,7 +748,7 @@ function Metronome() {
                     {sub.svg}
                   </div>
                   <span style={{ 
-                    fontSize: '0.625rem', 
+                    fontSize: '10px', 
                     fontWeight: '600',
                     opacity: subdivisionType === sub.value ? 1 : 0.6,
                     textAlign: 'center',
