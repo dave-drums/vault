@@ -141,7 +141,7 @@
     var continueSection = lastLessonUrl 
       ? '<div class="vault-menu-section">' +
         '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
-        '  <div class="vault-menu-section-title">Continue with:</div>' +
+        '  <div class="vault-menu-section-title">Continue with 🡫</div>' +
         '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue">' + lastLessonTitle + '</a>' +
         '</div><div class="vault-menu-divider"></div>'
       : '';
@@ -158,6 +158,8 @@
       '    <a href="/" class="vault-menu-link">Practice Vault Home</a>' +
       '    <a href="/groove" class="vault-menu-link">GrooveScribe</a>' +
       '    <a href="/members" class="vault-menu-link">Members Area</a>' +
+      '    <a href="/" class="vault-menu-link">My Stats</a>' +
+      '    <a href="/" class="vault-menu-link">My Profile</a>' +
       '    <a href="/updates" class="vault-menu-link">Updates</a>' + 
       '  </div>' +
       '  <div class="vault-menu-divider"></div>' +
