@@ -52,7 +52,7 @@
   const AUTH = firebase.auth();
   const DB = firebase.firestore();
   const INVITES_COL = "invites";
-  const MEMBERS_URL = "/members";
+  const LOGIN_URL = "/login";
 
   const root = document.getElementById("vault-create-account-root");
   if (!root) return;
@@ -72,7 +72,7 @@
   (async function init() {
     try {
       if (AUTH.currentUser) {
-        renderMessage('You are already logged in. Please log out, then open the invite link again. <a href="' + MEMBERS_URL + '">Go to members</a>.');
+        renderMessage('You are already logged in. Please log out, then open the invite link again. <a href="' + LOGIN_URL + '">Go to login</a>.');
         return;
       }
 
@@ -93,7 +93,7 @@
       }
 
       if (invite.used === true) {
-        renderMessage('This invite link has already been used. <a href="' + MEMBERS_URL + '">Go to login</a>.');
+        renderMessage('This invite link has already been used. <a href="' + LOGIN_URL + '">Go to login</a>.');
         return;
       }
 
@@ -165,7 +165,7 @@
           <div id="vca-msg" class="vca-msg" aria-live="polite"></div>
 
           <div class="vca-footer">
-            Already have an account? <a href="${MEMBERS_URL}">Log in</a>
+            Already have an account? <a href="${LOGIN_URL}">Log in</a>
           </div>
         </div>
       </div>
@@ -223,7 +223,7 @@
         }
         inviteData = snap.data() || {};
         if (inviteData.used === true) {
-          msg.innerHTML = 'This invite link has already been used. <a href="' + MEMBERS_URL + '">Go to login</a>.';
+          msg.innerHTML = 'This invite link has already been used. <a href="' + LOGIN_URL + '">Go to login</a>.';
           btn.disabled = false;
           return;
         }
@@ -296,14 +296,14 @@
         await batch.commit();
 
         window.VaultToast.success('Account created! Redirecting...');
-        setTimeout(function(){ window.location.href = MEMBERS_URL; }, 1000);
+        setTimeout(function(){ window.location.href = LOGIN_URL; }, 1000);
 
       } catch (err) {
         console.error(err);
          
         const code = (err && err.code) ? String(err.code) : "";
         if (code.includes("email-already-in-use")) {
-          msg.innerHTML = 'This email already has an account. <a href="' + MEMBERS_URL + '">Log in here</a>.';
+          msg.innerHTML = 'This email already has an account. <a href="' + LOGIN_URL + '">Log in here</a>.';
         } else if (code.includes("weak-password")) {
           msg.textContent = "That password is too weak. Please choose a stronger password.";
         } else if (code.includes("invalid-email")) {
@@ -325,7 +325,7 @@
         <div class="vca-card">
           <h3 class="vca-title">CREATE ACCOUNT</h3>
           <div class="vca-msg vca-msg--block">${html}</div>
-          <div class="vca-footer"><a href="${MEMBERS_URL}">Go to login</a></div>
+          <div class="vca-footer"><a href="${LOGIN_URL}">Go to login</a></div>
         </div>
       </div>
     `;
