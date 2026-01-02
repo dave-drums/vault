@@ -770,7 +770,7 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
 
     // Student List section with accordion
     html += '<div class="admin-section">';
-    html += '<div class="admin-section-header">' +
+    html += '<div class="admin-section-header" style="flex-direction:column;align-items:center;gap:16px;">' +
               '<div class="admin-section-title">STUDENT LIST <span class="admin-section-count">(' + users.length + ')</span></div>' +
               '<div style="display:flex;gap:10px;">' +
                 '<button id="pv-invites-btn" class="btn btn-header">Invites</button>' +
@@ -795,14 +795,10 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
         // User Header (collapsed view)
         html += '<div class="user-item-header">';
         html += '<div style="flex:1;min-width:0;">';
-        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + '</div>';
+        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="color:#999;font-weight:normal;font-size:var(--text-small);">| ' + statusText + '</span></div>';
         html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last: ' + formatTsNoYear(u.lastLogin) + '</div>';
         html += '</div>';
         html += '<div class="user-meta">';
-        html += '<div class="user-status">';
-        html += '<span class="' + statusClass + '"></span>';
-        html += statusText;
-        html += '</div>';
         html += '<div class="chevron">›</div>';
         html += '</div>';
         html += '</div>';
@@ -820,16 +816,16 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
         html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatTs(u.lastLogin) + ' ' + activityDot + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Avg Session</div>';
         html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Total Practice</div>';
         html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatDuration(u.totalSeconds) + '</div>';
-        html += '</div>';
-        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
         html += '</div>';
         html += '</div>';
         html += '</div>';
@@ -870,8 +866,8 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
 
         // Action Buttons
         html += '<div class="user-actions">';
-        html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
         html += '<button class="view-progress-btn btn btn-primary" style="background:#10b981;border-color:#10b981;" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '">View Progress</button>';
+        html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
         html += '</div>';
 
         html += '</div>';
