@@ -770,12 +770,12 @@ body.auth-checked {
   }
   
   .lesson-grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
    
-   .user-item {
-  padding: 12px 14px;
-}
+  .user-item {  
+    padding: 10px 12px;
+  }
 
 .accordion-content {
   padding-top: 12px;
