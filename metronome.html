@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metronome | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/typography.css">
+  <link rel="stylesheet" href="/css/core.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+  
+  <!-- Components -->
+  <script src="/config/components.js"></script>
+  <script src="/config/error-handler.js"></script>
+  
+  <!-- React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    /* Range slider styling */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #06b3fd;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #06b3fd;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 640px) {
+      .metronome-wrapper {
+        padding: 20px 16px !important;
+      }
+      .metronome-card {
+        padding: 24px !important;
+      }
+      .bpm-display {
+        padding: 24px !important;
+        margin-bottom: 20px !important;
+      }
+      .bpm-number {
+        font-size: 4rem !important;
+      }
+      .beat-circle {
+        width: 40px !important;
+        height: 40px !important;
+      }
+      .subdivision-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 4px !important;
+      }
+      .subdivision-btn {
+        padding: 8px 4px !important;
+        min-height: 50px !important;
+      }
+      .subdivision-btn svg {
+        transform: scale(0.65);
+      }
+      .subdivision-btn span {
+        font-size: 0.5rem !important;
+      }
+      .beats-per-bar-grid {
+        gap: 4px !important;
+      }
+      .beats-per-bar-btn {
+        padding: 6px 2px !important;
+        font-size: 0.75rem !important;
+      }
+      .bpm-controls {
+        gap: 12px !important;
+      }
+      .tap-btn {
+        min-width: 75px !important;
+        padding: 0 12px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading spinner -->
+  <div class="auth-loading">
+    <div class="auth-loading-spinner"></div>
+  </div>
+  
+  <!-- METRONOME CONTAINER -->
+  <div id="metronome-root"></div>
+
+  <!-- Metronome Component -->
+  <script type="text/babel" src="/metronome.js"></script>
+  
+  <script>
+    (function(){
+      'use strict';
+      
+      var tries = 0;
+      function waitForFirebase(){
+        tries++;
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+          if (tries < 80) return setTimeout(waitForFirebase, 50);
+          console.error('Firebase not loaded');
+          return;
+        }
+        init();
+      }
+      
+      function init(){
+        var auth = firebase.auth();
+        var loadingEl = document.querySelector('.auth-loading');
+        
+        auth.onAuthStateChanged(function(user){
+          if (loadingEl) loadingEl.style.display = 'none';
+          
+          if (!user) {
+            window.location.href = '/login';
+            return;
+          }
+          
+          // Render metronome
+          const root = ReactDOM.createRoot(document.getElementById('metronome-root'));
+          root.render(React.createElement(window.PracticeVaultMetronome));
+        });
+      }
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', waitForFirebase);
+      } else {
+        waitForFirebase();
+      }
+    })();
+  </script>
+  
+</body>
+</html>
