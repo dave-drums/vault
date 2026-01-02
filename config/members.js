@@ -616,24 +616,15 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
         var data = snap.data();
         var completed = data.completed || {};
         
-        // Handle both ARRAY format (new) and OBJECT format (old)
-        var completedArray = [];
-        if (Array.isArray(completed)) {
-          // New format: ["1.01", "1.02", ...]
-          completedArray = completed;
-        } else if (typeof completed === 'object') {
-          // Old format: {"1.01": true, "1.02": true, ...}
-          completedArray = Object.keys(completed).filter(function(key) {
-            return completed[key] === true;
-          });
-        }
-        
-        // Count completed lessons
-        courseConfig.lessons.forEach(function(lessonId){
-          if (completedArray.indexOf(lessonId) !== -1) {
-            completedCount++;
-          }
-        });
+ // Use shared normalization function
+var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : []);
+
+// Count completed lessons
+courseConfig.lessons.forEach(function(lessonId){
+  if (completedArray.indexOf(lessonId) !== -1) {
+    completedCount++;
+  }
+});
       }
 
       var totalLessons = courseConfig.lessons.length;
@@ -1858,6 +1849,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
