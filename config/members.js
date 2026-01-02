@@ -664,7 +664,7 @@ function initActiveCourseTracking(){
             'fs': 'fills',
             'ss': 'sticks',
             'ks': 'kicks'
-             'krs': 'reading'
+             'rs': 'reading'
           };
           var fullPathway = pathwayMap[pathway] || pathway;
           
@@ -1850,4 +1850,5 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
