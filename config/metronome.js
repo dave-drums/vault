@@ -1,6 +1,6 @@
 const { useState, useEffect, useRef } = React;
 
-function metronome() {
+function Metronome() {
   const [bpm, setBpm] = useState(120);
   const [isPlaying, setIsPlaying] = useState(false);
   const [beat, setBeat] = useState(0);
@@ -767,4 +767,4 @@ function metronome() {
 }
 
 // Export to window for use in other pages
-window.metronome = metronome;
+window.Metronome = Metronome;
