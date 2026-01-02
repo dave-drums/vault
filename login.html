@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Practice Vault</title>
+  <link rel="icon" type="image/webp" href="/assets/favicon.webp">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/typography.css">
+  <link rel="stylesheet" href="/css/core.css">
+  <link rel="stylesheet" href="/css/account.css">
+  
+  <!-- Firebase -->
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+  
+  <!-- Components (for toast) -->
+  <script src="/config/components.js"></script>
+  <script src="/config/error-handler.js"></script>
+</head>
+<body>
+
+  <!-- Loading spinner -->
+  <div class="auth-loading">
+    <div class="auth-loading-spinner"></div>
+  </div>
+  
+  <!-- HERO HEADER -->
+  <div class="members-hero">
+    <div class="members-hero-bg"></div>
+    <div class="members-hero-content">
+      <h1 class="members-title">Member Login</h1>
+    </div>
+  </div>
+  
+  <!-- LOGIN FORM -->
+  <div class="members-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Welcome Back</h2>
+        <p>Log in to access the Practice Vault</p>
+      </div>
+      
+      <div class="login-form">
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" autocomplete="email">
+        
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" autocomplete="current-password">
+        
+        <button type="button" id="login-btn">Log In</button>
+        
+        <a href="#" id="reset-link" class="reset-link">Forgot password?</a>
+        
+        <div id="members-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+    
+    // Wait for Firebase
+    var tries = 0;
+    function waitForFirebase(){
+      tries++;
+      if (typeof firebase === 'undefined' || !firebase.auth) {
+        if (tries < 80) return setTimeout(waitForFirebase, 50);
+        console.error('Firebase not loaded');
+        return;
+      }
+      init();
+    }
+    
+    function init(){
+      var auth = firebase.auth();
+      
+      // DOM elements
+      var loadingEl = document.querySelector('.auth-loading');
+      var emailInput = document.getElementById('auth-email');
+      var passInput = document.getElementById('auth-password');
+      var loginBtn = document.getElementById('login-btn');
+      var resetLink = document.getElementById('reset-link');
+      var msgEl = document.getElementById('members-message');
+      
+      // Message helpers
+      function setMessage(text){
+        if (!msgEl) return;
+        var msg = String(text || '').trim();
+        msgEl.textContent = msg;
+        if (msg) {
+          msgEl.className = 'error';
+          msgEl.style.display = 'block';
+        } else {
+          msgEl.style.display = 'none';
+        }
+      }
+      
+      function clearMessage(){
+        setMessage('');
+      }
+      
+      // Auth state listener - redirect if logged in
+      auth.onAuthStateChanged(function(user){
+        // Hide loading spinner
+        if (loadingEl) loadingEl.style.display = 'none';
+        
+        // If logged in, redirect to home
+        if (user) {
+          window.location.href = '/';
+        }
+      });
+      
+      // Login button
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(){
+          clearMessage();
+          
+          var email = emailInput ? String(emailInput.value || '').trim().toLowerCase() : '';
+          var pass = passInput ? String(passInput.value || '').trim() : '';
+          
+          if (!email || !pass) {
+            setMessage('Please enter email and password.');
+            return;
+          }
+          
+          // Disable button during login
+          loginBtn.disabled = true;
+          loginBtn.textContent = 'Logging in...';
+          
+          auth.signInWithEmailAndPassword(email, pass).then(function(){
+            // Success - auth listener will redirect
+          }).catch(function(e){
+            // Re-enable button
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Log In';
+            
+            // Show error
+            if (window.VaultErrors) {
+              window.VaultErrors.handle(e, 'Login');
+            } else {
+              setMessage(e && e.message ? e.message : 'Could not log in.');
+            }
+          });
+        });
+        
+        // Enter key to login
+        [emailInput, passInput].forEach(function(input){
+          if (input) {
+            input.addEventListener('keydown', function(e){
+              if (e.key === 'Enter') loginBtn.click();
+            });
+          }
+        });
+      }
+      
+      // Reset password link
+      if (resetLink) {
+        resetLink.addEventListener('click', function(e){
+          e.preventDefault();
+          clearMessage();
+          
+          var email = emailInput ? String(emailInput.value || '').trim().toLowerCase() : '';
+          if (!email) {
+            setMessage('Please enter your email first.');
+            return;
+          }
+          
+          auth.sendPasswordResetEmail(email).then(function(){
+            if (window.VaultToast) {
+              window.VaultToast.success('Password reset email sent.');
+            } else {
+              setMessage('Password reset email sent. Check your inbox.');
+            }
+          }).catch(function(e){
+            if (window.VaultErrors) {
+              window.VaultErrors.handle(e, 'Password Reset');
+            } else {
+              setMessage(e && e.message ? e.message : 'Unable to send reset email.');
+            }
+          });
+        });
+      }
+    }
+    
+    // Start when DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', waitForFirebase);
+    } else {
+      waitForFirebase();
+    }
+  })();
+  </script>
+  
+</body>
+</html>
