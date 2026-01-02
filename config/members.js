@@ -670,9 +670,7 @@ function initActiveCourseTracking(){
           
           // Only set if this course has progress or is higher than current
           var data = doc.data();
-          var completedData = data && data.completed ? data.completed : null;
-var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completedData) : (Array.isArray(completedData) ? completedData : (completedData ? Object.keys(completedData) : []));
-var hasProgress = completedArray.length > 0;
+          var hasProgress = data && data.completed && window.normalizeCompleted(data.completed).length > 0;
           
           if (hasProgress) {
             // Use highest course number for each pathway
@@ -1852,21 +1850,4 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
