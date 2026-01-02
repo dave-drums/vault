@@ -746,6 +746,13 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
 
     var invitesBtn = rootEl.querySelector('#pv-invites-btn');
     if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
+
+    var refreshBtn = rootEl.querySelector('#pv-refresh-btn');
+    if (refreshBtn) refreshBtn.addEventListener('click', function(){ 
+      loadOnce().catch(function(e){ 
+        if (window.VaultErrors) window.VaultErrors.handle(e, 'Refresh'); 
+      }); 
+    });
   }
 
   // NEW: Render accordion layout
@@ -771,7 +778,10 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
     // Student List section with accordion
     html += '<div class="admin-section">';
     html += '<div class="admin-section-header" style="flex-direction:column;align-items:center;gap:16px;">' +
-              '<div class="admin-section-title">STUDENT LIST <span class="admin-section-count">(' + users.length + ')</span></div>' +
+              '<div style="display:flex;align-items:center;gap:12px;">' +
+  '<div class="admin-section-title">STUDENT LIST <span class="admin-section-count">(' + users.length + ')</span></div>' +
+  '<button id="pv-refresh-btn" class="btn btn-icon" title="Refresh">↻</button>' +
+'</div>' +
               '<div style="display:flex;gap:10px;">' +
                 '<button id="pv-invites-btn" class="btn btn-header">Invites</button>' +
                 '<button id="pv-add-user-btn" class="btn btn-header btn-header-primary">+ Add User</button>' +
@@ -799,7 +809,7 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
         html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last: ' + formatTsNoYear(u.lastLogin) + '</div>';
         html += '</div>';
         html += '<div class="user-meta">';
-        html += '<div class="chevron">›</div>';
+        html += '<div style="font-size:18px;">▼</div>';
         html += '</div>';
         html += '</div>';
 
@@ -948,6 +958,10 @@ users.forEach(function(u){
   u.totalSeconds = (typeof pr.totalSeconds === 'number') ? pr.totalSeconds : 0;
 });
 
+       users.sort(function(a, b) {
+         return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
+       });
+
         render(users);
       });
     }).catch(function(e){
@@ -979,8 +993,7 @@ users.forEach(function(u){
       loadOnce().catch(function(e){
         rootEl.textContent = (e && e.message) ? e.message : 'Error loading admin data.';
       });
-
-      setInterval(function(){ loadOnce().catch(function(){}); }, 15000);
+      
     });
   });
 });
