@@ -111,55 +111,74 @@
 
   <!-- HERO HEADER -->
   <div class="vault-hero">
-  <div class="vault-hero-bg"></div>
-  <div class="vault-hero-content">
-    <h1 class="vault-hero-title">Metronome</h1>
-  </div>
+    <div class="vault-hero-bg"></div>
+    <div class="vault-hero-content">
+      <h1 class="vault-hero-title">Metronome</h1>
+    </div>
   </div>
   
   <!-- METRONOME CONTAINER -->
   <div id="metronome-root"></div>
 
-  <!-- Metronome Component -->
-  <script type="text/babel" src="/config/metronome.js"></script>
-  
+  <!-- Load and transform metronome JSX -->
   <script>
     (function(){
       'use strict';
       
-      var tries = 0;
-      function waitForFirebase(){
-        tries++;
-        if (typeof firebase === 'undefined' || !firebase.auth) {
-          if (tries < 80) return setTimeout(waitForFirebase, 50);
-          console.error('Firebase not loaded');
-          return;
-        }
-        init();
-      }
-      
-      function init(){
-        var auth = firebase.auth();
-        var loadingEl = document.querySelector('.auth-loading');
-        
-        auth.onAuthStateChanged(function(user){
-          if (loadingEl) loadingEl.style.display = 'none';
+      // Load the JSX file and transform it
+      fetch('/config/metronome.js')
+        .then(response => response.text())
+        .then(jsxCode => {
+          // Transform JSX to JS
+          const transformed = Babel.transform(jsxCode, {
+            presets: ['react']
+          }).code;
           
-          if (!user) {
-            window.location.href = '/login';
+          // Execute the transformed code
+          eval(transformed);
+          
+          // Now initialize after metronome is loaded
+          initMetronome();
+        })
+        .catch(err => {
+          console.error('Failed to load metronome:', err);
+        });
+      
+      function initMetronome() {
+        var tries = 0;
+        function waitForFirebase(){
+          tries++;
+          if (typeof firebase === 'undefined' || !firebase.auth) {
+            if (tries < 80) return setTimeout(waitForFirebase, 50);
+            console.error('Firebase not loaded');
             return;
           }
+          init();
+        }
+        
+        function init(){
+          var auth = firebase.auth();
+          var loadingEl = document.querySelector('.auth-loading');
           
-          // Render metronome
-          const root = ReactDOM.createRoot(document.getElementById('metronome-root'));
-          root.render(React.createElement(window.Metronome));
-        });
-      }
-      
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', waitForFirebase);
-      } else {
-        waitForFirebase();
+          auth.onAuthStateChanged(function(user){
+            if (loadingEl) loadingEl.style.display = 'none';
+            
+            if (!user) {
+              window.location.href = '/login';
+              return;
+            }
+            
+            // Render metronome
+            const root = ReactDOM.createRoot(document.getElementById('metronome-root'));
+            root.render(React.createElement(window.Metronome));
+          });
+        }
+        
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', waitForFirebase);
+        } else {
+          waitForFirebase();
+        }
       }
     })();
   </script>
