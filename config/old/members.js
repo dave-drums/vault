@@ -49,428 +49,8 @@
     });
     return params;
   }
-
-  function isCourseIndexPage(){
-    var courseId = getCourseIdFromUrl();
-    if (!courseId) return false;
-    var params = getQueryParams();
-    return !params.l;
-  }
-
-  function isSingleLessonPage(){
-    var params = getQueryParams();
-    return params.c && params.l;
-  }
-
-  function isProtectedPage(){
-    return document.documentElement && 
-           document.documentElement.dataset && 
-           document.documentElement.dataset.protected === 'true';
-  }
-
-
-  // ============================================
-  // LESSON TRACKING
-  // ============================================
-
-  var LessonTracker = (function(){
-    var VAULT_PATH_PREFIX = '/';
-    var VAULT_INDEX_PATH = '/';
-
-    function isLessonPage(){
-      var path = window.location.pathname;
-      if (!path.startsWith('/')) return false;
-      var params = getQueryParams();
-      return params.c && params.l;
-    }
-
-    function getLessonTitle(){
-      var title = '';
-      var h1 = document.querySelector('#lesson-content h1');
-      if (h1 && h1.textContent) {
-        title = h1.textContent.trim();
-      }
-      if (!title && document.title) {
-        var titleParts = document.title.split('|');
-        if (titleParts.length > 1) {
-          // After render: "Start Here | Groove Studies 1"
-          title = titleParts[0].trim();
-        } else {
-          title = document.title.split('—')[0].split('-')[0].trim();
-        }
-      }
-      if (!title) {
-        var params = getQueryParams();
-        var lessonId = params.l;
-        if (lessonId) {
-          title = 'Lesson ' + lessonId;
-        }
-      }
-      return title || 'Untitled Lesson';
-    }
-
-    function getFullLessonUrl(){
-      return window.location.pathname + window.location.search;
-    }
-
-    function trackLessonView(){
-      if (!currentUser || !isLessonPage()) return;
-      
-      // Wait for h1 to be rendered by lesson_code_block
-      var attempts = 0;
-      var checkForTitle = function(){
-        attempts++;
-        var h1 = document.querySelector('#lesson-content h1');
-        if (h1 || attempts > 20) {
-          var practiceDoc = db.collection('users').doc(currentUser.uid).collection('metrics').doc('practice');
-          var lessonUrl = getFullLessonUrl();
-          var lessonTitle = getLessonTitle();
-          
-          practiceDoc.set({
-            lastLessonUrl: lessonUrl,
-            lastLessonTitle: lessonTitle,
-            lastLessonViewedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }).catch(function(e){
-            console.error('Failed to track lesson view:', e);
-          });
-        } else {
-          setTimeout(checkForTitle, 100);
-        }
-      };
-      checkForTitle();
-    }
-
-    return {
-      init: function(){
-        if (isLessonPage()) {
-          trackLessonView();
-          window.addEventListener('popstate', function(){
-            if (isLessonPage()) {
-              trackLessonView();
-            }
-          });
-        }
-      },
-      onUserChange: function(user){
-        if (user && isLessonPage()) {
-          trackLessonView();
-        }
-      }
-    };
-  })();
-
-  // ============================================
-  // COURSE PROGRESS
-  // ============================================
-
-  var CourseProgress = (function(){
-    var currentCourseId = null;
-    var buttonObserver = null;
-
-    // VAULT_COURSES is loaded from course-config.js
-    // Do not redefine here - use course-config.js as single source of truth
-
-
-    window.VAULT_PATHWAY_NAMES = {
-      groove: 'Groove Studies',
-      fills: 'Fill Studies',
-      sticks: 'Stick Studies',
-      kicks: 'Kick Studies'
-    };
-
-    window.vaultToggleLesson = function(lessonId, currentState){
-      if (!currentUser || !currentCourseId) return;
-      toggleCompletion(currentUser.uid, currentCourseId, lessonId, !currentState);
-    };
-
-    function updateActiveCourse(uid, pathway, courseId){
-      var update = { activeCourses: {} };
-      update.activeCourses[pathway] = courseId;
-      db.collection('users').doc(uid).set(update, { merge: true })
-        .catch(function(e){ console.error('Failed to update active course:', e); });
-    }
-
-    function loadAndRenderProgress(uid, courseId, courseConfig){
-      db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-        .then(function(snap){
-          var completed = {};
-          if (snap.exists) {
-            var data = snap.data() || {};
-            completed = data.completed || {};
-          }
-          renderProgressBar(completed, courseConfig.lessons);
-          renderStatusCircles(uid, courseId, completed, courseConfig.lessons);
-        })
-        .catch(function(e){ console.error('Failed to load course progress:', e); });
-    }
-
-    function renderProgressBar(completed, lessons){
-      var progressBar = document.querySelector('.course-progress-bar');
-      var progressText = document.querySelector('.course-progress-text');
-      if (!progressBar) return;
-
-      var completedCount = 0;
-      lessons.forEach(function(lessonId){
-        if (completed[lessonId]) completedCount++;
-      });
-
-      var totalLessons = lessons.length;
-      var percent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-
-      progressBar.style.width = percent + '%';
-      if (progressText) {
-        progressText.textContent = completedCount + '/' + totalLessons + ' (' + percent + '%)';
-      }
-    }
-
-    function renderStatusCircles(uid, courseId, completed, lessons){
-      lessons.forEach(function(lessonId){
-        var lessonItem = document.querySelector('[data-lesson="' + lessonId + '"]');
-        if (!lessonItem) return;
-
-        var statusCircle = lessonItem.querySelector('.gs1-lesson-status');
-        if (!statusCircle) return;
-
-        var isCompleted = completed[lessonId] === true;
-        
-        if (isCompleted) {
-          statusCircle.classList.remove('incomplete');
-          statusCircle.classList.add('completed');
-        } else {
-          statusCircle.classList.remove('completed');
-          statusCircle.classList.add('incomplete');
-        }
-        
-        lessonItem.onclick = function(){
-          var parsed = parseCourseId(courseId);
-          if (parsed) {
-            window.location.href = '/' + parsed.pathway + '?c=' + parsed.num + '&l=' + lessonId;
-          }
-        };
-      });
-    }
-
-    function toggleCompletion(uid, courseId, lessonId, newState){
-      db.collection('users').doc(uid).collection('progress').doc(courseId)
-        .set({
-          completed: {
-            [lessonId]: newState
-          },
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true })
-        .then(function(){ 
-          location.reload(); 
-        })
-        .catch(function(e){
-          console.error('Toggle failed:', e);
-          alert('Could not update progress: ' + e.message);
-        });
-    }
-
-    function initCourseIndex(){
-      var courseId = getCourseIdFromUrl();
-      currentCourseId = courseId;
-      
-      var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
-      if (!courseConfig || !currentUser) return;
-
-      updateActiveCourse(currentUser.uid, courseConfig.pathway, courseId);
-      loadAndRenderProgress(currentUser.uid, courseId, courseConfig);
-    }
-
-    function getNextLessonUrl(courseConfig, currentLessonId, courseId){
-      var lessons = courseConfig.lessons;
-      var currentIndex = lessons.indexOf(currentLessonId);
-      
-      if (currentIndex === -1 || currentIndex === lessons.length - 1) {
-        return null;
-      }
-      
-      var nextLessonId = lessons[currentIndex + 1];
-      var parsed = parseCourseId(courseId);
-      if (!parsed) return null;
-      return '/' + parsed.pathway + '?c=' + parsed.num + '&l=' + nextLessonId;
-    }
-
-    function createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl, selfProgress){
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'vault-lesson-complete-btn';
-      
-      // Non-selfProgress users get simple Next Lesson button
-      if (!selfProgress) {
-        btn.textContent = nextLessonUrl ? 'Next Lesson →' : 'Back to Course';
-        btn.style.cssText = 'display:inline-block;padding:10px 16px;' +
-          'background:#f3f3f3;border:1px solid #ddd;border-radius:6px;' +
-          'color:#333;font-size:14px;cursor:pointer;transition:all 0.2s;' +
-          'text-decoration:none;box-sizing:border-box;';
-        
-        btn.addEventListener('mouseenter', function(){ btn.style.background = '#e8e8e8'; });
-        btn.addEventListener('mouseleave', function(){ btn.style.background = '#f3f3f3'; });
-        
-        btn.onclick = function(){
-          window.location.href = nextLessonUrl || courseIndexUrl;
-        };
-        
-        return btn;
-      }
-      
-      // selfProgress users get Complete Lesson button
-      if (isCompleted) {
-        btn.textContent = 'Mark Incomplete';
-      } else if (nextLessonUrl) {
-        btn.textContent = 'Complete Lesson →';
-      } else {
-        btn.textContent = 'Complete Lesson';
-      }
-      
-      btn.style.cssText = 'display:inline-block;padding:10px 16px;' +
-        'background:' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
-        'border:1px solid ' + (isCompleted ? '#10b981' : '#06b3fd') + ';' +
-        'border-radius:6px;color:#fff;font-size:14px;cursor:pointer;' +
-        'transition:all 0.2s;text-decoration:none;box-sizing:border-box;';
-
-      btn.addEventListener('mouseenter', function(){ btn.style.opacity = '0.9'; });
-      btn.addEventListener('mouseleave', function(){ btn.style.opacity = '1'; });
-
-      btn.onclick = function(){
-        if (isCompleted) {
-          toggleLessonCompletion(uid, courseId, lessonId, false, courseIndexUrl);
-        } else {
-          var redirectUrl = nextLessonUrl || courseIndexUrl;
-          toggleLessonCompletion(uid, courseId, lessonId, true, redirectUrl);
-        }
-      };
-
-      return btn;
-    }
-
-    function toggleLessonCompletion(uid, courseId, lessonId, newState, redirectUrl){
-      db.collection('users').doc(uid).collection('progress').doc(courseId)
-        .set({
-          completed: {
-            [lessonId]: newState
-          },
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true })
-        .then(function(){
-          window.location.href = redirectUrl;
-        })
-        .catch(function(e){
-          console.error('Failed to toggle completion:', e);
-          alert('Could not update completion: ' + e.message);
-        });
-    }
-
-    function createCompletionButton(uid, courseId, lessonId, isCompleted, selfProgress){
-      var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[courseId];
-      if (!courseConfig) return;
-
-      var parsed = parseCourseId(courseId);
-      if (!parsed) return;
-      var courseIndexUrl = '/' + parsed.pathway + '?c=' + parsed.num;
-      var nextLessonUrl = getNextLessonUrl(courseConfig, lessonId, courseId);
-      var btn = createButton(uid, courseId, lessonId, isCompleted, courseIndexUrl, nextLessonUrl, selfProgress);
-
-      var topPlaceholder = document.querySelector('#complete-button-top');
-      if (topPlaceholder && !topPlaceholder.querySelector('.vault-lesson-complete-btn')) {
-        topPlaceholder.appendChild(btn);
-      }
-    }
-
-    function watchForButtonPlaceholder(){
-      if (!isSingleLessonPage() || !currentUser) return;
-
-      var params = getQueryParams();
-      var courseId = getCourseIdFromUrl();
-      var lessonId = params.l;
-      currentCourseId = courseId;
-
-      if (!courseId || !lessonId) return;
-
-      db.collection('users').doc(currentUser.uid).get().then(function(userSnap){
-        var canSelfProgress = userSnap.exists && userSnap.data().selfProgress === true;
-
-        db.collection('users').doc(currentUser.uid).collection('progress').doc(courseId).get()
-          .then(function(snap){
-            var isCompleted = false;
-            if (snap.exists && canSelfProgress) {
-              var completed = snap.data().completed || {};
-              isCompleted = completed[lessonId] === true;
-            }
-
-            // Use MutationObserver to watch for placeholder
-            buttonObserver = new MutationObserver(function(){
-              var placeholder = document.querySelector('#complete-button-top');
-              if (placeholder && !placeholder.querySelector('.vault-lesson-complete-btn')) {
-                createCompletionButton(currentUser.uid, courseId, lessonId, isCompleted, canSelfProgress);
-                if (buttonObserver) {
-                  buttonObserver.disconnect();
-                  buttonObserver = null;
-                }
-              }
-            });
-
-            buttonObserver.observe(document.body, { childList: true, subtree: true });
-
-            // Also try immediately in case placeholder already exists
-            var existingPlaceholder = document.querySelector('#complete-button-top');
-            if (existingPlaceholder) {
-              createCompletionButton(currentUser.uid, courseId, lessonId, isCompleted, canSelfProgress);
-              if (buttonObserver) {
-                buttonObserver.disconnect();
-                buttonObserver = null;
-              }
-            }
-          });
-      }).catch(function(e){
-        console.error('Button init failed:', e);
-      });
-    }
-
-    return {
-      init: function(){
-        if (isCourseIndexPage()) {
-          initCourseIndex();
-        } else if (isSingleLessonPage()) {
-          watchForButtonPlaceholder();
-        }
-      },
-      onUserChange: function(user){
-        if (user) {
-          if (isCourseIndexPage()) {
-            initCourseIndex();
-          } else if (isSingleLessonPage()) {
-            watchForButtonPlaceholder();
-          }
-        }
-      }
-    };
-  })();
-
-  // ============================================
-  // UNIFIED INITIALIZATION
-  // ============================================
-
-  function init(){
-    if (!hasFirebase()) return;
-
-    LessonTracker.init();
-    CourseProgress.init();
-
-    auth.onAuthStateChanged(function(user){
-      currentUser = user || null;
-      LessonTracker.onUserChange(user);
-      CourseProgress.onUserChange(user);
-    });
-  }
-
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
 })();
+
 
 document.addEventListener('DOMContentLoaded', function () {
   var tries = 0;
@@ -484,11 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var auth = firebase.auth();
     var db = firebase.firestore();
-
-
-    // URLs
-    var VAULT_URL = '/';
-    var SUPPORT_URL = '/contact';
 
     // DOM elements
     var loginBox = document.getElementById('members-login');
@@ -636,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
       tab.className = 'vault-tab' + (isActive ? ' active' : '');
       tab.type = 'button';
       tab.style.cssText = 'flex:1;padding:14px 20px;background:none;border:none;border-bottom:' + 
-        (isActive ? '3px solid #06b3fd' : 'none') + ';cursor:pointer;font-size:16px;font-weight:500;' +
+        (isActive ? '3px solid #06b3fd' : 'none') + ';cursor:pointer;font-size:17px;font-weight:600;' +
         'color:' + (isActive ? '#111' : '#666') + ';transition:all 0.2s ease;display:flex;align-items:center;' +
         'justify-content:center;gap:8px;';
 
@@ -795,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = 'https://vault.davedrums.com.au';
+              window.location.href = '/';
             };
               return;
           }
@@ -803,24 +378,6 @@ document.addEventListener('DOMContentLoaded', function () {
           var data = snap.data() || {};
           var url = data.lastLessonUrl;
           var title = data.lastLessonTitle;
-
-          // MIGRATE OLD URL FORMATS
-          if (url) {
-            // Old format 1: /vault/gs1?lesson=1.01 → /gs?c=1&l=1.01
-            var match1 = url.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
-            if (match1) {
-              url = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
-            } else {
-              // Old format 2: /vault?course=gs1&lesson=1.01 → /gs?c=1&l=1.01
-              var match2 = url.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
-              if (match2) {
-                url = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
-              } else {
-                // Old format 3: /gs/?c=1&l=1.01 → /gs?c=1&l=1.01 (remove trailing slash)
-                url = url.replace(/\/([a-z]+)\/\?/g, '/$1?');
-              }
-            }
-          }
 
           if (url && title) {
             if (labelEl) labelEl.textContent = 'Continue Where You Left Off';
@@ -850,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEl.style.cursor = 'pointer';
             btnEl.textContent = 'Open Practice Vault';
             btnEl.onclick = function(){
-              window.location.href = 'https://vault.davedrums.com.au';
+              window.location.href = '/';
             };
               return;
           }
@@ -892,27 +449,12 @@ document.addEventListener('DOMContentLoaded', function () {
             lastLessonUrl = practiceSnap.data().lastLessonUrl || '';
           }
 
-          // MIGRATE OLD URL FORMATS
-          if (lastLessonUrl) {
-            // Old format 1: /vault/gs1?lesson=1.01 → /vault/gs?c=1&l=1.01
-            var match1 = lastLessonUrl.match(/^\/vault\/([a-z]+)(\d+)\?lesson=(.+)$/);
-            if (match1) {
-              lastLessonUrl = '/' + match1[1] + '?c=' + match1[2] + '&l=' + match1[3];
-            } else {
-              // Old format 2: /vault?course=gs1&lesson=1.01 → /vault/gs?c=1&l=1.01
-              var match2 = lastLessonUrl.match(/^\/vault\?course=([a-z]+)(\d+)&lesson=(.+)$/);
-              if (match2) {
-                lastLessonUrl = '/' + match2[1] + '?c=' + match2[2] + '&l=' + match2[3];
-              }
-            }
-          }
-
           // Extract course from last lesson URL
           var lastActiveCourseId = null;
           var lastActivePathway = null;
           if (lastLessonUrl) {
             // New format: /vault/gs?c=1&l=1.01
-            var pathMatch = lastLessonUrl.match(/^\/vault\/([a-z]+)\?c=(\d+)/);
+            var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
             if (pathMatch) {
               lastActivePathway = pathMatch[1];
               lastActiveCourseId = pathMatch[1] + pathMatch[2];
@@ -936,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function renderPathwayCards(container, uid, activeCourses, lastActivePathway, lastActiveCourseId){
   var grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:12px;';
+  grid.className = 'stats-grid';  
 
   var pathways = ['groove', 'fills', 'sticks', 'kicks', 'reading'];
   var pathwayConfig = {
@@ -952,30 +494,40 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
     var courseId = activeCourses[pathway] || null;
 
     var box = document.createElement('div');
-    box.className = 'pathway-card';
+    box.className = 'stat-card'; 
+     
+    var headerEl = document.createElement('div');
+    headerEl.className = 'stat-header';
 
     var labelEl = document.createElement('div');
-    labelEl.className = 'pathway-name';
+    labelEl.className = 'stat-label';
     labelEl.textContent = config.label;
 
     var statusEl = document.createElement('div');
-    statusEl.className = 'pathway-label';
+    statusEl.className = 'stat-subtitle';
     
     var progressEl = document.createElement('div');
-    progressEl.className = 'pathway-stat';
+    progressEl.className = 'stat-value';
 
+    var progressContainer = document.createElement('div');
+    progressContainer.className = 'stat-progress'; 
+    
     var barContainer = document.createElement('div');
-    barContainer.style.cssText = 'width:100%;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;';
+    barContainer.className = 'stat-bar-bg';  
     
     var barFill = document.createElement('div');
-    barFill.style.cssText = 'height:100%;background:#06b3fd;transition:width 0.3s ease;width:0%;';
+    barFill.className = 'stat-bar-fill';
     
     barContainer.appendChild(barFill);
+    progressContainer.appendChild(barContainer); 
 
-    box.appendChild(labelEl);
-    box.appendChild(statusEl);
+    headerEl.appendChild(labelEl);
+    headerEl.appendChild(statusEl);
+    
+    box.appendChild(headerEl);
     box.appendChild(progressEl);
-    box.appendChild(barContainer);
+
+    box.appendChild(progressContainer); 
 
     grid.appendChild(box);
 
@@ -989,9 +541,11 @@ function renderPathwayCards(container, uid, activeCourses, lastActivePathway, la
       } else {
         progressEl.textContent = '—';
         statusEl.textContent = 'Course not configured';
+         barFill.style.width = '0%'; 
       }
     } else {
       statusEl.textContent = 'No active course';
+       barFill.style.width = '0%';
       progressEl.textContent = '—';
     }
 
@@ -1024,24 +578,15 @@ function loadCourseProgress(uid, courseId, courseConfig, progressEl, barFill){
         var data = snap.data();
         var completed = data.completed || {};
         
-        // Handle both ARRAY format (new) and OBJECT format (old)
-        var completedArray = [];
-        if (Array.isArray(completed)) {
-          // New format: ["1.01", "1.02", ...]
-          completedArray = completed;
-        } else if (typeof completed === 'object') {
-          // Old format: {"1.01": true, "1.02": true, ...}
-          completedArray = Object.keys(completed).filter(function(key) {
-            return completed[key] === true;
-          });
-        }
-        
-        // Count completed lessons
-        courseConfig.lessons.forEach(function(lessonId){
-          if (completedArray.indexOf(lessonId) !== -1) {
-            completedCount++;
-          }
-        });
+ // Use shared normalization function
+var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : []);
+
+// Count completed lessons
+courseConfig.lessons.forEach(function(lessonId){
+  if (completedArray.indexOf(lessonId) !== -1) {
+    completedCount++;
+  }
+});
       }
 
       var totalLessons = courseConfig.lessons.length;
@@ -1080,13 +625,14 @@ function initActiveCourseTracking(){
             'gs': 'groove',
             'fs': 'fills',
             'ss': 'sticks',
-            'ks': 'kicks'
+            'ks': 'kicks',
+             'rs': 'reading'
           };
           var fullPathway = pathwayMap[pathway] || pathway;
           
           // Only set if this course has progress or is higher than current
           var data = doc.data();
-          var hasProgress = data && data.completed && Object.keys(data.completed).length > 0;
+          var hasProgress = data && data.completed && window.normalizeCompleted(data.completed).length > 0;
           
           if (hasProgress) {
             // Use highest course number for each pathway
@@ -1243,24 +789,23 @@ function createGoalsContent(user){
 
       // Stats Cards
       var statsCards = document.createElement('div');
-      statsCards.className = 'stats-cards';
+       statsCards.className = 'stats-grid'; 
 
       var stats = [
         { label: 'Total Time', id: 'stat-total-time', value: '—' },
-        { label: 'Day Streak', id: 'stat-days-week', value: '—' },
-        { label: 'Avg. Session Time', id: 'stat-avg-time', value: '—' }
+        { label: 'Avg. Session', id: 'stat-avg-time', value: '—' }
       ];
 
-      stats.forEach(function(stat){
+       stats.forEach(function(stat){
         var box = document.createElement('div');
-        box.className = 'pathway-card';
+        box.className = 'stat-card'; 
 
         var labelEl = document.createElement('div');
-        labelEl.className = 'pathway-name';
+        labelEl.className = 'stat-label'; 
         labelEl.textContent = stat.label;
         
         var progressEl = document.createElement('div');
-        progressEl.className = 'pathway-stat';
+        progressEl.className = 'stat-value'; 
         progressEl.id = stat.id;
         progressEl.textContent = stat.value;
 
@@ -1318,10 +863,6 @@ function createGoalsContent(user){
         .catch(function(err){
           console.error('[Stats] Error loading stats:', err);
         });
-
-
-      // Load days practiced this week
-      loadDaysThisWeek(user);
       
       // Load and render 30-day chart
       load30DayChart(user, canvas);
@@ -1473,60 +1014,6 @@ function createGoalsContent(user){
           }
         }
       });
-    }
-
-    function loadDaysThisWeek(user){
-      var daysEl = document.getElementById('stat-days-week');
-      if (!daysEl) {
-        console.log('[Stats] Day streak element not found');
-        return;
-      }
-
-      // Get Monday-Sunday date range for current week
-      var now = new Date();
-      var day = now.getDay(); // 0 = Sunday
-      var diff = day === 0 ? -6 : 1 - day; // Adjust to Monday
-      var monday = new Date(now);
-      monday.setDate(now.getDate() + diff);
-      monday.setHours(0, 0, 0, 0);
-
-      var sunday = new Date(monday);
-      sunday.setDate(monday.getDate() + 6);
-      sunday.setHours(23, 59, 59, 999);
-
-      // Build array of date keys for this week (YYYY-MM-DD)
-      var weekDateKeys = [];
-      for (var i = 0; i <= 6; i++) {
-        var d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        var dateKey = d.getFullYear() + '-' + 
-          String(d.getMonth() + 1).padStart(2, '0') + '-' + 
-          String(d.getDate()).padStart(2, '0');
-        weekDateKeys.push(dateKey);
-      }
-      console.log('[Stats] Week date keys:', weekDateKeys);
-
-      // Get all practice sessions and count unique days this week
-      db.collection('users').doc(user.uid).collection('practice').doc('sessions')
-        .collection('items')
-        .get()
-        .then(function(snap){
-          var uniqueDays = {};
-          snap.forEach(function(doc){
-            var data = doc.data();
-            var date = data.date;
-            if (date && weekDateKeys.indexOf(date) !== -1) {
-              uniqueDays[date] = true;
-            }
-          });
-          var count = Object.keys(uniqueDays).length;
-          daysEl.textContent = count;
-          console.log('[Stats] Day streak:', count, 'days this week');
-        })
-        .catch(function(err){
-          console.error('[Stats] Error loading day streak:', err);
-          daysEl.textContent = '—';
-        });
     }
 
     function loadRecentPracticeTimeline(user){
@@ -1709,12 +1196,15 @@ function createGoalsContent(user){
 
       // Change Name Card
       var nameCard = document.createElement('div');
-      nameCard.className = 'profile-card';
+      nameCard.className = 'section';
       
-      var nameTitle = document.createElement('div');
-      nameTitle.className = 'profile-card-title';
-      nameTitle.textContent = 'Change Name';
-      nameCard.appendChild(nameTitle);
+var nameHeader = document.createElement('div');
+nameHeader.className = 'section-header';
+var nameTitle = document.createElement('h2');
+nameTitle.className = 'section-title';
+nameTitle.textContent = 'Change Name';
+nameHeader.appendChild(nameTitle);
+nameCard.appendChild(nameHeader);
       
       db.collection('users').doc(user.uid).get().then(function(doc){
         if (doc.exists) {
@@ -1754,12 +1244,15 @@ function createGoalsContent(user){
 
       // Change Password Card
       var pwCard = document.createElement('div');
-      pwCard.className = 'profile-card';
+      pwCard.className = 'section';
       
-      var pwTitle = document.createElement('div');
-      pwTitle.className = 'profile-card-title';
-      pwTitle.textContent = 'Change Password';
-      pwCard.appendChild(pwTitle);
+var pwHeader = document.createElement('div');
+pwHeader.className = 'section-header';
+var pwTitle = document.createElement('h2');
+pwTitle.className = 'section-title';
+pwTitle.textContent = 'Change Password';
+pwHeader.appendChild(pwTitle);
+pwCard.appendChild(pwHeader);
       
       var currentPwGroup = mkFormGroup('Current Password', 'password', '');
       var newPwGroup = mkFormGroup('New Password', 'password', '');
@@ -1803,12 +1296,15 @@ function createGoalsContent(user){
 
       // Change Email Card
       var emailCard = document.createElement('div');
-      emailCard.className = 'profile-card';
+      emailCard.className = 'section';
       
-      var emailTitle = document.createElement('div');
-      emailTitle.className = 'profile-card-title';
-      emailTitle.textContent = 'Change Email';
-      emailCard.appendChild(emailTitle);
+var emailHeader = document.createElement('div');
+emailHeader.className = 'section-header';
+var emailTitle = document.createElement('h2');
+emailTitle.className = 'section-title';
+emailTitle.textContent = 'Change Email';
+emailHeader.appendChild(emailTitle);
+emailCard.appendChild(emailHeader);
       
       var emailNote = document.createElement('p');
       emailNote.className = 'profile-note';
@@ -2193,8 +1689,14 @@ var c = String(newPw2.value || '').trim();
     // ============================================
     // AUTH WIRING
     // ============================================
-
-    auth.onAuthStateChanged(function(user){
+   
+     auth.onAuthStateChanged(function(user){
+      currentUser = user || null;  // Update currentUser
+      
+      // Hide loading spinner
+      var loadingEl = document.querySelector('.auth-loading');
+      if (loadingEl) loadingEl.style.display = 'none';
+      
       if (!user) {
         return showLogin();
       }
@@ -2251,3 +1753,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
+
+
+
