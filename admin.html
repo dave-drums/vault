@@ -586,11 +586,12 @@ document.addEventListener('DOMContentLoaded', function(){
         var lessonCount = courseData.lessons.length;
         var completedCount = 0;
         
-        courseData.lessons.forEach(function(lessonId){
-          if (completed[lessonId] === true) {
-            completedCount++;
-          }
-        });
+var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : Object.keys(completed).filter(function(k){return completed[k]===true;}));
+courseData.lessons.forEach(function(lessonId){
+  if (completedArray.indexOf(lessonId) !== -1) {
+    completedCount++;
+  }
+});
         
         courseProgress[courseId] = {
           completed: completedCount,
@@ -630,9 +631,8 @@ document.addEventListener('DOMContentLoaded', function(){
         coursesHtml += '<div class="lesson-grid">';
         
         courseData.lessons.forEach(function(lessonId){
-          var isCompleted = Array.isArray(progress.completedLessons)
-            ? progress.completedLessons.indexOf(lessonId) !== -1
-            : progress.completedLessons[lessonId] === true;
+var completedArray = window.normalizeCompleted ? window.normalizeCompleted(progress.completedLessons) : (Array.isArray(progress.completedLessons) ? progress.completedLessons : []);
+var isCompleted = completedArray.indexOf(lessonId) !== -1;
           var completedClass = isCompleted ? ' completed' : '';
           
           coursesHtml += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '">';
