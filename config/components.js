@@ -318,6 +318,8 @@
       z-index: 9999;
       transition: right 0.3s ease;
       box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
     }
     .vault-menu-overlay.open {
       right: 0;
@@ -328,6 +330,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
     .vault-menu-logo {
       height: 68px;
@@ -355,6 +358,12 @@
     }
     .vault-menu-content {
       padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .vault-menu-content::-webkit-scrollbar {
+      display: none;
     }
     .vault-menu-section {
       margin-bottom: 16px;
