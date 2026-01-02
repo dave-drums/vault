@@ -280,7 +280,7 @@
           }
           
           const data = doc.data();
-          let completed = normalizeProgressData(data.completed);
+          let completed = window.normalizeCompleted(data.completed);
           
           const totalLessons = courseConfig.lessons.length;
           const completedCount = completed.length;
@@ -520,7 +520,7 @@
         
         let completed = [];
         if (progressDoc.exists) {
-          completed = normalizeProgressData(progressDoc.data().completed);
+          completed = window.normalizeCompleted(progressDoc.data().completed);
         }
         
         const isCompleted = completed.includes(lessonId);
