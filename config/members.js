@@ -664,12 +664,13 @@ function initActiveCourseTracking(){
             'fs': 'fills',
             'ss': 'sticks',
             'ks': 'kicks'
+             'krs': 'reading'
           };
           var fullPathway = pathwayMap[pathway] || pathway;
           
           // Only set if this course has progress or is higher than current
           var data = doc.data();
-          var hasProgress = data && data.completed && Object.keys(data.completed).length > 0;
+          var hasProgress = data && data.completed && window.normalizeCompleted(data.completed).length > 0;
           
           if (hasProgress) {
             // Use highest course number for each pathway
@@ -1849,6 +1850,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
