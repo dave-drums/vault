@@ -92,7 +92,6 @@ var completedArray = normalizeCompleted(completed);
 config.lessons.forEach(function(lessonId) {
   if (completedArray.indexOf(lessonId) !== -1) count++;
 });
-              }
               
               el.textContent = total + ' lessons • ' + count + '/' + total + ' complete';
             })
