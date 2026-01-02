@@ -158,7 +158,7 @@
       '    <div class="vault-menu-section-title">Navigation</div>' +
       '    <a href="/" class="vault-menu-link">🥁 Practice Vault Home</a>' +
       '    <a href="/groove" class="vault-menu-link">🎼 GrooveScribe</a>' +
-      '    <a href="/metronome" class="vault-menu-link">⏱️ Metronome</a>' +
+      '    <a href="/metronome.html" class="vault-menu-link">⏱️ Metronome</a>' +
       '    <a href="/stats" class="vault-menu-link">📊 My Stats</a>' +
       '    <a href="/profile" class="vault-menu-link">👤 My Profile</a>' +
       '    <a href="/updates" class="vault-menu-link">🛠️ Updates</a>' + 
