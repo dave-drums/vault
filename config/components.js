@@ -139,8 +139,8 @@
       '  <div class="vault-menu-section">' +
       '    <div class="vault-menu-section-title">Navigation</div>' +
       '    <a href="/" class="vault-menu-link">Practice Vault Home</a>' +
+      '    <a href="/groove" class="vault-menu-link">GrooveScribe</a>' +
       '    <a href="/members" class="vault-menu-link">Members Area</a>' +
-      '    <a href="https://vault.davedrums.com.au/groove" class="vault-menu-link">GrooveScribe</a>' +
       '    <a href="/updates" class="vault-menu-link">Updates</a>' + 
       '  </div>' +
       '  <div class="vault-menu-divider"></div>' +
