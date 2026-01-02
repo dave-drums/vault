@@ -831,8 +831,7 @@ function createGoalsContent(user){
 
       var stats = [
         { label: 'Total Time', id: 'stat-total-time', value: '—' },
-        { label: 'Day Streak', id: 'stat-days-week', value: '—' },
-        { label: 'Avg. Session Time', id: 'stat-avg-time', value: '—' }
+        { label: 'Avg. Session', id: 'stat-avg-time', value: '—' }
       ];
 
        stats.forEach(function(stat){
@@ -902,10 +901,6 @@ function createGoalsContent(user){
         .catch(function(err){
           console.error('[Stats] Error loading stats:', err);
         });
-
-
-      // Load days practiced this week
-      loadDaysThisWeek(user);
       
       // Load and render 30-day chart
       load30DayChart(user, canvas);
@@ -1057,60 +1052,6 @@ function createGoalsContent(user){
           }
         }
       });
-    }
-
-    function loadDaysThisWeek(user){
-      var daysEl = document.getElementById('stat-days-week');
-      if (!daysEl) {
-        console.log('[Stats] Day streak element not found');
-        return;
-      }
-
-      // Get Monday-Sunday date range for current week
-      var now = new Date();
-      var day = now.getDay(); // 0 = Sunday
-      var diff = day === 0 ? -6 : 1 - day; // Adjust to Monday
-      var monday = new Date(now);
-      monday.setDate(now.getDate() + diff);
-      monday.setHours(0, 0, 0, 0);
-
-      var sunday = new Date(monday);
-      sunday.setDate(monday.getDate() + 6);
-      sunday.setHours(23, 59, 59, 999);
-
-      // Build array of date keys for this week (YYYY-MM-DD)
-      var weekDateKeys = [];
-      for (var i = 0; i <= 6; i++) {
-        var d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        var dateKey = d.getFullYear() + '-' + 
-          String(d.getMonth() + 1).padStart(2, '0') + '-' + 
-          String(d.getDate()).padStart(2, '0');
-        weekDateKeys.push(dateKey);
-      }
-      console.log('[Stats] Week date keys:', weekDateKeys);
-
-      // Get all practice sessions and count unique days this week
-      db.collection('users').doc(user.uid).collection('practice').doc('sessions')
-        .collection('items')
-        .get()
-        .then(function(snap){
-          var uniqueDays = {};
-          snap.forEach(function(doc){
-            var data = doc.data();
-            var date = data.date;
-            if (date && weekDateKeys.indexOf(date) !== -1) {
-              uniqueDays[date] = true;
-            }
-          });
-          var count = Object.keys(uniqueDays).length;
-          daysEl.textContent = count;
-          console.log('[Stats] Day streak:', count, 'days this week');
-        })
-        .catch(function(err){
-          console.error('[Stats] Error loading day streak:', err);
-          daysEl.textContent = '—';
-        });
     }
 
     function loadRecentPracticeTimeline(user){
@@ -1850,6 +1791,7 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
 
