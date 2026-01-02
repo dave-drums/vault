@@ -421,7 +421,7 @@ body.auth-checked {
 }
 
 .admin-section-title {
-  font-size: var(--heading-section);
+  font-size: var(--text-large);
   font-weight: 600;
   color: #1a1a2e;
 }
@@ -698,7 +698,7 @@ body.auth-checked {
 /* LESSON GRID */
 .lesson-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
 }
 
@@ -770,18 +770,29 @@ body.auth-checked {
   }
   
   .lesson-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(6, 1fr);
   }
    
-   .accordion-row {
-    flex-direction: column;
-  }
-  
-  .user-actions {
-    flex-direction: column;
-  }
-  
-  .user-actions .btn {
-    width: 100%;
-  }
+   .user-item {
+  padding: 12px 14px;
+}
+
+.accordion-content {
+  padding-top: 12px;
+}
+
+.accordion-section {
+  margin-bottom: 16px;
+}
+
+.accordion-row {
+  flex-direction: column;
+}
+
+.user-actions {
+  flex-direction: column;
+}
+
+.user-actions .btn {
+  width: 100%;
 }
