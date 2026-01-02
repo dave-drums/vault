@@ -135,12 +135,28 @@
     var firstName = (res[0].exists && res[0].data().firstName) || 'there';
     var lastLessonUrl = (res[1].exists && res[1].data().lastLessonUrl) || null;
     
+    // Parse lesson name from URL
+    var lessonButtonText = 'Resume Last Lesson';
+    if (lastLessonUrl) {
+      var match = lastLessonUrl.match(/\/([a-z]+)\?c=(\d+)(?:&l=([^&]+))?/);
+      if (match) {
+        var coursePrefix = match[1];
+        var courseNum = match[2];
+        var lessonId = match[3];
+        if (lessonId) {
+          lessonButtonText = (coursePrefix + courseNum).toUpperCase() + '.' + lessonId;
+        } else {
+          lessonButtonText = (coursePrefix + courseNum).toUpperCase() + ' Overview';
+        }
+      }
+    }
+    
     // Build continue section if user has practiced
     var continueSection = lastLessonUrl 
       ? '<div class="vault-menu-section">' +
-        '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:8px;font-weight:500;">Hi, ' + firstName + '.</div>' +
+        '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
         '  <div class="vault-menu-section-title">Continue with:</div>' +
-        '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue">Resume Last Lesson</a>' +
+        '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue">' + lessonButtonText + '</a>' +
         '</div><div class="vault-menu-divider"></div>'
       : '';
     
@@ -165,6 +181,7 @@
       '  </div>' +
       '</div>';
     
+    highlightActive(menu);
     setupEventHandlers();
   }).catch(function(){
     // Fallback if data load fails
@@ -187,6 +204,7 @@
       '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
       '  </div>' +
       '</div>';
+    highlightActive(menu);
     setupEventHandlers();
   });
   
@@ -220,8 +238,6 @@
       if(e.key === 'Escape') closeMenu();
     });
   }
-  
-  highlightActive(menu);
 }
   
   function removeHamburgerMenu(){
@@ -423,6 +439,9 @@
       background: rgba(6,179,253,0.15);
       border-color: rgba(6,179,253,0.3);
       color: #06b3fd;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .vault-menu-continue:hover {
       background: rgba(6,179,253,0.25);
