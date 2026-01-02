@@ -103,34 +103,72 @@
   }
   
   function createHamburgerMenu(uid, auth, db){
-    removeHamburgerMenu();
+  removeHamburgerMenu();
+  
+  var hamburger = document.createElement('button');
+  hamburger.id = 'vault-hamburger-btn';
+  hamburger.className = 'vault-hamburger-btn';
+  hamburger.innerHTML = '<span></span><span></span><span></span>';
+  
+  var hero = document.querySelector('.course-hero, .vault-hero, .members-hero, .create-hero, .groove-hero, .contact-hero');
+  if (hero) {
+    hero.appendChild(hamburger);
+  } else {
+    document.body.appendChild(hamburger);
+  }
+  
+  var backdrop = document.createElement('div');
+  backdrop.id = 'vault-menu-backdrop';
+  backdrop.className = 'vault-menu-backdrop';
+  document.body.appendChild(backdrop);
+  
+  var menu = document.createElement('div');
+  menu.id = 'vault-menu-overlay';
+  menu.className = 'vault-menu-overlay';
+  document.body.appendChild(menu);
+  
+  // Fetch user data and build menu
+  Promise.all([
+    db.collection('users').doc(uid).get(),
+    db.collection('users').doc(uid).collection('metrics').doc('practice').get()
+  ]).then(function(res){
+    var firstName = (res[0].exists && res[0].data().firstName) || 'there';
+    var lastLessonUrl = (res[1].exists && res[1].data().lastLessonUrl) || null;
     
-    // Create hamburger button inside hero
-    var hamburger = document.createElement('button');
-    hamburger.id = 'vault-hamburger-btn';
-    hamburger.className = 'vault-hamburger-btn';
-    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    // Build continue section if user has practiced
+    var continueSection = lastLessonUrl 
+      ? '<div class="vault-menu-section">' +
+        '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:8px;font-weight:500;">Hi, ' + firstName + '.</div>' +
+        '  <div class="vault-menu-section-title">Continue with:</div>' +
+        '  <a href="' + lastLessonUrl + '" class="vault-menu-btn vault-menu-continue">Resume Last Lesson</a>' +
+        '</div><div class="vault-menu-divider"></div>'
+      : '';
     
-    // Find hero and insert hamburger
-    var hero = document.querySelector('.course-hero, .vault-hero, .members-hero, .create-hero, .groove-hero, .contact-hero');
-    if (hero) {
-      hero.appendChild(hamburger);
-    } else {
-      document.body.appendChild(hamburger);
-    }
+    menu.innerHTML = 
+      '<div class="vault-menu-header">' +
+      '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-menu-logo">' +
+      '  <button class="vault-menu-close" id="vault-menu-close">&times;</button>' +
+      '</div>' +
+      '<div class="vault-menu-content">' +
+      continueSection +
+      '  <div class="vault-menu-section">' +
+      '    <div class="vault-menu-section-title">Navigation</div>' +
+      '    <a href="/" class="vault-menu-link">Practice Vault Home</a>' +
+      '    <a href="/groove" class="vault-menu-link">GrooveScribe</a>' +
+      '    <a href="/members" class="vault-menu-link">Members Area</a>' +
+      '    <a href="/updates" class="vault-menu-link">Updates</a>' + 
+      '  </div>' +
+      '  <div class="vault-menu-divider"></div>' +
+      '  <div class="vault-menu-section">' +
+      '    <a href="/contact" class="vault-menu-link">Contact Support</a>' +
+      '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
+      '  </div>' +
+      '</div>';
     
-    // Create backdrop
-    var backdrop = document.createElement('div');
-    backdrop.id = 'vault-menu-backdrop';
-    backdrop.className = 'vault-menu-backdrop';
-    document.body.appendChild(backdrop);
-    
-    // Create menu overlay
-    var menu = document.createElement('div');
-    menu.id = 'vault-menu-overlay';
-    menu.className = 'vault-menu-overlay';
-    
-    var menuHTML = 
+    setupEventHandlers();
+  }).catch(function(){
+    // Fallback if data load fails
+    menu.innerHTML = 
       '<div class="vault-menu-header">' +
       '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-menu-logo">' +
       '  <button class="vault-menu-close" id="vault-menu-close">&times;</button>' +
@@ -149,11 +187,10 @@
       '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
       '  </div>' +
       '</div>';
-    
-    menu.innerHTML = menuHTML;
-    document.body.appendChild(menu);
-    
-    // Event handlers
+    setupEventHandlers();
+  });
+  
+  function setupEventHandlers(){
     var closeBtn = document.getElementById('vault-menu-close');
     var logoutBtn = document.getElementById('vault-menu-logout');
     
@@ -182,9 +219,10 @@
     document.addEventListener('keydown', function(e){
       if(e.key === 'Escape') closeMenu();
     });
-    
-    highlightActive(menu);
   }
+  
+  highlightActive(menu);
+}
   
   function removeHamburgerMenu(){
     var hamburger = document.getElementById('vault-hamburger-btn');
@@ -381,6 +419,15 @@
       .vault-menu-overlay {
         max-width: 260px;
       }
+     .vault-menu-continue {
+      background: rgba(6,179,253,0.15);
+      border-color: rgba(6,179,253,0.3);
+      color: #06b3fd;
+    }
+    .vault-menu-continue:hover {
+      background: rgba(6,179,253,0.25);
+      border-color: rgba(6,179,253,0.4);
+    }
     }
     `;
     
