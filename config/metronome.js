@@ -218,8 +218,8 @@ function metronome() {
     const isAccented = beatIndex !== undefined && beatEmphasis[beatIndex] === 'accent';
 
     if (isDownbeat) {
-      oscillator.frequency.value = isAccented ? 1400 : 1200;
-      gainNode.gain.value = isAccented ? 0.45 : 0.35;
+      oscillator.frequency.value = isAccented ? 1400 : 900;
+      gainNode.gain.value = isAccented ? 0.45 : 0.28;
     } else if (isSubdivision) {
       oscillator.frequency.value = 600;
       gainNode.gain.value = 0.2;
