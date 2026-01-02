@@ -1,6 +1,6 @@
 /* components.js
    Purpose: UI components - toast notifications + hamburger menu navigation + universal site footer + scroll to top button
-   Usage: Loaded conditionally on /vault and /members pages
+   Usage: Loaded conditionally on most pages
 */
 
 (function(){
