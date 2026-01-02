@@ -663,7 +663,7 @@ function initActiveCourseTracking(){
             'gs': 'groove',
             'fs': 'fills',
             'ss': 'sticks',
-            'ks': 'kicks'
+            'ks': 'kicks',
              'rs': 'reading'
           };
           var fullPathway = pathwayMap[pathway] || pathway;
@@ -1850,5 +1850,6 @@ var c = String(newPw2.value || '').trim();
 
   start();
 });
+
 
 
