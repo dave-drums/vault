@@ -500,6 +500,12 @@ body.auth-checked {
   display: flex;
   gap: 8px;
   margin-top: 12px;
+  justify-content: flex-start;
+}
+
+.user-actions .btn {
+  flex: 0 0 auto;
+  min-width: 140px;
 }
 
 /* ACCORDION */
@@ -765,5 +771,17 @@ body.auth-checked {
   
   .lesson-grid {
     grid-template-columns: 1fr;
+  }
+   
+   .accordion-row {
+    flex-direction: column;
+  }
+  
+  .user-actions {
+    flex-direction: column;
+  }
+  
+  .user-actions .btn {
+    width: 100%;
   }
 }
