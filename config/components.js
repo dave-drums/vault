@@ -151,20 +151,22 @@
       '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-menu-logo">' +
       '  <button class="vault-menu-close" id="vault-menu-close">&times;</button>' +
       '</div>' +
+       
       '<div class="vault-menu-content">' +
       continueSection +
       '  <div class="vault-menu-section">' +
       '    <div class="vault-menu-section-title">Navigation</div>' +
-      '    <a href="/" class="vault-menu-link">Practice Vault Home</a>' +
-      '    <a href="/groove" class="vault-menu-link">GrooveScribe</a>' +
+      '    <a href="/" class="vault-menu-link">🥁 Practice Vault Home</a>' +
+      '    <a href="/groove" class="vault-menu-link">🎼 GrooveScribe</a>' +
       '    <a href="/members" class="vault-menu-link">Members Area</a>' +
-      '    <a href="/" class="vault-menu-link">My Stats</a>' +
-      '    <a href="/" class="vault-menu-link">My Profile</a>' +
-      '    <a href="/updates" class="vault-menu-link">Updates</a>' + 
+      '    <a href="/stats" class="vault-menu-link">📊 My Stats</a>' +
+      '    <a href="/profile" class="vault-menu-link">👤 My Profile</a>' +
+      '    <a href="/updates" class="vault-menu-link">🛠️ Updates</a>' + 
       '  </div>' +
+       
       '  <div class="vault-menu-divider"></div>' +
       '  <div class="vault-menu-section">' +
-      '    <a href="/contact" class="vault-menu-link">Contact Support</a>' +
+      '    <a href="/contact" class="vault-menu-link">🗨️ Contact Support</a>' +
       '    <button class="vault-menu-btn vault-menu-logout" id="vault-menu-logout">Logout</button>' +
       '  </div>' +
       '</div>';
