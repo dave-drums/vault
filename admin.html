@@ -763,12 +763,6 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
       return (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
     }).sort(function(a,b){ return tsToMs(b.lastActive) - tsToMs(a.lastActive); });
 
-    users.sort(function(a,b){
-      var aT = tsToMs(a.lastLogin) || tsToMs(a.joinedAt) || tsToMs(a.lastActive);
-      var bT = tsToMs(b.lastLogin) || tsToMs(b.joinedAt) || tsToMs(b.lastActive);
-      return bT - aT;
-    });
-
     var onlineText = online.length
       ? ('🥁 ' + online.map(function(u){ return escapeHtml(u.email); }).join(', '))
       : 'No one online right now.';
