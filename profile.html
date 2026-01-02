@@ -93,12 +93,6 @@
         emailText.innerHTML = '🟢 Logged in as <strong>' + (user.email || '') + '</strong>';
         contentEl.appendChild(emailText);
         
-        // Navigation link to stats
-        var navLink = document.createElement('div');
-        navLink.style.cssText = 'text-align:center;margin-bottom:24px;';
-        navLink.innerHTML = '<a href="/stats" style="color:var(--accent);text-decoration:none;font-weight:500;">View Practice Stats →</a>';
-        contentEl.appendChild(navLink);
-        
         // Change Name Section
         var nameSection = createNameSection(user);
         contentEl.appendChild(nameSection);
