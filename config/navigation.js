@@ -197,8 +197,7 @@ auth.onAuthStateChanged(function(user){
     hamburger.className = 'vault-hamburger-btn';
     hamburger.innerHTML = '<span></span><span></span><span></span>';
     
-    // ✅ PRESERVED: Append to hero or body (original lines 113-118)
-    var hero = document.querySelector('.course-hero, .vault-hero, .members-hero, .create-hero, .groove-hero, .contact-hero');
+    var hero = document.querySelector('.hero');
     if (hero) {
       hero.appendChild(hamburger);
     } else {
