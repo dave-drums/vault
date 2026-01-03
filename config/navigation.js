@@ -732,7 +732,7 @@ auth.onAuthStateChanged(function(user){
         transition: all 0.2s;
       }
       
-      body.vault-logged-in .vault-hamburger-btn {
+      .vault-hamburger-btn {
         display: flex;
       }
       
