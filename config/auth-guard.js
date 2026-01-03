@@ -4,7 +4,7 @@
    
    Features:
    - Checks if user is logged in
-   - Redirects to /members if not authenticated
+   - Redirects to /login if not authenticated
    - For admin pages: checks if user has admin flag
    - Redirects to / if not admin (on admin pages)
    - Shows body only after auth passes
@@ -48,9 +48,9 @@ function showBody() {
   }, delay);
 }
   
-  function redirectToMembers() {
+  function redirectToLogin() {
     var next = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-    window.location.href = '/members?next=' + next;
+    window.location.href = '/login?next=' + next;
   }
   
   function redirectToHome() {
@@ -91,8 +91,8 @@ function showBody() {
       clearTimeout(failsafe);
       
       if (!user) {
-        // Not logged in - redirect to members login
-        redirectToMembers();
+        // Not logged in - redirect to login
+        redirectToLogin();
         return;
       }
       
