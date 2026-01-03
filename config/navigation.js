@@ -281,7 +281,44 @@ auth.onAuthStateChanged(function(user){
       setupMobileHandlers();
     });
 
-// Logged-out desktop sidebar
+
+    
+    // ✅ PRESERVED: Mobile menu event handlers (original lines 201-230)
+    function setupMobileHandlers(){
+      var closeBtn = document.getElementById('vault-menu-close');
+      var logoutBtn = document.getElementById('vault-menu-logout');
+      
+      function openMenu(){
+        hamburger.classList.add('open');
+        backdrop.classList.add('open');
+        menu.classList.add('open');
+      }
+      
+      function closeMenu(){
+        hamburger.classList.remove('open');
+        backdrop.classList.remove('open');
+        menu.classList.remove('open');
+      }
+      
+      hamburger.addEventListener('click', openMenu);
+      closeBtn.addEventListener('click', closeMenu);
+      backdrop.addEventListener('click', closeMenu);
+      
+      // ✅ PRESERVED: Logout functionality (original lines 221-225)
+      logoutBtn.addEventListener('click', function(){
+        auth.signOut().then(function(){
+          window.location.href = '/login.html';
+        });
+      });
+      
+      // ✅ PRESERVED: ESC key closes menu (original lines 227-229)
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape') closeMenu();
+      });
+    }
+  }
+
+   // Logged-out desktop sidebar
   function createLoggedOutSidebar(auth){
     if(window.innerWidth < 769) return;
     
@@ -405,42 +442,8 @@ auth.onAuthStateChanged(function(user){
       });
     }
   }
-    
-    // ✅ PRESERVED: Mobile menu event handlers (original lines 201-230)
-    function setupMobileHandlers(){
-      var closeBtn = document.getElementById('vault-menu-close');
-      var logoutBtn = document.getElementById('vault-menu-logout');
-      
-      function openMenu(){
-        hamburger.classList.add('open');
-        backdrop.classList.add('open');
-        menu.classList.add('open');
-      }
-      
-      function closeMenu(){
-        hamburger.classList.remove('open');
-        backdrop.classList.remove('open');
-        menu.classList.remove('open');
-      }
-      
-      hamburger.addEventListener('click', openMenu);
-      closeBtn.addEventListener('click', closeMenu);
-      backdrop.addEventListener('click', closeMenu);
-      
-      // ✅ PRESERVED: Logout functionality (original lines 221-225)
-      logoutBtn.addEventListener('click', function(){
-        auth.signOut().then(function(){
-          window.location.href = '/login.html';
-        });
-      });
-      
-      // ✅ PRESERVED: ESC key closes menu (original lines 227-229)
-      document.addEventListener('keydown', function(e){
-        if(e.key === 'Escape') closeMenu();
-      });
-    }
-  }
-  
+
+   
   // ✅ PRESERVED: Remove mobile menu elements (original lines 233-240)
   function removeMobileMenu(){
     var hamburger = document.getElementById('vault-hamburger-btn');
