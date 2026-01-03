@@ -39,22 +39,24 @@
   
 </head>
 <body>
-
-  <!-- COURSE HEADER -->
-  <div class="course-hero">
-    <div class="course-hero-bg" data-pathway="kicks"></div>
-    
-    <div class="course-hero-content">
-      <h1 class="course-hero-title" id="hero-course-name">Loading...</h1>
-      <div class="course-hero-badge" id="hero-course-level"></div>
-    </div>
+  <div id="page-loader" class="page-loader">
+    <div class="loading-spinner"></div>
   </div>
+  
+  <!-- COURSE HEADER -->
+<div class="hero">
+  <div class="hero-banner" data-bg="kicks"></div>
+  <div class="hero-content">
+    <h1 class="hero-title" id="hero-course-name">Loading...</h1>
+    <div class="hero-badge" id="hero-course-level"></div>
+  </div>
+</div>
 
   <div id="course-index" class="course-container">
-    <div class="vault-loading">
-      <div class="vault-loading-spinner"></div>
-      <div class="vault-loading-text">Loading course...</div>
-    </div>
+<div class="loading-inline">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading course...</div>
+</div>
   </div>
 
   <div id="lesson-content" class="hidden"></div>
