@@ -39,26 +39,28 @@
   
 </head>
 <body>
-
+  <div id="page-loader" class="page-loader">
+    <div class="loading-spinner"></div>
+  </div>
+  
   <!-- COURSE HEADER -->
-  <div class="course-hero">
-    <div class="course-hero-bg" data-pathway="groove"></div>
-    
-    <div class="course-hero-content">
-      <h1 class="course-hero-title" id="hero-course-name">Loading...</h1>
-      <div class="course-hero-badge" id="hero-course-level"></div>
+  <div class="hero">
+    <div class="hero-banner" data-bg="groove"></div>
+    <div class="hero-content">
+      <h1 class="hero-title" id="hero-course-name">Loading...</h1>
+      <div class="hero-badge" id="hero-course-level"></div>
     </div>
   </div>
 
   <div id="course-index" class="course-container">
-<div class="loading-inline">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Loading course...</div>
-</div>
+    <div class="loading-inline">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading course...</div>
+    </div>
   </div>
 
   <div id="lesson-content" class="hidden"></div>
 
   <script src="/config/course-loader.js"></script>
-  
+  </body>
 </html>
