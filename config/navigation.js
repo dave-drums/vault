@@ -28,19 +28,19 @@
 
   // Init function
   function init(){
-    if (!firebase.auth || !firebase.firestore) {
+    if (!firebase.auth) {
       setTimeout(init, 100);
       return;
     }
     
     var auth = firebase.auth();
-    var db = firebase.firestore();
+    var db = firebase.firestore ? firebase.firestore() : null;
     
     injectStyles();
     
   // Auth state change listener
 auth.onAuthStateChanged(function(user){
-  if(user){
+  if(user && db){
     document.body.classList.add('vault-logged-in');
     createDesktopSidebar(user.uid, auth, db);
     createMobileMenu(user.uid, auth, db);
@@ -327,15 +327,15 @@ auth.onAuthStateChanged(function(user){
     
     var sidebar = document.createElement('div');
     sidebar.id = 'vault-sidebar';
-    sidebar.className = 'vault-sidebar collapsed';
+    sidebar.className = 'vault-sidebar';
     document.body.appendChild(sidebar);
-    document.body.classList.add('has-sidebar', 'sidebar-collapsed');
+    document.body.classList.add('has-sidebar');
     
     sidebar.innerHTML = 
       '<div class="sidebar-header">' +
       '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="sidebar-logo">' +
       '  <button class="sidebar-toggle" id="sidebar-toggle">' +
-      '    <span class="nav-icon">' + NAV_ICONS.chevronRight + '</span>' +
+      '    <span class="nav-icon">' + NAV_ICONS.chevronLeft + '</span>' +
       '  </button>' +
       '</div>' +
       '<div class="sidebar-content">' +
