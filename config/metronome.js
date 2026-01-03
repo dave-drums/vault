@@ -17,6 +17,7 @@ function Metronome() {
     { 
       value: 1, 
       name: 'Quarter',
+      latin: 'Crotchet',
       svg: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <ellipse cx="8" cy="18" rx="3.5" ry="2.5" transform="rotate(-20 8 18)"/>
@@ -27,6 +28,7 @@ function Metronome() {
     { 
       value: 2, 
       name: 'Eighth',
+      latin: 'Quaver',
       svg: (
         <svg width="32" height="24" viewBox="0 0 32 24" fill="currentColor">
           <ellipse cx="6" cy="18" rx="3" ry="2" transform="rotate(-20 6 18)"/>
@@ -40,6 +42,7 @@ function Metronome() {
     { 
       value: 3, 
       name: '8th Trip',
+      latin: 'Quaver Trip',
       svg: (
         <svg width="42" height="28" viewBox="0 0 42 28" fill="currentColor">
           <text x="21" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">3</text>
@@ -56,6 +59,7 @@ function Metronome() {
     { 
       value: 4, 
       name: '16th',
+      latin: 'Semiquaver',
       svg: (
         <svg width="44" height="24" viewBox="0 0 44 24" fill="currentColor">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
@@ -73,7 +77,8 @@ function Metronome() {
     },
     { 
       value: 5, 
-      name: 'Quint',
+      name: 'Fivelet',
+      latin: 'Quintuplet',
       svg: (
         <svg width="52" height="28" viewBox="0 0 52 28" fill="currentColor">
           <text x="26" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">5</text>
@@ -94,7 +99,8 @@ function Metronome() {
     },
     { 
       value: 6, 
-      name: 'Sext',
+      name: '16th Tip',
+      latin: 'Sextuplet',
       svg: (
         <svg width="60" height="28" viewBox="0 0 60 28" fill="currentColor">
           <text x="30" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">6</text>
@@ -117,7 +123,8 @@ function Metronome() {
     },
     { 
       value: 7, 
-      name: 'Sept',
+      name: 'Sevenlet',
+      latin: 'Septuplet',
       svg: (
         <svg width="68" height="28" viewBox="0 0 68 28" fill="currentColor">
           <text x="34" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">7</text>
@@ -143,6 +150,7 @@ function Metronome() {
     { 
       value: 8, 
       name: '32nd',
+      latin: 'Demisemiquaver',
       svg: (
         <svg width="76" height="24" viewBox="0 0 76 24" fill="currentColor">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
@@ -355,19 +363,8 @@ function Metronome() {
             textAlign: 'center',
             boxShadow: '0 4px 12px rgba(6,179,253,0.3)'
           }}>
-            <div style={{
-              color: 'rgba(255,255,255,0.9)',
-              fontSize: '14px',
-              fontWeight: '600',
-              marginBottom: '8px',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              fontFamily: "'Inter', sans-serif"
-            }}>
-              Tempo
-            </div>
             <div className="bpm-number" style={{
-              fontSize: '60px',
+              fontSize: '55px',
               fontWeight: '600',
               color: '#fff',
               lineHeight: '1',
@@ -754,7 +751,7 @@ function Metronome() {
                     textAlign: 'center',
                     fontFamily: "'Inter', sans-serif"
                   }}>
-                    {sub.name}
+                    {sub.name}<br/>{sub.latin}
                   </span>
                 </button>
               ))}
