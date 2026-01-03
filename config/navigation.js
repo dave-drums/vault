@@ -721,7 +721,7 @@ auth.onAuthStateChanged(function(user){
         border-radius: 8px;
         padding: 10px 12px;
         cursor: pointer;
-        display: none;
+        display: flex; 
         flex-direction: column;
         gap: 5px;
         width: 44px;
@@ -729,10 +729,6 @@ auth.onAuthStateChanged(function(user){
         justify-content: center;
         align-items: center;
         transition: all 0.2s;
-      }
-      
-      .vault-hamburger-btn {
-        display: flex;
       }
       
       .vault-hamburger-btn:hover {
