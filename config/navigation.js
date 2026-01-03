@@ -28,13 +28,21 @@
 
   // Init function
   function init(){
-    if (!firebase.auth) {
+    // Check Firebase is loaded and initialized
+    if (typeof firebase === 'undefined' || !firebase.auth) {
       setTimeout(init, 100);
       return;
     }
     
-    var auth = firebase.auth();
-    var db = firebase.firestore ? firebase.firestore() : null;
+    var auth, db;
+    try {
+      auth = firebase.auth();
+      db = firebase.firestore ? firebase.firestore() : null;
+    } catch(e) {
+      // Firebase not ready yet
+      setTimeout(init, 100);
+      return;
+    }
     
     injectStyles();
     
@@ -958,8 +966,14 @@ auth.onAuthStateChanged(function(user){
     document.head.appendChild(style);
   }
   
-  // ✅ PRESERVED: Initialize (original lines 457-461)
-  init();
+  // Wait for DOM to be ready before initializing
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(init, 50);
+    });
+  } else {
+    setTimeout(init, 50);
+  }
    // Failsafe: hide loader after 3s if auth hangs
 setTimeout(function(){
   var loader = document.getElementById('page-loader');
