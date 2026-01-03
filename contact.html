@@ -20,22 +20,193 @@
   <script src="/firebase/firebase-auth-compat.js"></script>
   <script src="/firebase/firebase-init.js"></script>
   
-  <!-- Vault Scripts -->
+  <!-- Mark page as protected (requires login) -->
+  <script>document.documentElement.dataset.protected = 'true';</script>
   <script src="/config/auth-guard.js"></script>
+  
+  <!-- Vault Scripts -->
   <script src="/config/components.js"></script>
   <script src="/config/navigation.js"></script>
   <script src="/config/error-handler.js"></script>
   
+  <style>
+    /* Contact-specific styles */
+    .contact-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+    
+    .contact-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      border: 1px solid var(--border);
+    }
+    
+    .contact-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .contact-header h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: var(--heading-section);
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    
+    .contact-header p {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--text-ui);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    
+    .contact-form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: var(--text-small);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .contact-form input,
+    .contact-form textarea {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: var(--text-ui);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    
+    .contact-form textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(6, 179, 253, 0.1);
+    }
+    
+    .contact-form button {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      font-size: var(--text-ui);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .contact-form button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(6, 179, 253, 0.3);
+    }
+    
+    .contact-form button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .contact-info {
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .info-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-icon {
+      font-size: var(--text-large);
+      color: var(--accent);
+      margin-top: 2px;
+    }
+    
+    .info-content h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: var(--text-body);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+    
+    .info-content p {
+      font-size: var(--text-ui);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+    
+    .info-content a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .info-content a:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+      .contact-card {
+        padding: 32px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .contact-card {
+        padding: 28px;
+      }
+      .contact-header h2 {
+        font-size: var(--heading-card);
+      }
+    }
+  </style>
 </head>
 <body>
+  <div id="page-loader" class="page-loader">
+    <div class="loading-spinner"></div>
+  </div>
   
   <!-- HERO HEADER -->
-<div class="hero">
-  <div class="hero-banner" data-bg="home"></div>
-  <div class="hero-content">
-    <h1 class="hero-title">Contact</h1>
+  <div class="hero">
+    <div class="hero-banner" data-bg="home"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Contact</h1>
+    </div>
   </div>
-</div>
   
   <!-- MAIN CONTENT -->
   <div class="contact-container">
@@ -46,7 +217,7 @@
         <p>Fill out the form below and I'll get back to you soon</p>
       </div>
       
-      <!-- Web3Forms Contact Form - No action attribute, JavaScript handles submission -->
+      <!-- Web3Forms Contact Form -->
       <form class="contact-form" id="contactForm">
         
         <!-- Web3Forms Access Key (hidden) -->
@@ -76,7 +247,7 @@
           <div class="info-icon">📧</div>
           <div class="info-content">
             <h3>Email</h3>
-            <p><a href="/cdn-cgi/l/email-protection#5d2e282d2d322f291d393c2b38392f28302e733e3230733c28"><span class="__cf_email__" data-cfemail="e3909693938c9197a3878295868791968e90cd808c8ecd8296">[email&#160;protected]</span></a></p>
+            <p><a href="mailto:support@davedrums.com.au">support@davedrums.com.au</a></p>
           </div>
         </div>
         
@@ -92,8 +263,8 @@
     
   </div>
   
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // Toast system - use VaultToast if available from components.js, otherwise use standalone
+  <script>
+    // Toast system - use VaultToast if available from components.js
     const Toast = window.VaultToast || {
       show: function(message, type) {
         const toast = document.createElement('div');
@@ -156,4 +327,14 @@
         }
       } catch (error) {
         console.error('Form submission error:', error);
-        Toast.error('Sorry, there w
+        Toast.error('Sorry, there was an error sending your message. Please try again or email us directly.');
+      } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    });
+  </script>
+  
+</body>
+</html>
