@@ -164,12 +164,7 @@
           
           auth.onAuthStateChanged(function(user){
             if (loadingEl) loadingEl.style.display = 'none';
-            
-            if (!user) {
-              window.location.href = '/login';
-              return;
-            }
-            
+                        
             // Render metronome
             const root = ReactDOM.createRoot(document.getElementById('metronome-root'));
             root.render(React.createElement(window.Metronome));
