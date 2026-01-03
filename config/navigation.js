@@ -38,7 +38,7 @@
     
     injectStyles();
     
-    // Auth state change listener
+  // Auth state change listener
 auth.onAuthStateChanged(function(user){
   if(user){
     document.body.classList.add('vault-logged-in');
@@ -46,7 +46,8 @@ auth.onAuthStateChanged(function(user){
     createMobileMenu(user.uid, auth, db);
   } else {
     document.body.classList.remove('vault-logged-in');
-    removeNavigation();
+    createLoggedOutSidebar(auth);
+    createLoggedOutMobileMenu(auth);
   }
   
   // Hide page loader after auth check
@@ -280,6 +281,131 @@ auth.onAuthStateChanged(function(user){
       highlightActive(menu);
       setupMobileHandlers();
     });
+
+// Logged-out desktop sidebar
+  function createLoggedOutSidebar(auth){
+    if(window.innerWidth < 769) return;
+    
+    var existingSidebar = document.getElementById('vault-sidebar');
+    if(existingSidebar) existingSidebar.remove();
+    
+    var sidebar = document.createElement('div');
+    sidebar.id = 'vault-sidebar';
+    sidebar.className = 'vault-sidebar collapsed';
+    document.body.appendChild(sidebar);
+    document.body.classList.add('has-sidebar', 'sidebar-collapsed');
+    
+    sidebar.innerHTML = 
+      '<div class="sidebar-header">' +
+      '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="sidebar-logo">' +
+      '  <button class="sidebar-toggle" id="sidebar-toggle">' +
+      '    <span class="nav-icon">' + NAV_ICONS.chevronRight + '</span>' +
+      '  </button>' +
+      '</div>' +
+      '<div class="sidebar-content">' +
+      '  <div class="sidebar-section">' +
+      '    <a href="/login.html" class="sidebar-btn sidebar-continue">' +
+      '      <span class="nav-icon">' + NAV_ICONS.user + '</span>' +
+      '      <span>Login</span>' +
+      '    </a>' +
+      '  </div>' +
+      '  <div class="sidebar-divider"></div>' +
+      '  <div class="sidebar-section">' +
+      '    <a href="/groove" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
+      '    <a href="/metronome" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
+      '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
+      '  </div>' +
+      '</div>';
+    
+    highlightActive(sidebar);
+    setupLoggedOutSidebarHandlers(sidebar);
+  }
+  
+  function setupLoggedOutSidebarHandlers(sidebar){
+    var toggleBtn = document.getElementById('sidebar-toggle');
+    
+    toggleBtn.addEventListener('click', function(){
+      var isCollapsed = sidebar.classList.toggle('collapsed');
+      document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+      
+      var icon = toggleBtn.querySelector('.nav-icon');
+      icon.innerHTML = isCollapsed ? NAV_ICONS.chevronRight : NAV_ICONS.chevronLeft;
+      
+      localStorage.setItem('vaultSidebarExpanded', !isCollapsed);
+    });
+  }
+
+     // Logged-out mobile menu
+  function createLoggedOutMobileMenu(auth){
+    if(window.innerWidth > 768) return;
+    removeMobileMenu();
+    
+    var hamburger = document.createElement('button');
+    hamburger.id = 'vault-hamburger-btn';
+    hamburger.className = 'vault-hamburger-btn';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    var hero = document.querySelector('.hero');
+    if (hero) {
+      hero.appendChild(hamburger);
+    } else {
+      document.body.appendChild(hamburger);
+    }
+    
+    var backdrop = document.createElement('div');
+    backdrop.id = 'vault-menu-backdrop';
+    backdrop.className = 'vault-menu-backdrop';
+    document.body.appendChild(backdrop);
+    
+    var menu = document.createElement('div');
+    menu.id = 'vault-menu-overlay';
+    menu.className = 'vault-menu-overlay';
+    document.body.appendChild(menu);
+    
+    menu.innerHTML = 
+      '<div class="vault-menu-header">' +
+      '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-menu-logo">' +
+      '  <button class="vault-menu-close" id="vault-menu-close">&times;</button>' +
+      '</div>' +
+      '<div class="vault-menu-content">' +
+      '  <div class="vault-menu-section">' +
+      '    <a href="/login.html" class="vault-menu-btn vault-menu-continue"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>Login</span></a>' +
+      '  </div>' +
+      '  <div class="vault-menu-divider"></div>' +
+      '  <div class="vault-menu-section">' +
+      '    <a href="/groove" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
+      '    <a href="/metronome" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
+      '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
+      '  </div>' +
+      '</div>';
+    
+    highlightActive(menu);
+    setupLoggedOutMobileHandlers();
+    
+    function setupLoggedOutMobileHandlers(){
+      var closeBtn = document.getElementById('vault-menu-close');
+      
+      function openMenu(){
+        hamburger.classList.add('open');
+        backdrop.classList.add('open');
+        menu.classList.add('open');
+      }
+      
+      function closeMenu(){
+        hamburger.classList.remove('open');
+        backdrop.classList.remove('open');
+        menu.classList.remove('open');
+      }
+      
+      hamburger.addEventListener('click', openMenu);
+      closeBtn.addEventListener('click', closeMenu);
+      backdrop.addEventListener('click', closeMenu);
+      
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape') closeMenu();
+      });
+    }
+  }
     
     // ✅ PRESERVED: Mobile menu event handlers (original lines 201-230)
     function setupMobileHandlers(){
@@ -574,19 +700,10 @@ auth.onAuthStateChanged(function(user){
         margin-left: 72px;
       }
       
-      /* Hide mobile menu on desktop */
-      .vault-hamburger-btn {
-      display: none !important;
-      }
-      
-      .vault-menu-backdrop,
-      .vault-menu-overlay {
-      display: none !important;
-      }
     }
     
     /* ============================================
-       MOBILE MENU (≤768px) - PRESERVED FROM ORIGINAL
+       MOBILE MENU (≤768px)
        ============================================ */
     @media (max-width: 768px) {
       /* Hide desktop sidebar on mobile */
