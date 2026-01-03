@@ -41,8 +41,8 @@ function Metronome() {
     },
     { 
       value: 3, 
-      name: '8th Trip',
-      latin: 'Quaver Trip',
+      name: '8th Triplet',
+      latin: 'Quaver Triplet',
       svg: (
         <svg width="42" height="28" viewBox="0 0 42 28" fill="currentColor">
           <text x="21" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">3</text>
@@ -99,7 +99,7 @@ function Metronome() {
     },
     { 
       value: 6, 
-      name: '16th Tip',
+      name: '16th Triplet',
       latin: 'Sextuplet',
       svg: (
         <svg width="60" height="28" viewBox="0 0 60 28" fill="currentColor">
@@ -348,8 +348,8 @@ function Metronome() {
       <div style={{ width: '100%', maxWidth: '600px' }}>
         <div className="metronome-card" style={{
           background: '#fff',
-          borderRadius: '16px',
-          padding: '40px',
+          borderRadius: '15px',
+          padding: '30px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           border: '1px solid #e9ecef'
         }}>
@@ -357,14 +357,14 @@ function Metronome() {
           {/* BPM Display */}
           <div className="bpm-display" style={{
             background: 'linear-gradient(135deg, #06b3fd, #38bdf8)',
-            borderRadius: '16px',
-            padding: '32px',
+            borderRadius: '15px',
+            padding: '30px',
             marginBottom: '24px',
             textAlign: 'center',
             boxShadow: '0 4px 12px rgba(6,179,253,0.3)'
           }}>
             <div className="bpm-number" style={{
-              fontSize: '55px',
+              fontSize: '50px',
               fontWeight: '600',
               color: '#fff',
               lineHeight: '1',
