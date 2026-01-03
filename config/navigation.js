@@ -39,16 +39,27 @@
     injectStyles();
     
     // Auth state change listener
-    auth.onAuthStateChanged(function(user){
-      if(user){
-        document.body.classList.add('vault-logged-in');
-        createDesktopSidebar(user.uid, auth, db);
-        createMobileMenu(user.uid, auth, db);
-      } else {
-        document.body.classList.remove('vault-logged-in');
-        removeNavigation();
-      }
-    });
+auth.onAuthStateChanged(function(user){
+  if(user){
+    document.body.classList.add('vault-logged-in');
+    createDesktopSidebar(user.uid, auth, db);
+    createMobileMenu(user.uid, auth, db);
+  } else {
+    document.body.classList.remove('vault-logged-in');
+    removeNavigation();
+  }
+  
+  // Hide page loader after auth check
+  setTimeout(function(){
+    var loader = document.getElementById('page-loader');
+    if(loader) {
+      loader.classList.add('hidden');
+      setTimeout(function(){ 
+        if(loader.parentNode) loader.parentNode.removeChild(loader); 
+      }, 500);
+    }
+  }, 100);
+});
   }
   
   // Desktop sidebar (≥769px)
@@ -373,9 +384,9 @@
         overflow: hidden;
       }
       
-      .vault-sidebar.collapsed {
-        width: 64px;
-      }
+.vault-sidebar.collapsed {
+  width: 72px;
+}
       
       /* Sidebar header with logo and toggle */
       .sidebar-header {
@@ -834,4 +845,14 @@
   
   // ✅ PRESERVED: Initialize (original lines 457-461)
   init();
+   // Failsafe: hide loader after 3s if auth hangs
+setTimeout(function(){
+  var loader = document.getElementById('page-loader');
+  if(loader && !loader.classList.contains('hidden')) {
+    loader.classList.add('hidden');
+    setTimeout(function(){ 
+      if(loader.parentNode) loader.parentNode.removeChild(loader); 
+    }, 500);
+  }
+}, 3000);
 })();
