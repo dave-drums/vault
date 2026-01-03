@@ -79,7 +79,7 @@ auth.onAuthStateChanged(function(user){
     sidebar.id = 'vault-sidebar';
     sidebar.className = 'vault-sidebar';
     
-    // ✅ NEW: Check localStorage for collapsed state (default: expanded)
+    // Check localStorage for collapsed state (default: expanded)
     var isExpanded = localStorage.getItem('vaultSidebarExpanded') !== 'false';
     if(!isExpanded) sidebar.classList.add('collapsed');
     
@@ -87,7 +87,7 @@ auth.onAuthStateChanged(function(user){
     document.body.classList.add('has-sidebar');
     if(!isExpanded) document.body.classList.add('sidebar-collapsed');
     
-    // ✅ PRESERVED: Fetch user data from Firestore (original lines 131-138)
+    // Fetch user data from Firestore
     Promise.all([
       db.collection('users').doc(uid).get(),
       db.collection('users').doc(uid).collection('metrics').doc('practice').get()
@@ -97,7 +97,7 @@ auth.onAuthStateChanged(function(user){
       var lastLessonUrl = practiceData.lastLessonUrl || null;
       var lastLessonTitle = practiceData.lastLessonTitle || 'Resume Last Lesson';
       
-      // ✅ MODIFIED: Greeting without emoji (original line 143 had emoji)
+      // Greeting without emoji
       var continueSection = lastLessonUrl 
         ? '<div class="sidebar-greeting">Hi, ' + firstName + '.</div>' +
           '<div class="sidebar-section">' +
@@ -137,7 +137,7 @@ auth.onAuthStateChanged(function(user){
       highlightActive(sidebar);
       setupSidebarHandlers(sidebar, auth);
     }).catch(function(){
-      // ✅ PRESERVED: Fallback without user data (original lines 175-198)
+      // Fallback without user data
       sidebar.innerHTML = 
         '<div class="sidebar-header">' +
         '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="sidebar-logo">' +
@@ -166,12 +166,12 @@ auth.onAuthStateChanged(function(user){
     });
   }
   
-  // ✅ NEW: Sidebar event handlers
+  // Sidebar event handlers
   function setupSidebarHandlers(sidebar, auth){
     var toggleBtn = document.getElementById('sidebar-toggle');
     var logoutBtn = document.getElementById('sidebar-logout');
     
-    // ✅ NEW: Toggle collapse/expand
+    // Toggle collapse/expand
     toggleBtn.addEventListener('click', function(){
       var isCollapsed = sidebar.classList.toggle('collapsed');
       document.body.classList.toggle('sidebar-collapsed', isCollapsed);
@@ -182,7 +182,7 @@ auth.onAuthStateChanged(function(user){
       localStorage.setItem('vaultSidebarExpanded', !isCollapsed);
     });
     
-    // ✅ PRESERVED: Logout functionality (original lines 221-225)
+    // Logout functionality
     logoutBtn.addEventListener('click', function(){
       auth.signOut().then(function(){
         window.location.href = '/login.html';
@@ -190,13 +190,13 @@ auth.onAuthStateChanged(function(user){
     });
   }
   
-  // ✅ PRESERVED: Mobile menu from original createHamburgerMenu function (lines 105-230)
+  // Mobile menu from original createHamburgerMenu function
   function createMobileMenu(uid, auth, db){
   // Only create mobile menu on screens ≤768px
   if(window.innerWidth > 768) return;
     removeMobileMenu();
     
-    // ✅ PRESERVED: Create hamburger button (original lines 108-111)
+    // Create hamburger button
     var hamburger = document.createElement('button');
     hamburger.id = 'vault-hamburger-btn';
     hamburger.className = 'vault-hamburger-btn';
@@ -209,19 +209,19 @@ auth.onAuthStateChanged(function(user){
       document.body.appendChild(hamburger);
     }
     
-    // ✅ PRESERVED: Create backdrop (original lines 120-123)
+    // Create backdrop
     var backdrop = document.createElement('div');
     backdrop.id = 'vault-menu-backdrop';
     backdrop.className = 'vault-menu-backdrop';
     document.body.appendChild(backdrop);
     
-    // ✅ PRESERVED: Create menu overlay (original lines 125-128)
+    // Create menu overlay
     var menu = document.createElement('div');
     menu.id = 'vault-menu-overlay';
     menu.className = 'vault-menu-overlay';
     document.body.appendChild(menu);
     
-    // ✅ PRESERVED: Fetch user data and build menu (original lines 130-174)
+    // Fetch user data and build menu
     Promise.all([
       db.collection('users').doc(uid).get(),
       db.collection('users').doc(uid).collection('metrics').doc('practice').get()
@@ -231,7 +231,7 @@ auth.onAuthStateChanged(function(user){
       var lastLessonUrl = practiceData.lastLessonUrl || null;
       var lastLessonTitle = practiceData.lastLessonTitle || 'Resume Last Lesson';
       
-      // ✅ MODIFIED: Greeting without emoji, SVG icons, Metronome added
+      // Greeting without emoji, SVG icons, Metronome added
       var continueSection = lastLessonUrl 
         ? '<div class="vault-menu-section">' +
           '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
@@ -263,7 +263,7 @@ auth.onAuthStateChanged(function(user){
       highlightActive(menu);
       setupMobileHandlers();
     }).catch(function(){
-      // ✅ PRESERVED: Fallback without user data (original lines 175-198)
+      // Fallback without user data
       menu.innerHTML = 
         '<div class="vault-menu-header">' +
         '  <img src="/assets/dwd-logo-500px.webp" alt="Dave Drums" class="vault-menu-logo">' +
@@ -359,6 +359,7 @@ auth.onAuthStateChanged(function(user){
       '</div>';
     
     highlightActive(sidebar);
+    addPageTransition(sidebar);
     setupLoggedOutSidebarHandlers(sidebar);
   }
   
@@ -421,6 +422,7 @@ auth.onAuthStateChanged(function(user){
       '</div>';
     
     highlightActive(menu);
+    addPageTransition(menu);
     setupLoggedOutMobileHandlers();
     
     function setupLoggedOutMobileHandlers(){
@@ -449,7 +451,7 @@ auth.onAuthStateChanged(function(user){
   }
 
    
-  // ✅ PRESERVED: Remove mobile menu elements (original lines 233-240)
+  // Remove mobile menu elements
   function removeMobileMenu(){
     var hamburger = document.getElementById('vault-hamburger-btn');
     var backdrop = document.getElementById('vault-menu-backdrop');
@@ -459,7 +461,7 @@ auth.onAuthStateChanged(function(user){
     if(menu) menu.remove();
   }
   
-  // ✅ PRESERVED + ENHANCED: Remove all navigation elements
+  // Remove all navigation elements
   function removeNavigation(){
     removeMobileMenu();
     var sidebar = document.getElementById('vault-sidebar');
@@ -467,7 +469,7 @@ auth.onAuthStateChanged(function(user){
     document.body.classList.remove('has-sidebar', 'sidebar-collapsed');
   }
   
-  // ✅ PRESERVED: Active page highlighting (original lines 242-250)
+  // Active page highlighting
   function highlightActive(container){
     var path = window.location.pathname;
     var links = container.querySelectorAll('.sidebar-link, .vault-menu-link');
@@ -478,8 +480,36 @@ auth.onAuthStateChanged(function(user){
       }
     });
   }
+
+     function highlightActive(container){
+    var path = window.location.pathname;
+    var links = container.querySelectorAll('a[href]');
+    links.forEach(function(link){
+      if(link.getAttribute('href') === path) {
+        link.classList.add('active');
+      }
+    });
+  }
   
-  // ✅ PRESERVED + ENHANCED: Inject all styles (original injectStyles function lines 253-455)
+  // Show page loader on navigation (for smooth transitions)
+  function addPageTransition(container){
+    var links = container.querySelectorAll('a[href^="/"]');
+    links.forEach(function(link){
+      link.addEventListener('click', function(e){
+        // Don't show loader if it's the current page
+        if(link.href === window.location.href) {
+          e.preventDefault();
+          return;
+        }
+        
+        // Show page loader
+        var loader = document.getElementById('page-loader');
+        if(loader) loader.classList.remove('hidden');
+      });
+    });
+  }
+  
+  // Inject all styles
   function injectStyles(){
     var css = `
     /* Icon wrapper */
@@ -718,7 +748,7 @@ auth.onAuthStateChanged(function(user){
         display: none;
       }
       
-      /* ✅ MODIFIED: Hamburger button moved to LEFT (original was right: 20px) */
+      /* Hamburger button moved to LEFT */
       .vault-hamburger-btn {
         position: absolute;
         top: 20px;
@@ -765,7 +795,7 @@ auth.onAuthStateChanged(function(user){
         transform: translateY(-7px) rotate(-45deg);
       }
       
-      /* ✅ PRESERVED: Backdrop (original lines 298-310) */
+      /* Backdrop */
       .vault-menu-backdrop {
         position: fixed;
         inset: 0;
@@ -781,7 +811,7 @@ auth.onAuthStateChanged(function(user){
         pointer-events: auto;
       }
       
-      /* ✅ MODIFIED: Menu overlay slides from LEFT (original was right: -100%) */
+      /* Menu overlay slides from LEFT */
       .vault-menu-overlay {
         position: fixed;
         top: 0;
@@ -804,7 +834,7 @@ auth.onAuthStateChanged(function(user){
         left: 0;
       }
       
-      /* ✅ PRESERVED: Menu header (original lines 331-338) */
+      /* Menu header */
       .vault-menu-header {
         padding: 24px;
         border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -814,14 +844,14 @@ auth.onAuthStateChanged(function(user){
         flex-shrink: 0;
       }
       
-      /* ✅ PRESERVED: Logo (original lines 339-343) */
+      /* Logo */
       .vault-menu-logo {
         height: 68px;
         width: auto;
         opacity: 0.9;
       }
       
-      /* ✅ PRESERVED: Close button (original lines 344-362) */
+      /* Close button */
       .vault-menu-close {
         background: none;
         border: none;
@@ -843,7 +873,7 @@ auth.onAuthStateChanged(function(user){
         background: rgba(255,255,255,0.1);
       }
       
-      /* ✅ PRESERVED: Menu content (original lines 363-371) */
+      /* Menu content */
       .vault-menu-content {
         padding: 16px;
         flex: 1;
@@ -855,19 +885,19 @@ auth.onAuthStateChanged(function(user){
         display: none;
       }
       
-      /* ✅ PRESERVED: Menu section (original lines 372-374) */
+      /* Menu section */
       .vault-menu-section {
         margin-bottom: 16px;
       }
       
-      /* ✅ PRESERVED: Divider (original lines 375-379) */
+      /* Divider */
       .vault-menu-divider {
         height: 1px;
         background: rgba(255,255,255,0.1);
         margin: 16px 0;
       }
       
-      /* ✅ PRESERVED: Section title (original lines 380-387) */
+      /* Section title */
       .vault-menu-section-title {
         font-size: var(--text-micro);
         text-transform: uppercase;
@@ -877,7 +907,7 @@ auth.onAuthStateChanged(function(user){
         font-weight: 600;
       }
       
-      /* ✅ MODIFIED: Menu link with flex for icons (original lines 388-397) */
+      /* Menu link with flex for icons */
       .vault-menu-link {
         display: flex;
         align-items: center;
@@ -901,7 +931,7 @@ auth.onAuthStateChanged(function(user){
         color: #06b3fd;
       }
       
-      /* ✅ MODIFIED: Menu button with flex for icons (original lines 406-420) */
+      /* Menu button with flex for icons */
       .vault-menu-btn {
         display: flex;
         align-items: center;
@@ -925,7 +955,7 @@ auth.onAuthStateChanged(function(user){
         border-color: rgba(255,255,255,0.2);
       }
       
-      /* ✅ PRESERVED: Logout button styling (original lines 425-432) */
+      /* Logout button styling */
       .vault-menu-logout {
         background: rgba(239,68,68,0.1);
         border-color: rgba(239,68,68,0.3);
@@ -936,7 +966,7 @@ auth.onAuthStateChanged(function(user){
         background: rgba(239,68,68,0.15);
       }
       
-      /* ✅ PRESERVED: Continue button styling (original lines 437-448) */
+      /* Continue button styling */
       .vault-menu-continue {
         background: rgba(6,179,253,0.15);
         border-color: rgba(6,179,253,0.3);
@@ -951,7 +981,7 @@ auth.onAuthStateChanged(function(user){
         border-color: rgba(6,179,253,0.4);
       }
       
-      /* ✅ PRESERVED: Mobile max-width (original lines 433-436) */
+      /* Mobile max-width */
       .vault-menu-overlay {
         max-width: 260px;
       }
