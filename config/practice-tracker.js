@@ -333,7 +333,7 @@
       if (isHidden) return;
       
       // Find the hero element
-      var hero = document.querySelector('.course-hero');
+      var hero = document.querySelector('.hero');
       if (!hero) return;
       
       // Check if user has selfProgress enabled
@@ -819,17 +819,6 @@
       currentUser = user;
       
       if (user) {
-
-console.log('=== PRACTICE TRACKER DEBUG ===');
-console.log('URL:', window.location.href);
-console.log('Pathname:', window.location.pathname);
-console.log('Search params:', window.location.search);
-
-var lessonInfo = getCurrentLessonInfo();
-console.log('Detected pathway:', lessonInfo.courseId);
-console.log('Detected lesson:', lessonInfo.lessonId);
-console.log('Lesson title:', lessonInfo.lessonTitle);
-console.log('==============================');
          
         // Wait for page AND styles to be ready
         function waitForStyles() {
