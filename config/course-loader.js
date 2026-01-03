@@ -23,15 +23,15 @@
   function showLoading(container, message) {
     if (!container) return;
     container.innerHTML = 
-      '<div class="vault-loading">' +
-      '<div class="vault-loading-spinner"></div>' +
-      '<div class="vault-loading-text">' + (message || 'Loading...') + '</div>' +
+      '<div class="loading-inline">' +
+      '<div class="loading-spinner"></div>' +
+      '<div class="loading-text">' + (message || 'Loading...') + '</div>' +
       '</div>';
   }
   
   function hideLoading(container) {
     if (!container) return;
-    var loading = container.querySelector('.vault-loading');
+    var loading = container.querySelector('.loading-inline');
     if (loading) loading.remove();
   }
   
@@ -337,7 +337,7 @@
     }
     
     // Show loading state
-    container.innerHTML = '<div class="vault-loading"><div class="vault-loading-spinner"></div><div class="vault-loading-text">Loading lesson...</div></div>';
+    container.innerHTML = '<div class="loading-inline"><div class="loading-spinner"></div><div class="loading-text">Loading lesson...</div></div>';
     
     // Show back button
     const backBtn = document.getElementById('back-to-course');
