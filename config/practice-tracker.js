@@ -824,12 +824,12 @@
           if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
               // Extra delay to ensure styles are loaded
-              setTimeout(injectUI, 500);
+              setTimeout(injectUI, 1500);
             });
           } else {
             // Check if styles are loaded
             if (document.styleSheets.length > 0) {
-              setTimeout(injectUI, 500);
+              setTimeout(injectUI, 1500);
             } else {
               // Wait a bit more for styles
               setTimeout(waitForStyles, 100);
