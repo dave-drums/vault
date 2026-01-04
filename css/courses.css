@@ -574,6 +574,12 @@
   gap: 12px;
 }
 
+.practice-center-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .lesson-nav-back {
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
@@ -642,6 +648,39 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #38bdf8;
+}
+
+.metronome-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+.metronome-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.metronome-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.metronome-text {
+  font-size: var(--text-small);
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
 }
 
 .lesson-nav-complete {
@@ -797,11 +836,26 @@
 @media (max-width: 640px) {
   .practice-bar-inner {
     gap: 6px;
+    flex-wrap: wrap;
   }
   
   .practice-sticky-bar .lesson-nav-back,
-  .practice-sticky-bar .lesson-nav-complete,
-  .practice-sticky-bar .practice-btn {
+  .practice-sticky-bar .lesson-nav-complete {
+    flex: 1 1 calc(50% - 3px);
+    font-size: var(--text-small);
+    padding: 12px 14px;
+  }
+  
+  .practice-center-controls {
+    flex: 1 1 100%;
+    width: 100%;
+    order: 3;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .practice-sticky-bar .practice-btn,
+  .practice-sticky-bar .metronome-btn {
     font-size: var(--text-small);
     padding: 12px 14px;
   }
