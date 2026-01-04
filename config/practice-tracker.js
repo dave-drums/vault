@@ -353,37 +353,44 @@
       stickyBar.innerHTML = `
         <div class="practice-bar-inner">
           <button class="lesson-nav-back" onclick="window.location.href=window.location.pathname + '?c=' + new URLSearchParams(window.location.search).get('c')">
-            ← Back
+            ← Back to Course
           </button>
           
-          <div class="practice-center-btn">
-            <button class="practice-btn" id="practice-btn">
-              <span class="practice-icon">⏱️</span>
-              <span class="practice-text" id="practice-text">Practice Timer</span>
-              <span class="practice-time" id="practice-time" style="display:none;">00:00</span>
-            </button>
-            
-            <div class="practice-dropdown" id="practice-dropdown">
-              <div class="dropdown-header">
-                <div class="dropdown-timer" id="dropdown-timer">00:00</div>
-              </div>
+          <div class="practice-center-controls">
+            <div class="practice-center-btn">
+              <button class="practice-btn" id="practice-btn">
+                <span class="practice-icon">⏱️</span>
+                <span class="practice-text" id="practice-text">Practice Timer</span>
+                <span class="practice-time" id="practice-time" style="display:none;">00:00</span>
+              </button>
               
-              <div class="dropdown-controls">
-                <button class="btn-play-dropdown" id="btn-play-dropdown">
-                  <span id="play-dropdown-text">Start ▶</span>
-                </button>
-              </div>
-              
-              <div class="dropdown-divider"></div>
-              
-              <div class="dropdown-stats">
-                Today's total: 0:00
+              <div class="practice-dropdown" id="practice-dropdown">
+                <div class="dropdown-header">
+                  <div class="dropdown-timer" id="dropdown-timer">00:00</div>
+                </div>
+                
+                <div class="dropdown-controls">
+                  <button class="btn-play-dropdown" id="btn-play-dropdown">
+                    <span id="play-dropdown-text">Start ▶</span>
+                  </button>
+                </div>
+                
+                <div class="dropdown-divider"></div>
+                
+                <div class="dropdown-stats">
+                  Today's total: 0:00
+                </div>
               </div>
             </div>
+            
+            <button class="metronome-btn" id="metronome-btn">
+              <span class="metronome-icon">🎵</span>
+              <span class="metronome-text">Metronome</span>
+            </button>
           </div>
           
           <button class="lesson-nav-complete" id="complete-lesson-btn">
-            Next →
+            Next Lesson →
           </button>
         </div>
       `;
@@ -447,9 +454,9 @@
           
           // Update button text based on selfProgress
           if (selfProgress) {
-            completeBtn.innerHTML = 'Complete ✓';
+            completeBtn.innerHTML = 'Complete Lesson ✓';
           } else {
-            completeBtn.innerHTML = 'Next →';
+            completeBtn.innerHTML = 'Next Lesson →';
           }
           
           // Check if already completed (only if selfProgress)
@@ -526,6 +533,16 @@
           });
         }).catch(function(err) {
           console.error('Error setting up complete button:', err);
+        });
+      }
+      
+      // Metronome button - placeholder for metronome.js integration
+      var metronomeBtn = document.getElementById('metronome-btn');
+      if (metronomeBtn) {
+        metronomeBtn.addEventListener('click', function() {
+          // Hook this up to your metronome.js popup
+          // Example: if (window.VaultMetronome) window.VaultMetronome.open();
+          console.log('Metronome button clicked - connect to metronome.js');
         });
       }
       
