@@ -17,7 +17,6 @@ function Metronome() {
     { 
       value: 1, 
       name: 'Quarter',
-      latin: 'Crotchet',
       svg: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
           <ellipse cx="8" cy="18" rx="3.5" ry="2.5" transform="rotate(-20 8 18)"/>
@@ -28,7 +27,6 @@ function Metronome() {
     { 
       value: 2, 
       name: 'Eighth',
-      latin: 'Quaver',
       svg: (
         <svg width="32" height="24" viewBox="0 0 32 24" fill="currentColor">
           <ellipse cx="6" cy="18" rx="3" ry="2" transform="rotate(-20 6 18)"/>
@@ -42,7 +40,6 @@ function Metronome() {
     { 
       value: 3, 
       name: '8th Triplet',
-      latin: 'Quaver Triplet',
       svg: (
         <svg width="42" height="28" viewBox="0 0 42 28" fill="currentColor">
           <text x="21" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">3</text>
@@ -59,7 +56,6 @@ function Metronome() {
     { 
       value: 4, 
       name: '16th',
-      latin: 'Semiquaver',
       svg: (
         <svg width="44" height="24" viewBox="0 0 44 24" fill="currentColor">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
@@ -78,7 +74,6 @@ function Metronome() {
     { 
       value: 5, 
       name: 'Fivelet',
-      latin: 'Quintuplet',
       svg: (
         <svg width="52" height="28" viewBox="0 0 52 28" fill="currentColor">
           <text x="26" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">5</text>
@@ -100,7 +95,6 @@ function Metronome() {
     { 
       value: 6, 
       name: '16th Triplet',
-      latin: 'Sextuplet',
       svg: (
         <svg width="60" height="28" viewBox="0 0 60 28" fill="currentColor">
           <text x="30" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">6</text>
@@ -124,7 +118,6 @@ function Metronome() {
     { 
       value: 7, 
       name: 'Sevenlet',
-      latin: 'Septuplet',
       svg: (
         <svg width="68" height="28" viewBox="0 0 68 28" fill="currentColor">
           <text x="34" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">7</text>
@@ -150,7 +143,6 @@ function Metronome() {
     { 
       value: 8, 
       name: '32nd',
-      latin: 'Demisemiquaver',
       svg: (
         <svg width="76" height="24" viewBox="0 0 76 24" fill="currentColor">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
@@ -211,35 +203,40 @@ function Metronome() {
     });
   }, [beatsPerBar]);
 
-  const playClick = (isDownbeat, isSubdivision, beatIndex) => {
-    if (beatIndex !== undefined && beatEmphasis[beatIndex] === 'mute') {
-      return;
-    }
-    
+const playClick = (isDownbeat, isSubdivision, beatIndex) => {
+  if (beatIndex !== undefined && beatEmphasis[beatIndex] === 'mute') {
+    return;
+  }
+  
+  const isAccented = beatIndex !== undefined && beatEmphasis[beatIndex] === 'accent';
+  
+  if (isSubdivision) {
+    // Keep oscillator for subdivisions
     const audioContext = audioContextRef.current;
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-
+    
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-
-    const isAccented = beatIndex !== undefined && beatEmphasis[beatIndex] === 'accent';
-
-    if (isDownbeat) {
-      oscillator.frequency.value = isAccented ? 1400 : 900;
-      gainNode.gain.value = isAccented ? 0.45 : 0.28;
-    } else if (isSubdivision) {
-      oscillator.frequency.value = 600;
-      gainNode.gain.value = 0.2;
-    } else {
-      oscillator.frequency.value = isAccented ? 1100 : 900;
-      gainNode.gain.value = isAccented ? 0.38 : 0.28;
-    }
-
+    
+    oscillator.frequency.value = 600;
+    gainNode.gain.value = 0.2;
+    
     oscillator.start(audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
     oscillator.stop(audioContext.currentTime + 0.08);
-  };
+  } else if (isDownbeat || isAccented) {
+    // High click for downbeat and accents
+    const clickSound = new Audio('/assets/metronome-high.mp3');
+    clickSound.volume = 0.4;
+    clickSound.play();
+  } else {
+    // Normal click for regular beats
+    const clickSound = new Audio('/assets/metronome-low.mp3');
+    clickSound.volume = 0.3;
+    clickSound.play();
+  }
+};
 
   useEffect(() => {
     if (isPlaying) {
@@ -751,7 +748,7 @@ function Metronome() {
                     textAlign: 'center',
                     fontFamily: "'Inter', sans-serif"
                   }}>
-                    {sub.name}<br/>{sub.latin}
+                    {sub.name}
                   </span>
                 </button>
               ))}
