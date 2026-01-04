@@ -194,6 +194,31 @@ const playClick = (isDownbeat, isSubdivision, beatIndex) => {
   }
 };
 
+  const getRowSplit = (total) => {
+  if (total <= 8) return [total];
+  const splits = {
+    9: [5, 4], 10: [5, 5], 11: [6, 5], 12: [6, 6],
+    13: [7, 6], 14: [7, 7], 15: [8, 7], 16: [8, 8]
+  };
+  return splits[total] || [total];
+};
+
+const formatTime = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+useEffect(() => {
+  setBeatEmphasis(prev => {
+    const newEmphasis = Array(16).fill('normal');
+    for (let i = 0; i < Math.min(beatsPerBar, prev.length); i++) {
+      newEmphasis[i] = prev[i];
+    }
+    return newEmphasis;
+  });
+}, [beatsPerBar]);
+
   useEffect(() => {
     if (isPlaying) {
       playClick(true, false, 0);
