@@ -18,7 +18,7 @@ function Metronome() {
       value: 1, 
       name: 'Quarter',
       svg: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="8" cy="18" rx="3.5" ry="2.5" transform="rotate(-20 8 18)"/>
           <rect x="10.5" y="5" width="2" height="13" rx="1"/>
         </svg>
@@ -28,7 +28,7 @@ function Metronome() {
       value: 2, 
       name: 'Eighth',
       svg: (
-        <svg width="32" height="24" viewBox="0 0 32 24" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="32" height="24" viewBox="0 0 32 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="6" cy="18" rx="3" ry="2" transform="rotate(-20 6 18)"/>
           <rect x="8" y="7" width="1.5" height="11" rx="0.75"/>
           <ellipse cx="20" cy="18" rx="3" ry="2" transform="rotate(-20 20 18)"/>
@@ -41,7 +41,7 @@ function Metronome() {
       value: 3, 
       name: '8th Triplet',
       svg: (
-        <svg width="42" height="28" viewBox="0 0 42 28" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="42" height="28" viewBox="0 0 42 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="21" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">3</text>
           <ellipse cx="6" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 6 21)"/>
           <rect x="7.5" y="10" width="1.5" height="11" rx="0.75"/>
@@ -57,7 +57,7 @@ function Metronome() {
       value: 4, 
       name: '16th',
       svg: (
-        <svg width="44" height="24" viewBox="0 0 44 24" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="44" height="24" viewBox="0 0 44 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
           <rect x="6.5" y="6" width="1.5" height="12" rx="0.75"/>
           <ellipse cx="15" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 15 18)"/>
@@ -75,7 +75,7 @@ function Metronome() {
       value: 5, 
       name: 'Fivelet',
       svg: (
-        <svg width="52" height="28" viewBox="0 0 52 28" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="52" height="28" viewBox="0 0 52 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="26" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">5</text>
           <ellipse cx="5" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 5 21)"/>
           <rect x="6.5" y="9" width="1.5" height="12" rx="0.75"/>
@@ -96,7 +96,7 @@ function Metronome() {
       value: 6, 
       name: '16th Triplet',
       svg: (
-        <svg width="60" height="28" viewBox="0 0 60 28" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="60" height="28" viewBox="0 0 60 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="30" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">6</text>
           <ellipse cx="5" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 5 21)"/>
           <rect x="6.5" y="9" width="1.5" height="12" rx="0.75"/>
@@ -119,7 +119,7 @@ function Metronome() {
       value: 7, 
       name: 'Sevenlet',
       svg: (
-        <svg width="68" height="28" viewBox="0 0 68 28" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="68" height="28" viewBox="0 0 68 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="34" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">7</text>
           <ellipse cx="5" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 5 21)"/>
           <rect x="6.5" y="9" width="1.5" height="12" rx="0.75"/>
@@ -144,7 +144,7 @@ function Metronome() {
       value: 8, 
       name: '32nd',
       svg: (
-        <svg width="76" height="24" viewBox="0 0 76 24" fill="currentColor" transform="scale(1, 1.2)">>
+        <svg width="76" height="24" viewBox="0 0 76 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
           <rect x="6.5" y="5" width="1.5" height="13" rx="0.75"/>
           <ellipse cx="13" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 13 18)"/>
