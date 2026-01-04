@@ -11,23 +11,25 @@ function Metronome() {
   const [tapTimes, setTapTimes] = useState([]);
   const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef(null);
-  const audioContextRef = useRef(null);
 
   const subdivisions = [
     { 
       value: 1, 
       name: 'Quarter',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="8" cy="18" rx="3.5" ry="2.5" transform="rotate(-20 8 18)"/>
           <rect x="10.5" y="5" width="2" height="13" rx="1"/>
         </svg>
+    </div>
       )
     },
     { 
       value: 2, 
       name: 'Eighth',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="32" height="24" viewBox="0 0 32 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="6" cy="18" rx="3" ry="2" transform="rotate(-20 6 18)"/>
           <rect x="8" y="7" width="1.5" height="11" rx="0.75"/>
@@ -35,12 +37,14 @@ function Metronome() {
           <rect x="22" y="7" width="1.5" height="11" rx="0.75"/>
           <rect x="8" y="7" width="15.5" height="2" rx="1"/>
         </svg>
+      </div>
       )
     },
     { 
       value: 3, 
       name: '8th Triplet',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="42" height="28" viewBox="0 0 42 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="21" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">3</text>
           <ellipse cx="6" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 6 21)"/>
@@ -51,12 +55,14 @@ function Metronome() {
           <rect x="31.5" y="10" width="1.5" height="11" rx="0.75"/>
           <rect x="7.5" y="10" width="25.5" height="2" rx="1"/>
         </svg>
+        </div>
       )
     },
     { 
       value: 4, 
       name: '16th',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="44" height="24" viewBox="0 0 44 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
           <rect x="6.5" y="6" width="1.5" height="12" rx="0.75"/>
@@ -69,12 +75,14 @@ function Metronome() {
           <rect x="6.5" y="6" width="31.5" height="1.8" rx="0.9"/>
           <rect x="6.5" y="9" width="31.5" height="1.8" rx="0.9"/>
         </svg>
+        </div>
       )
     },
     { 
       value: 5, 
       name: 'Fivelet',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="52" height="28" viewBox="0 0 52 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="26" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">5</text>
           <ellipse cx="5" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 5 21)"/>
@@ -90,12 +98,14 @@ function Metronome() {
           <rect x="6.5" y="9" width="37.5" height="1.8" rx="0.9"/>
           <rect x="6.5" y="12" width="37.5" height="1.8" rx="0.9"/>
         </svg>
+        </div>
       )
     },
     { 
       value: 6, 
       name: '16th Triplet',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="60" height="28" viewBox="0 0 60 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="30" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">6</text>
           <ellipse cx="5" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 5 21)"/>
@@ -113,12 +123,14 @@ function Metronome() {
           <rect x="6.5" y="9" width="44" height="1.8" rx="0.9"/>
           <rect x="6.5" y="12" width="44" height="1.8" rx="0.9"/>
         </svg>
+        </div>
       )
     },
     { 
       value: 7, 
       name: 'Sevenlet',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="68" height="28" viewBox="0 0 68 28" fill="currentColor" transform="scale(1, 1.2)">
           <text x="34" y="6" fontSize="8" fontWeight="600" textAnchor="middle" fontFamily="Inter">7</text>
           <ellipse cx="5" cy="21" rx="2.5" ry="1.8" transform="rotate(-20 5 21)"/>
@@ -138,12 +150,14 @@ function Metronome() {
           <rect x="6.5" y="9" width="49.5" height="1.8" rx="0.9"/>
           <rect x="6.5" y="12" width="49.5" height="1.8" rx="0.9"/>
         </svg>
+        </div>
       )
     },
     { 
       value: 8, 
       name: '32nd',
       svg: (
+        <div style={{ transform: 'scaleY(1.2)' }}>
         <svg width="76" height="24" viewBox="0 0 76 24" fill="currentColor" transform="scale(1, 1.2)">
           <ellipse cx="5" cy="18" rx="2.5" ry="1.8" transform="rotate(-20 5 18)"/>
           <rect x="6.5" y="5" width="1.5" height="13" rx="0.75"/>
@@ -165,6 +179,7 @@ function Metronome() {
           <rect x="6.5" y="8" width="57.5" height="1.5" rx="0.75"/>
           <rect x="6.5" y="11" width="57.5" height="1.5" rx="0.75"/>
         </svg>
+        </div>
       )
     }
   ];
