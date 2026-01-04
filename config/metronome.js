@@ -7,7 +7,7 @@ function Metronome() {
   const [subdivision, setSubdivision] = useState(0);
   const [beatsPerBar, setBeatsPerBar] = useState(4);
   const [subdivisionType, setSubdivisionType] = useState(1);
-  const [beatEmphasis, setBeatEmphasis] = useState(Array(16).fill('normal'));
+  const [beatEmphasis, setBeatEmphasis] = useState(['accent', ...Array(15).fill('normal')]);
   const [tapTimes, setTapTimes] = useState([]);
   const [elapsedTime, setElapsedTime] = useState(0);
   const intervalRef = useRef(null);
@@ -261,8 +261,8 @@ const formatTime = (seconds) => {
 
 useEffect(() => {
   setBeatEmphasis(prev => {
-    const newEmphasis = Array(16).fill('normal');
-    for (let i = 0; i < Math.min(beatsPerBar, prev.length); i++) {
+    const newEmphasis = ['accent', ...Array(15).fill('normal')];
+    for (let i = 0; i < beatsPerBar && i < prev.length; i++) {
       newEmphasis[i] = prev[i];
     }
     return newEmphasis;
