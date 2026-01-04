@@ -309,27 +309,34 @@ function Metronome() {
   // Smooth BPM changes without reset
   useEffect(() => {
     if (isPlaying) {
+      // Play first beat (only if not muted)
+      if (beatEmphasis[0] !== 'mute') {
+        playClick(true, false, 0);
+      }
+      setBeat(0);
+      setSubdivision(0);
+      
       const beatInterval = (60 / bpm) * 1000;
       const subdivisionInterval = beatInterval / subdivisionType;
+      
+      let currentBeat = 0;
+      let currentSubdivision = 0;
       
       if (intervalRef.current) clearInterval(intervalRef.current);
       
       intervalRef.current = setInterval(() => {
-        setSubdivision(prev => {
-          const next = (prev + 1) % subdivisionType;
-          
-          if (next === 0) {
-            setBeat(prevBeat => {
-              const nextBeat = (prevBeat + 1) % beatsPerBar;
-              playClick(nextBeat === 0, false, nextBeat);
-              return nextBeat;
-            });
-          } else {
-            playClick(false, true, beat);
-          }
-          
-          return next;
-        });
+        currentSubdivision = (currentSubdivision + 1) % subdivisionType;
+        
+        if (currentSubdivision === 0) {
+          currentBeat = (currentBeat + 1) % beatsPerBar;
+          setBeat(currentBeat);
+          playClick(currentBeat === 0, false, currentBeat);
+        } else {
+          // Pass current beat for subdivision mute check
+          playClick(false, true, currentBeat);
+        }
+        
+        setSubdivision(currentSubdivision);
       }, subdivisionInterval);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -340,7 +347,7 @@ function Metronome() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPlaying, bpm, beatsPerBar, subdivisionType]);
+  }, [isPlaying, bpm, beatsPerBar, subdivisionType, beatEmphasis]);
 
   useEffect(() => {
     let timerInterval;
@@ -441,7 +448,7 @@ function Metronome() {
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
-              marginBottom: '12px'
+              marginBottom: '8px'
             }}>
               <button style={{
                 width: '45px',
@@ -453,8 +460,13 @@ function Metronome() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-              }}>
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(2px)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
                 <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: '#06b3fd' }}>
                   <path d="M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0780 4.0937 28.0234 4.0937 C 26.7812 4.0937 26.1718 4.8437 26.1718 6.0625 L 26.1718 15.1563 C 26.1718 16.1641 26.8514 16.9844 27.8827 16.9844 C 28.9140 16.9844 29.6171 16.1641 29.6171 15.1563 L 29.6171 8.1484 C 39.9296 8.9688 47.8983 17.5 47.8983 28 C 47.8983 39.0625 39.0390 47.9219 27.9999 47.9219 C 16.9374 47.9219 8.0546 39.0625 8.0780 28 C 8.1014 23.0781 9.8593 18.6016 12.7890 15.1563 C 13.5155 14.2422 13.5624 13.1406 12.7890 12.3203 C 12.0155 11.4766 10.7030 11.5469 9.8593 12.6016 C 6.2733 16.7734 4.0937 22.1641 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 31.7499 31.6094 C 33.6014 29.6875 33.2265 27.0625 30.9999 25.5156 L 18.6014 16.8672 C 17.4296 16.0469 16.2109 17.2656 17.0312 18.4375 L 25.6796 30.8359 C 27.2265 33.0625 29.8514 33.4609 31.7499 31.6094 Z"/>
                 </svg>
@@ -469,8 +481,13 @@ function Metronome() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-              }}>
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(2px)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: '#06b3fd' }}>
                   <path d="M20,8H18A5,5,0,0,0,8,8H6A7,7,0,0,1,20,8Z"/>
                   <path d="M25,15a2.94,2.94,0,0,0-1.47.4A3,3,0,0,0,21,14a2.94,2.94,0,0,0-1.47.4A3,3,0,0,0,16,13.18V8h0a3,3,0,0,0-6,0V19.1L7.77,17.58h0A2.93,2.93,0,0,0,6,17a3,3,0,0,0-2.12,5.13l8,7.3A6.16,6.16,0,0,0,16,31h5a7,7,0,0,0,7-7V18A3,3,0,0,0,25,15Zm1,9a5,5,0,0,1-5,5H16a4.17,4.17,0,0,1-2.76-1L5.29,20.7A1,1,0,0,1,5,20a1,1,0,0,1,1.6-.8L12,22.9V8a1,1,0,0,1,2,0h0V19h2V16a1,1,0,0,1,2,0v3h2V17a1,1,0,0,1,2,0v2h2V18a1,1,0,0,1,2,0Z"/>
@@ -479,7 +496,7 @@ function Metronome() {
             </div>
             
             {/* Center: BPM Number */}
-            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '8px' }}>
               <div style={{
                 fontSize: '80px',
                 fontWeight: '600',
@@ -505,7 +522,12 @@ function Metronome() {
             {/* Bottom row: Minus, Slider, Plus */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <button
-                onMouseDown={() => handleBpmButtonDown(-5)}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'translateY(2px)';
+                  handleBpmButtonDown(-5);
+                }}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 style={{
                   width: '45px',
                   height: '45px',
@@ -519,7 +541,8 @@ function Metronome() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 −
@@ -546,7 +569,12 @@ function Metronome() {
               </div>
 
               <button
-                onMouseDown={() => handleBpmButtonDown(5)}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'translateY(2px)';
+                  handleBpmButtonDown(5);
+                }}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 style={{
                   width: '45px',
                   height: '45px',
@@ -560,7 +588,8 @@ function Metronome() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 +
