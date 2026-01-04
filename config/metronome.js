@@ -386,7 +386,7 @@ useEffect(() => {
           <div className="bpm-display" style={{
             background: 'linear-gradient(135deg, #06b3fd, #38bdf8)',
             borderRadius: '15px',
-            padding: '30px',
+            padding: '20px',
             marginBottom: '24px',
             textAlign: 'center',
             boxShadow: '0 4px 12px rgba(6,179,253,0.3)'
