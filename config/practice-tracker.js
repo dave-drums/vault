@@ -359,7 +359,12 @@
           <div class="practice-center-controls">
             <div class="practice-center-btn">
               <button class="practice-btn" id="practice-btn">
-                <span class="practice-icon">⏱️</span>
+                <span class="practice-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <circle cx="12" cy="13" r="9"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9.5 4h5"/>
+                  </svg>
+                </span>
                 <span class="practice-text" id="practice-text">Practice Timer</span>
                 <span class="practice-time" id="practice-time" style="display:none;">00:00</span>
               </button>
@@ -384,7 +389,11 @@
             </div>
             
             <button class="metronome-btn" id="metronome-btn">
-              <span class="metronome-icon">🎵</span>
+              <span class="metronome-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 769 1024" fill="currentColor">
+                  <path d="m65 1024l79-550L6 242q-8-12-4-25.5T18.5 196t26-3.5T65 208l94 158l34-238L417 0l224 128l128 896zm96-192h195L200 569zm416-640L417 64L257 192l-41 271l169 283V160q0-13 9.5-22.5T417 128t22.5 9.5T449 160v672h224z"/>
+                </svg>
+              </span>
               <span class="metronome-text">Metronome</span>
             </button>
           </div>
@@ -536,13 +545,49 @@
         });
       }
       
-      // Metronome button - placeholder for metronome.js integration
+      // Metronome button - creates popup with React component
       var metronomeBtn = document.getElementById('metronome-btn');
       if (metronomeBtn) {
         metronomeBtn.addEventListener('click', function() {
-          // Hook this up to your metronome.js popup
-          // Example: if (window.VaultMetronome) window.VaultMetronome.open();
-          console.log('Metronome button clicked - connect to metronome.js');
+          // Check if metronome component is available
+          if (typeof window.Metronome === 'undefined' || typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+            console.warn('Metronome component or React not loaded');
+            return;
+          }
+          
+          // Create modal overlay
+          var overlay = document.createElement('div');
+          overlay.id = 'metronome-overlay';
+          overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+          
+          // Create modal container
+          var container = document.createElement('div');
+          container.id = 'metronome-container';
+          container.style.cssText = 'width:100%;max-width:600px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;';
+          
+          // Create close button
+          var closeBtn = document.createElement('button');
+          closeBtn.innerHTML = '×';
+          closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.1);border:none;color:#666;font-size:32px;width:40px;height:40px;border-radius:50%;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
+          closeBtn.onmouseover = function() { this.style.background = 'rgba(0,0,0,0.15)'; };
+          closeBtn.onmouseout = function() { this.style.background = 'rgba(0,0,0,0.1)'; };
+          closeBtn.onclick = function() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+          };
+          
+          container.appendChild(closeBtn);
+          overlay.appendChild(container);
+          document.body.appendChild(overlay);
+          
+          // Close on overlay click
+          overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+              if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }
+          });
+          
+          // Render React component
+          ReactDOM.render(React.createElement(window.Metronome), container);
         });
       }
       
