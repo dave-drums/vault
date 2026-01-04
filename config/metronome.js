@@ -169,40 +169,6 @@ function Metronome() {
     }
   ];
 
-  const getRowSplit = (total) => {
-    if (total <= 8) return [total];
-    const splits = {
-      9: [5, 4], 10: [5, 5], 11: [6, 5], 12: [6, 6],
-      13: [7, 6], 14: [7, 7], 15: [8, 7], 16: [8, 8]
-    };
-    return splits[total] || [total];
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    setBeatEmphasis(prev => {
-      const newEmphasis = Array(16).fill('normal');
-      for (let i = 0; i < Math.min(beatsPerBar, prev.length); i++) {
-        newEmphasis[i] = prev[i];
-      }
-      return newEmphasis;
-    });
-  }, [beatsPerBar]);
-
 const playClick = (isDownbeat, isSubdivision, beatIndex) => {
   if (beatIndex !== undefined && beatEmphasis[beatIndex] === 'mute') {
     return;
@@ -211,28 +177,18 @@ const playClick = (isDownbeat, isSubdivision, beatIndex) => {
   const isAccented = beatIndex !== undefined && beatEmphasis[beatIndex] === 'accent';
   
   if (isSubdivision) {
-    // Keep oscillator for subdivisions
-    const audioContext = audioContextRef.current;
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 600;
-    gainNode.gain.value = 0.2;
-    
-    oscillator.start(audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
-    oscillator.stop(audioContext.currentTime + 0.08);
-  } else if (isDownbeat || isAccented) {
-    // High click for downbeat and accents
+    // Subdivisions, quieter
+    const clickSound = new Audio('/assets/metronome-low.mp3');
+    clickSound.volume = 0.15;
+    clickSound.play();
+  } else if (isAccented) {
+    // Accented beats, louder
     const clickSound = new Audio('/assets/metronome-high.mp3');
     clickSound.volume = 0.4;
     clickSound.play();
   } else {
-    // Normal click for regular beats
-    const clickSound = new Audio('/assets/metronome-low.mp3');
+    // Normal click for all other beats
+    const clickSound = new Audio('/assets/metronome-normal.mp3');
     clickSound.volume = 0.3;
     clickSound.play();
   }
