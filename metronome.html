@@ -1,184 +1,304 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Metronome | Practice Vault</title>
-  <link rel="icon" href="/assets/favicon.ico">
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-  
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="/css/typography.css">
-  <link rel="stylesheet" href="/css/core.css">
-  
-  <!-- Firebase -->
-  <script src="/firebase/firebase-app-compat.js"></script>
-  <script src="/firebase/firebase-auth-compat.js"></script>
-  <script src="/firebase/firebase-firestore-compat.js"></script>
-  <script src="/firebase/firebase-init.js"></script>
-  
-  <!-- Components -->
-  <script src="/config/components.js"></script>
-  <script src="/config/navigation.js"></script>
-  <script src="/config/error-handler.js"></script>
-    <script src="/config/metrics.js"></script>
-  
-  <!-- React -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <style>
-    /* Range slider styling */
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #06b3fd;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #06b3fd;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+/**
+ * count-in-handler.js v2
+ * SIMPLIFIED - hooks play buttons after GrooveScribe loads
+ */
+
+(function() {
+  'use strict';
+
+  var hookedButtons = [];
+
+  function hookAllPlayers() {
+    var playButtons = document.querySelectorAll('.midiPlayImage');
+    var countInButtons = document.querySelectorAll('.midiCountInButton');
+    
+    if (playButtons.length === 0) {
+      console.log('[COUNT-IN] No players found yet');
+      return false;
     }
     
-    /* Mobile optimizations */
-    @media (max-width: 640px) {
-      .metronome-wrapper {
-        padding: 20px 16px !important;
-      }
-      .metronome-card {
-        padding: 24px !important;
-      }
-      .bpm-display {
-        padding: 24px !important;
-        margin-bottom: 20px !important;
-      }
-      .bpm-number {
-        font-size: 4rem !important;
-      }
-      .beat-circle {
-        width: 40px !important;
-        height: 40px !important;
-      }
-      .subdivision-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
-        gap: 4px !important;
-      }
-      .subdivision-btn {
-        padding: 8px 4px !important;
-        min-height: 50px !important;
-      }
-      .subdivision-btn svg {
-        transform: scale(0.65);
-      }
-      .subdivision-btn span {
-        font-size: 0.5rem !important;
-      }
-      .beats-per-bar-grid {
-        gap: 4px !important;
-      }
-      .beats-per-bar-btn {
-        padding: 6px 2px !important;
-        font-size: 0.75rem !important;
-      }
-      .bpm-controls {
-        gap: 12px !important;
-      }
-      .tap-btn {
-        min-width: 75px !important;
-        padding: 0 12px !important;
+    if (playButtons.length !== countInButtons.length) {
+      console.log('[COUNT-IN] Waiting for all count-in buttons...');
+      return false;
+    }
+    
+    // Check if all have onclick
+    for (var i = 0; i < playButtons.length; i++) {
+      if (!playButtons[i].onclick) {
+        console.log('[COUNT-IN] Waiting for onclick handlers...');
+        return false;
       }
     }
-  </style>
-</head>
-<body>
+    
+    console.log('[COUNT-IN] Hooking ' + playButtons.length + ' players');
+    
+    for (var i = 0; i < playButtons.length; i++) {
+      hookSinglePlayer(playButtons[i], countInButtons[i], i);
+    }
+    
+    console.log('[COUNT-IN] Ready!');
+    return true;
+  }
 
-  <!-- Loading spinner -->
-   <div id="page-loader" class="page-loader">
-    <div class="loading-spinner"></div>
-  </div>
+  function hookSinglePlayer(playBtn, countInBtn, index) {
+    if (hookedButtons.indexOf(playBtn) !== -1) return;
+    hookedButtons.push(playBtn);
+    
+    var originalClick = playBtn.onclick;
+    
+    playBtn.onclick = function(e) {
+      var active = countInBtn.classList.contains('active');
+      
+      if (!active || MIDI.Player.playing) {
+        return originalClick.call(this, e);
+      }
+      
+      // Do count-in
+      console.log('[COUNT-IN] Player ' + index + ' starting');
+      e.preventDefault();
+      e.stopPropagation();
+      
+      doCountIn(playBtn, function() {
+        console.log('[COUNT-IN] Player ' + index + ' -> groove');
+        originalClick.call(playBtn, e);
+      });
+      
+      return false;
+    };
+  }
 
-  <!-- HERO HEADER -->
-<div class="hero">
-  <div class="hero-banner" data-bg="home"></div>
-  <div class="hero-content">
-    <h1 class="hero-title">Metronome</h1>
-  </div>
-</div>
+  function doCountIn(playBtn, callback) {
+    var bpm = getBPM(playBtn);
+    var timeSig = getTimeSig();
+    
+    console.log('[COUNT-IN] BPM=' + bpm + ' TimeSig=' + timeSig.top + '/' + timeSig.bottom);
+    
+    var midi = buildMidi(bpm, timeSig.top, timeSig.bottom);
+    
+    var duration = (60000 / bpm) * timeSig.top + 200;
+    
+    playBtn.className = playBtn.className.replace(/Stopped|Paused/g, '') + ' Playing';
+    
+    // Try MIDI first
+    if (midi && MIDI && MIDI.Player) {
+      tryMidiCountIn(midi, duration, bpm, timeSig, playBtn, callback);
+    } else {
+      // Fallback to Web Audio beeps
+      console.log('[COUNT-IN] Using Web Audio beeps (MIDI unavailable)');
+      playBeepCountIn(bpm, timeSig.top, callback);
+    }
+  }
   
-  <!-- METRONOME CONTAINER -->
-  <div id="metronome-root"></div>
-
-  <!-- Load and transform metronome JSX -->
-  <script>
-    (function(){
-      'use strict';
+  function tryMidiCountIn(midi, duration, bpm, timeSig, playBtn, callback) {
+    // Make sure audio context is running
+    if (MIDI.Player.ctx && MIDI.Player.ctx.state === 'suspended') {
+      console.log('[COUNT-IN] Resuming audio context');
+      MIDI.Player.ctx.resume();
+    }
+    
+    MIDI.Player.stop();
+    MIDI.Player.clearAnimation();
+    
+    console.log('[COUNT-IN] Loading MIDI...');
+    
+    var soundPlayed = false;
+    var fallbackTimer = null;
+    
+    MIDI.Player.loadFile(midi, function() {
+      console.log('[COUNT-IN] MIDI loaded, playing...');
       
-      // Load the JSX file and transform it
-      fetch('/config/metronome.js')
-        .then(response => response.text())
-        .then(jsxCode => {
-          // Transform JSX to JS
-          const transformed = Babel.transform(jsxCode, {
-            presets: ['react']
-          }).code;
-          
-          // Execute the transformed code
-          eval(transformed);
-          
-          // Now initialize after metronome is loaded
-          initMetronome();
-        })
-        .catch(err => {
-          console.error('Failed to load metronome:', err);
-        });
+      // Set volume high
+      if (MIDI.setVolume) {
+        MIDI.setVolume(0, 127);
+      }
       
-      function initMetronome() {
-        var tries = 0;
-        function waitForFirebase(){
-          tries++;
-          if (typeof firebase === 'undefined' || !firebase.auth) {
-            if (tries < 80) return setTimeout(waitForFirebase, 50);
-            console.error('Firebase not loaded');
-            return;
-          }
-          init();
-        }
-        
-        function init(){
-          var auth = firebase.auth();
-          var loadingEl = document.querySelector('.auth-loading');
-          
-          auth.onAuthStateChanged(function(user){
-            if (loadingEl) loadingEl.style.display = 'none';
-                        
-            // Render metronome
-            const root = ReactDOM.createRoot(document.getElementById('metronome-root'));
-            root.render(React.createElement(window.Metronome));
-          });
-        }
-        
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', waitForFirebase);
+      MIDI.Player.start();
+      
+      // Check if sound is actually playing
+      setTimeout(function() {
+        if (MIDI.Player.playing) {
+          soundPlayed = true;
         } else {
-          waitForFirebase();
+          // MIDI didn't work, fall back to beeps
+          console.log('[COUNT-IN] MIDI silent, using beeps');
+          MIDI.Player.stop();
+          playBeepCountIn(bpm, timeSig.top, function() {
+            playBtn.className = playBtn.className.replace('Playing', 'Stopped');
+            callback();
+          });
+          return;
+        }
+      }, 100);
+      
+      setTimeout(function() {
+        if (soundPlayed) {
+          console.log('[COUNT-IN] Stopping...');
+          MIDI.Player.stop();
+          MIDI.Player.clearAnimation();
+          setTimeout(callback, 100);
+        }
+      }, duration);
+    });
+  }
+  
+  function playBeepCountIn(bpm, beats, callback) {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var beatDuration = 60 / bpm; // seconds
+    var currentBeat = 0;
+    
+    function playBeep(isFirst) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      // High beep for first beat, lower for others
+      osc.frequency.value = isFirst ? 1000 : 800;
+      
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.1);
+    }
+    
+    function playNextBeep() {
+      if (currentBeat < beats) {
+        playBeep(currentBeat === 0);
+        currentBeat++;
+        
+        if (currentBeat < beats) {
+          setTimeout(playNextBeep, beatDuration * 1000);
+        } else {
+          setTimeout(function() {
+            ctx.close();
+            callback();
+          }, beatDuration * 1000);
         }
       }
-    })();
-  </script>
-  
-</body>
-</html>
+    }
+    
+    console.log('[COUNT-IN] Playing ' + beats + ' beeps');
+    playNextBeep();
+  }
+
+  function getBPM(playBtn) {
+    var container = playBtn.closest('.playerControl');
+    if (container) {
+      var field = container.querySelector('.tempoTextField');
+      if (field && field.value) {
+        var v = parseInt(field.value, 10);
+        if (v >= 30 && v <= 300) return v;
+      }
+    }
+    return 120;
+  }
+
+  function getTimeSig() {
+    try {
+      var gu = new GrooveUtils();
+      if (gu.myGrooveData) {
+        return {
+          top: gu.myGrooveData.numBeats || 4,
+          bottom: gu.myGrooveData.noteValue || 4
+        };
+      }
+    } catch(e) {}
+    return { top: 4, bottom: 4 };
+  }
+
+  function buildMidi(bpm, top, bottom) {
+    console.log('[COUNT-IN] Building MIDI: BPM=' + bpm + ', ' + top + '/' + bottom);
+    
+    // Try using existing GrooveScribe MIDI builder
+    try {
+      // Check if the global GrooveUtils exists and has the method
+      if (typeof GrooveUtils !== 'undefined' && GrooveUtils.prototype.MIDI_build_midi_url_count_in_track) {
+        // Create temporary instance just for building
+        var tempGU = new GrooveUtils();
+        
+        // The method should build the MIDI with the tempo embedded
+        var midiUrl = tempGU.MIDI_build_midi_url_count_in_track(top, bottom);
+        
+        if (midiUrl) {
+          console.log('[COUNT-IN] Built using GrooveUtils method');
+          return midiUrl;
+        }
+      }
+    } catch(e) {
+      console.log('[COUNT-IN] GrooveUtils failed:', e.message);
+    }
+    
+    // Manual build as fallback
+    try {
+      console.log('[COUNT-IN] Building manually');
+      
+      if (typeof Midi === 'undefined') {
+        console.log('[COUNT-IN] Midi library not found');
+        return null;
+      }
+      
+      var file = new Midi.File();
+      var track = new Midi.Track();
+      file.addTrack(track);
+      
+      // Set tempo in the track
+      track.setTempo(bpm);
+      
+      // Percussion channel
+      var channel = 9;
+      
+      // Note duration
+      var duration = 128;
+      if (bottom == 8) duration = 64;
+      else if (bottom == 16) duration = 32;
+      
+      // Metronome sounds (same as GrooveScribe)
+      var highClick = 34;
+      var normalClick = 33;
+      
+      // Dummy note for spacing
+      track.addNoteOff(channel, 60, 1);
+      
+      // First click (high)
+      track.addNoteOn(channel, highClick, 0, 100);
+      track.addNoteOff(channel, highClick, duration);
+      
+      // Remaining clicks
+      for (var i = 1; i < top; i++) {
+        track.addNoteOn(channel, normalClick, 0, 100);
+        track.addNoteOff(channel, normalClick, duration);
+      }
+      
+      var bytes = file.toBytes();
+      var base64 = btoa(bytes);
+      
+      console.log('[COUNT-IN] Built ' + top + ' clicks, ' + bytes.length + ' bytes');
+      
+      return 'data:audio/midi;base64,' + base64;
+    } catch(e) {
+      console.error('[COUNT-IN] Manual build failed:', e);
+      return null;
+    }
+  }
+
+  // Initialize
+  window.GrooveCountIn = {
+    init: function() {
+      console.log('[COUNT-IN] Init called');
+      
+      var attempts = 0;
+      var interval = setInterval(function() {
+        attempts++;
+        
+        if (hookAllPlayers()) {
+          clearInterval(interval);
+        } else if (attempts > 50) {
+          clearInterval(interval);
+          console.log('[COUNT-IN] Timeout');
+        }
+      }, 100);
+    }
+  };
+})();
