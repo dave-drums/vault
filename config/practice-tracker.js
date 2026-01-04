@@ -545,16 +545,10 @@
         });
       }
       
-      // Metronome button - creates popup with React component
+      // Metronome button - opens popup
       var metronomeBtn = document.getElementById('metronome-btn');
       if (metronomeBtn) {
         metronomeBtn.addEventListener('click', function() {
-          // Check if metronome component is available
-          if (typeof window.Metronome === 'undefined' || typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
-            console.warn('Metronome component or React not loaded');
-            return;
-          }
-          
           // Create modal overlay
           var overlay = document.createElement('div');
           overlay.id = 'metronome-overlay';
