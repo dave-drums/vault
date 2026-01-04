@@ -19,18 +19,17 @@ function Metronome() {
   const audioBuffersRef = useRef({});
   const audioContextRef = useRef(null);
   const barCountRef = useRef(0);
-  const currentBeatRef = useRef(0);
-  const currentSubdivisionRef = useRef(0);
+  const bpmRef = useRef(120);
+
+  useEffect(() => { bpmRef.current = bpm; }, [bpm]);
 
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    
     const loadSound = async (url) => {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
       return await audioContextRef.current.decodeAudioData(arrayBuffer);
     };
-    
     Promise.all([
       loadSound('/assets/metronome-low.mp3'),
       loadSound('/assets/metronome-normal.mp3'),
@@ -38,51 +37,28 @@ function Metronome() {
     ]).then(([low, normal, high]) => {
       audioBuffersRef.current = { low, normal, high };
     });
-    
-    return () => {
-      if (audioContextRef.current) audioContextRef.current.close();
-    };
+    return () => { if (audioContextRef.current) audioContextRef.current.close(); };
   }, []);
 
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.target.tagName === 'INPUT') return;
-      
       switch(e.key) {
-        case ' ':
-          e.preventDefault();
-          setIsPlaying(prev => !prev);
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setBpm(prev => Math.min(240, prev + 1));
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          setBpm(prev => Math.max(40, prev - 1));
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          setBpm(prev => Math.min(240, prev + 5));
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          setBpm(prev => Math.max(40, prev - 5));
-          break;
+        case ' ': e.preventDefault(); setIsPlaying(prev => !prev); break;
+        case 'ArrowUp': e.preventDefault(); setBpm(prev => Math.min(240, prev + 1)); break;
+        case 'ArrowDown': e.preventDefault(); setBpm(prev => Math.max(40, prev - 1)); break;
+        case 'ArrowRight': e.preventDefault(); setBpm(prev => Math.min(240, prev + 5)); break;
+        case 'ArrowLeft': e.preventDefault(); setBpm(prev => Math.max(40, prev - 5)); break;
       }
     };
-    
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (audioContextRef.current?.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
+      if (audioContextRef.current?.state === 'suspended') audioContextRef.current.resume();
     };
-    
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
@@ -100,13 +76,10 @@ function Metronome() {
 
   const playClick = (isSubdivision, currentBeatIndex) => {
     if (beatEmphasis[currentBeatIndex] === 'mute') return;
-    
     const audioContext = audioContextRef.current;
     if (!audioContext || !audioBuffersRef.current.low) return;
-    
     const source = audioContext.createBufferSource();
     const gainNode = audioContext.createGain();
-    
     if (isSubdivision) {
       source.buffer = audioBuffersRef.current.low;
       gainNode.gain.value = 0.15;
@@ -117,7 +90,6 @@ function Metronome() {
       source.buffer = audioBuffersRef.current.normal;
       gainNode.gain.value = 0.25;
     }
-    
     source.connect(gainNode);
     gainNode.connect(audioContext.destination);
     source.start(0);
@@ -145,29 +117,31 @@ function Metronome() {
     });
   }, [beatsPerBar]);
 
-  // Main playback loop
   useEffect(() => {
     if (!isPlaying) {
       if (intervalRef.current) clearTimeout(intervalRef.current);
-      currentBeatRef.current = 0;
-      currentSubdivisionRef.current = 0;
       setBeat(0);
       setSubdivision(0);
       barCountRef.current = 0;
       return;
     }
 
+    let currentBeat = 0;
+    let currentSubdivision = 0;
+    setBeat(0);
+    setSubdivision(0);
+    playClick(false, 0);
+
     const tick = () => {
-      const subdivisionInterval = (60000 / bpm) / subdivisionType;
+      const subdivisionInterval = (60000 / bpmRef.current) / subdivisionType;
+      currentSubdivision++;
       
-      currentSubdivisionRef.current++;
-      
-      if (currentSubdivisionRef.current >= subdivisionType) {
-        currentSubdivisionRef.current = 0;
-        currentBeatRef.current++;
+      if (currentSubdivision >= subdivisionType) {
+        currentSubdivision = 0;
+        currentBeat++;
         
-        if (currentBeatRef.current >= beatsPerBar) {
-          currentBeatRef.current = 0;
+        if (currentBeat >= beatsPerBar) {
+          currentBeat = 0;
           barCountRef.current++;
           
           if (trainerMode === 'increase' && barCountRef.current % trainerInterval === 0) {
@@ -183,23 +157,20 @@ function Metronome() {
           }
         }
         
-        playClick(false, currentBeatRef.current);
-        setBeat(currentBeatRef.current);
+        playClick(false, currentBeat);
+        setBeat(currentBeat);
       } else {
-        playClick(true, currentBeatRef.current);
+        playClick(true, currentBeat);
       }
       
-      setSubdivision(currentSubdivisionRef.current);
+      setSubdivision(currentSubdivision);
       intervalRef.current = setTimeout(tick, subdivisionInterval);
     };
     
-    // Start immediately
-    playClick(false, 0);
-    tick();
+    const subdivisionInterval = (60000 / bpmRef.current) / subdivisionType;
+    intervalRef.current = setTimeout(tick, subdivisionInterval);
     
-    return () => {
-      if (intervalRef.current) clearTimeout(intervalRef.current);
-    };
+    return () => { if (intervalRef.current) clearTimeout(intervalRef.current); };
   }, [isPlaying, beatsPerBar, subdivisionType, beatEmphasis, trainerMode, trainerAmount, trainerInterval, trainerStop]);
 
   useEffect(() => {
@@ -212,16 +183,13 @@ function Metronome() {
     } else {
       setElapsedTime(0);
     }
-    return () => {
-      if (timerInterval) clearInterval(timerInterval);
-    };
+    return () => { if (timerInterval) clearInterval(timerInterval); };
   }, [isPlaying]);
 
   const handleTapTempo = () => {
     const now = Date.now();
     const newTapTimes = [...tapTimes, now].slice(-4);
     setTapTimes(newTapTimes);
-
     if (newTapTimes.length >= 2) {
       const intervals = [];
       for (let i = 1; i < newTapTimes.length; i++) {
@@ -231,7 +199,6 @@ function Metronome() {
       const calculatedBpm = Math.round(60000 / avgInterval);
       setBpm(Math.max(40, Math.min(240, calculatedBpm)));
     }
-
     setTimeout(() => {
       setTapTimes(prev => {
         const lastTap = prev[prev.length - 1];
@@ -255,13 +222,11 @@ function Metronome() {
     const interval = setInterval(() => {
       setBpm(prev => Math.max(40, Math.min(240, prev + change)));
     }, 150);
-    
     const stopHold = () => {
       clearInterval(interval);
       document.removeEventListener('mouseup', stopHold);
       document.removeEventListener('mouseleave', stopHold);
     };
-    
     document.addEventListener('mouseup', stopHold);
     document.addEventListener('mouseleave', stopHold);
   };
@@ -270,10 +235,9 @@ function Metronome() {
     <div className="metronome-wrapper" style={{ minHeight: '60vh', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', fontFamily: "'Inter', sans-serif" }}>
       <div style={{ width: '100%', maxWidth: '600px' }}>
         <div className="metronome-card" style={{ background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '1px solid #e9ecef' }}>
-          
           <div className="bpm-display" style={{ background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', borderRadius: '15px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(6,179,253,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <button onClick={() => setShowTrainerPopup(true)} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: trainerMode !== 'off' ? '2px solid #06b3fd' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: trainerMode !== 'off' ? '0 0 0 3px rgba(6,179,253,0.2)' : '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }} onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(2px)'} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+              <button onClick={() => setShowTrainerPopup(true)} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: trainerMode !== 'off' ? '3px solid #fff' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: trainerMode !== 'off' ? '0 0 0 4px rgba(6,179,253,0.4), 0 2px 8px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease', outline: trainerMode !== 'off' ? '2px solid #06b3fd' : 'none', outlineOffset: trainerMode !== 'off' ? '2px' : '0' }} onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(2px)'} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                 <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: '#06b3fd' }}>
                   <path d="M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0780 4.0937 28.0234 4.0937 C 26.7812 4.0937 26.1718 4.8437 26.1718 6.0625 L 26.1718 15.1563 C 26.1718 16.1641 26.8514 16.9844 27.8827 16.9844 C 28.9140 16.9844 29.6171 16.1641 29.6171 15.1563 L 29.6171 8.1484 C 39.9296 8.9688 47.8983 17.5 47.8983 28 C 47.8983 39.0625 39.0390 47.9219 27.9999 47.9219 C 16.9374 47.9219 8.0546 39.0625 8.0780 28 C 8.1014 23.0781 9.8593 18.6016 12.7890 15.1563 C 13.5155 14.2422 13.5624 13.1406 12.7890 12.3203 C 12.0155 11.4766 10.7030 11.5469 9.8593 12.6016 C 6.2733 16.7734 4.0937 22.1641 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 31.7499 31.6094 C 33.6014 29.6875 33.2265 27.0625 30.9999 25.5156 L 18.6014 16.8672 C 17.4296 16.0469 16.2109 17.2656 17.0312 18.4375 L 25.6796 30.8359 C 27.2265 33.0625 29.8514 33.4609 31.7499 31.6094 Z"/>
                 </svg>
@@ -284,140 +248,29 @@ function Metronome() {
                 </svg>
               </button>
             </div>
-            
             <div style={{ textAlign: 'center', marginBottom: '8px' }}>
               <div style={{ fontSize: '80px', fontWeight: '600', color: '#fff', lineHeight: '1', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>{bpm}</div>
               <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'Inter', sans-serif" }}>Beats Per Minute</div>
             </div>
-            
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <button onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(2px)'; handleBpmButtonDown(-5); }} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: 'none', fontSize: '24px', fontWeight: '600', color: '#06b3fd', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }}>−</button>
               <div style={{ flex: '1' }}><input type="range" min="40" max="240" value={bpm} onChange={(e) => setBpm(parseInt(e.target.value))} style={{ width: '100%', height: '8px', borderRadius: '4px', background: 'rgba(255,255,255,0.3)', outline: 'none', cursor: 'pointer', WebkitAppearance: 'none', appearance: 'none' }} /></div>
               <button onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(2px)'; handleBpmButtonDown(5); }} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: 'none', fontSize: '24px', fontWeight: '600', color: '#06b3fd', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }}>+</button>
             </div>
           </div>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
             {getRowSplit(beatsPerBar).map((rowCount, rowIndex) => {
               const startIndex = rowIndex === 0 ? 0 : getRowSplit(beatsPerBar)[0];
-              return (
-                <div key={rowIndex} style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                  {[...Array(rowCount)].map((_, colIndex) => {
-                    const index = startIndex + colIndex;
-                    const emphasis = beatEmphasis[index];
-                    const isActive = isPlaying && beat === index;
-                    
-                    return (
-                      <button key={index} onClick={() => cycleBeatEmphasis(index)} style={{ width: '48px', height: '48px', borderRadius: '50%', background: isActive ? (emphasis === 'accent' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : emphasis === 'mute' ? '#9ca3af' : '#06b3fd') : emphasis === 'accent' ? 'rgba(6,179,253,0.15)' : emphasis === 'mute' ? '#e5e7eb' : '#f8f9fa', border: isActive ? 'none' : emphasis === 'accent' ? '2px solid #06b3fd' : emphasis === 'mute' ? '2px solid #9ca3af' : '2px solid #e9ecef', transition: 'all 0.1s ease', boxShadow: isActive ? '0 4px 12px rgba(6,179,253,0.4)' : 'none', transform: isActive ? 'scale(1.1)' : 'scale(1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
-                        {isActive && subdivisionType > 1 && emphasis !== 'mute' ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center', justifyContent: 'center' }}>
-                            <div style={{ display: 'flex', gap: '3px', justifyContent: 'center' }}>
-                              {[...Array(Math.min(subdivisionType, 4))].map((_, subIdx) => (
-                                <div key={subIdx} style={{ width: '5px', height: '5px', borderRadius: '50%', background: subIdx <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }} />
-                              ))}
-                            </div>
-                            {subdivisionType >= 5 && (
-                              <div style={{ display: 'flex', gap: '3px', justifyContent: 'center' }}>
-                                {[...Array(subdivisionType - (subdivisionType >= 7 ? 4 : 3))].map((_, subIdx) => (
-                                  <div key={subIdx + (subdivisionType >= 7 ? 4 : 3)} style={{ width: '5px', height: '5px', borderRadius: '50%', background: (subIdx + (subdivisionType >= 7 ? 4 : 3)) <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }} />
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ) : emphasis === 'mute' ? (
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ opacity: isActive ? 1 : 0.5 }}>
-                            <path d="M16.5 12C16.5 10.23 15.48 8.71 14 7.97V10.18L16.45 12.63C16.48 12.43 16.5 12.22 16.5 12ZM19 12C19 12.94 18.8 13.82 18.46 14.64L19.97 16.15C20.63 14.91 21 13.5 21 12C21 7.72 18 4.14 14 3.23V5.29C16.89 6.15 19 8.83 19 12ZM4.27 3L3 4.27L7.73 9H3V15H7L12 20V13.27L16.25 17.52C15.58 18.04 14.83 18.46 14 18.7V20.77C15.38 20.45 16.63 19.82 17.68 18.96L19.73 21L21 19.73L12 10.73L4.27 3ZM12 4L9.91 6.09L12 8.18V4Z" fill="currentColor"/>
-                          </svg>
-                        ) : emphasis === 'accent' ? (
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                            <path d="M8 18L14 10L20 18" fill="none" stroke={isActive ? '#fff' : '#06b3fd'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              );
+              return (<div key={rowIndex} style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>{[...Array(rowCount)].map((_, colIndex) => { const index = startIndex + colIndex; const emphasis = beatEmphasis[index]; const isActive = isPlaying && beat === index; return (<button key={index} onClick={() => cycleBeatEmphasis(index)} style={{ width: '48px', height: '48px', borderRadius: '50%', background: isActive ? (emphasis === 'accent' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : emphasis === 'mute' ? '#9ca3af' : '#06b3fd') : emphasis === 'accent' ? 'rgba(6,179,253,0.15)' : emphasis === 'mute' ? '#e5e7eb' : '#f8f9fa', border: isActive ? 'none' : emphasis === 'accent' ? '2px solid #06b3fd' : emphasis === 'mute' ? '2px solid #9ca3af' : '2px solid #e9ecef', transition: 'all 0.1s ease', boxShadow: isActive ? '0 4px 12px rgba(6,179,253,0.4)' : 'none', transform: isActive ? 'scale(1.1)' : 'scale(1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>{isActive && subdivisionType > 1 && emphasis !== 'mute' ? (<div style={{ display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center', justifyContent: 'center' }}><div style={{ display: 'flex', gap: '3px', justifyContent: 'center' }}>{[...Array(Math.min(subdivisionType, 4))].map((_, subIdx) => (<div key={subIdx} style={{ width: '5px', height: '5px', borderRadius: '50%', background: subIdx <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }} />))}</div>{subdivisionType >= 5 && (<div style={{ display: 'flex', gap: '3px', justifyContent: 'center' }}>{[...Array(subdivisionType - (subdivisionType >= 7 ? 4 : 3))].map((_, subIdx) => (<div key={subIdx + (subdivisionType >= 7 ? 4 : 3)} style={{ width: '5px', height: '5px', borderRadius: '50%', background: (subIdx + (subdivisionType >= 7 ? 4 : 3)) <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }} />))}</div>)}</div>) : emphasis === 'mute' ? (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ opacity: isActive ? 1 : 0.5 }}><path d="M16.5 12C16.5 10.23 15.48 8.71 14 7.97V10.18L16.45 12.63C16.48 12.43 16.5 12.22 16.5 12ZM19 12C19 12.94 18.8 13.82 18.46 14.64L19.97 16.15C20.63 14.91 21 13.5 21 12C21 7.72 18 4.14 14 3.23V5.29C16.89 6.15 19 8.83 19 12ZM4.27 3L3 4.27L7.73 9H3V15H7L12 20V13.27L16.25 17.52C15.58 18.04 14.83 18.46 14 18.7V20.77C15.38 20.45 16.63 19.82 17.68 18.96L19.73 21L21 19.73L12 10.73L4.27 3ZM12 4L9.91 6.09L12 8.18V4Z" fill="currentColor"/></svg>) : emphasis === 'accent' ? (<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8 18L14 10L20 18" fill="none" stroke={isActive ? '#fff' : '#06b3fd'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>) : null}</button>); })}</div>);
             })}
           </div>
-
           <button onClick={() => setIsPlaying(!isPlaying)} style={{ width: '100%', padding: '16px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', border: isPlaying ? '2px solid #06b3fd' : 'none', background: isPlaying ? 'rgba(6,179,253,0.15)' : 'linear-gradient(135deg, #06b3fd, #38bdf8)', color: isPlaying ? '#06b3fd' : '#fff', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', fontFamily: "'Inter', sans-serif", marginBottom: '24px' }}>{isPlaying ? formatTime(elapsedTime) : '▶ Start'}</button>
-
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}>Beats per Bar</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '6px' }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((beats) => (
-                <button key={beats} onClick={() => setBeatsPerBar(beats)} style={{ padding: '8px 4px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: beatsPerBar === beats ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: beatsPerBar === beats ? '#fff' : '#1a1a1a', border: beatsPerBar === beats ? 'none' : '1px solid #e9ecef', boxShadow: beatsPerBar === beats ? '0 2px 8px rgba(6,179,253,0.3)' : 'none', fontFamily: "'Inter', sans-serif" }}>{beats}</button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}>Subdivisions</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-              {subdivisions.map((sub) => (
-                <button key={sub.value} onClick={() => setSubdivisionType(sub.value)} style={{ padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '1px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px' }}>{sub.svg}</div>
-                  <span style={{ fontSize: '10px', fontWeight: '600', opacity: subdivisionType === sub.value ? 1 : 0.6, textAlign: 'center', fontFamily: "'Inter', sans-serif" }}>{sub.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <div style={{ marginBottom: '24px' }}><label style={{ display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}>Beats per Bar</label><div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '6px' }}>{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((beats) => (<button key={beats} onClick={() => setBeatsPerBar(beats)} style={{ padding: '8px 4px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: beatsPerBar === beats ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: beatsPerBar === beats ? '#fff' : '#1a1a1a', border: beatsPerBar === beats ? 'none' : '1px solid #e9ecef', boxShadow: beatsPerBar === beats ? '0 2px 8px rgba(6,179,253,0.3)' : 'none', fontFamily: "'Inter', sans-serif" }}>{beats}</button>))}</div></div>
+          <div style={{ marginBottom: '24px' }}><label style={{ display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}>Subdivisions</label><div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>{subdivisions.map((sub) => (<button key={sub.value} onClick={() => setSubdivisionType(sub.value)} style={{ padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '1px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px' }}>{sub.svg}</div><span style={{ fontSize: '10px', fontWeight: '600', opacity: subdivisionType === sub.value ? 1 : 0.6, textAlign: 'center', fontFamily: "'Inter', sans-serif" }}>{sub.name}</span></button>))}</div></div>
         </div>
       </div>
-
-      {showTrainerPopup && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }} onClick={() => setShowTrainerPopup(false)}>
-          <div style={{ background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}>Tempo Trainer</h3>
-              <button onClick={() => setShowTrainerPopup(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}>×</button>
-            </div>
-            
-            <div style={{ padding: '24px' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                  <button onClick={() => setTrainerMode('off')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'off' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'off' ? '#fff' : '#1a1a1a', border: trainerMode === 'off' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Off</button>
-                  <button onClick={() => setTrainerMode('increase')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'increase' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'increase' ? '#fff' : '#1a1a1a', border: trainerMode === 'increase' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Increase</button>
-                  <button onClick={() => setTrainerMode('decrease')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'decrease' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'decrease' ? '#fff' : '#1a1a1a', border: trainerMode === 'decrease' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Decrease</button>
-                </div>
-              </div>
-              
-              <div style={{ opacity: trainerMode === 'off' ? 0.4 : 1, pointerEvents: trainerMode === 'off' ? 'none' : 'auto' }}>
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Change by</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input type="number" value={trainerAmount} onChange={(e) => setTrainerAmount(parseInt(e.target.value) || 1)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} />
-                    <span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</span>
-                  </div>
-                </div>
-                
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Every</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input type="number" value={trainerInterval} onChange={(e) => setTrainerInterval(parseInt(e.target.value) || 1)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} />
-                    <span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>bars</span>
-                  </div>
-                </div>
-                
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Stop at</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input type="number" value={trainerStop} onChange={(e) => setTrainerStop(parseInt(e.target.value) || 40)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} />
-                    <span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ padding: '16px 24px', borderTop: '1px solid #e9ecef', display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowTrainerPopup(false)} style={{ padding: '10px 20px', borderRadius: '8px', background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', border: 'none', color: '#fff', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>Done</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {showTrainerPopup && (<div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }} onClick={() => setShowTrainerPopup(false)}><div style={{ background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}><div style={{ padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}><h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}>Tempo Trainer</h3><button onClick={() => setShowTrainerPopup(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}>×</button></div><div style={{ padding: '24px' }}><div style={{ marginBottom: '20px' }}><div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}><button onClick={() => setTrainerMode('off')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'off' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'off' ? '#fff' : '#1a1a1a', border: trainerMode === 'off' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Off</button><button onClick={() => setTrainerMode('increase')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'increase' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'increase' ? '#fff' : '#1a1a1a', border: trainerMode === 'increase' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Increase</button><button onClick={() => setTrainerMode('decrease')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'decrease' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'decrease' ? '#fff' : '#1a1a1a', border: trainerMode === 'decrease' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Decrease</button></div></div><div style={{ opacity: trainerMode === 'off' ? 0.4 : 1, pointerEvents: trainerMode === 'off' ? 'none' : 'auto' }}><div style={{ marginBottom: '16px' }}><label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Change by</label><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="number" value={trainerAmount} onChange={(e) => setTrainerAmount(parseInt(e.target.value) || 1)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} /><span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</span></div></div><div style={{ marginBottom: '16px' }}><label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Every</label><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="number" value={trainerInterval} onChange={(e) => setTrainerInterval(parseInt(e.target.value) || 1)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} /><span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>bars</span></div></div><div><label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Stop at</label><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="number" value={trainerStop} onChange={(e) => setTrainerStop(parseInt(e.target.value) || 40)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} /><span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</span></div></div></div></div><div style={{ padding: '16px 24px', borderTop: '1px solid #e9ecef', display: 'flex', justifyContent: 'flex-end' }}><button onClick={() => setShowTrainerPopup(false)} style={{ padding: '10px 20px', borderRadius: '8px', background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', border: 'none', color: '#fff', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>Done</button></div></div></div>)}
     </div>
   );
 }
-
 window.Metronome = Metronome;
