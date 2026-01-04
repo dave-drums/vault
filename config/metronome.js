@@ -15,6 +15,10 @@ function Metronome() {
   const [trainerAmount, setTrainerAmount] = useState(5);
   const [trainerInterval, setTrainerInterval] = useState(4);
   const [trainerStop, setTrainerStop] = useState(200);
+  const [trainerPressed, setTrainerPressed] = useState(false);
+  const [tapPressed, setTapPressed] = useState(false);
+  const [minusPressed, setMinusPressed] = useState(false);
+  const [plusPressed, setPlusPressed] = useState(false);
   const intervalRef = useRef(null);
   const audioBuffersRef = useRef({});
   const audioContextRef = useRef(null);
@@ -246,31 +250,68 @@ function Metronome() {
     setShowTrainerPopup(true);
   };
 
+  const handleBpmChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value)) {
+      setBpm(Math.max(40, Math.min(240, value)));
+    } else if (e.target.value === '') {
+      setBpm('');
+    }
+  };
+
+  const handleBpmBlur = () => {
+    if (bpm === '' || bpm < 40) setBpm(40);
+    if (bpm > 240) setBpm(240);
+  };
+
+  const trainerActive = trainerMode !== 'off';
+
   return (
     <div className="metronome-wrapper" style={{ minHeight: '60vh', background: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', fontFamily: "'Inter', sans-serif" }}>
+      <style>{`
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #fff;
+          cursor: pointer;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #fff;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+      `}</style>
       <div style={{ width: '100%', maxWidth: '600px' }}>
         <div className="metronome-card" style={{ background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '1px solid #e9ecef' }}>
           <div className="bpm-display" style={{ background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', borderRadius: '15px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(6,179,253,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <button onClick={handleTrainerClick} style={{ position: 'relative', width: '45px', height: '45px', background: trainerMode !== 'off' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#fff', borderRadius: '10px', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: trainerMode !== 'off' ? '0 0 0 3px #fff, 0 0 12px rgba(6,179,253,0.8)' : '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }} onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(2px)'} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: trainerMode !== 'off' ? '#fff' : '#06b3fd' }}>
+              <button onClick={handleTrainerClick} onMouseDown={() => setTrainerPressed(true)} onMouseUp={() => setTrainerPressed(false)} onMouseLeave={() => setTrainerPressed(false)} style={{ width: '45px', height: '45px', background: (trainerPressed || trainerActive) ? '#fff' : 'rgba(56, 189, 248, 0.35)', borderRadius: '10px', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: trainerActive ? '0 0 0 3px rgba(6,179,253,0.5), 0 0 12px rgba(6,179,253,0.8)' : 'none', transition: 'all 0.2s ease', transform: trainerPressed ? 'translateY(2px)' : 'translateY(0)' }}>
+                <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: (trainerPressed || trainerActive) ? '#06b3fd' : '#fff' }}>
                   <path d="M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0780 4.0937 28.0234 4.0937 C 26.7812 4.0937 26.1718 4.8437 26.1718 6.0625 L 26.1718 15.1563 C 26.1718 16.1641 26.8514 16.9844 27.8827 16.9844 C 28.9140 16.9844 29.6171 16.1641 29.6171 15.1563 L 29.6171 8.1484 C 39.9296 8.9688 47.8983 17.5 47.8983 28 C 47.8983 39.0625 39.0390 47.9219 27.9999 47.9219 C 16.9374 47.9219 8.0546 39.0625 8.0780 28 C 8.1014 23.0781 9.8593 18.6016 12.7890 15.1563 C 13.5155 14.2422 13.5624 13.1406 12.7890 12.3203 C 12.0155 11.4766 10.7030 11.5469 9.8593 12.6016 C 6.2733 16.7734 4.0937 22.1641 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 31.7499 31.6094 C 33.6014 29.6875 33.2265 27.0625 30.9999 25.5156 L 18.6014 16.8672 C 17.4296 16.0469 16.2109 17.2656 17.0312 18.4375 L 25.6796 30.8359 C 27.2265 33.0625 29.8514 33.4609 31.7499 31.6094 Z"/>
                 </svg>
               </button>
-              <button onClick={handleTapTempo} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }} onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(2px)'} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: '#06b3fd' }}>
+              <button onClick={handleTapTempo} onMouseDown={() => setTapPressed(true)} onMouseUp={() => setTapPressed(false)} onMouseLeave={() => setTapPressed(false)} style={{ width: '45px', height: '45px', background: tapPressed ? '#fff' : 'rgba(56, 189, 248, 0.35)', borderRadius: '10px', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', transform: tapPressed ? 'translateY(2px)' : 'translateY(0)' }}>
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style={{ width: '22px', height: '22px', fill: tapPressed ? '#06b3fd' : '#fff' }}>
                   <path d="M20,8H18A5,5,0,0,0,8,8H6A7,7,0,0,1,20,8Z"/><path d="M25,15a2.94,2.94,0,0,0-1.47.4A3,3,0,0,0,21,14a2.94,2.94,0,0,0-1.47.4A3,3,0,0,0,16,13.18V8h0a3,3,0,0,0-6,0V19.1L7.77,17.58h0A2.93,2.93,0,0,0,6,17a3,3,0,0,0-2.12,5.13l8,7.3A6.16,6.16,0,0,0,16,31h5a7,7,0,0,0,7-7V18A3,3,0,0,0,25,15Zm1,9a5,5,0,0,1-5,5H16a4.17,4.17,0,0,1-2.76-1L5.29,20.7A1,1,0,0,1,5,20a1,1,0,0,1,1.6-.8L12,22.9V8a1,1,0,0,1,2,0h0V19h2V16a1,1,0,0,1,2,0v3h2V17a1,1,0,0,1,2,0v2h2V18a1,1,0,0,1,2,0Z"/>
                 </svg>
               </button>
             </div>
             <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-              <div style={{ fontSize: '80px', fontWeight: '600', color: '#fff', lineHeight: '1', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>{bpm}</div>
+              <input type="text" value={bpm} onChange={handleBpmChange} onBlur={handleBpmBlur} style={{ fontSize: '80px', fontWeight: '600', color: '#fff', lineHeight: '1', marginBottom: '8px', fontFamily: "'Inter', sans-serif", background: 'transparent', border: 'none', outline: 'none', textAlign: 'center', width: '100%', padding: 0 }} />
               <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'Inter', sans-serif" }}>Beats Per Minute</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(2px)'; handleBpmButtonDown(-5); }} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: 'none', fontSize: '24px', fontWeight: '600', color: '#06b3fd', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }}>−</button>
-              <div style={{ flex: '1' }}><input type="range" min="40" max="240" value={bpm} onChange={(e) => setBpm(parseInt(e.target.value))} style={{ width: '100%', height: '8px', borderRadius: '4px', background: 'rgba(255,255,255,0.3)', outline: 'none', cursor: 'pointer', WebkitAppearance: 'none', appearance: 'none' }} /></div>
-              <button onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(2px)'; handleBpmButtonDown(5); }} onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'} style={{ width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: 'none', fontSize: '24px', fontWeight: '600', color: '#06b3fd', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', transition: 'all 0.2s ease' }}>+</button>
+              <button onMouseDown={() => { setMinusPressed(true); handleBpmButtonDown(-5); }} onMouseUp={() => setMinusPressed(false)} onMouseLeave={() => setMinusPressed(false)} style={{ width: '45px', height: '45px', background: minusPressed ? '#fff' : 'rgba(56, 189, 248, 0.35)', borderRadius: '10px', border: '2px solid #fff', fontSize: '24px', fontWeight: '600', color: minusPressed ? '#06b3fd' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease', transform: minusPressed ? 'translateY(2px)' : 'translateY(0)' }}>−</button>
+              <div style={{ flex: '1' }}><input type="range" min="40" max="240" value={bpm} onChange={(e) => setBpm(parseInt(e.target.value))} style={{ width: '100%', height: '8px', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.35)', outline: 'none', cursor: 'pointer', WebkitAppearance: 'none', appearance: 'none' }} /></div>
+              <button onMouseDown={() => { setPlusPressed(true); handleBpmButtonDown(5); }} onMouseUp={() => setPlusPressed(false)} onMouseLeave={() => setPlusPressed(false)} style={{ width: '45px', height: '45px', background: plusPressed ? '#fff' : 'rgba(56, 189, 248, 0.35)', borderRadius: '10px', border: '2px solid #fff', fontSize: '24px', fontWeight: '600', color: plusPressed ? '#06b3fd' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease', transform: plusPressed ? 'translateY(2px)' : 'translateY(0)' }}>+</button>
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
