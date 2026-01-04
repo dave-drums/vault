@@ -557,7 +557,7 @@
           // Create modal container
           var container = document.createElement('div');
           container.id = 'metronome-container';
-          container.style.cssText = 'width:100%;max-width:600px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;';
+          container.style.cssText = 'width:90%;max-width:540px;transform:scale(0.9);position:relative;';
           
           // Create close button
           var closeBtn = document.createElement('button');
