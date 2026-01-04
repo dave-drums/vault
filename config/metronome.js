@@ -11,20 +11,16 @@ function Metronome() {
   const [tapTimes, setTapTimes] = useState([]);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showTrainerPopup, setShowTrainerPopup] = useState(false);
-  const [trainerSettings, setTrainerSettings] = useState({
-    increaseEnabled: false,
-    increaseAmount: 5,
-    increaseInterval: 4,
-    increaseMax: 200,
-    decreaseEnabled: false,
-    decreaseAmount: 5,
-    decreaseInterval: 4,
-    decreaseMin: 60
-  });
+  const [trainerMode, setTrainerMode] = useState('off'); // 'off', 'increase', 'decrease'
+  const [trainerAmount, setTrainerAmount] = useState(5);
+  const [trainerInterval, setTrainerInterval] = useState(4);
+  const [trainerStop, setTrainerStop] = useState(200);
   const intervalRef = useRef(null);
   const audioBuffersRef = useRef({});
   const audioContextRef = useRef(null);
   const barCountRef = useRef(0);
+  const currentBeatRef = useRef(0);
+  const currentSubdivisionRef = useRef(0);
 
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -149,63 +145,73 @@ function Metronome() {
     });
   }, [beatsPerBar]);
 
+  // Main playback loop - smooth tempo changes
   useEffect(() => {
     if (isPlaying) {
-      let currentBeat = 0;
-      let currentSubdivision = 0;
-      
-      playClick(false, 0);
+      currentBeatRef.current = 0;
+      currentSubdivisionRef.current = 0;
+      barCountRef.current = 0;
       setBeat(0);
       setSubdivision(0);
-      barCountRef.current = 0;
       
-      const subdivisionInterval = (60000 / bpm) / subdivisionType;
+      playClick(false, 0);
       
-      intervalRef.current = setInterval(() => {
-        currentSubdivision++;
+      const tick = () => {
+        const subdivisionInterval = (60000 / bpm) / subdivisionType;
         
-        if (currentSubdivision >= subdivisionType) {
-          currentSubdivision = 0;
-          currentBeat++;
+        currentSubdivisionRef.current++;
+        
+        if (currentSubdivisionRef.current >= subdivisionType) {
+          currentSubdivisionRef.current = 0;
+          currentBeatRef.current++;
           
-          if (currentBeat >= beatsPerBar) {
-            currentBeat = 0;
+          if (currentBeatRef.current >= beatsPerBar) {
+            currentBeatRef.current = 0;
             barCountRef.current++;
             
-            // Tempo trainer logic
-            if (trainerSettings.increaseEnabled && barCountRef.current % trainerSettings.increaseInterval === 0) {
+            // Tempo trainer
+            if (trainerMode === 'increase' && barCountRef.current % trainerInterval === 0) {
               setBpm(prev => {
-                const newBpm = prev + trainerSettings.increaseAmount;
-                return newBpm <= trainerSettings.increaseMax ? newBpm : prev;
+                const newBpm = prev + trainerAmount;
+                return newBpm <= trainerStop ? newBpm : prev;
               });
-            }
-            if (trainerSettings.decreaseEnabled && barCountRef.current % trainerSettings.decreaseInterval === 0) {
+            } else if (trainerMode === 'decrease' && barCountRef.current % trainerInterval === 0) {
               setBpm(prev => {
-                const newBpm = prev - trainerSettings.decreaseAmount;
-                return newBpm >= trainerSettings.decreaseMin ? newBpm : prev;
+                const newBpm = prev - trainerAmount;
+                return newBpm >= trainerStop ? newBpm : prev;
               });
             }
           }
           
-          playClick(false, currentBeat);
-          setBeat(currentBeat);
+          playClick(false, currentBeatRef.current);
+          setBeat(currentBeatRef.current);
         } else {
-          playClick(true, currentBeat);
+          playClick(true, currentBeatRef.current);
         }
         
-        setSubdivision(currentSubdivision);
-      }, subdivisionInterval);
+        setSubdivision(currentSubdivisionRef.current);
+        
+        intervalRef.current = setTimeout(tick, subdivisionInterval);
+      };
+      
+      const subdivisionInterval = (60000 / bpm) / subdivisionType;
+      intervalRef.current = setTimeout(tick, subdivisionInterval);
     } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) clearTimeout(intervalRef.current);
       setBeat(0);
       setSubdivision(0);
       barCountRef.current = 0;
     }
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) clearTimeout(intervalRef.current);
     };
-  }, [isPlaying, bpm, beatsPerBar, subdivisionType, beatEmphasis, trainerSettings]);
+  }, [isPlaying, beatsPerBar, subdivisionType, beatEmphasis, trainerMode, trainerAmount, trainerInterval, trainerStop]);
+
+  // Separate effect for BPM updates - doesn't restart playback
+  useEffect(() => {
+    // BPM changes are handled automatically by the tick function recalculating subdivisionInterval
+  }, [bpm]);
 
   useEffect(() => {
     let timerInterval;
@@ -374,58 +380,50 @@ function Metronome() {
       {/* Tempo Trainer Popup */}
       {showTrainerPopup && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }} onClick={() => setShowTrainerPopup(false)}>
-          <div style={{ background: '#fff', borderRadius: '15px', padding: '0', width: '100%', maxWidth: '450px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Inter', sans-serif", margin: 0 }}><span>⚡</span> Tempo Trainer</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}>Tempo Trainer</h3>
               <button onClick={() => setShowTrainerPopup(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}>×</button>
             </div>
             
             <div style={{ padding: '24px' }}>
-              <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #e9ecef' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <div style={{ fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Inter', sans-serif" }}><span>🔼</span><span>Increase BPM</span></div>
-                  <div onClick={() => setTrainerSettings(prev => ({ ...prev, increaseEnabled: !prev.increaseEnabled }))} style={{ position: 'relative', width: '50px', height: '26px', background: trainerSettings.increaseEnabled ? '#06b3fd' : '#dee2e6', borderRadius: '13px', cursor: 'pointer', transition: 'all 0.3s' }}>
-                    <div style={{ position: 'absolute', top: '3px', left: trainerSettings.increaseEnabled ? '27px' : '3px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', transition: 'all 0.3s' }}></div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>Change by</label>
-                  <input type="number" value={trainerSettings.increaseAmount} onChange={(e) => setTrainerSettings(prev => ({ ...prev, increaseAmount: parseInt(e.target.value) || 1 }))} style={{ width: '60px', padding: '8px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textAlign: 'center', fontFamily: "'Inter', sans-serif" }} />
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM every</label>
-                  <input type="number" value={trainerSettings.increaseInterval} onChange={(e) => setTrainerSettings(prev => ({ ...prev, increaseInterval: parseInt(e.target.value) || 1 }))} style={{ width: '60px', padding: '8px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textAlign: 'center', fontFamily: "'Inter', sans-serif" }} />
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>bars</label>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>Stop at</label>
-                  <input type="number" value={trainerSettings.increaseMax} onChange={(e) => setTrainerSettings(prev => ({ ...prev, increaseMax: parseInt(e.target.value) || 240 }))} style={{ width: '60px', padding: '8px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textAlign: 'center', fontFamily: "'Inter', sans-serif" }} />
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</label>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  <button onClick={() => setTrainerMode('off')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'off' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'off' ? '#fff' : '#1a1a1a', border: trainerMode === 'off' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Off</button>
+                  <button onClick={() => setTrainerMode('increase')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'increase' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'increase' ? '#fff' : '#1a1a1a', border: trainerMode === 'increase' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Increase</button>
+                  <button onClick={() => setTrainerMode('decrease')} style={{ flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'decrease' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'decrease' ? '#fff' : '#1a1a1a', border: trainerMode === 'decrease' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Decrease</button>
                 </div>
               </div>
               
-              <div style={{ marginBottom: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <div style={{ fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Inter', sans-serif" }}><span>🔽</span><span>Decrease BPM</span></div>
-                  <div onClick={() => setTrainerSettings(prev => ({ ...prev, decreaseEnabled: !prev.decreaseEnabled }))} style={{ position: 'relative', width: '50px', height: '26px', background: trainerSettings.decreaseEnabled ? '#06b3fd' : '#dee2e6', borderRadius: '13px', cursor: 'pointer', transition: 'all 0.3s' }}>
-                    <div style={{ position: 'absolute', top: '3px', left: trainerSettings.decreaseEnabled ? '27px' : '3px', width: '20px', height: '20px', background: '#fff', borderRadius: '50%', transition: 'all 0.3s' }}></div>
+              <div style={{ opacity: trainerMode === 'off' ? 0.4 : 1, pointerEvents: trainerMode === 'off' ? 'none' : 'auto' }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Change by</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="number" value={trainerAmount} onChange={(e) => setTrainerAmount(parseInt(e.target.value) || 1)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} />
+                    <span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>Change by</label>
-                  <input type="number" value={trainerSettings.decreaseAmount} onChange={(e) => setTrainerSettings(prev => ({ ...prev, decreaseAmount: parseInt(e.target.value) || 1 }))} style={{ width: '60px', padding: '8px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textAlign: 'center', fontFamily: "'Inter', sans-serif" }} />
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM every</label>
-                  <input type="number" value={trainerSettings.decreaseInterval} onChange={(e) => setTrainerSettings(prev => ({ ...prev, decreaseInterval: parseInt(e.target.value) || 1 }))} style={{ width: '60px', padding: '8px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textAlign: 'center', fontFamily: "'Inter', sans-serif" }} />
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>bars</label>
+                
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Every</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="number" value={trainerInterval} onChange={(e) => setTrainerInterval(parseInt(e.target.value) || 1)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} />
+                    <span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>bars</span>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>Stop at</label>
-                  <input type="number" value={trainerSettings.decreaseMin} onChange={(e) => setTrainerSettings(prev => ({ ...prev, decreaseMin: parseInt(e.target.value) || 40 }))} style={{ width: '60px', padding: '8px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textAlign: 'center', fontFamily: "'Inter', sans-serif" }} />
-                  <label style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</label>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}>Stop at</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="number" value={trainerStop} onChange={(e) => setTrainerStop(parseInt(e.target.value) || 40)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }} />
+                    <span style={{ fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}>BPM</span>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div style={{ padding: '16px 24px', borderTop: '1px solid #e9ecef', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowTrainerPopup(false)} style={{ padding: '10px 20px', borderRadius: '8px', background: '#f8f9fa', border: '1px solid #dee2e6', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>Close</button>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid #e9ecef', display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowTrainerPopup(false)} style={{ padding: '10px 20px', borderRadius: '8px', background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', border: 'none', color: '#fff', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}>Done</button>
             </div>
           </div>
         </div>
