@@ -59,10 +59,10 @@ function Metronome() {
       if (e.target.tagName === 'INPUT') return;
       switch(e.key) {
         case ' ': e.preventDefault(); setIsPlaying(prev => !prev); break;
-        case 'ArrowUp': e.preventDefault(); setBpm(prev => Math.min(240, prev + 1)); break;
-        case 'ArrowDown': e.preventDefault(); setBpm(prev => Math.max(40, prev - 1)); break;
-        case 'ArrowRight': e.preventDefault(); setBpm(prev => Math.min(240, prev + 5)); break;
-        case 'ArrowLeft': e.preventDefault(); setBpm(prev => Math.max(40, prev - 5)); break;
+        case 'ArrowUp': e.preventDefault(); setBpm(prev => Math.min(300, prev + 1)); break;
+        case 'ArrowDown': e.preventDefault(); setBpm(prev => Math.max(1, prev - 1)); break;
+        case 'ArrowRight': e.preventDefault(); setBpm(prev => Math.min(300, prev + 5)); break;
+        case 'ArrowLeft': e.preventDefault(); setBpm(prev => Math.max(1, prev - 5)); break;
       }
     };
     window.addEventListener('keydown', handleKeyPress);
@@ -213,7 +213,7 @@ function Metronome() {
       }
       const avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
       const calculatedBpm = Math.round(60000 / avgInterval);
-      setBpm(Math.max(40, Math.min(240, calculatedBpm)));
+      setBpm(Math.max(1, Math.min(300, calculatedBpm)));
     }
     setTimeout(() => {
       setTapTimes(prev => {
@@ -234,9 +234,9 @@ function Metronome() {
   };
 
   const handleBpmButtonDown = (change) => {
-    setBpm(prev => Math.max(40, Math.min(240, prev + change)));
+    setBpm(prev => Math.max(1, Math.min(300, prev + change)));
     const interval = setInterval(() => {
-      setBpm(prev => Math.max(40, Math.min(240, prev + change)));
+      setBpm(prev => Math.max(1, Math.min(300, prev + change)));
     }, 150);
     const stopHold = () => {
       clearInterval(interval);
@@ -255,15 +255,15 @@ function Metronome() {
   const handleBpmChange = (e) => {
     const value = parseInt(e.target.value);
     if (!isNaN(value)) {
-      setBpm(Math.max(40, Math.min(240, value)));
+      setBpm(Math.max(1, Math.min(300, value)));
     } else if (e.target.value === '') {
       setBpm('');
     }
   };
 
   const handleBpmBlur = () => {
-    if (bpm === '' || bpm < 40) setBpm(40);
-    if (bpm > 240) setBpm(240);
+    if (bpm === '' || bpm < 1) setBpm(1);
+    if (bpm > 300) setBpm(300);
   };
 
   const trainerActive = trainerMode !== 'off';
@@ -324,7 +324,7 @@ function Metronome() {
               style: { width: '45px', height: '45px', background: '#fff', borderRadius: '10px', border: '2px solid #fff', fontSize: '24px', fontWeight: '600', color: '#06b3fd', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s ease', transform: minusPressed ? 'translateY(2px)' : 'translateY(0)' }
             }, '−'),
             React.createElement('div', { style: { flex: '1' }},
-              React.createElement('input', { type: "range", min: "40", max: "240", value: bpm, onChange: (e) => setBpm(parseInt(e.target.value)), style: { width: '100%', height: '8px', borderRadius: '4px', background: '#7dd3fc', outline: 'none', cursor: 'pointer', WebkitAppearance: 'none', appearance: 'none' }})
+              React.createElement('input', { type: "range", min: "1", max: "300", value: bpm, onChange: (e) => setBpm(parseInt(e.target.value)), style: { width: '100%', height: '8px', borderRadius: '4px', background: '#7dd3fc', outline: 'none', cursor: 'pointer', WebkitAppearance: 'none', appearance: 'none' }})
             ),
             React.createElement('button', { 
               onMouseDown: () => { setPlusPressed(true); handleBpmButtonDown(5); }, 
@@ -403,7 +403,7 @@ function Metronome() {
         ),
         React.createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '24px' }},
           React.createElement('button', { onClick: () => setShowBeatsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '2px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Beats per Bar: ${beatsPerBar}`),
-          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '2px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivision: ${subdivisionType}`)
+          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '2px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivisions: ${subdivisionType}`)
         )
       )
     ),
@@ -439,20 +439,20 @@ function Metronome() {
             React.createElement('div', null,
               React.createElement('label', { style: { display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}, 'Stop at'),
               React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' }},
-                React.createElement('input', { type: "number", value: trainerStop, onChange: (e) => setTrainerStop(parseInt(e.target.value) || 40), style: { flex: 1, padding: '10px 12px', border: '2px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
+                React.createElement('input', { type: "number", value: trainerStop, onChange: (e) => setTrainerStop(parseInt(e.target.value) || 1), style: { flex: 1, padding: '10px 12px', border: '2px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
                 React.createElement('span', { style: { fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}, 'BPM')
               )
             )
           )
         ),
-        React.createElement('div', { style: { padding: '16px 24px', borderTop: '1px solid #e9ecef', display: 'flex', justifyContent: 'flex-end' }},
+        React.createElement('div', { style: { padding: '16px 24px', borderTop: '2px solid #e9ecef', display: 'flex', justifyContent: 'flex-end' }},
           React.createElement('button', { onClick: () => setShowTrainerPopup(false), style: { padding: '10px 20px', borderRadius: '8px', background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', border: 'none', color: '#fff', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}, 'Done')
         )
       )
     ),
     showBeatsPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowBeatsPopup(false) },
       React.createElement('div', { style: { background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }, onClick: (e) => e.stopPropagation() },
-        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
+        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '2px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
           React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Beats per Bar'),
           React.createElement('button', { onClick: () => setShowBeatsPopup(false), style: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}, '×')
         ),
@@ -467,14 +467,14 @@ function Metronome() {
     ),
     showSubdivisionsPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowSubdivisionsPopup(false) },
       React.createElement('div', { style: { background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }, onClick: (e) => e.stopPropagation() },
-        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
-          React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Subdivision'),
+        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '2px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
+          React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Subdivisions'),
           React.createElement('button', { onClick: () => setShowSubdivisionsPopup(false), style: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}, '×')
         ),
         React.createElement('div', { style: { padding: '24px' }},
           React.createElement('div', { className: 'subdivisions-popup-grid', style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }},
             subdivisions.map((sub) => 
-              React.createElement('button', { key: sub.value, onClick: () => { setSubdivisionType(sub.value); setShowSubdivisionsPopup(false); }, style: { padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '1px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }},
+              React.createElement('button', { key: sub.value, onClick: () => { setSubdivisionType(sub.value); setShowSubdivisionsPopup(false); }, style: { padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '2px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }},
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px' }}, sub.svg),
                 React.createElement('span', { style: { fontSize: '10px', fontWeight: '600', opacity: subdivisionType === sub.value ? 1 : 0.6, textAlign: 'center', fontFamily: "'Inter', sans-serif" }}, sub.name)
               )
