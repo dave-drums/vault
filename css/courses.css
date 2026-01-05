@@ -610,6 +610,7 @@
   font-family: 'Inter', sans-serif;
   font-size: var(--text-small);
   font-weight: 600;
+  justify-content: center;
   color: white;
   white-space: nowrap;
 }
@@ -790,7 +791,7 @@
   
   .practice-btn {
     font-size: var(--text-small);
-    padding: 12px 18px;
+    padding: 12px 16px;
   }
   
   .practice-icon {
