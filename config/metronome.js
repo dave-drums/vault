@@ -334,6 +334,9 @@ function Metronome() {
         0% { opacity: 0.3; transform: scale(0.98); }
         100% { opacity: 1; transform: scale(1); }
       }
+      button:active {
+        transform: translateY(2px) !important;
+      }
     `),
     React.createElement('div', { style: { width: '100%', maxWidth: '600px' }},
       React.createElement('div', { className: "metronome-card", style: { background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '2px solid #e9ecef' }},
