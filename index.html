@@ -27,6 +27,7 @@
   <script src="/config/components.js"></script>
   <script src="/config/navigation.js"></script>
   <script src="/config/course-data.js"></script>
+  <link rel="stylesheet" href="/css/account.css">
   
 </head>
 <body>
@@ -45,20 +46,18 @@
 
   <!-- DAILY QUOTE -->
 <div class="container">
-  <div class="quote-box" style="text-align: center; margin: 40px auto 20px; max-width: 1000px;">
-    <p class="quote-text" style="font-style: italic;">
+  <div class="quote-box">
+    <p class="quote-text">
       <span style="font-style: normal;">💡 </span>
       <span id="daily-quote-text">Practice makes progress</span>
     </p>
   </div>
 </div>
 
-  <script>
-  // Load daily quote if available
+<script>
   window.addEventListener('DOMContentLoaded', function(){
-    var quoteEl = document.getElementById('daily-quote-text');
     if (window.VaultCues && window.VaultCues.getDailyQuote) {
-      quoteEl.textContent = window.VaultCues.getDailyQuote();
+      document.getElementById('daily-quote-text').textContent = window.VaultCues.getDailyQuote();
     }
   });
 </script>
