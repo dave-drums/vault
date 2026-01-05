@@ -30,6 +30,9 @@ function Metronome() {
   const trainerAmountRef = useRef(5);
   const trainerIntervalRef = useRef(4);
   const trainerStopRef = useRef(200);
+  const nextNoteTimeRef = useRef(0);
+  const currentBeatRef = useRef(0);
+  const currentSubdivisionRef = useRef(0);
 
   useEffect(() => { bpmRef.current = bpm; }, [bpm]);
   useEffect(() => { trainerModeRef.current = trainerMode; }, [trainerMode]);
@@ -88,7 +91,7 @@ function Metronome() {
     { value: 8, name: '32nd', svg: React.createElement('div', { style: { transform: 'scaleY(1.2)' }}, React.createElement('svg', { width: "76", height: "24", viewBox: "0 0 76 24", fill: "currentColor" }, React.createElement('ellipse', { cx: "5", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 5 18)" }), React.createElement('rect', { x: "6.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "13", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 13 18)" }), React.createElement('rect', { x: "14.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "21", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 21 18)" }), React.createElement('rect', { x: "22.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "29", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 29 18)" }), React.createElement('rect', { x: "30.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "37", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 37 18)" }), React.createElement('rect', { x: "38.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "45", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 45 18)" }), React.createElement('rect', { x: "46.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "53", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 53 18)" }), React.createElement('rect', { x: "54.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('ellipse', { cx: "61", cy: "18", rx: "2.5", ry: "1.8", transform: "rotate(-20 61 18)" }), React.createElement('rect', { x: "62.5", y: "5", width: "1.5", height: "13", rx: "0.75" }), React.createElement('rect', { x: "6.5", y: "5", width: "57.5", height: "1.5", rx: "0.75" }), React.createElement('rect', { x: "6.5", y: "8", width: "57.5", height: "1.5", rx: "0.75" }), React.createElement('rect', { x: "6.5", y: "11", width: "57.5", height: "1.5", rx: "0.75" }))) }
   ];
 
-  const playClick = (isSubdivision, currentBeatIndex) => {
+  const playClick = (isSubdivision, currentBeatIndex, time) => {
     if (beatEmphasis[currentBeatIndex] === 'mute') return;
     const audioContext = audioContextRef.current;
     if (!audioContext || !audioBuffersRef.current.low) return;
@@ -106,7 +109,7 @@ function Metronome() {
     }
     source.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    source.start(audioContext.currentTime + 0.05);
+    source.start(time);
   };
 
   const getRowSplit = (total) => {
@@ -137,52 +140,73 @@ function Metronome() {
       setBeat(0);
       setSubdivision(0);
       barCountRef.current = 0;
+      currentBeatRef.current = 0;
+      currentSubdivisionRef.current = 0;
       return;
     }
 
-    let currentBeat = 0;
-    let currentSubdivision = 0;
+    const audioContext = audioContextRef.current;
+    if (!audioContext) return;
+    
     setBeat(0);
     setSubdivision(0);
     barCountRef.current = 0;
-    playClick(false, 0);
+    currentBeatRef.current = 0;
+    currentSubdivisionRef.current = 0;
+    nextNoteTimeRef.current = audioContext.currentTime;
 
-    const tick = () => {
-      currentSubdivision++;
+    const scheduleAheadTime = 0.1;
+    const lookahead = 25;
+
+    const scheduler = () => {
+      const subdivisionInterval = (60 / bpmRef.current) / subdivisionType;
       
-      if (currentSubdivision >= subdivisionType) {
-        currentSubdivision = 0;
-        currentBeat++;
+      while (nextNoteTimeRef.current < audioContext.currentTime + scheduleAheadTime) {
+        const scheduleTime = nextNoteTimeRef.current;
+        const displayTime = (scheduleTime - audioContext.currentTime) * 1000;
+        const beatToPlay = currentBeatRef.current;
+        const subdivisionToPlay = currentSubdivisionRef.current;
         
-        if (currentBeat >= beatsPerBar) {
-          currentBeat = 0;
-          barCountRef.current++;
+        if (currentSubdivisionRef.current === 0) {
+          playClick(false, currentBeatRef.current, scheduleTime);
+          setTimeout(() => setBeat(beatToPlay), Math.max(0, displayTime));
+        } else {
+          playClick(true, currentBeatRef.current, scheduleTime);
+        }
+        
+        setTimeout(() => setSubdivision(subdivisionToPlay), Math.max(0, displayTime));
+        
+        currentSubdivisionRef.current++;
+        
+        if (currentSubdivisionRef.current >= subdivisionType) {
+          currentSubdivisionRef.current = 0;
+          currentBeatRef.current++;
           
-          const mode = trainerModeRef.current;
-          if (mode === 'increase' && barCountRef.current > 0 && barCountRef.current % trainerIntervalRef.current === 0) {
-            setBpm(prev => {
-              const newBpm = prev + trainerAmountRef.current;
-              return newBpm <= trainerStopRef.current ? newBpm : prev;
-            });
-          } else if (mode === 'decrease' && barCountRef.current > 0 && barCountRef.current % trainerIntervalRef.current === 0) {
-            setBpm(prev => {
-              const newBpm = prev - trainerAmountRef.current;
-              return newBpm >= trainerStopRef.current ? newBpm : prev;
-            });
+          if (currentBeatRef.current >= beatsPerBar) {
+            currentBeatRef.current = 0;
+            barCountRef.current++;
+            
+            const mode = trainerModeRef.current;
+            if (mode === 'increase' && barCountRef.current > 0 && barCountRef.current % trainerIntervalRef.current === 0) {
+              setBpm(prev => {
+                const newBpm = prev + trainerAmountRef.current;
+                return newBpm <= trainerStopRef.current ? newBpm : prev;
+              });
+            } else if (mode === 'decrease' && barCountRef.current > 0 && barCountRef.current % trainerIntervalRef.current === 0) {
+              setBpm(prev => {
+                const newBpm = prev - trainerAmountRef.current;
+                return newBpm >= trainerStopRef.current ? newBpm : prev;
+              });
+            }
           }
         }
         
-        playClick(false, currentBeat);
-        setBeat(currentBeat);
-      } else {
-        playClick(true, currentBeat);
+        nextNoteTimeRef.current += subdivisionInterval;
       }
-      
-      setSubdivision(currentSubdivision);
     };
     
-    const subdivisionInterval = (60000 / bpmRef.current) / subdivisionType;
-    intervalRef.current = setInterval(tick, subdivisionInterval);
+    scheduler();
+    intervalRef.current = setInterval(scheduler, lookahead);
     
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [isPlaying, beatsPerBar, subdivisionType, beatEmphasis]);
