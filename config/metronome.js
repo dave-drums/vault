@@ -288,8 +288,12 @@ function Metronome() {
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
       .beat-circle {
-        width: min(48px, calc((100vw - 140px) / 8)) !important;
-        height: min(48px, calc((100vw - 140px) / 8)) !important;
+        width: clamp(32px, calc((100vw - 140px) / 8), 48px) !important;
+        height: clamp(32px, calc((100vw - 140px) / 8), 48px) !important;
+      }
+      .subdivision-dot {
+        width: clamp(3.3px, calc((100vw - 140px) / 96), 5px) !important;
+        height: clamp(3.3px, calc((100vw - 140px) / 96), 5px) !important;
       }
       @media (max-width: 560px) {
         .subdivision-grid {
@@ -340,12 +344,12 @@ function Metronome() {
                     React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'center', justifyContent: 'center' }},
                       React.createElement('div', { style: { display: 'flex', gap: '3px', justifyContent: 'center' }},
                         [...Array(Math.min(subdivisionType, 4))].map((_, subIdx) => 
-                          React.createElement('div', { key: subIdx, style: { width: '5px', height: '5px', borderRadius: '50%', background: subIdx <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }})
+                          React.createElement('div', { key: subIdx, className: 'subdivision-dot', style: { width: '5px', height: '5px', borderRadius: '50%', background: subIdx <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }})
                         )
                       ),
                       subdivisionType >= 5 && React.createElement('div', { style: { display: 'flex', gap: '3px', justifyContent: 'center' }},
                         [...Array(subdivisionType - (subdivisionType >= 7 ? 4 : 3))].map((_, subIdx) => 
-                          React.createElement('div', { key: subIdx + (subdivisionType >= 7 ? 4 : 3), style: { width: '5px', height: '5px', borderRadius: '50%', background: (subIdx + (subdivisionType >= 7 ? 4 : 3)) <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }})
+                          React.createElement('div', { key: subIdx + (subdivisionType >= 7 ? 4 : 3), className: 'subdivision-dot', style: { width: '5px', height: '5px', borderRadius: '50%', background: (subIdx + (subdivisionType >= 7 ? 4 : 3)) <= subdivision ? '#fff' : 'rgba(255,255,255,0.3)', transition: 'all 0.05s ease' }})
                         )
                       )
                     ) : emphasis === 'mute' ?
