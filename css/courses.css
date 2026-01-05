@@ -792,6 +792,7 @@
   .practice-btn {
     font-size: var(--text-small);
     padding: 12px 16px;
+   justify-content: center;
   }
   
   .practice-icon {
@@ -827,6 +828,7 @@
     width: 100%;
     font-size: var(--text-small);
     padding: 10px 14px;
+    justify-content: center;
   }
   
   .practice-dropdown {
