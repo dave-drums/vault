@@ -42,6 +42,26 @@
     <div class="hero-badge">Course Pathways</div>
   </div>
 </div>
+
+  <!-- DAILY QUOTE -->
+<div class="container">
+  <div class="quote-box" style="text-align: center; margin: 40px auto 20px; max-width: 1000px;">
+    <p class="quote-text" style="font-style: italic;">
+      <span style="font-style: normal;">💡 </span>
+      <span id="daily-quote-text">Practice makes progress</span>
+    </p>
+  </div>
+</div>
+
+  <script>
+  // Load daily quote if available
+  window.addEventListener('DOMContentLoaded', function(){
+    var quoteEl = document.getElementById('daily-quote-text');
+    if (window.VaultCues && window.VaultCues.getDailyQuote) {
+      quoteEl.textContent = window.VaultCues.getDailyQuote();
+    }
+  });
+</script>
   
   <!-- PATHWAYS -->
   <div class="container">
