@@ -287,6 +287,15 @@ function Metronome() {
         border: none;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
+      @media (max-width: 500px) {
+        .beat-circle {
+          width: 42px !important;
+          height: 42px !important;
+        }
+        .subdivision-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+      }
     `),
     React.createElement('div', { style: { width: '100%', maxWidth: '600px' }},
       React.createElement('div', { className: "metronome-card", style: { background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '1px solid #e9ecef' }},
@@ -323,7 +332,8 @@ function Metronome() {
                 const isActive = isPlaying && beat === index;
                 return React.createElement('button', { 
                   key: index, 
-                  onClick: () => cycleBeatEmphasis(index), 
+                  onClick: () => cycleBeatEmphasis(index),
+                  className: 'beat-circle',
                   style: { width: '48px', height: '48px', borderRadius: '50%', background: isActive ? (emphasis === 'accent' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : emphasis === 'mute' ? '#9ca3af' : '#06b3fd') : emphasis === 'accent' ? 'rgba(6,179,253,0.15)' : emphasis === 'mute' ? '#e5e7eb' : '#f8f9fa', border: isActive ? 'none' : emphasis === 'accent' ? '2px solid #06b3fd' : emphasis === 'mute' ? '2px solid #9ca3af' : '2px solid #e9ecef', transition: 'all 0.1s ease', boxShadow: isActive ? '0 4px 12px rgba(6,179,253,0.4)' : 'none', transform: isActive ? 'scale(1.1)' : 'scale(1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }
                 },
                   isActive && subdivisionType > 1 && emphasis !== 'mute' ? 
@@ -386,7 +396,7 @@ function Metronome() {
         ),
         React.createElement('div', { style: { marginBottom: '24px' }},
           React.createElement('label', { style: { display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}, 'Subdivisions'),
-          React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }},
+          React.createElement('div', { className: 'subdivision-grid', style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }},
             subdivisions.map((sub) => 
               React.createElement('button', { key: sub.value, onClick: () => setSubdivisionType(sub.value), style: { padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '1px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }},
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px' }}, sub.svg),
