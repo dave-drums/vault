@@ -545,43 +545,180 @@
         });
       }
       
-      // Metronome button - opens popup
+      // Metronome button - opens mini popup
       var metronomeBtn = document.getElementById('metronome-btn');
       if (metronomeBtn) {
+        var metronomeBpm = 120;
+        var metronomeInterval = null;
+        var metronomeIsPlaying = false;
+        var metronomeBeat = 0;
+        var metronomeBeatsPerBar = 4;
+        var metronomeAudioContext = null;
+        
         metronomeBtn.addEventListener('click', function() {
           // Create modal overlay
           var overlay = document.createElement('div');
           overlay.id = 'metronome-overlay';
-          overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+          overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
           
-          // Create modal container
-          var container = document.createElement('div');
-          container.id = 'metronome-container';
-          container.style.cssText = 'width:90%;max-width:540px;transform:scale(0.9);position:relative;';
+          // Create popup (same style as practice dropdown)
+          var popup = document.createElement('div');
+          popup.id = 'metronome-popup';
+          popup.style.cssText = 'background:rgba(26,26,46,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;border:1px solid rgba(6,179,253,0.3);box-shadow:0 4px 20px rgba(0,0,0,0.4);padding:20px;width:280px;';
           
-          // Create close button
-          var closeBtn = document.createElement('button');
-          closeBtn.innerHTML = '×';
-          closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.1);border:none;color:#666;font-size:32px;width:40px;height:40px;border-radius:50%;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center;transition:all 0.2s;';
-          closeBtn.onmouseover = function() { this.style.background = 'rgba(0,0,0,0.15)'; };
-          closeBtn.onmouseout = function() { this.style.background = 'rgba(0,0,0,0.1)'; };
-          closeBtn.onclick = function() {
-            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-          };
+          popup.innerHTML = `
+            <div style="text-align:center;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;">
+                <button id="metro-minus" style="width:40px;height:40px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.2s;">−</button>
+                <input type="text" id="metro-bpm" value="${metronomeBpm}" style="font-family:'Inter',sans-serif;font-size:48px;font-weight:600;color:#38bdf8;background:transparent;border:none;outline:none;text-align:center;width:120px;font-variant-numeric:tabular-nums;" />
+                <button id="metro-plus" style="width:40px;height:40px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:20px;font-weight:600;cursor:pointer;transition:all 0.2s;">+</button>
+              </div>
+              <div style="color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;font-family:'Inter',sans-serif;margin-bottom:20px;">Beats Per Minute</div>
+              
+              <div id="metro-beats" style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;"></div>
+              
+              <button id="metro-toggle" style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;">▶ Start</button>
+            </div>
+          `;
           
-          container.appendChild(closeBtn);
-          overlay.appendChild(container);
+          overlay.appendChild(popup);
           document.body.appendChild(overlay);
+          
+          // Render beat circles
+          function renderBeats() {
+            var beatsContainer = popup.querySelector('#metro-beats');
+            beatsContainer.innerHTML = '';
+            for (var i = 0; i < metronomeBeatsPerBar; i++) {
+              var circle = document.createElement('div');
+              circle.id = 'metro-beat-' + i;
+              circle.style.cssText = 'width:40px;height:40px;border-radius:50%;background:' + (i === 0 ? 'rgba(6,179,253,0.15)' : '#f8f9fa') + ';border:2px solid ' + (i === 0 ? '#06b3fd' : '#e9ecef') + ';transition:all 0.1s;';
+              beatsContainer.appendChild(circle);
+            }
+          }
+          renderBeats();
+          
+          // Click metronome sound
+          function playMetronomeClick(isAccent) {
+            if (!metronomeAudioContext) {
+              metronomeAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            var osc = metronomeAudioContext.createOscillator();
+            var gain = metronomeAudioContext.createGain();
+            osc.connect(gain);
+            gain.connect(metronomeAudioContext.destination);
+            osc.frequency.value = isAccent ? 1200 : 800;
+            gain.gain.value = 0.3;
+            osc.start(metronomeAudioContext.currentTime);
+            osc.stop(metronomeAudioContext.currentTime + 0.05);
+          }
+          
+          // Update beat visual
+          function updateBeatVisual() {
+            for (var i = 0; i < metronomeBeatsPerBar; i++) {
+              var circle = popup.querySelector('#metro-beat-' + i);
+              if (i === metronomeBeat) {
+                circle.style.background = i === 0 ? 'linear-gradient(135deg,#06b3fd,#38bdf8)' : '#06b3fd';
+                circle.style.border = 'none';
+                circle.style.transform = 'scale(1.1)';
+                circle.style.boxShadow = '0 4px 12px rgba(6,179,253,0.4)';
+              } else {
+                circle.style.background = i === 0 ? 'rgba(6,179,253,0.15)' : '#f8f9fa';
+                circle.style.border = '2px solid ' + (i === 0 ? '#06b3fd' : '#e9ecef');
+                circle.style.transform = 'scale(1)';
+                circle.style.boxShadow = 'none';
+              }
+            }
+          }
+          
+          // Start/stop metronome
+          function toggleMetronome() {
+            metronomeIsPlaying = !metronomeIsPlaying;
+            var toggleBtn = popup.querySelector('#metro-toggle');
+            
+            if (metronomeIsPlaying) {
+              toggleBtn.textContent = '⏹ Stop';
+              toggleBtn.style.background = 'rgba(6,179,253,0.2)';
+              toggleBtn.style.borderColor = 'rgba(6,179,253,0.5)';
+              toggleBtn.style.color = '#38bdf8';
+              
+              metronomeBeat = 0;
+              playMetronomeClick(true);
+              updateBeatVisual();
+              
+              var interval = (60 / metronomeBpm) * 1000;
+              metronomeInterval = setInterval(function() {
+                metronomeBeat = (metronomeBeat + 1) % metronomeBeatsPerBar;
+                playMetronomeClick(metronomeBeat === 0);
+                updateBeatVisual();
+              }, interval);
+            } else {
+              toggleBtn.textContent = '▶ Start';
+              toggleBtn.style.background = 'rgba(255,255,255,0.1)';
+              toggleBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+              toggleBtn.style.color = '#fff';
+              
+              if (metronomeInterval) {
+                clearInterval(metronomeInterval);
+                metronomeInterval = null;
+              }
+              renderBeats();
+            }
+          }
+          
+          // Event handlers
+          popup.querySelector('#metro-minus').addEventListener('click', function() {
+            metronomeBpm = Math.max(40, metronomeBpm - 5);
+            popup.querySelector('#metro-bpm').value = metronomeBpm;
+            if (metronomeIsPlaying) {
+              toggleMetronome();
+              toggleMetronome();
+            }
+          });
+          
+          popup.querySelector('#metro-plus').addEventListener('click', function() {
+            metronomeBpm = Math.min(240, metronomeBpm + 5);
+            popup.querySelector('#metro-bpm').value = metronomeBpm;
+            if (metronomeIsPlaying) {
+              toggleMetronome();
+              toggleMetronome();
+            }
+          });
+          
+          popup.querySelector('#metro-bpm').addEventListener('change', function(e) {
+            var val = parseInt(e.target.value);
+            if (!isNaN(val)) {
+              metronomeBpm = Math.max(40, Math.min(240, val));
+              e.target.value = metronomeBpm;
+              if (metronomeIsPlaying) {
+                toggleMetronome();
+                toggleMetronome();
+              }
+            }
+          });
+          
+          popup.querySelector('#metro-toggle').addEventListener('click', toggleMetronome);
           
           // Close on overlay click
           overlay.addEventListener('click', function(e) {
             if (e.target === overlay) {
+              if (metronomeInterval) clearInterval(metronomeInterval);
               if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
             }
           });
           
-          // Render React component
-          ReactDOM.render(React.createElement(window.Metronome), container);
+          // Hover effects
+          popup.querySelector('#metro-minus').addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255,255,255,0.15)';
+          });
+          popup.querySelector('#metro-minus').addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255,255,255,0.1)';
+          });
+          popup.querySelector('#metro-plus').addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(255,255,255,0.15)';
+          });
+          popup.querySelector('#metro-plus').addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(255,255,255,0.1)';
+          });
         });
       }
       
