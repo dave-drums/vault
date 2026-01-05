@@ -11,6 +11,8 @@ function Metronome() {
   const [tapTimes, setTapTimes] = useState([]);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showTrainerPopup, setShowTrainerPopup] = useState(false);
+  const [showBeatsPopup, setShowBeatsPopup] = useState(false);
+  const [showSubdivisionsPopup, setShowSubdivisionsPopup] = useState(false);
   const [trainerMode, setTrainerMode] = useState('off');
   const [trainerAmount, setTrainerAmount] = useState(5);
   const [trainerInterval, setTrainerInterval] = useState(4);
@@ -299,6 +301,12 @@ function Metronome() {
         .subdivision-grid {
           grid-template-columns: repeat(2, 1fr) !important;
         }
+        .beats-popup-grid {
+          grid-template-columns: repeat(4, 1fr) !important;
+        }
+        .subdivisions-popup-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
       }
     `),
     React.createElement('div', { style: { width: '100%', maxWidth: '600px' }},
@@ -370,45 +378,32 @@ function Metronome() {
             onMouseDown: () => setTrainerPressed(true), 
             onMouseUp: () => setTrainerPressed(false), 
             onMouseLeave: () => setTrainerPressed(false), 
-            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: (trainerPressed || trainerActive) ? '2px solid #06b3fd' : 'none', background: (trainerPressed || trainerActive) ? 'rgba(6,179,253,0.15)' : 'linear-gradient(135deg, #06b3fd, #38bdf8)', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
+            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: (trainerPressed || trainerActive) ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
           },
-            React.createElement('svg', { viewBox: "0 0 56 56", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: (trainerPressed || trainerActive) ? '#06b3fd' : '#fff' }},
+            React.createElement('svg', { viewBox: "0 0 56 56", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: (trainerPressed || trainerActive) ? '#fff' : '#06b3fd' }},
               React.createElement('path', { d: "M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0780 4.0937 28.0234 4.0937 C 26.7812 4.0937 26.1718 4.8437 26.1718 6.0625 L 26.1718 15.1563 C 26.1718 16.1641 26.8514 16.9844 27.8827 16.9844 C 28.9140 16.9844 29.6171 16.1641 29.6171 15.1563 L 29.6171 8.1484 C 39.9296 8.9688 47.8983 17.5 47.8983 28 C 47.8983 39.0625 39.0390 47.9219 27.9999 47.9219 C 16.9374 47.9219 8.0546 39.0625 8.0780 28 C 8.1014 23.0781 9.8593 18.6016 12.7890 15.1563 C 13.5155 14.2422 13.5624 13.1406 12.7890 12.3203 C 12.0155 11.4766 10.7030 11.5469 9.8593 12.6016 C 6.2733 16.7734 4.0937 22.1641 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 31.7499 31.6094 C 33.6014 29.6875 33.2265 27.0625 30.9999 25.5156 L 18.6014 16.8672 C 17.4296 16.0469 16.2109 17.2656 17.0312 18.4375 L 25.6796 30.8359 C 27.2265 33.0625 29.8514 33.4609 31.7499 31.6094 Z" })
             )
           ),
-          React.createElement('button', { onClick: () => setIsPlaying(!isPlaying), style: { flex: 1, padding: '16px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', border: isPlaying ? '2px solid #06b3fd' : 'none', background: isPlaying ? 'rgba(6,179,253,0.15)' : 'linear-gradient(135deg, #06b3fd, #38bdf8)', color: isPlaying ? '#06b3fd' : '#fff', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', fontFamily: "'Inter', sans-serif" }}, isPlaying ? formatTime(elapsedTime) : '▶ Start'),
+          React.createElement('button', { onClick: () => setIsPlaying(!isPlaying), style: { flex: 1, padding: '16px', borderRadius: '10px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: isPlaying ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', color: isPlaying ? '#fff' : '#06b3fd', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}, 
+            isPlaying && React.createElement('svg', { width: "16", height: "16", viewBox: "0 0 16 16", fill: "currentColor" }, React.createElement('rect', { x: "2", y: "2", width: "12", height: "12", rx: "2" })),
+            isPlaying ? formatTime(elapsedTime) : '▶ Start'
+          ),
           React.createElement('button', { 
             onClick: handleTapTempo, 
             onMouseDown: () => setTapPressed(true), 
             onMouseUp: () => setTapPressed(false), 
             onMouseLeave: () => setTapPressed(false), 
-            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: tapPressed ? '2px solid #06b3fd' : 'none', background: tapPressed ? 'rgba(6,179,253,0.15)' : 'linear-gradient(135deg, #06b3fd, #38bdf8)', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
+            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: tapPressed ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
           },
-            React.createElement('svg', { viewBox: "0 0 32 32", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: tapPressed ? '#06b3fd' : '#fff' }},
+            React.createElement('svg', { viewBox: "0 0 32 32", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: tapPressed ? '#fff' : '#06b3fd' }},
               React.createElement('path', { d: "M20,8H18A5,5,0,0,0,8,8H6A7,7,0,0,1,20,8Z" }),
               React.createElement('path', { d: "M25,15a2.94,2.94,0,0,0-1.47.4A3,3,0,0,0,21,14a2.94,2.94,0,0,0-1.47.4A3,3,0,0,0,16,13.18V8h0a3,3,0,0,0-6,0V19.1L7.77,17.58h0A2.93,2.93,0,0,0,6,17a3,3,0,0,0-2.12,5.13l8,7.3A6.16,6.16,0,0,0,16,31h5a7,7,0,0,0,7-7V18A3,3,0,0,0,25,15Zm1,9a5,5,0,0,1-5,5H16a4.17,4.17,0,0,1-2.76-1L5.29,20.7A1,1,0,0,1,5,20a1,1,0,0,1,1.6-.8L12,22.9V8a1,1,0,0,1,2,0h0V19h2V16a1,1,0,0,1,2,0v3h2V17a1,1,0,0,1,2,0v2h2V18a1,1,0,0,1,2,0Z" })
             )
           )
         ),
-        React.createElement('div', { style: { marginBottom: '24px' }},
-          React.createElement('label', { style: { display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}, 'Beats per Bar'),
-          React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '6px' }},
-            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((beats) => 
-              React.createElement('button', { key: beats, onClick: () => setBeatsPerBar(beats), style: { padding: '8px 4px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: beatsPerBar === beats ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: beatsPerBar === beats ? '#fff' : '#1a1a1a', border: beatsPerBar === beats ? 'none' : '1px solid #e9ecef', boxShadow: beatsPerBar === beats ? '0 2px 8px rgba(6,179,253,0.3)' : 'none', fontFamily: "'Inter', sans-serif" }}, beats)
-            )
-          )
-        ),
-        React.createElement('div', { style: { marginBottom: '24px' }},
-          React.createElement('label', { style: { display: 'block', marginBottom: '12px', fontWeight: '600', fontSize: '14px', color: '#1a1a1a', fontFamily: "'Inter', sans-serif" }}, 'Subdivisions'),
-          React.createElement('div', { className: 'subdivision-grid', style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }},
-            subdivisions.map((sub) => 
-              React.createElement('button', { key: sub.value, onClick: () => setSubdivisionType(sub.value), style: { padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '1px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }},
-                React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px' }}, sub.svg),
-                React.createElement('span', { style: { fontSize: '10px', fontWeight: '600', opacity: subdivisionType === sub.value ? 1 : 0.6, textAlign: 'center', fontFamily: "'Inter', sans-serif" }}, sub.name)
-              )
-            )
-          )
-        )
+        React.createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '24px' }},
+          React.createElement('button', { onClick: () => setShowBeatsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Beats per Bar: ${beatsPerBar}`),
+          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivisions: ${subdivisionType}`)
       )
     ),
     showTrainerPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowTrainerPopup(false) },
@@ -451,6 +446,39 @@ function Metronome() {
         ),
         React.createElement('div', { style: { padding: '16px 24px', borderTop: '1px solid #e9ecef', display: 'flex', justifyContent: 'flex-end' }},
           React.createElement('button', { onClick: () => setShowTrainerPopup(false), style: { padding: '10px 20px', borderRadius: '8px', background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', border: 'none', color: '#fff', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}, 'Done')
+        )
+      )
+    ),
+    showBeatsPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowBeatsPopup(false) },
+      React.createElement('div', { style: { background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }, onClick: (e) => e.stopPropagation() },
+        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
+          React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Beats per Bar'),
+          React.createElement('button', { onClick: () => setShowBeatsPopup(false), style: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}, '×')
+        ),
+        React.createElement('div', { style: { padding: '24px' }},
+          React.createElement('div', { className: 'beats-popup-grid', style: { display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px' }},
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((beats) => 
+              React.createElement('button', { key: beats, onClick: () => { setBeatsPerBar(beats); setShowBeatsPopup(false); }, style: { padding: '12px 8px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: beatsPerBar === beats ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: beatsPerBar === beats ? '#fff' : '#1a1a1a', border: beatsPerBar === beats ? 'none' : '1px solid #e9ecef', boxShadow: beatsPerBar === beats ? '0 2px 8px rgba(6,179,253,0.3)' : 'none', fontFamily: "'Inter', sans-serif" }}, beats)
+            )
+          )
+        )
+      )
+    ),
+    showSubdivisionsPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowSubdivisionsPopup(false) },
+      React.createElement('div', { style: { background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }, onClick: (e) => e.stopPropagation() },
+        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
+          React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Subdivisions'),
+          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(false), style: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}, '×')
+        ),
+        React.createElement('div', { style: { padding: '24px' }},
+          React.createElement('div', { className: 'subdivisions-popup-grid', style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }},
+            subdivisions.map((sub) => 
+              React.createElement('button', { key: sub.value, onClick: () => { setSubdivisionType(sub.value); setShowSubdivisionsPopup(false); }, style: { padding: '12px 8px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease', background: subdivisionType === sub.value ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: subdivisionType === sub.value ? '#fff' : '#1a1a1a', border: subdivisionType === sub.value ? 'none' : '1px solid #e9ecef', boxShadow: subdivisionType === sub.value ? '0 4px 12px rgba(6,179,253,0.3)' : 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontFamily: "'Inter', sans-serif", minHeight: '72px', justifyContent: 'center' }},
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '32px' }}, sub.svg),
+                React.createElement('span', { style: { fontSize: '10px', fontWeight: '600', opacity: subdivisionType === sub.value ? 1 : 0.6, textAlign: 'center', fontFamily: "'Inter', sans-serif" }}, sub.name)
+              )
+            )
+          )
         )
       )
     )
