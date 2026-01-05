@@ -100,34 +100,6 @@
       var contentEl = document.getElementById('stats-content');
       if (!contentEl) return;
       
-      // Continue Card
-      var continueCard = createContinueCard(user);
-      contentEl.appendChild(continueCard);
-      
-      // Daily quote
-      var quoteContainer = document.createElement('div');
-      quoteContainer.className = 'quote-box';
-      
-      var quoteText = document.createElement('p');
-      quoteText.className = 'quote-text';
-      
-      var dailyQuote = 'Practice makes progress';
-      if (window.VaultCues && window.VaultCues.getDailyQuote) {
-        dailyQuote = window.VaultCues.getDailyQuote();
-      }
-      
-      var emojiSpan = document.createElement('span');
-      emojiSpan.textContent = '💡 ';
-      emojiSpan.style.fontStyle = 'normal';
-      
-      var quoteSpan = document.createElement('span');
-      quoteSpan.textContent = dailyQuote;
-      
-      quoteText.appendChild(emojiSpan);
-      quoteText.appendChild(quoteSpan);
-      quoteContainer.appendChild(quoteText);
-      contentEl.appendChild(quoteContainer);
-      
       // My Progress section
       var progressSection = createOpenSection('My Progress', function(){
         return createPracticeContent(user);
@@ -168,103 +140,6 @@
       return section;
     }
     
-    // Create Continue Card
-    function createContinueCard(user){
-      var continueCard = document.createElement('div');
-      continueCard.className = 'continue-card';
-      
-      var continueLabel = document.createElement('div');
-      continueLabel.className = 'continue-label';
-      continueLabel.id = 'continue-lesson-label';
-      continueLabel.textContent = '';
-      
-      var continueTitle = document.createElement('div');
-      continueTitle.className = 'continue-title';
-      continueTitle.id = 'continue-lesson-title';
-      continueTitle.textContent = '';
-      
-      var continueBtn = document.createElement('button');
-      continueBtn.className = 'btn-continue';
-      continueBtn.id = 'continue-lesson-btn';
-      continueBtn.textContent = 'Resume Lesson →';
-      
-      continueCard.appendChild(continueLabel);
-      continueCard.appendChild(continueTitle);
-      continueCard.appendChild(continueBtn);
-      
-      loadLastLesson(user, continueBtn, continueLabel, continueTitle);
-      
-      return continueCard;
-    }
-    
-    // Load last lesson
-    function loadLastLesson(user, btnEl, labelEl, titleEl){
-      if (!user || !btnEl) return;
-      
-      db.collection('users').doc(user.uid).collection('metrics').doc('practice').get()
-        .then(function(snap){
-          if (!snap.exists) {
-            if (labelEl) labelEl.textContent = '';
-            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
-            btnEl.disabled = false;
-            btnEl.style.opacity = '1';
-            btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault';
-            btnEl.onclick = function(){
-              window.location.href = '/';
-            };
-            return;
-          }
-          
-          var data = snap.data() || {};
-          var url = data.lastLessonUrl;
-          var title = data.lastLessonTitle;
-          
-          if (url && title) {
-            if (labelEl) labelEl.textContent = 'Continue Where You Left Off';
-            if (titleEl) titleEl.textContent = '';
-            btnEl.disabled = false;
-            btnEl.style.opacity = '1';
-            btnEl.style.cursor = 'pointer';
-            
-            // Shorten title if needed for mobile
-            var displayTitle = title;
-            if (window.innerWidth <= 600 && title.length > 20) {
-              displayTitle = title.substring(0, 20) + '...';
-            } else if (title.length > 30) {
-              displayTitle = title.substring(0, 30) + '...';
-            }
-            
-            btnEl.textContent = 'Continue: ' + displayTitle;
-            
-            btnEl.onclick = function(){
-              window.location.href = url;
-            };
-          } else {
-            if (labelEl) labelEl.textContent = '';
-            if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
-            btnEl.disabled = false;
-            btnEl.style.opacity = '1';
-            btnEl.style.cursor = 'pointer';
-            btnEl.textContent = 'Open Practice Vault';
-            btnEl.onclick = function(){
-              window.location.href = '/';
-            };
-          }
-        })
-        .catch(function(e){
-          console.error('Failed to load last lesson:', e);
-          if (labelEl) labelEl.textContent = '';
-          if (titleEl) titleEl.textContent = 'Start Your Practice Journey';
-          btnEl.disabled = false;
-          btnEl.style.opacity = '1';
-          btnEl.style.cursor = 'pointer';
-          btnEl.textContent = 'Open Practice Vault';
-          btnEl.onclick = function(){
-            window.location.href = '/';
-          };
-        });
-    }
     
     // Create Practice Content (pathway progress cards)
     function createPracticeContent(user){
