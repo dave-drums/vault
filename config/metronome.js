@@ -310,7 +310,7 @@ function Metronome() {
       }
     `),
     React.createElement('div', { style: { width: '100%', maxWidth: '600px' }},
-      React.createElement('div', { className: "metronome-card", style: { background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '1px solid #e9ecef' }},
+      React.createElement('div', { className: "metronome-card", style: { background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '2px solid #e9ecef' }},
         React.createElement('div', { className: "bpm-display", style: { background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', borderRadius: '15px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(6,179,253,0.3)' }},
           React.createElement('div', { style: { textAlign: 'center', marginBottom: '8px' }},
             React.createElement('input', { type: "text", value: bpm, onChange: handleBpmChange, onBlur: handleBpmBlur, style: { fontSize: '80px', fontWeight: '600', color: '#fff', lineHeight: '1', marginBottom: '8px', fontFamily: "'Inter', sans-serif", background: 'transparent', border: 'none', outline: 'none', textAlign: 'center', width: '100%', padding: 0 }}),
@@ -378,7 +378,7 @@ function Metronome() {
             onMouseDown: () => setTrainerPressed(true), 
             onMouseUp: () => setTrainerPressed(false), 
             onMouseLeave: () => setTrainerPressed(false), 
-            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: (trainerPressed || trainerActive) ? 'none' : '1px solid #e9ecef', background: (trainerPressed || trainerActive) ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
+            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: (trainerPressed || trainerActive) ? 'none' : '2px solid #e9ecef', background: (trainerPressed || trainerActive) ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
           },
             React.createElement('svg', { viewBox: "0 0 56 56", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: (trainerPressed || trainerActive) ? '#fff' : '#1a1a1a' }},
               React.createElement('path', { d: "M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0780 4.0937 28.0234 4.0937 C 26.7812 4.0937 26.1718 4.8437 26.1718 6.0625 L 26.1718 15.1563 C 26.1718 16.1641 26.8514 16.9844 27.8827 16.9844 C 28.9140 16.9844 29.6171 16.1641 29.6171 15.1563 L 29.6171 8.1484 C 39.9296 8.9688 47.8983 17.5 47.8983 28 C 47.8983 39.0625 39.0390 47.9219 27.9999 47.9219 C 16.9374 47.9219 8.0546 39.0625 8.0780 28 C 8.1014 23.0781 9.8593 18.6016 12.7890 15.1563 C 13.5155 14.2422 13.5624 13.1406 12.7890 12.3203 C 12.0155 11.4766 10.7030 11.5469 9.8593 12.6016 C 6.2733 16.7734 4.0937 22.1641 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 31.7499 31.6094 C 33.6014 29.6875 33.2265 27.0625 30.9999 25.5156 L 18.6014 16.8672 C 17.4296 16.0469 16.2109 17.2656 17.0312 18.4375 L 25.6796 30.8359 C 27.2265 33.0625 29.8514 33.4609 31.7499 31.6094 Z" })
@@ -393,7 +393,7 @@ function Metronome() {
             onMouseDown: () => setTapPressed(true), 
             onMouseUp: () => setTapPressed(false), 
             onMouseLeave: () => setTapPressed(false), 
-            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: tapPressed ? 'none' : '1px solid #e9ecef', background: tapPressed ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
+            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: tapPressed ? 'none' : '2px solid #e9ecef', background: tapPressed ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
           },
             React.createElement('svg', { viewBox: "0 0 32 32", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: tapPressed ? '#fff' : '#1a1a1a' }},
               React.createElement('path', { d: "M20,8H18A5,5,0,0,0,8,8H6A7,7,0,0,1,20,8Z" }),
@@ -402,44 +402,44 @@ function Metronome() {
           )
         ),
         React.createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '24px' }},
-          React.createElement('button', { onClick: () => setShowBeatsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Beats per Bar: ${beatsPerBar}`),
-          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivision: ${subdivisionType}`)
+          React.createElement('button', { onClick: () => setShowBeatsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '2px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Beats per Bar: ${beatsPerBar}`),
+          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '2px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivision: ${subdivisionType}`)
         )
       )
     ),
     showTrainerPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowTrainerPopup(false) },
       React.createElement('div', { style: { background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }, onClick: (e) => e.stopPropagation() },
-        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
+        React.createElement('div', { style: { padding: '20px 24px', borderBottom: '2px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
           React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Tempo Trainer'),
           React.createElement('button', { onClick: () => setShowTrainerPopup(false), style: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}, '×')
         ),
         React.createElement('div', { style: { padding: '24px' }},
           React.createElement('div', { style: { marginBottom: '20px' }},
             React.createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '16px' }},
-              React.createElement('button', { onClick: () => setTrainerMode('off'), style: { flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'off' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'off' ? '#fff' : '#1a1a1a', border: trainerMode === 'off' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}, 'Off'),
-              React.createElement('button', { onClick: () => setTrainerMode('increase'), style: { flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'increase' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'increase' ? '#fff' : '#1a1a1a', border: trainerMode === 'increase' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}, 'Increase'),
-              React.createElement('button', { onClick: () => setTrainerMode('decrease'), style: { flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'decrease' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'decrease' ? '#fff' : '#1a1a1a', border: trainerMode === 'decrease' ? 'none' : '1px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}, 'Decrease')
+              React.createElement('button', { onClick: () => setTrainerMode('off'), style: { flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'off' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'off' ? '#fff' : '#1a1a1a', border: trainerMode === 'off' ? 'none' : '2px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}, 'Off'),
+              React.createElement('button', { onClick: () => setTrainerMode('increase'), style: { flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'increase' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'increase' ? '#fff' : '#1a1a1a', border: trainerMode === 'increase' ? 'none' : '2px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}, 'Increase'),
+              React.createElement('button', { onClick: () => setTrainerMode('decrease'), style: { flex: 1, padding: '12px', borderRadius: '8px', background: trainerMode === 'decrease' ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: trainerMode === 'decrease' ? '#fff' : '#1a1a1a', border: trainerMode === 'decrease' ? 'none' : '2px solid #e9ecef', fontWeight: '600', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}, 'Decrease')
             )
           ),
           React.createElement('div', { style: { opacity: trainerMode === 'off' ? 0.4 : 1, pointerEvents: trainerMode === 'off' ? 'none' : 'auto' }},
             React.createElement('div', { style: { marginBottom: '16px' }},
               React.createElement('label', { style: { display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}, 'Change by'),
               React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' }},
-                React.createElement('input', { type: "number", value: trainerAmount, onChange: (e) => setTrainerAmount(parseInt(e.target.value) || 1), style: { flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
+                React.createElement('input', { type: "number", value: trainerAmount, onChange: (e) => setTrainerAmount(parseInt(e.target.value) || 1), style: { flex: 1, padding: '10px 12px', border: '2px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
                 React.createElement('span', { style: { fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}, 'BPM')
               )
             ),
             React.createElement('div', { style: { marginBottom: '16px' }},
               React.createElement('label', { style: { display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}, 'Every'),
               React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' }},
-                React.createElement('input', { type: "number", value: trainerInterval, onChange: (e) => setTrainerInterval(parseInt(e.target.value) || 1), style: { flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
+                React.createElement('input', { type: "number", value: trainerInterval, onChange: (e) => setTrainerInterval(parseInt(e.target.value) || 1), style: { flex: 1, padding: '10px 12px', border: '2px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
                 React.createElement('span', { style: { fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}, 'bars')
               )
             ),
             React.createElement('div', null,
               React.createElement('label', { style: { display: 'block', fontSize: '14px', color: '#495057', marginBottom: '8px', fontFamily: "'Inter', sans-serif" }}, 'Stop at'),
               React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' }},
-                React.createElement('input', { type: "number", value: trainerStop, onChange: (e) => setTrainerStop(parseInt(e.target.value) || 40), style: { flex: 1, padding: '10px 12px', border: '1px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
+                React.createElement('input', { type: "number", value: trainerStop, onChange: (e) => setTrainerStop(parseInt(e.target.value) || 40), style: { flex: 1, padding: '10px 12px', border: '2px solid #dee2e6', borderRadius: '6px', fontSize: '14px', fontWeight: '600', fontFamily: "'Inter', sans-serif" }}),
                 React.createElement('span', { style: { fontSize: '14px', color: '#495057', fontFamily: "'Inter', sans-serif" }}, 'BPM')
               )
             )
@@ -459,7 +459,7 @@ function Metronome() {
         React.createElement('div', { style: { padding: '24px' }},
           React.createElement('div', { className: 'beats-popup-grid', style: { display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px' }},
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((beats) => 
-              React.createElement('button', { key: beats, onClick: () => { setBeatsPerBar(beats); setShowBeatsPopup(false); }, style: { padding: '12px 8px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: beatsPerBar === beats ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: beatsPerBar === beats ? '#fff' : '#1a1a1a', border: beatsPerBar === beats ? 'none' : '1px solid #e9ecef', boxShadow: beatsPerBar === beats ? '0 2px 8px rgba(6,179,253,0.3)' : 'none', fontFamily: "'Inter', sans-serif" }}, beats)
+              React.createElement('button', { key: beats, onClick: () => { setBeatsPerBar(beats); setShowBeatsPopup(false); }, style: { padding: '12px 8px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: beatsPerBar === beats ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : '#f8f9fa', color: beatsPerBar === beats ? '#fff' : '#1a1a1a', border: beatsPerBar === beats ? 'none' : '2px solid #e9ecef', boxShadow: beatsPerBar === beats ? '0 2px 8px rgba(6,179,253,0.3)' : 'none', fontFamily: "'Inter', sans-serif" }}, beats)
             )
           )
         )
