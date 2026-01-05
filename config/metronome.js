@@ -330,12 +330,16 @@ function Metronome() {
           grid-template-columns: repeat(2, 1fr) !important;
         }
       }
+      @keyframes fadeIn {
+        0% { opacity: 0.3; transform: scale(0.98); }
+        100% { opacity: 1; transform: scale(1); }
+      }
     `),
     React.createElement('div', { style: { width: '100%', maxWidth: '600px' }},
       React.createElement('div', { className: "metronome-card", style: { background: '#fff', borderRadius: '15px', padding: '30px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', border: '2px solid #e9ecef' }},
         React.createElement('div', { className: "bpm-display", style: { background: 'linear-gradient(135deg, #06b3fd, #38bdf8)', borderRadius: '15px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 12px rgba(6,179,253,0.3)' }},
           React.createElement('div', { style: { textAlign: 'center', marginBottom: '8px' }},
-            React.createElement('input', { type: "text", value: bpm, onChange: handleBpmChange, onBlur: handleBpmBlur, style: { fontSize: '80px', fontWeight: '600', color: '#fff', lineHeight: '1', marginBottom: '8px', fontFamily: "'Inter', sans-serif", background: 'transparent', border: 'none', outline: 'none', textAlign: 'center', width: '100%', padding: 0 }}),
+            React.createElement('input', { key: bpm, type: "text", value: bpm, onChange: handleBpmChange, onBlur: handleBpmBlur, style: { fontSize: '80px', fontWeight: '600', color: '#fff', lineHeight: '1', marginBottom: '8px', fontFamily: "'Inter', sans-serif", background: 'transparent', border: 'none', outline: 'none', textAlign: 'center', width: '100%', padding: 0, animation: 'fadeIn 0.15s ease' }}),
             React.createElement('div', { style: { color: 'rgba(255,255,255,0.9)', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: "'Inter', sans-serif" }}, 'Beats Per Minute')
           ),
           React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '12px' }},
