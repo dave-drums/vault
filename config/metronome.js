@@ -404,6 +404,7 @@ function Metronome() {
         React.createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '24px' }},
           React.createElement('button', { onClick: () => setShowBeatsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Beats per Bar: ${beatsPerBar}`),
           React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivisions: ${subdivisionType}`)
+        )
       )
     ),
     showTrainerPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowTrainerPopup(false) },
