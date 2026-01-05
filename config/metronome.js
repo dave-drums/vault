@@ -287,11 +287,11 @@ function Metronome() {
         border: none;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
-      @media (max-width: 500px) {
-        .beat-circle {
-          width: 42px !important;
-          height: 42px !important;
-        }
+      .beat-circle {
+        width: min(48px, calc((100vw - 140px) / 8)) !important;
+        height: min(48px, calc((100vw - 140px) / 8)) !important;
+      }
+      @media (max-width: 560px) {
         .subdivision-grid {
           grid-template-columns: repeat(2, 1fr) !important;
         }
