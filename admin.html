@@ -59,17 +59,6 @@ var db;
 var auth;
 var rootEl;
 
-// Load course configuration from shared file
-// This ensures consistency across all pages
-(function() {
-  if (window.VAULT_COURSES) return; // Already loaded
-  
-  var script = document.createElement('script');
-  script.src = 'course-data.js';
-  script.async = false; // Synchronous to ensure it's loaded before console code runs
-  document.head.appendChild(script);
-})();
-
 function pvGetFontBaseEl(){
   return (
     document.querySelector('.sqs-block-content') ||
@@ -150,7 +139,7 @@ function statusDot(lastLoginTs, joinedAtTs){
   if (!ms) ms = tsToMs(joinedAtTs);
   if (!ms) return '🔴';
   var days = (Date.now() - ms) / (1000 * 60 * 60 * 24);
-  if (days < 14) return '🟢';
+  if (days < 14) return '';
   if (days < 30) return '🟡';
   return '🔴';
 }
@@ -791,15 +780,16 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
         var activityDot = statusDot(u.lastLogin, u.joinedAt);
         
-        var statusClass = isOnline ? 'status-dot' : 'status-dot-offline';
         var statusText = isOnline ? 'Online' : 'Offline';
+        var onlineStyle = isOnline ? 'color:#10b981;font-weight:500;' : 'color:#999;font-weight:normal;';
+        var onlineEmoji = isOnline ? '🟢 ' : '';
 
         html += '<div class="user-item">';
         
         // User Header (collapsed view)
         html += '<div class="user-item-header">';
         html += '<div style="flex:1;min-width:0;">';
-        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="color:#999;font-weight:normal;font-size:var(--text-small);">| ' + statusText + '</span></div>';
+        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="' + onlineStyle + 'font-size:var(--text-small);">| ' + onlineEmoji + statusText + '</span></div>';
         html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last: ' + formatTsNoYear(u.lastLogin) + '</div>';
         html += '</div>';
         html += '<div class="user-meta">';
@@ -953,7 +943,7 @@ users.forEach(function(u){
 });
 
        users.sort(function(a, b) {
-         return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
+         return (tsToMs(b.lastLogin) || 0) - (tsToMs(a.lastLogin) || 0);
        });
 
         render(users);
