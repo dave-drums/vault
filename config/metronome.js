@@ -378,7 +378,7 @@ function Metronome() {
             onMouseDown: () => setTrainerPressed(true), 
             onMouseUp: () => setTrainerPressed(false), 
             onMouseLeave: () => setTrainerPressed(false), 
-            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: (trainerPressed || trainerActive) ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
+            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: (trainerPressed || trainerActive) ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
           },
             React.createElement('svg', { viewBox: "0 0 56 56", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: (trainerPressed || trainerActive) ? '#fff' : '#06b3fd' }},
               React.createElement('path', { d: "M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0780 4.0937 28.0234 4.0937 C 26.7812 4.0937 26.1718 4.8437 26.1718 6.0625 L 26.1718 15.1563 C 26.1718 16.1641 26.8514 16.9844 27.8827 16.9844 C 28.9140 16.9844 29.6171 16.1641 29.6171 15.1563 L 29.6171 8.1484 C 39.9296 8.9688 47.8983 17.5 47.8983 28 C 47.8983 39.0625 39.0390 47.9219 27.9999 47.9219 C 16.9374 47.9219 8.0546 39.0625 8.0780 28 C 8.1014 23.0781 9.8593 18.6016 12.7890 15.1563 C 13.5155 14.2422 13.5624 13.1406 12.7890 12.3203 C 12.0155 11.4766 10.7030 11.5469 9.8593 12.6016 C 6.2733 16.7734 4.0937 22.1641 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 31.7499 31.6094 C 33.6014 29.6875 33.2265 27.0625 30.9999 25.5156 L 18.6014 16.8672 C 17.4296 16.0469 16.2109 17.2656 17.0312 18.4375 L 25.6796 30.8359 C 27.2265 33.0625 29.8514 33.4609 31.7499 31.6094 Z" })
@@ -393,7 +393,7 @@ function Metronome() {
             onMouseDown: () => setTapPressed(true), 
             onMouseUp: () => setTapPressed(false), 
             onMouseLeave: () => setTapPressed(false), 
-            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: tapPressed ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', boxShadow: '0 4px 12px rgba(6,179,253,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
+            style: { width: '56px', height: '56px', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s ease', border: '2px solid #06b3fd', background: tapPressed ? 'linear-gradient(135deg, #06b3fd, #38bdf8)' : 'rgba(6,179,253,0.15)', boxShadow: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }
           },
             React.createElement('svg', { viewBox: "0 0 32 32", xmlns: "http://www.w3.org/2000/svg", style: { width: '28px', height: '28px', fill: tapPressed ? '#fff' : '#06b3fd' }},
               React.createElement('path', { d: "M20,8H18A5,5,0,0,0,8,8H6A7,7,0,0,1,20,8Z" }),
@@ -401,9 +401,9 @@ function Metronome() {
             )
           )
         ),
-        React.createElement('div', { style: { display: 'flex', gap: '8px', marginBottom: '24px' }},
+        React.createElement('div', { style: { display: 'flex', gap: '12px', marginBottom: '24px' }},
           React.createElement('button', { onClick: () => setShowBeatsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Beats per Bar: ${beatsPerBar}`),
-          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivisions: ${subdivisionType}`)
+          React.createElement('button', { onClick: () => setShowSubdivisionsPopup(true), style: { flex: 1, padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s ease', background: '#f8f9fa', color: '#1a1a1a', border: '1px solid #e9ecef', fontFamily: "'Inter', sans-serif" }}, `Subdivision: ${subdivisionType}`)
         )
       )
     ),
@@ -468,7 +468,7 @@ function Metronome() {
     showSubdivisionsPopup && React.createElement('div', { style: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 1000 }, onClick: () => setShowSubdivisionsPopup(false) },
       React.createElement('div', { style: { background: '#fff', borderRadius: '15px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }, onClick: (e) => e.stopPropagation() },
         React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }},
-          React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Subdivisions'),
+          React.createElement('h3', { style: { fontSize: '18px', fontWeight: '600', fontFamily: "'Inter', sans-serif", margin: 0 }}, 'Subdivision'),
           React.createElement('button', { onClick: () => setShowSubdivisionsPopup(false), style: { background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6c757d', lineHeight: 1, padding: 0 }}, '×')
         ),
         React.createElement('div', { style: { padding: '24px' }},
