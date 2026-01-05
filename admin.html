@@ -943,7 +943,7 @@ users.forEach(function(u){
 });
 
        users.sort(function(a, b) {
-         return (tsToMs(b.lastLogin) || 0) - (tsToMs(a.lastLogin) || 0);
+         return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
        });
 
         render(users);
