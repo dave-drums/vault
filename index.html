@@ -27,7 +27,6 @@
   <script src="/config/components.js"></script>
   <script src="/config/navigation.js"></script>
   <script src="/config/course-data.js"></script>
-  <link rel="stylesheet" href="/css/account.css">
   
 </head>
 <body>
@@ -43,24 +42,6 @@
     <div class="hero-badge">Course Pathways</div>
   </div>
 </div>
-
-  <!-- DAILY QUOTE -->
-<div class="container">
-  <div class="quote-box">
-    <p class="quote-text">
-      <span style="font-style: normal;">💡 </span>
-      <span id="daily-quote-text">Practice makes progress</span>
-    </p>
-  </div>
-</div>
-
-<script>
-  window.addEventListener('DOMContentLoaded', function(){
-    if (window.VaultCues && window.VaultCues.getDailyQuote) {
-      document.getElementById('daily-quote-text').textContent = window.VaultCues.getDailyQuote();
-    }
-  });
-</script>
   
   <!-- PATHWAYS -->
   <div class="container">
