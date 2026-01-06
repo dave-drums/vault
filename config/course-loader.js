@@ -404,16 +404,15 @@
       // Add complete lesson handler
       addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db);
       
-      // Write practice metrics (last lesson viewed)
+      // Write progress (last lesson viewed)
       auth.onAuthStateChanged(function(user) {
-        if (user && lessonTitle) {
-          const lessonUrl = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + lessonId;
-          db.collection('users').doc(user.uid).collection('metrics').doc('practice').set({
-            lastLessonUrl: lessonUrl,
+        if (user && lessonTitle && courseId) {
+          db.collection('users').doc(user.uid).collection('progress').doc(courseId).set({
+            lastLesson: lessonId,
             lastLessonTitle: lessonTitle,
-            lastViewedAt: firebase.firestore.FieldValue.serverTimestamp()
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true }).catch(function(err) {
-            console.error('Error writing practice metrics:', err);
+            console.error('Error writing progress:', err);
           });
         }
       });
