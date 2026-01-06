@@ -884,18 +884,18 @@ body {
 }
 
 .topic-card:hover .level-badge.beg {
-  background: #d1f4e0;
-  border-color: #a7f3d0;
+  background: rgba(6, 179, 253, 0.15);
+  border-color: rgba(6, 179, 253, 0.4);
 }
 
 .topic-card:hover .level-badge.int {
-  background: #fde68a;
-  border-color: #fcd34d;
+  background: rgba(100, 116, 139, 0.2);
+  border-color: rgba(100, 116, 139, 0.4);
 }
 
 .topic-card:hover .level-badge.adv {
-  background: #fecaca;
-  border-color: #fca5a5;
+  background: rgba(51, 65, 85, 0.25);
+  border-color: rgba(51, 65, 85, 0.45);
 }
 
 /* Responsive */
