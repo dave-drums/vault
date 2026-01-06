@@ -146,47 +146,46 @@
       var content = document.createElement('div');
       
       // Load user's active courses
-      db.collection('users').doc(user.uid).get()
-        .then(function(userSnap){
-          if (!userSnap.exists) {
-            content.textContent = 'No active courses found.';
-            return;
-          }
-          
-          var userData = userSnap.data() || {};
-          var activeCourses = userData.activeCourses || {};
-          
-          // Load practice doc to get last lesson
-          return db.collection('users').doc(user.uid).collection('metrics').doc('practice').get()
-            .then(function(practiceSnap){
-              var lastLessonUrl = '';
-              if (practiceSnap.exists) {
-                lastLessonUrl = practiceSnap.data().lastLessonUrl || '';
-              }
-              
-              // Extract course from last lesson URL
-              var lastActiveCourseId = null;
-              var lastActivePathway = null;
-              if (lastLessonUrl) {
-                var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
-                if (pathMatch) {
-                  lastActivePathway = pathMatch[1];
-                  lastActiveCourseId = pathMatch[1] + pathMatch[2];
-                  var courseConfig = window.VAULT_COURSES && window.VAULT_COURSES[lastActiveCourseId];
-                  if (courseConfig) {
-                    lastActivePathway = courseConfig.pathway;
-                  }
-                }
-              }
-              
-              renderPathwayCards(content, user.uid, activeCourses, lastActivePathway, lastActiveCourseId);
-            });
-        })
-        .catch(function(e){
-          console.error('Failed to load practice content:', e);
-          content.textContent = 'Error loading progress.';
-          window.VaultToast.error('Failed to load progress');
-        });
+      // Load progress to get last lesson
+return db.collection('users').doc(user.uid).collection('progress').get()
+  .then(function(progressSnap){
+    var lastLessonUrl = '';
+    
+    // Find most recently updated course
+    var mostRecent = null;
+    var mostRecentTime = 0;
+    
+    progressSnap.forEach(function(doc) {
+      var data = doc.data();
+      var time = data.lastUpdated ? data.lastUpdated.toMillis() : 0;
+      
+      if (time > mostRecentTime && data.lastLesson) {
+        mostRecentTime = time;
+        var courseId = doc.id;
+        var pathway = courseId.match(/^[a-z]+/)[0];
+        var courseNum = courseId.match(/\d+$/)[0];
+        
+        lastLessonUrl = '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson;
+      }
+    });
+    
+    if (lastLessonUrl) {
+      var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
+      if (pathMatch) {
+        var courseData = window.VAULT_COURSES && window.VAULT_COURSES[pathMatch[1] + pathMatch[2]];
+        if (courseData && courseData.name) {
+          content.innerHTML = '<div class="progress-continue"><a href="' + lastLessonUrl + '" class="btn-continue">Continue: ' + courseData.name + '</a></div>';
+        }
+      }
+    } else {
+      content.textContent = 'No recent activity';
+    }
+  })
+  .catch(function(e){
+    console.error('Failed to load progress content:', e);
+    content.textContent = 'Error loading progress.';
+    window.VaultToast.error('Failed to load progress');
+  });
       
       return content;
     }
