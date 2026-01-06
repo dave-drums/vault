@@ -147,7 +147,7 @@
       
       // Load user's active courses
       // Load progress to get last lesson
-return db.collection('users').doc(user.uid).collection('progress').get()
+db.collection('users').doc(user.uid).collection('progress').get()
   .then(function(progressSnap){
     var lastLessonUrl = '';
     
