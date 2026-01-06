@@ -143,8 +143,8 @@ Promise.all([
         '<div class="sidebar-content">' +
         continueSection +
         '  <div class="sidebar-section">' +
-        '    <div class="sidebar-section-title">Navigation</div>' +
-        '    <a href="/" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.home + '</span><span>Practice Vault</span></a>' +
+        '    <div class="sidebar-section-title">Practice Vault</div>' +
+        '    <a href="/" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.home + '</span><span>Courses</span></a>' +
         '    <a href="/groove" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
         '    <a href="/metronome" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
         '    <a href="/stats" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
