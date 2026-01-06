@@ -938,7 +938,77 @@ body {
 }
 
 
+/* ============================================
+   OLD PATHWAY LAYOUT (for backwards compatibility)
+   ============================================ */
 
+.pathway-image {
+  position: relative;
+  width: 280px;
+  min-height: 280px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+}
+
+.pathway-image .pathway-title {
+  font-size: var(--heading-section);
+  color: #fff;
+  line-height: 1.1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  margin: 0;
+}
+
+.pathway-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pathway-topic {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border);
+}
+
+.pathway-topic:last-child {
+  border-bottom: none;
+}
+
+.pathway-topic:hover {
+  background: var(--surface-hover);
+  padding-left: 24px;
+}
+
+.pathway-topic.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pathway-topic.locked:hover {
+  background: #fff;
+  padding-left: 20px;
+}
+
+.topic-left .topic-name {
+  font-size: var(--text-body);
+  font-weight: 600;
+  margin: 0;
+}
+
+.topic-right {
+  font-size: var(--text-tiny);
+  color: var(--text-secondary);
+  text-align: right;
+}
 
 
 
