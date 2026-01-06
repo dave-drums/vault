@@ -89,16 +89,39 @@ auth.onAuthStateChanged(function(user){
     if(!isExpanded) document.body.classList.add('sidebar-collapsed');
     
     // Fetch user data from Firestore
-    Promise.all([
-      db.collection('users').doc(uid).get(),
-      db.collection('users').doc(uid).collection('metrics').doc('practice').get()
-    ]).then(function(res){
-      var firstName = (res[0].exists && res[0].data().firstName) || 'there';
-      var practiceData = res[1].exists ? res[1].data() : {};
-      var lastLessonUrl = practiceData.lastLessonUrl || null;
-      var lastLessonTitle = practiceData.lastLessonTitle || 'Resume Last Lesson';
+Promise.all([
+  db.collection('users').doc(uid).get(),
+  db.collection('users').doc(uid).collection('progress').get()
+]).then(function(res){
+  var firstName = (res[0].exists && res[0].data().firstName) || 'there';
+  
+  // Find most recently updated course
+  var mostRecent = null;
+  var mostRecentTime = 0;
+  
+  if (res[1] && !res[1].empty) {
+    res[1].forEach(function(doc) {
+      var data = doc.data();
+      var time = data.lastUpdated ? data.lastUpdated.toMillis() : 0;
       
-      // Greeting without emoji
+      if (time > mostRecentTime && data.lastLesson) {
+        mostRecentTime = time;
+        var courseId = doc.id;
+        var pathway = courseId.match(/^[a-z]+/)[0];
+        var courseNum = courseId.match(/\d+$/)[0];
+        
+        mostRecent = {
+          url: '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson,
+          title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
+        };
+      }
+    });
+  }
+  
+  var lastLessonUrl = mostRecent ? mostRecent.url : null;
+  var lastLessonTitle = mostRecent ? mostRecent.title : 'Resume Last Lesson';
+      
+      // Greeting 
       var continueSection = lastLessonUrl 
         ? '<div class="sidebar-greeting">Hi, ' + firstName + '.</div>' +
           '<div class="sidebar-section">' +
@@ -224,13 +247,36 @@ auth.onAuthStateChanged(function(user){
     
     // Fetch user data and build menu
     Promise.all([
-      db.collection('users').doc(uid).get(),
-      db.collection('users').doc(uid).collection('metrics').doc('practice').get()
-    ]).then(function(res){
-      var firstName = (res[0].exists && res[0].data().firstName) || 'there';
-      var practiceData = res[1].exists ? res[1].data() : {};
-      var lastLessonUrl = practiceData.lastLessonUrl || null;
-      var lastLessonTitle = practiceData.lastLessonTitle || 'Resume Last Lesson';
+  db.collection('users').doc(uid).get(),
+  db.collection('users').doc(uid).collection('progress').get()
+]).then(function(res){
+  var firstName = (res[0].exists && res[0].data().firstName) || 'there';
+  
+  // Find most recently updated course
+  var mostRecent = null;
+  var mostRecentTime = 0;
+  
+  if (res[1] && !res[1].empty) {
+    res[1].forEach(function(doc) {
+      var data = doc.data();
+      var time = data.lastUpdated ? data.lastUpdated.toMillis() : 0;
+      
+      if (time > mostRecentTime && data.lastLesson) {
+        mostRecentTime = time;
+        var courseId = doc.id;
+        var pathway = courseId.match(/^[a-z]+/)[0];
+        var courseNum = courseId.match(/\d+$/)[0];
+        
+        mostRecent = {
+          url: '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson,
+          title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
+        };
+      }
+    });
+  }
+  
+  var lastLessonUrl = mostRecent ? mostRecent.url : null;
+  var lastLessonTitle = mostRecent ? mostRecent.title : 'Resume Last Lesson';
       
       // Greeting without emoji, SVG icons, Metronome added
       var continueSection = lastLessonUrl 
