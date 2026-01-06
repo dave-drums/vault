@@ -637,6 +637,22 @@ body {
    TOPIC GRID STYLES
    ============================================ */
 
+
+/* Pathway Card Wrapper */
+.pathway {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+}
+
+.pathway:last-child {
+  margin-bottom: 0;
+}
+
+
 /* Pathway Header with Image Banner */
 .pathway-header {
   position: relative;
@@ -1013,20 +1029,6 @@ body {
     height: 16px;
     border: 3px solid white;
     box-shadow: 0 0 0 2px #06b3fd;
-  }
-  
-  .pathway {
-    grid-template-columns: 1fr;
-     border-radius: 15px;
-     overflow: hidden;
-  }
-  
-  .pathway-image {
-    min-height: 200px;
-  }
-  
-  .pathway-content {
-    padding: 20px;
   }
   
   .contact-card,
