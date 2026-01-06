@@ -3,45 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Groove Studies | Practice Vault</title>
+  <title>Home | Practice Vault</title>
   <link rel="icon" href="/assets/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
   
-  <!-- Typography Variables -->
   <link rel="stylesheet" href="/css/typography.css">
   <link rel="stylesheet" href="/css/core.css">
   
   <style>
-    /* Topic Grid Styles */
-    .topics-grid {
+    /* Topic Grid Layout */
+    .pathway-header {
+      position: relative;
+      height: 180px;
+      background: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 100%);
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 40px;
+      overflow: hidden;
+    }
+    
+    .pathway-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+      z-index: 1;
+    }
+    
+    .pathway-header.groove-bg {
+      background-image: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 100%), url('/assets/groove-studies.webp');
+    }
+    
+    .pathway-header.fill-bg {
+      background-image: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 100%), url('/assets/fill-studies.webp');
+    }
+    
+    .pathway-header.stick-bg {
+      background-image: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 100%), url('/assets/stick-studies.webp');
+    }
+    
+    .pathway-header.kick-bg {
+      background-image: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 100%), url('/assets/kick-studies.webp');
+    }
+    
+    .pathway-header.reading-bg {
+      background-image: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.55) 100%), url('/assets/reading.webp');
+    }
+    
+    .pathway-header-content {
+      max-width: 650px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .pathway-header .pathway-title {
+      font-size: var(--heading-section);
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .pathway-header .pathway-desc {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: var(--text-ui);
+      line-height: 1.6;
+      margin: 0;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    
+    .pathway-stats {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .topic-count {
+      display: inline-block;
+      background: rgba(6,179,253,0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(6,179,253,0.4);
+      padding: 12px 20px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 700;
+      font-size: var(--text-small);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .topic-count-number {
+      font-size: 28px;
+      display: block;
+      line-height: 1;
+      margin-bottom: 4px;
+      color: #38bdf8;
+    }
+    
+    .pathway-content {
+      padding: 32px;
+    }
+    
+    .pathway-topics {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 0;
+      gap: 14px;
+      flex: 1;
     }
     
     .topic-card {
-      background: var(--surface);
+      background: var(--surface-hover);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 10px;
+      padding: 16px 18px;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: var(--shadow);
       text-decoration: none;
       color: inherit;
+      min-height: 94px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .topic-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(6,179,253,0.05), rgba(56,189,248,0.05));
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    
+    .topic-card:hover::before {
+      opacity: 1;
     }
     
     .topic-card:hover {
-      background: var(--surface-hover);
+      background: var(--surface);
       border-color: var(--accent);
-      box-shadow: 0 4px 12px rgba(6,179,253,0.15);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(6,179,253,0.12);
+      transform: translateY(-3px);
     }
     
     .topic-card.locked {
@@ -50,342 +159,488 @@
     }
     
     .topic-card.locked:hover {
-      background: var(--surface);
+      background: var(--surface-hover);
       border-color: var(--border);
-      box-shadow: var(--shadow);
+      box-shadow: none;
       transform: translateY(0);
     }
     
-    .topic-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
+    .topic-card.locked::before {
+      display: none;
     }
     
-    .topic-name {
+    .topic-card .topic-name {
       font-weight: 600;
-      font-size: var(--text-body);
+      font-size: var(--text-small);
       color: var(--text-primary);
       line-height: 1.3;
       margin: 0;
       flex: 1;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      transition: color 0.2s ease;
+    }
+    
+    .topic-card:hover .topic-name {
+      color: var(--accent);
     }
     
     .topic-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       margin-top: auto;
+      position: relative;
+      z-index: 1;
     }
     
     .topic-lessons {
-      font-size: var(--text-small);
+      font-size: var(--text-tiny);
       color: var(--text-secondary);
+      font-weight: 500;
     }
     
     .level-badges {
       display: flex;
-      gap: 4px;
+      gap: 5px;
       flex-wrap: wrap;
     }
     
     .level-badge {
       font-size: 10px;
-      padding: 4px 7px;
-      border-radius: 4px;
-      font-weight: 600;
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.3px;
       line-height: 1;
+      transition: all 0.2s ease;
     }
     
     .level-badge.beg {
       background: #e8f9f3;
       color: #059669;
+      border: 1px solid #d1f4e0;
     }
     
     .level-badge.int {
       background: #fef3c7;
       color: #92400e;
+      border: 1px solid #fde68a;
     }
     
     .level-badge.adv {
       background: #fee2e2;
       color: #991b1b;
+      border: 1px solid #fecaca;
     }
     
-    /* Responsive */
+    .topic-card:hover .level-badge.beg {
+      background: #d1f4e0;
+      border-color: #a7f3d0;
+    }
+    
+    .topic-card:hover .level-badge.int {
+      background: #fde68a;
+      border-color: #fcd34d;
+    }
+    
+    .topic-card:hover .level-badge.adv {
+      background: #fecaca;
+      border-color: #fca5a5;
+    }
+    
     @media (max-width: 900px) {
-      .topics-grid {
+      .pathway-topics {
         grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .pathway-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        height: auto;
+        padding: 28px 32px;
+      }
+      
+      .pathway-stats {
+        text-align: left;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .pathway-header {
+        padding: 24px;
+      }
+      
+      .pathway-content {
+        padding: 24px;
       }
     }
     
     @media (max-width: 600px) {
-      .topics-grid {
-        grid-template-columns: 1fr;
+      .pathway-header {
+        padding: 20px;
+      }
+      
+      .pathway-content {
+        padding: 20px;
       }
     }
   </style>
+  
+  <script src="/firebase/firebase-app-compat.js"></script>
+  <script src="/firebase/firebase-auth-compat.js"></script>
+  <script src="/firebase/firebase-firestore-compat.js"></script>
+  <script src="/firebase/firebase-init.js"></script>
+  
+  <script>document.documentElement.dataset.protected = 'true';</script>
+  <script src="/config/auth-guard.js"></script>
+  
+  <script src="/config/components.js"></script>
+  <script src="/config/navigation.js"></script>
+  <script src="/config/course-data.js"></script>
 </head>
 <body>
   <div id="page-loader" class="page-loader">
     <div class="loading-spinner"></div>
   </div>
   
-  <!-- HERO HEADER -->
   <div class="hero">
-    <div class="hero-banner" data-bg="groove"></div>
+    <div class="hero-banner" data-bg="home"></div>
     <div class="hero-content">
-      <h1 class="hero-title">Groove Studies</h1>
-      <div class="hero-badge">Course Topics</div>
+      <h1 class="hero-title">Practice Vault</h1>
+      <div class="hero-badge">Course Pathways</div>
     </div>
   </div>
   
-  <!-- TOPICS GRID -->
   <div class="container">
-    <div class="topics-grid">
-      
-      <a href="/gs?topic=eighth-note" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Eighth Note</h3>
+    
+    <!-- GROOVE STUDIES -->
+    <div class="pathway">
+      <div class="pathway-header groove-bg">
+        <div class="pathway-header-content">
+          <h2 class="pathway-title">Groove Studies</h2>
+          <p class="pathway-desc">Progressive groove courses designed to develop your time, coordination, and feel.</p>
         </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">24 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=quarter-note" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Quarter Note</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">18 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=sixteenth-note" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Sixteenth Note</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">32 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=sixteenth-two-handed" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Sixteenth Note Two Handed</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">28 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=hihat-independence" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Hi-Hat Independence & Embellishments</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">26 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=halftime-doubletime" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Half Time & Double Time Feel</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">20 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=triplet-grooves" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Triplet Grooves</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">22 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=hihat-ride-variations" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Hi-Hat & Ride Variations</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">21 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=shuffle" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">The Shuffle</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">19 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=6-8-grooves" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">6/8 Grooves</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">17 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge beg">Beg</div>
-            <div class="level-badge int">Int</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=linear-grooves" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Linear Grooves</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">30 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=ghost-notes" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Ghost Notes</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">25 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=world-grooves" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">World Grooves</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">23 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=jazz" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Jazz</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">21 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=paradiddle-grooves" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Paradiddle Grooves</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">16 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <a href="/gs?topic=odd-time" class="topic-card">
-        <div class="topic-header">
-          <h3 class="topic-name">Odd Time</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">27 lessons</span>
-          <div class="level-badges">
-            <div class="level-badge int">Int</div>
-            <div class="level-badge adv">Adv</div>
-          </div>
-        </div>
-      </a>
-      
-      <!-- Coming Soon Examples -->
-      <div class="topic-card locked">
-        <div class="topic-header">
-          <h3 class="topic-name">Polyrhythms</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">Coming Soon</span>
-          <div class="level-badges">
-            <div class="level-badge adv">Adv</div>
+        <div class="pathway-stats">
+          <div class="topic-count">
+            <span class="topic-count-number">16</span>
+            Topics
           </div>
         </div>
       </div>
-      
-      <div class="topic-card locked">
-        <div class="topic-header">
-          <h3 class="topic-name">Metric Modulation</h3>
-        </div>
-        <div class="topic-meta">
-          <span class="topic-lessons">Coming Soon</span>
-          <div class="level-badges">
-            <div class="level-badge adv">Adv</div>
-          </div>
+      <div class="pathway-content">
+        <div class="pathway-topics">
+          
+          <a href="/gs?topic=eighth-note" class="topic-card">
+            <h3 class="topic-name">Eighth Note</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">24 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=quarter-note" class="topic-card">
+            <h3 class="topic-name">Quarter Note</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">18 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=sixteenth-note" class="topic-card">
+            <h3 class="topic-name">Sixteenth Note</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">32 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=sixteenth-two-handed" class="topic-card">
+            <h3 class="topic-name">Sixteenth Note Two Handed</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">28 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=hihat-independence" class="topic-card">
+            <h3 class="topic-name">Hi-Hat Independence & Embellishments</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">26 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=halftime-doubletime" class="topic-card">
+            <h3 class="topic-name">Half Time & Double Time Feel</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">20 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=triplet-grooves" class="topic-card">
+            <h3 class="topic-name">Triplet Grooves</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">22 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=hihat-ride-variations" class="topic-card">
+            <h3 class="topic-name">Hi-Hat & Ride Variations</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">21 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=shuffle" class="topic-card">
+            <h3 class="topic-name">The Shuffle</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">19 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=6-8-grooves" class="topic-card">
+            <h3 class="topic-name">6/8 Grooves</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">17 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=linear-grooves" class="topic-card">
+            <h3 class="topic-name">Linear Grooves</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">30 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=ghost-notes" class="topic-card">
+            <h3 class="topic-name">Ghost Notes</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">25 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=world-grooves" class="topic-card">
+            <h3 class="topic-name">World Grooves</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">23 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=jazz" class="topic-card">
+            <h3 class="topic-name">Jazz</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">21 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=paradiddle-grooves" class="topic-card">
+            <h3 class="topic-name">Paradiddle Grooves</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">16 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/gs?topic=odd-time" class="topic-card">
+            <h3 class="topic-name">Odd Time</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">27 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
         </div>
       </div>
-      
     </div>
+    
+    <!-- FILL STUDIES -->
+    <div class="pathway">
+      <div class="pathway-header fill-bg">
+        <div class="pathway-header-content">
+          <h2 class="pathway-title">Fill Studies</h2>
+          <p class="pathway-desc">Master drum fills that connect your grooves. Build musical phrasing through progressive levels.</p>
+        </div>
+        <div class="pathway-stats">
+          <div class="topic-count">
+            <span class="topic-count-number">9</span>
+            Topics
+          </div>
+        </div>
+      </div>
+      <div class="pathway-content">
+        <div class="pathway-topics">
+          
+          <a href="/fs?topic=eighth-note" class="topic-card">
+            <h3 class="topic-name">Eighth Note</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">22 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/fs?topic=sixteenth-note" class="topic-card">
+            <h3 class="topic-name">Sixteenth Note</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">28 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/fs?topic=groove-fills" class="topic-card">
+            <h3 class="topic-name">Groove Fills</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">24 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/fs?topic=triplet-fills" class="topic-card">
+            <h3 class="topic-name">Triplet Fills</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">19 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge beg">Beg</div>
+                <div class="level-badge int">Int</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/fs?topic=open-hihat-fills" class="topic-card">
+            <h3 class="topic-name">Open Hi-Hat Fills</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">16 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/fs?topic=triple-meter" class="topic-card">
+            <h3 class="topic-name">Triple Meter</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">18 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="/fs?topic=linear-fills" class="topic-card">
+            <h3 class="topic-name">Linear Fills</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">21 lessons</span>
+              <div class="level-badges">
+                <div class="level-badge int">Int</div>
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="#" class="topic-card locked">
+            <h3 class="topic-name">Paradiddle Fills</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">Coming Soon</span>
+              <div class="level-badges">
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+          <a href="#" class="topic-card locked">
+            <h3 class="topic-name">Odd Time Fills</h3>
+            <div class="topic-meta">
+              <span class="topic-lessons">Coming Soon</span>
+              <div class="level-badges">
+                <div class="level-badge adv">Adv</div>
+              </div>
+            </div>
+          </a>
+          
+        </div>
+      </div>
+    </div>
+    
   </div>
 
 </body>
