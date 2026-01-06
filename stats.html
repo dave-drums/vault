@@ -142,53 +142,66 @@
     
     
     // Create Practice Content (pathway progress cards)
-    function createPracticeContent(user){
-      var content = document.createElement('div');
+function createPracticeContent(user){
+  var content = document.createElement('div');
+  
+  // Load progress to find active courses and last lesson
+  db.collection('users').doc(user.uid).collection('progress').get()
+    .then(function(progressSnap){
+      var lastLessonUrl = '';
+      var activeCourses = {};
+      var lastActivePathway = null;
+      var lastActiveCourseId = null;
+      var mostRecentTime = 0;
       
-      // Load user's active courses
-      // Load progress to get last lesson
-db.collection('users').doc(user.uid).collection('progress').get()
-  .then(function(progressSnap){
-    var lastLessonUrl = '';
-    
-    // Find most recently updated course
-    var mostRecent = null;
-    var mostRecentTime = 0;
-    
-    progressSnap.forEach(function(doc) {
-      var data = doc.data();
-      var time = data.lastUpdated ? data.lastUpdated.toMillis() : 0;
-      
-      if (time > mostRecentTime && data.lastLesson) {
-        mostRecentTime = time;
+      // Process all progress docs
+      progressSnap.forEach(function(doc) {
         var courseId = doc.id;
-        var pathway = courseId.match(/^[a-z]+/)[0];
-        var courseNum = courseId.match(/\d+$/)[0];
+        var data = doc.data();
+        var time = data.lastUpdated ? data.lastUpdated.toMillis() : 0;
         
-        lastLessonUrl = '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson;
-      }
-    });
-    
-    if (lastLessonUrl) {
-      var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
-      if (pathMatch) {
-        var courseData = window.VAULT_COURSES && window.VAULT_COURSES[pathMatch[1] + pathMatch[2]];
-        if (courseData && courseData.name) {
-          content.innerHTML = '<div class="progress-continue"><a href="' + lastLessonUrl + '" class="btn-continue">Continue: ' + courseData.name + '</a></div>';
+        // Track active courses by pathway
+        if (window.VAULT_COURSES && window.VAULT_COURSES[courseId]) {
+          var pathway = window.VAULT_COURSES[courseId].pathway;
+          activeCourses[pathway] = courseId;
+        }
+        
+        // Find most recent for continue button
+        if (time > mostRecentTime && data.lastLesson) {
+          mostRecentTime = time;
+          lastActiveCourseId = courseId;
+          
+          if (window.VAULT_COURSES && window.VAULT_COURSES[courseId]) {
+            lastActivePathway = window.VAULT_COURSES[courseId].pathway;
+          }
+          
+          var pathway = courseId.match(/^[a-z]+/)[0];
+          var courseNum = courseId.match(/\d+$/)[0];
+          lastLessonUrl = '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson;
+        }
+      });
+      
+      // Show continue button
+      if (lastLessonUrl) {
+        var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
+        if (pathMatch) {
+          var courseData = window.VAULT_COURSES && window.VAULT_COURSES[pathMatch[1] + pathMatch[2]];
+          if (courseData && courseData.name) {
+            content.innerHTML = '<div class="progress-continue"><a href="' + lastLessonUrl + '" class="btn-continue">Continue: ' + courseData.name + '</a></div>';
+          }
         }
       }
-    } else {
-      content.textContent = 'No recent activity';
-    }
-  })
-  .catch(function(e){
-    console.error('Failed to load progress content:', e);
-    content.textContent = 'Error loading progress.';
-    window.VaultToast.error('Failed to load progress');
-  });
       
-      return content;
-    }
+      // Render pathway cards
+      renderPathwayCards(content, user.uid, activeCourses, lastActivePathway, lastActiveCourseId);
+    })
+    .catch(function(e){
+      console.error('Failed to load progress:', e);
+      content.textContent = 'Error loading progress.';
+    });
+  
+  return content;
+}
     
     function renderPathwayCards(container, uid, activeCourses, lastActivePathway, lastActiveCourseId){
       var grid = document.createElement('div');
