@@ -938,13 +938,28 @@ body {
 }
 
 
-/* ============================================
+Replace the CSS I just gave you with THIS complete version:
+css/* ============================================
    OLD PATHWAY LAYOUT (for backwards compatibility)
    ============================================ */
 
+.pathway {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+}
+
+.pathway:last-child {
+  margin-bottom: 0;
+}
+
 .pathway-image {
   position: relative;
-  width: 280px;
   min-height: 280px;
   background-size: cover;
   background-position: center;
@@ -961,18 +976,31 @@ body {
   margin: 0;
 }
 
+.pathway-content {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pathway-desc {
+  margin: 0 0 20px 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
 .pathway-topics {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
 }
 
 .pathway-topic {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  background: #fff;
+  padding: 16px 0;
   text-decoration: none;
   color: inherit;
   transition: all 0.2s ease;
@@ -984,8 +1012,8 @@ body {
 }
 
 .pathway-topic:hover {
-  background: var(--surface-hover);
-  padding-left: 24px;
+  padding-left: 8px;
+  color: var(--accent);
 }
 
 .pathway-topic.locked {
@@ -994,8 +1022,8 @@ body {
 }
 
 .pathway-topic.locked:hover {
-  background: #fff;
-  padding-left: 20px;
+  padding-left: 0;
+  color: inherit;
 }
 
 .topic-left .topic-name {
@@ -1007,7 +1035,17 @@ body {
 .topic-right {
   font-size: var(--text-tiny);
   color: var(--text-secondary);
-  text-align: right;
+}
+
+/* Responsive for old layout */
+@media (max-width: 768px) {
+  .pathway {
+    grid-template-columns: 1fr;
+  }
+  
+  .pathway-image {
+    min-height: 200px;
+  }
 }
 
 
