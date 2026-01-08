@@ -30,6 +30,14 @@
   
   <style>
     /* Collapsible Pathway Styles */
+    .pathway {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
     .pathway-header {
       cursor: pointer;
       user-select: none;
@@ -53,8 +61,8 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5));
-      border-radius: 12px 12px 0 0;
-      transition: border-radius 0.3s ease;
+      border-radius: inherit;
+      transition: background 0.3s ease;
     }
     
     .pathway.collapsed .pathway-header::before {
@@ -77,10 +85,21 @@
     }
     
     .pathway-toggle {
-      font-size: 24px;
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      font-size: 20px;
       color: rgba(255,255,255,0.8);
       transition: transform 0.3s ease;
-      margin-left: 24px;
+      z-index: 2;
+      background: rgba(0,0,0,0.3);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.2);
     }
     
     .pathway.collapsed .pathway-toggle {
@@ -89,6 +108,11 @@
     
     .pathway.collapsed .pathway-content {
       display: none;
+    }
+    
+    .pathway-content {
+      overflow: hidden;
+      transition: max-height 0.4s ease;
     }
     
     /* Pathway Headers */
@@ -134,60 +158,64 @@
     .pathway-stats {
       position: absolute;
       top: 16px;
-      right: 60px;
+      right: 16px;
       z-index: 2;
     }
     
     .topic-count {
-      text-align: center;
-      color: rgba(255,255,255,0.9);
-      background: rgba(0,0,0,0.3);
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(6, 179, 253, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #06b3fd;
+      background: rgba(0,0,0,0.4);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(6, 179, 253, 0.4);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     .topic-count-number {
-      display: block;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 700;
       line-height: 1;
-      margin-bottom: 2px;
     }
     
     /* Mobile pathway header */
     @media (max-width: 768px) {
       .pathway-header {
-        padding: 24px 20px;
+        padding: 20px 16px;
       }
       
       .pathway-header-content {
         width: 100%;
-        padding-right: 80px;
+        padding-right: 0;
+        padding-top: 32px;
       }
       
       .pathway-stats {
         top: 12px;
-        right: 50px;
+        right: 12px;
       }
       
       .pathway-toggle {
-        position: absolute;
-        top: 12px;
+        bottom: 12px;
         right: 12px;
-        margin: 0;
-      }
-      
-      .topic-count {
-        padding: 6px 10px;
-      }
-      
-      .topic-count-number {
+        width: 32px;
+        height: 32px;
         font-size: 18px;
       }
       
       .topic-count {
+        padding: 4px 8px;
         font-size: 10px;
+        gap: 6px;
+      }
+      
+      .topic-count-number {
+        font-size: 14px;
       }
     }
     
