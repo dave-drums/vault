@@ -45,7 +45,7 @@
     // GET LESSON INFO
     // ============================================
     function getCurrentLessonInfo() {
-      var courseNum = urlParams.get('c');
+      var slug = Array.from(urlParams.keys()).find(function(k) { return k !== 'l'; });
       var lessonId = urlParams.get('l');
       
       // Get pathway from URL (gs, fs, rs, etc)
@@ -60,7 +60,7 @@
         }
       }
       
-      var courseId = pathway && courseNum ? pathway + courseNum : null;
+      var courseId = null; if (pathway && slug && window.getCourseBySlug) { var result = window.getCourseBySlug(pathway, slug); courseId = result ? result.courseId : null; }
       
       // Get lesson title from hero badge
       var heroBadge = document.getElementById('hero-course-level');
@@ -352,7 +352,7 @@
       stickyBar.className = 'practice-sticky-bar';
       stickyBar.innerHTML = `
         <div class="practice-bar-inner">
-          <button class="lesson-nav-back" onclick="window.location.href=window.location.pathname + '?c=' + new URLSearchParams(window.location.search).get('c')">
+          <button class="lesson-nav-back" onclick="var params = new URLSearchParams(window.location.search); var slug = Array.from(params.keys()).find(function(k) { return k !== 'l'; }); window.location.href=window.location.pathname + '?' + slug">
             ← Back to Course
           </button>
           
@@ -444,7 +444,7 @@
       // Complete lesson button - implement the logic directly
       if (completeBtn && currentUser) {
         var lessonInfo = getCurrentLessonInfo();
-        var courseNum = urlParams.get('c');
+        var slug = Array.from(urlParams.keys()).find(function(k) { return k !== 'l'; });
         
         // Get user's selfProgress setting and setup button
         db.doc('users/' + currentUser.uid).get().then(function(userSnap) {
@@ -523,9 +523,9 @@
             
             function navigate() {
               if (nextLesson) {
-                window.location.href = window.location.pathname + '?c=' + courseNum + '&l=' + nextLesson;
+                window.location.href = window.location.pathname + '?' + slug + '&l=' + nextLesson;
               } else {
-                window.location.href = window.location.pathname + '?c=' + courseNum;
+                window.location.href = window.location.pathname + '?' + slug;
               }
             }
           });
