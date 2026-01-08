@@ -39,21 +39,21 @@ window.getCourseBySlug = function(pathway, slug) {
 };
    
    window.VAULT_COURSES = {
-      'gs-eighth-note': { slug: 'eighth-note', pathway: 'groove', pathwayName: 'Groove Studies', topic: 'Eighth Note', lessons: ['01', '02', '03', '04'] },
-      'gs-quarter-note': { slug: 'quarter-note', pathway: 'groove', pathwayName: 'Groove Studies', topic: 'Quarter Note', lessons: ['01', '02', '03', '04'] },
-      'gs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'groove', pathwayName: 'Groove Studies', topic: 'Sixteenth Note', lessons: ['01', '02', '03', '04'] },
-      'gs-sixteenth-note-2': { slug: 'sixteenth-note-2', pathway: 'groove', pathwayName: 'Groove Studies', topic: 'Sixteenth Note - Two Handed', lessons: ['01', '02', '03', '04'] },
+      'gs-eighth-note': { slug: 'eighth-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Eighth Note', lessons: ['01', '02', '03', '04'] },
+      'gs-quarter-note': { slug: 'quarter-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Quarter Note', lessons: ['01', '02', '03', '04'] },
+      'gs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note', lessons: ['01', '02', '03', '04'] },
+      'gs-sixteenth-note-2': { slug: 'sixteenth-note-2', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note - Two Handed', lessons: ['01', '02', '03', '04'] },
 
-      'fs-eighth-note': { slug: 'eighth-note', pathway: 'fills', pathwayName: 'Fill Studies', topic: 'Eighth Note', lessons: ['01', '02', '03', '04', '05', '06', '07'] },
-      'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fills', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', lessons: ['01', '02', '03', '04', '05'] },
-      'fs-fill-grooves': { slug: 'fill-grooves', pathway: 'fills', pathwayName: 'Fill Studies', topic: 'Fill Grooves', lessons: ['01', '02', '03'] },
+      'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', lessons: ['01', '02', '03', '04', '05', '06', '07'] },
+      'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', lessons: ['01', '02', '03', '04', '05'] },
+      'fs-fill-grooves': { slug: 'fill-grooves', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Fill Grooves', lessons: ['01', '02', '03'] },
 
-      'ss-rudiments': { slug: 'rudiments', pathway: 'sticks', pathwayName: 'Stick Studies', topic: 'Rudiments', lessons: [] },
+      'ss-rudiments': { slug: 'rudiments', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Rudiments', lessons: [] },
 
-      'ks-double-pedal': { slug: 'double-pedal', pathway: 'kicks', pathwayName: 'Kick Studies', topic: 'Double Pedal', lessons: ['01', '02', '03', '04', '05', '06', '07', '08'] },
+      'ks-double-pedal': { slug: 'double-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Double Pedal', lessons: ['01', '02', '03', '04', '05', '06', '07', '08'] },
 
-      'rs-quarter-eighth-note': { slug: 'quarter-eighth-note', pathway: 'reading', pathwayName: 'Rhythm Studies', topic: 'Quarter & Eighth Note', lessons: ['01', '02', '03', '04'] },
-      'rs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'reading', pathwayName: 'Rhythm Studies', topic: 'Sixteenth Note', lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15'] },
+      'rs-quarter-eighth-note': { slug: 'quarter-eighth-note', pathway: 'td', pathwayName: 'Rhythm Studies', topic: 'Quarter & Eighth Note', lessons: ['01', '02', '03', '04'] },
+      'rs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'rs', pathwayName: 'Rhythm Studies', topic: 'Sixteenth Note', lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15'] },
       
 };
   
