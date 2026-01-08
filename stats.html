@@ -176,8 +176,8 @@ function createPracticeContent(user){
           }
           
           var pathway = courseId.match(/^[a-z]+/)[0];
-          var courseNum = courseId.match(/\d+$/)[0];
-          lastLessonUrl = '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson;
+          var slug = window.VAULT_COURSES[courseId].slug;
+          lastLessonUrl = '/' + pathway + '/?' + slug + '&l=' + data.lastLesson;
         }
       });
       
@@ -186,8 +186,8 @@ function createPracticeContent(user){
         var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
         if (pathMatch) {
           var courseData = window.VAULT_COURSES && window.VAULT_COURSES[pathMatch[1] + pathMatch[2]];
-          if (courseData && courseData.name) {
-            content.innerHTML = '<div class="progress-continue"><a href="' + lastLessonUrl + '" class="btn-continue">Continue: ' + courseData.name + '</a></div>';
+          if (courseData && courseData.pathwayName) {
+            content.innerHTML = '<div class="progress-continue"><a href="' + lastLessonUrl + '" class="btn-continue">Continue: ' + courseData.pathwayName + '</a></div>';
           }
         }
       }
