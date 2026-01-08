@@ -41,8 +41,8 @@ window.getCourseBySlug = function(pathway, slug) {
    window.VAULT_COURSES = {
       'gs-eighth-note': { slug: 'eighth-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Eighth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
       'gs-quarter-note': { slug: 'quarter-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Quarter Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
-      'gs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
-      'gs-sixteenth-note-2': { slug: 'sixteenth-note-2', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note - Two Handed', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
+      'gs-sixteenth-note-1': { slug: 'sixteenth-note-1', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note 1', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
+      'gs-sixteenth-note-2': { slug: 'sixteenth-note-2', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note 2', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
 
       'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07'] },
       'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05'] },
