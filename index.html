@@ -294,33 +294,59 @@
       font-style: italic;
     }
     
+    /* Level Badge Circles */
     .level-badges {
       display: flex;
-      gap: 4px;
+      gap: 6px;
+      align-items: center;
     }
     
     .level-badge {
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: help;
     }
     
     .level-badge.beg {
-      background: #e0f2fe;
-      color: #0284c7;
+      background: #10b981; /* Green */
     }
     
     .level-badge.int {
-      background: #fef3c7;
-      color: #d97706;
+      background: #f59e0b; /* Orange */
     }
     
     .level-badge.adv {
-      background: #fee2e2;
-      color: #dc2626;
+      background: #ef4444; /* Red */
+    }
+    
+    /* Topic Card Header Layout */
+    .topic-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .topic-name {
+      font-size: var(--text-ui);
+      font-weight: 600;
+      color: #1a1a2e;
+      margin: 0;
+      flex: 1;
+    }
+    
+    /* Topic Meta - simplified */
+    .topic-meta {
+      display: block;
+    }
+    
+    .topic-lessons {
+      font-size: var(--text-small);
+      color: #6b7280;
+      display: block;
     }
   </style>
   
@@ -871,14 +897,26 @@
         var course = window.VAULT_COURSES[courseId];
         var lessonCount = course.lessons ? course.lessons.length : 0;
         
-        // Find element by ID (e.g., gs-eighth-note-progress)
-        var el = document.getElementById(courseId + '-progress');
-        if (el) {
+        // Update lesson count
+        var progressEl = document.getElementById(courseId + '-progress');
+        if (progressEl) {
           if (lessonCount > 0) {
-            el.textContent = lessonCount + ' lesson' + (lessonCount === 1 ? '' : 's');
+            progressEl.textContent = lessonCount + ' lesson' + (lessonCount === 1 ? '' : 's');
           } else {
-            el.textContent = 'Coming Soon';
+            progressEl.textContent = 'Coming Soon';
           }
+        }
+        
+        // Update level badges (colored circles)
+        var levelsEl = document.getElementById(courseId + '-levels');
+        if (levelsEl && course.levels && course.levels.length > 0) {
+          levelsEl.innerHTML = '';
+          course.levels.forEach(function(level) {
+            var badge = document.createElement('div');
+            badge.className = 'level-badge ' + level;
+            badge.title = level === 'beg' ? 'Beginner' : (level === 'int' ? 'Intermediate' : 'Advanced');
+            levelsEl.appendChild(badge);
+          });
         }
       }
     }
