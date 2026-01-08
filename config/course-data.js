@@ -43,6 +43,7 @@ window.getCourseBySlug = function(pathway, slug) {
       'gs-quarter-note': { slug: 'quarter-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Quarter Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
       'gs-sixteenth-note-1': { slug: 'sixteenth-note-1', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note 1', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
       'gs-sixteenth-note-2': { slug: 'sixteenth-note-2', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note 2', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04'] },
+      
       'gs-hihat-control': { slug: 'hihat-control', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Hi-Hat Control', levels: ['beg', 'int'], lessons: [] },
       'gs-half-double-time': { slug: 'half-double-time', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Half & Double Time', levels: ['int'], lessons: [] },
       'gs-triplet-grooves': { slug: 'triplet-grooves', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Triplet Grooves', levels: ['int'], lessons: [] },
@@ -55,24 +56,35 @@ window.getCourseBySlug = function(pathway, slug) {
       'gs-world-grooves': { slug: 'world-grooves', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'World Grooves', levels: ['int', 'adv'], lessons: [] },
       'gs-odd-time': { slug: 'odd-time', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Odd Time', levels: ['int', 'adv'], lessons: [] },
 
+
+      
       'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07'] },
       'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05'] },
       'fs-fill-grooves': { slug: 'fill-grooves', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Fill Grooves', levels: ['beg', 'int'], lessons: ['01', '02', '03'] },
+      
       'fs-linear-fills': { slug: 'linear-fills', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Linear Fills', levels: ['int', 'adv'], lessons: [] },
       'fs-triplet-fills': { slug: 'triplet-fills', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Triplet Fills', levels: ['beg', 'int'], lessons: [] },
       'fs-open-hat-fills': { slug: 'open-hat-fills', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Open Hi-Hat Fills', levels: ['int', 'adv'], lessons: [] },
       'fs-triple-meter': { slug: 'triple-meter', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Triple Meter', levels: ['int'], lessons: [] },
 
+
+      
       'ss-hand-speed': { slug: 'hand-speed', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Hand Speed & Endurance', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-rudiments': { slug: 'rudiments', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Learn Rudiments', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-technique': { slug: 'technique', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Technique', levels: ['beg', 'int'], lessons: [] },
 
+
+      
       'ks-single-pedal': { slug: 'single-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Single Pedal', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ks-double-pedal': { slug: 'double-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Double Pedal', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08'] },
+      
       'ks-technique': { slug: 'technique', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Technique & Setup', levels: ['beg', 'int'], lessons: [] },
 
+
+      
       'rs-quarter-eighth-note': { slug: 'quarter-eighth-note', pathway: 'rs', pathwayName: 'Rhythm Studies', topic: 'Quarter & Eighth Note', levels: ['beg'], lessons: ['01', '02', '03', '04'] },
       'rs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'rs', pathwayName: 'Rhythm Studies', topic: 'Sixteenth Note', levels: ['beg'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15'] },
+      
       'rs-triple meter': { slug: 'triple-meter', pathway: 'rs', pathwayName: 'Rhythm Studies', topic: 'Triple Meters', levels: ['beg', 'int'], lessons: [] },
       'rs-odd-time': { slug: 'odd-time', pathway: 'rs', pathwayName: 'Rhythm Studies', topic: 'Odd Time', levels: ['int', 'adv'], lessons: [] },
       
