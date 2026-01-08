@@ -108,10 +108,10 @@ Promise.all([
         mostRecentTime = time;
         var courseId = doc.id;
         var pathway = courseId.match(/^[a-z]+/)[0];
-        var courseNum = courseId.match(/\d+$/)[0];
+        var slug = window.VAULT_COURSES[courseId].slug;
         
         mostRecent = {
-          url: '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson,
+          url: '/' + pathway + '/?' + slug + '&l=' + data.lastLesson,
           title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
         };
       }
@@ -265,10 +265,10 @@ Promise.all([
         mostRecentTime = time;
         var courseId = doc.id;
         var pathway = courseId.match(/^[a-z]+/)[0];
-        var courseNum = courseId.match(/\d+$/)[0];
+        var slug = window.VAULT_COURSES[courseId].slug;
         
         mostRecent = {
-          url: '/' + pathway + '/?c=' + courseNum + '&l=' + data.lastLesson,
+          url: '/' + pathway + '/?' + slug + '&l=' + data.lastLesson,
           title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
         };
       }
