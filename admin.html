@@ -598,10 +598,10 @@ courseData.lessons.forEach(function(lessonId){
         
         var levelBadgeColor = '#e0f2fe';
         var levelTextColor = '#0284c7';
-        if (courseData.level.includes('Intermediate')) {
+        if (courseData.topic.includes('Intermediate')) {
           levelBadgeColor = '#fef3c7';
           levelTextColor = '#d97706';
-        } else if (courseData.level.includes('Advanced')) {
+        } else if (courseData.topic.includes('Advanced')) {
           levelBadgeColor = '#fee2e2';
           levelTextColor = '#dc2626';
         }
@@ -611,8 +611,8 @@ courseData.lessons.forEach(function(lessonId){
         // Course header
         coursesHtml += '<div class="course-section-header">';
         coursesHtml += '<div class="course-info">';
-        coursesHtml += '<div class="course-name">' + escapeHtml(courseData.name) + '</div>';
-        coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.level) + '</div>';
+        coursesHtml += '<div class="course-name">' + escapeHtml(courseData.pathwayName) + '</div>';
+        coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.topic) + '</div>';
         coursesHtml += '</div>';
         coursesHtml += '</div>';
         
