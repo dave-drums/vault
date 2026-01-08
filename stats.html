@@ -291,7 +291,7 @@ function createPracticeContent(user){
           var completedCount = 0;
           if (snap.exists) {
             var data = snap.data();
-            var completed = data.completed || {};
+            var completed = data.completed || [];
             
             // Use shared normalization function
             var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : []);
