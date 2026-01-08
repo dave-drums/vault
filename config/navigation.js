@@ -111,7 +111,7 @@ Promise.all([
         var slug = window.VAULT_COURSES[courseId].slug;
         
         mostRecent = {
-          url: '/' + pathway + '/?' + slug + '&l=' + data.lastLesson,
+          url: '/' + pathway + '?' + slug + '&l=' + data.lastLesson,
           title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
         };
       }
@@ -268,7 +268,7 @@ Promise.all([
         var slug = window.VAULT_COURSES[courseId].slug;
         
         mostRecent = {
-          url: '/' + pathway + '/?' + slug + '&l=' + data.lastLesson,
+          url: '/' + pathway + '?' + slug + '&l=' + data.lastLesson,
           title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
         };
       }
