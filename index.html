@@ -132,30 +132,85 @@
     
     /* Pathway Stats */
     .pathway-stats {
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      position: absolute;
+      top: 16px;
+      right: 60px;
+      z-index: 2;
     }
     
     .topic-count {
       text-align: center;
       color: rgba(255,255,255,0.9);
+      background: rgba(0,0,0,0.3);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(6, 179, 253, 0.3);
     }
     
     .topic-count-number {
       display: block;
-      font-size: 32px;
+      font-size: 20px;
       font-weight: 700;
       line-height: 1;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+    }
+    
+    /* Mobile pathway header */
+    @media (max-width: 768px) {
+      .pathway-header {
+        padding: 24px 20px;
+      }
+      
+      .pathway-header-content {
+        width: 100%;
+        padding-right: 80px;
+      }
+      
+      .pathway-stats {
+        top: 12px;
+        right: 50px;
+      }
+      
+      .pathway-toggle {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        margin: 0;
+      }
+      
+      .topic-count {
+        padding: 6px 10px;
+      }
+      
+      .topic-count-number {
+        font-size: 18px;
+      }
+      
+      .topic-count {
+        font-size: 10px;
+      }
     }
     
     /* Topic Card Styles */
     .pathway-topics {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
       padding: 24px;
+    }
+    
+    @media (max-width: 1024px) {
+      .pathway-topics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .pathway-topics {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 12px;
+      }
     }
     
     .topic-card {
@@ -817,6 +872,39 @@
       document.addEventListener('DOMContentLoaded', init);
     } else {
       init();
+    }
+  })();
+  
+  // Auto-populate lesson counts from course-data.js
+  (function(){
+    'use strict';
+    
+    function updateLessonCounts() {
+      if (!window.VAULT_COURSES) {
+        setTimeout(updateLessonCounts, 100);
+        return;
+      }
+      
+      for (var courseId in window.VAULT_COURSES) {
+        var course = window.VAULT_COURSES[courseId];
+        var lessonCount = course.lessons ? course.lessons.length : 0;
+        
+        // Find element by ID (e.g., gs-eighth-note-progress)
+        var el = document.getElementById(courseId + '-progress');
+        if (el) {
+          if (lessonCount > 0) {
+            el.textContent = lessonCount + ' lesson' + (lessonCount === 1 ? '' : 's');
+          } else {
+            el.textContent = 'Coming Soon';
+          }
+        }
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateLessonCounts);
+    } else {
+      updateLessonCounts();
     }
   })();
   </script>
