@@ -36,10 +36,6 @@
     .pathway-header {
       cursor: pointer;
       user-select: none;
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 16px;
-      align-items: center;
       padding: 32px 24px;
       background-size: cover;
       background-position: center;
@@ -63,28 +59,23 @@
       background: linear-gradient(135deg, rgba(0,0,0,0.65), rgba(0,0,0,0.45));
     }
     
-    .pathway-header-content,
-    .pathway-stats,
-    .pathway-toggle {
+    .pathway-header-content {
       position: relative;
       z-index: 1;
+    }
+    
+    .pathway-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
     }
     
     .pathway-title {
       color: #fff;
       font-size: var(--heading-subsection);
       font-weight: 700;
-      margin: 0 0 4px 0;
-    }
-    
-    .pathway-desc {
-      color: rgba(255,255,255,0.9);
-      font-size: var(--text-ui);
       margin: 0;
-    }
-    
-    .pathway-stats {
-      justify-self: end;
     }
     
     .topic-count {
@@ -108,7 +99,17 @@
       font-weight: 700;
     }
     
+    .pathway-desc {
+      color: rgba(255,255,255,0.9);
+      font-size: var(--text-ui);
+      margin: 0;
+      max-width: 700px;
+    }
+    
     .pathway-toggle {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -120,6 +121,7 @@
       color: rgba(255,255,255,0.8);
       font-size: 20px;
       transition: transform 0.3s ease;
+      z-index: 1;
     }
     
     .pathway.collapsed .pathway-toggle {
@@ -176,19 +178,7 @@
       }
       
       .pathway-header {
-        grid-template-columns: 1fr auto;
         padding: 20px 16px;
-      }
-      
-      .pathway-toggle {
-        grid-column: 2;
-        grid-row: 1;
-      }
-      
-      .pathway-stats {
-        grid-column: 2;
-        grid-row: 1;
-        margin-right: 45px;
       }
       
       .pathway-title {
@@ -237,6 +227,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
+      gap: 12px;
     }
     
     .topic-name {
@@ -244,18 +235,20 @@
       font-weight: 600;
       color: #1a1a2e;
       margin: 0;
+      flex: 1;
     }
     
     .level-badges {
       display: flex;
-      gap: 5px;
+      gap: 6px;
       flex-shrink: 0;
-      margin-left: 12px;
     }
     
     .level-badge {
       width: 10px;
       height: 10px;
+      min-width: 10px;
+      min-height: 10px;
       border-radius: 50%;
       flex-shrink: 0;
     }
@@ -301,7 +294,6 @@
   (function(){
     'use strict';
     
-    // Wait for course data
     function waitForData(callback) {
       if (window.VAULT_COURSES) {
         callback();
@@ -311,7 +303,7 @@
     }
     
     waitForData(function() {
-      var pathways = [
+      var pathwayDefinitions = [
         { id: 'gs', name: 'Groove Studies', desc: 'Progressive groove courses designed to develop your time, coordination, and feel.', bg: 'groove-bg' },
         { id: 'fs', name: 'Fill Studies', desc: 'Master drum fills that connect your grooves. Build musical phrasing through progressive levels.', bg: 'fill-bg' },
         { id: 'ss', name: 'Stick Studies', desc: 'Level up your hands with focused courses targeting hand speed, endurance, rudiments, technique fundamentals and weak hand development.', bg: 'stick-bg' },
@@ -321,8 +313,7 @@
       
       var container = document.getElementById('pathways-container');
       
-      pathways.forEach(function(pathway) {
-        // Count topics for this pathway
+      pathwayDefinitions.forEach(function(pathway) {
         var topics = [];
         for (var courseId in window.VAULT_COURSES) {
           if (window.VAULT_COURSES[courseId].pathway === pathway.id) {
@@ -333,26 +324,24 @@
         var topicCount = topics.length;
         var topicLabel = topicCount === 1 ? 'Topic' : 'Topics';
         
-        // Create pathway HTML
         var pathwayDiv = document.createElement('div');
         pathwayDiv.className = 'pathway';
         
         var html = '<div class="pathway-header ' + pathway.bg + '">';
         html += '<div class="pathway-header-content">';
+        html += '<div class="pathway-title-row">';
         html += '<h2 class="pathway-title">' + pathway.name + '</h2>';
-        html += '<p class="pathway-desc">' + pathway.desc + '</p>';
-        html += '</div>';
-        html += '<div class="pathway-stats">';
         html += '<div class="topic-count">';
         html += '<span class="topic-count-number">' + topicCount + '</span>';
         html += '<span>' + topicLabel + '</span>';
         html += '</div></div>';
+        html += '<p class="pathway-desc">' + pathway.desc + '</p>';
+        html += '</div>';
         html += '<div class="pathway-toggle">▼</div>';
         html += '</div>';
         
         html += '<div class="pathway-content"><div class="pathway-topics">';
         
-        // Add topics
         topics.forEach(function(t) {
           var course = t.course;
           var lessonCount = course.lessons ? course.lessons.length : 0;
@@ -377,7 +366,6 @@
         pathwayDiv.innerHTML = html;
         container.appendChild(pathwayDiv);
         
-        // Add click handler
         pathwayDiv.querySelector('.pathway-header').addEventListener('click', function() {
           pathwayDiv.classList.toggle('collapsed');
         });
