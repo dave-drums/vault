@@ -134,8 +134,8 @@ function formatAvgTime(totalSeconds, loginCount){
   if (totalSeconds <= 0 || loginCount <= 0) return '0 min';
   return formatDuration(Math.round(totalSeconds / loginCount));
 }
-function statusDot(lastLoginTs, joinedAtTs){
-  var ms = tsToMs(lastLoginTs);
+function statusDot(lastActiveTs, joinedAtTs){
+  var ms = tsToMs(lastActiveTs);
   if (!ms) ms = tsToMs(joinedAtTs);
   if (!ms) return '🔴';
   var days = (Date.now() - ms) / (1000 * 60 * 60 * 24);
@@ -778,7 +778,7 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
     } else {
       users.forEach(function(u){
         var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
-        var activityDot = statusDot(u.lastLogin, u.joinedAt);
+        var activityDot = statusDot(u.lastActive, u.joinedAt);
         
         var statusText = isOnline ? 'Online' : 'Offline';
         var onlineStyle = isOnline ? 'color:#10b981;font-weight:500;' : 'color:#999;font-weight:normal;';
@@ -790,7 +790,9 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
         html += '<div class="user-item-header">';
         html += '<div style="flex:1;min-width:0;">';
         html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="' + onlineStyle + 'font-size:var(--text-small);">| ' + onlineEmoji + statusText + '</span></div>';
-        html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last: ' + formatTsNoYear(u.lastLogin) + '</div>';
+        // Show last seen (with login fallback)
+        var lastActiveDisplay = u.lastActive ? formatTsNoYear(u.lastActive) : formatTsNoYear(u.lastLogin);
+        html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last seen: ' + lastActiveDisplay + '</div>';
         html += '</div>';
         html += '<div class="user-meta">';
         html += '<div style="font-size:18px;">▼</div>';
@@ -806,8 +808,9 @@ coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
         html += '<div class="accordion-section-title">Practice Statistics</div>';
         html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Login</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatTs(u.lastLogin) + ' ' + activityDot + '</div>';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Seen</div>';
+        var detailedTimestamp = u.lastActive ? formatTs(u.lastActive) : formatTs(u.lastLogin);
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + detailedTimestamp + ' ' + activityDot + '</div>';
         html += '</div>';
         html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
         html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
