@@ -36,25 +36,36 @@
   }
   
   const urlParams = new URLSearchParams(window.location.search);
-  const lessonId = urlParams.get('l');
-  
-  // Extract courseId from URL path: /gs/?c=1 → gs1
-  const path = window.location.pathname;
-  const pathParts = path.split('/').filter(p => p); // Remove empty strings
-  
-  // Find pathway from URL structure (e.g., /gs/ or /vault/test/gs/)
-  let pathway = null;
-  for (let i = pathParts.length - 1; i >= 0; i--) {
-    const part = pathParts[i];
-    // Check if this part is a known pathway (gs, fs, ss, ks, rs)
-    if (part === 'gs' || part === 'fs' || part === 'ss' || part === 'ks' || part === 'rs') {
-      pathway = part;
-      break;
-    }
+const lessonId = urlParams.get('l');
+
+// Extract pathway from URL path: /gs/ → 'gs'
+const path = window.location.pathname;
+const pathParts = path.split('/').filter(p => p);
+
+let pathway = null;
+for (let i = pathParts.length - 1; i >= 0; i--) {
+  const part = pathParts[i];
+  if (part === 'gs' || part === 'fs' || part === 'ss' || part === 'ks' || part === 'rs') {
+    pathway = part;
+    break;
   }
-  
-  const courseNum = urlParams.get('c');
-  const courseId = (pathway && courseNum) ? pathway + courseNum : null;
+}
+
+// Get slug from query string (first param that's not 'l')
+let slug = null;
+for (const [key, value] of urlParams.entries()) {
+  if (key !== 'l') {
+    slug = key;
+    break;
+  }
+}
+
+// Look up courseId by pathway + slug
+let courseId = null;
+if (pathway && slug && window.getCourseBySlug) {
+  const result = window.getCourseBySlug(pathway, slug);
+  courseId = result ? result.courseId : null;
+}
   
   if (!courseId) {
     document.getElementById('course-index').innerHTML = 
@@ -135,11 +146,11 @@
     // Populate hero header with course name and level
     const heroNameEl = document.getElementById('hero-course-name');
     const heroLevelEl = document.getElementById('hero-course-level');
-    if (heroNameEl && courseConfig.name) {
-      heroNameEl.textContent = courseConfig.name;
+    if (heroNameEl && courseConfig.pathwayName) {
+      heroNameEl.textContent = courseConfig.pathwayName;
     }
-    if (heroLevelEl && courseConfig.level) {
-      heroLevelEl.textContent = courseConfig.level;
+    if (heroLevelEl && courseConfig.topic) {
+      heroLevelEl.textContent = courseConfig.topic;
     }
     
     // Parse lessons from course master file
@@ -261,7 +272,7 @@
     lessonItems.forEach(function(item) {
       item.addEventListener('click', function() {
         const lessonId = item.getAttribute('data-lesson');
-        window.location.href = '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + lessonId;
+        window.location.href = '?' + window.VAULT_COURSES[courseId].slug + '&l=' + lessonId;
       });
     });
     
@@ -327,7 +338,7 @@
     // Update hero title (GROOVE STUDIES)
     const heroTitle = document.getElementById('hero-course-name');
     if (heroTitle && courseConfig) {
-      heroTitle.textContent = courseConfig.name.toUpperCase();
+      heroTitle.textContent = courseConfig.pathwayName.toUpperCase();
     }
     
     // Update hero badge to show lesson info (will be updated with actual title after loading)
@@ -344,7 +355,7 @@
     if (backBtn) {
       backBtn.classList.remove('hidden');
       backBtn.onclick = function() {
-        window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
+        window.location.href = window.location.pathname + '?' + window.VAULT_COURSES[courseId].slug;
       };
     }
     
@@ -545,9 +556,9 @@
         .then(function() {
           // Navigate (use variables from above, don't redefine)
           if (nextLesson) {
-            window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
+            window.location.href = window.location.pathname + '?' + courseConfig.slug + '&l=' + nextLesson;
           } else {
-            window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
+            window.location.href = window.location.pathname + '?' + courseConfig.slug;
           }
         })
         .catch(function(err) {
@@ -562,9 +573,9 @@
   } else {
     // Just navigate without marking complete
     if (nextLesson) {
-      window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1) + '&l=' + nextLesson;
+      window.location.href = window.location.pathname + '?' + window.VAULT_COURSES[courseId].slug + '&l=' + nextLesson;
     } else {
-      window.location.href = window.location.pathname + '?c=' + courseId.charAt(courseId.length - 1);
+      window.location.href = window.location.pathname + '?' + window.VAULT_COURSES[courseId].slug;
     }
   }
 };
