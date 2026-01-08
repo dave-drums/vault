@@ -112,7 +112,7 @@
     
     .pathway-content {
       overflow: hidden;
-      transition: max-height 0.4s ease;
+      transition: max-height 0.6s ease;
     }
     
     /* Pathway Headers */
@@ -136,20 +136,16 @@
       background-image: url('/assets/reading.webp');
     }
     
-    .single-bg {
-      background-image: url('/assets/other-courses.webp');
-    }
-    
     .pathway-title {
       color: #fff;
-      font-size: var(--heading-section);
+      font-size: var(--heading-subsection);
       font-weight: 700;
       margin: 0 0 8px 0;
     }
     
     .pathway-desc {
       color: rgba(255,255,255,0.9);
-      font-size: var(--text-body);
+      font-size: var(--text-ui);
       margin: 0;
       max-width: 600px;
     }
@@ -192,17 +188,29 @@
       .pathway-header-content {
         width: 100%;
         padding-right: 0;
-        padding-top: 32px;
+        padding-top: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .pathway-title {
+        font-size: var(--text-section);
+        padding-right: 100px;
+      }
+      
+      .pathway-desc {
+        font-size: var(--text-small);
       }
       
       .pathway-stats {
-        top: 12px;
-        right: 12px;
+        top: 16px;
+        right: 16px;
       }
       
       .pathway-toggle {
-        bottom: 12px;
-        right: 12px;
+        bottom: 16px;
+        right: 16px;
         width: 32px;
         height: 32px;
         font-size: 18px;
@@ -211,7 +219,7 @@
       .topic-count {
         padding: 4px 8px;
         font-size: 10px;
-        gap: 6px;
+        gap: 4px;
       }
       
       .topic-count-number {
@@ -297,13 +305,13 @@
     /* Level Badge Circles */
     .level-badges {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       align-items: center;
     }
     
     .level-badge {
-      width: 12px;
-      height: 12px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
       cursor: help;
@@ -377,8 +385,8 @@
         </div>
         <div class="pathway-stats">
           <div class="topic-count">
-            <span class="topic-count-number">16</span>
-            Topics
+            <span class="topic-count-number" id="gs-topic-count">16</span>
+            <span id="gs-topic-label">Topics</span>
           </div>
         </div>
         <div class="pathway-toggle">▼</div>
@@ -527,8 +535,8 @@
         </div>
         <div class="pathway-stats">
           <div class="topic-count">
-            <span class="topic-count-number">9</span>
-            Topics
+            <span class="topic-count-number" id="fs-topic-count">9</span>
+            <span id="fs-topic-label">Topics</span>
           </div>
         </div>
         <div class="pathway-toggle">▼</div>
@@ -640,8 +648,8 @@
         </div>
         <div class="pathway-stats">
           <div class="topic-count">
-            <span class="topic-count-number">1</span>
-            Topics
+            <span class="topic-count-number" id="ss-topic-count">1</span>
+            <span id="ss-topic-label">Topics</span>
           </div>
         </div>
         <div class="pathway-toggle">▼</div>
@@ -693,8 +701,8 @@
         </div>
         <div class="pathway-stats">
           <div class="topic-count">
-            <span class="topic-count-number">1</span>
-            Topics
+            <span class="topic-count-number" id="ks-topic-count">1</span>
+            <span id="ks-topic-label">Topics</span>
           </div>
         </div>
         <div class="pathway-toggle">▼</div>
@@ -745,8 +753,8 @@
         </div>
         <div class="pathway-stats">
           <div class="topic-count">
-            <span class="topic-count-number">2</span>
-            Topics
+            <span class="topic-count-number" id="rs-topic-count">2</span>
+            <span id="rs-topic-label">Topics</span>
           </div>
         </div>
         <div class="pathway-toggle">▼</div>
@@ -798,48 +806,6 @@
       </div>
     </div>
     
-    <!-- SINGLE COURSES -->
-    <div class="pathway">
-      <div class="pathway-header single-bg">
-        <div class="pathway-header-content">
-          <h2 class="pathway-title">Single Courses</h2>
-          <p class="pathway-desc">Single courses and topics outside of the main pathways.</p>
-        </div>
-        <div class="pathway-stats">
-          <div class="topic-count">
-            <span class="topic-count-number">0</span>
-            Topics
-          </div>
-        </div>
-        <div class="pathway-toggle">▼</div>
-      </div>
-      <div class="pathway-content">
-        <div class="pathway-topics">
-          
-          <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Intro to Drums</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-              </div>
-            </div>
-          </a>
-          
-          <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Drum Kit Ergonomics</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-              </div>
-            </div>
-          </a>
-          
-        </div>
-      </div>
-    </div>
-    
   </div>
   
   <script>
@@ -880,6 +846,37 @@
       document.addEventListener('DOMContentLoaded', init);
     } else {
       init();
+    }
+  })();
+  
+  // Update pathway topic labels (singular/plural)
+  (function(){
+    'use strict';
+    
+    function updateTopicLabels() {
+      var pathways = {
+        'gs': document.querySelectorAll('.pathway')[0],
+        'fs': document.querySelectorAll('.pathway')[1],
+        'ss': document.querySelectorAll('.pathway')[2],
+        'ks': document.querySelectorAll('.pathway')[3],
+        'rs': document.querySelectorAll('.pathway')[4]
+      };
+      
+      ['gs', 'fs', 'ss', 'ks', 'rs'].forEach(function(prefix) {
+        var countEl = document.getElementById(prefix + '-topic-count');
+        var labelEl = document.getElementById(prefix + '-topic-label');
+        
+        if (countEl && labelEl) {
+          var count = parseInt(countEl.textContent);
+          labelEl.textContent = count === 1 ? 'Topic' : 'Topics';
+        }
+      });
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateTopicLabels);
+    } else {
+      updateTopicLabels();
     }
   })();
   
