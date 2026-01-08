@@ -82,6 +82,7 @@
     
     .pathway-header-content {
       flex: 1;
+      padding-right: 100px;
     }
     
     .pathway-toggle {
@@ -112,7 +113,7 @@
     
     .pathway-content {
       overflow: hidden;
-      transition: max-height 0.9s ease;
+      transition: max-height 0.6s ease;
     }
     
     /* Pathway Headers */
@@ -186,17 +187,11 @@
       }
       
       .pathway-header-content {
-        width: 100%;
-        padding-right: 0;
-        padding-top: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        padding-right: 90px;
       }
       
       .pathway-title {
         font-size: var(--text-section);
-        padding-right: 100px;
       }
       
       .pathway-desc {
@@ -395,132 +390,164 @@
         <div class="pathway-topics">
           
           <a href="/gs?eighth-note" class="topic-card">
-            <h3 class="topic-name">Eighth Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="gs-eighth-note-progress">11 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Eighth Note</h3>
+    <div class="level-badges" id="gs-eighth-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="gs-eighth-note-progress"></span>
+  </div>
+</a>
           
           <a href="/gs?quarter-note" class="topic-card">
-            <h3 class="topic-name">Quarter Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="gs-quarter-note-progress">10 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Quarter Note</h3>
+    <div class="level-badges" id="gs-quarter-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="gs-quarter-note-progress"></span>
+  </div>
+</a>
           
           <a href="/gs?sixteenth-note" class="topic-card">
-            <h3 class="topic-name">Sixteenth Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="gs-sixteenth-note-progress">10 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Sixteenth Note</h3>
+    <div class="level-badges" id="gs-sixteenth-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="gs-sixteenth-note-progress"></span>
+  </div>
+</a>
           
           <a href="/gs?sixteenth-note-2" class="topic-card">
-            <h3 class="topic-name">Sixteenth Note - Two Handed</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="gs-sixteenth-note-2-progress">10 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-                <div class="level-badge adv">Adv</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Sixteenth Note - Two Handed</h3>
+    <div class="level-badges" id="gs-sixteenth-note-2-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="gs-sixteenth-note-2-progress"></span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Hi-Hat Control</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Hi-Hat Control</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Hi-Hat & Ride Variations</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Hi-Hat & Ride Variations</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Half & Double-Time Feel</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Half & Double-Time Feel</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Triplet Grooves</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Triplet Grooves</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">The Shuffle</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">The Shuffle</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Paradiddle Grooves</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Paradiddle Grooves</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Triple Meter</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Triple Meter</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Linear Grooves</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Linear Grooves</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Ghost Notes</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Ghost Notes</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
 
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Jazz</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Jazz</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">World Grooves</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">World Grooves</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Odd Time</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Odd Time</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
         </div>
       </div>
@@ -545,95 +572,94 @@
         <div class="pathway-topics">
           
           <a href="/fs?eighth-note" class="topic-card">
-            <h3 class="topic-name">Eighth Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="fs-eighth-note-progress">7 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Eighth Note</h3>
+    <div class="level-badges" id="fs-eighth-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-eighth-note-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?sixteenth-note" class="topic-card">
-            <h3 class="topic-name">Sixteenth Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="fs-sixteenth-note-progress">22 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-                <div class="level-badge adv">Adv</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Sixteenth Note</h3>
+    <div class="level-badges" id="fs-sixteenth-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-sixteenth-note-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?fill-grooves" class="topic-card">
-            <h3 class="topic-name">Fill Grooves</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="fs-fill-grooves-progress">7 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Fill Grooves</h3>
+    <div class="level-badges" id="fs-fill-grooves-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-fill-grooves-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?odd-groupings" class="topic-card">
-            <h3 class="topic-name">Odd Groupings</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">7 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Odd Groupings</h3>
+    <div class="level-badges" id="fs-odd-groupings-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-odd-groupings-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?triplet-fills" class="topic-card">
-            <h3 class="topic-name">Triplet Fills</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">18 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Triplet Fills</h3>
+    <div class="level-badges" id="fs-triplet-fills-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-triplet-fills-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?open-hihat-fills" class="topic-card">
-            <h3 class="topic-name">Open Hi-Hat Fills</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">4 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Open Hi-Hat Fills</h3>
+    <div class="level-badges" id="fs-open-hihat-fills-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-open-hihat-fills-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?triple-meter" class="topic-card">
-            <h3 class="topic-name">Triple Meter</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">17 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-                <div class="level-badge adv">Adv</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Triple Meter</h3>
+    <div class="level-badges" id="fs-triple-meter-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-triple-meter-progress"></span>
+  </div>
+</a>
           
           <a href="/fs?linear-fills" class="topic-card">
-            <h3 class="topic-name">Linear Fills</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-                <div class="level-badge adv">Adv</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Linear Fills</h3>
+    <div class="level-badges" id="fs-linear-fills-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="fs-linear-fills-progress"></span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Odd Time Fills</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Odd Time Fills</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
         </div>
       </div>
@@ -658,35 +684,34 @@
         <div class="pathway-topics">
           
           <a href="/ss?rudiments" class="topic-card">
-            <h3 class="topic-name">Rudiments</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="ss-rudiments-progress">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Rudiments</h3>
+    <div class="level-badges" id="ss-rudiments-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="ss-rudiments-progress"></span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Hand Speed & Endurance</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Hand Speed & Endurance</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Technique</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Technique</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
         </div>
       </div>
@@ -711,34 +736,34 @@
         <div class="pathway-topics">
           
           <a href="/ks?double-pedal" class="topic-card">
-            <h3 class="topic-name">Double Pedal</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="ks-double-pedal-progress">8 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Double Pedal</h3>
+    <div class="level-badges" id="ks-double-pedal-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="ks-double-pedal-progress"></span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Single Pedal</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Single Pedal</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Technique & Pedal Settings</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Technique & Pedal Settings</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
         </div>
       </div>
@@ -763,44 +788,44 @@
         <div class="pathway-topics">
           
           <a href="/rs?quarter-eighth-note" class="topic-card">
-            <h3 class="topic-name">Quarter & Eighth Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="rs-quarter-eighth-note-progress">4 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge beg">Beg</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Quarter & Eighth Note</h3>
+    <div class="level-badges" id="rs-quarter-eighth-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="rs-quarter-eighth-note-progress"></span>
+  </div>
+</a>
           
           <a href="/rs?sixteenth-note" class="topic-card">
-            <h3 class="topic-name">Sixteenth Note</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons" id="rs-sixteenth-note-progress">15 lessons</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Sixteenth Note</h3>
+    <div class="level-badges" id="rs-sixteenth-note-levels"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons" id="rs-sixteenth-note-progress"></span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Triple Meters</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge int">Int</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Triple Meters</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
           <a href="#" class="topic-card locked">
-            <h3 class="topic-name">Odd Meters</h3>
-            <div class="topic-meta">
-              <span class="topic-lessons">Coming Soon</span>
-              <div class="level-badges">
-                <div class="level-badge adv">Adv</div>
-              </div>
-            </div>
-          </a>
+  <div class="topic-card-header">
+    <h3 class="topic-name">Odd Meters</h3>
+    <div class="level-badges"></div>
+  </div>
+  <div class="topic-meta">
+    <span class="topic-lessons">Coming Soon</span>
+  </div>
+</a>
           
         </div>
       </div>
