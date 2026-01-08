@@ -217,52 +217,27 @@
     }
     
     .topic-card.locked {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
       pointer-events: none;
     }
     
-    .topic-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      gap: 12px;
+    .topic-card.locked:hover {
+      border-color: #e5e7eb;
+      box-shadow: none;
+      transform: none;
+    }
+    
+    .topic-card.locked .topic-name,
+    .topic-card.locked .topic-lessons {
+      color: #9ca3af;
     }
     
     .topic-name {
       font-size: var(--text-ui);
       font-weight: 600;
       color: #1a1a2e;
-      margin: 0;
-      flex: 1;
-    }
-    
-    .level-badges {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-    
-    .level-badge {
-      width: 10px;
-      height: 10px;
-      min-width: 10px;
-      min-height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    
-    .level-badge.beg {
-      background: #10b981;
-    }
-    
-    .level-badge.int {
-      background: #f59e0b;
-    }
-    
-    .level-badge.adv {
-      background: #ef4444;
+      margin: 0 0 8px 0;
     }
     
     .topic-lessons {
@@ -346,17 +321,12 @@
           var course = t.course;
           var lessonCount = course.lessons ? course.lessons.length : 0;
           var lessonText = lessonCount > 0 ? lessonCount + ' lesson' + (lessonCount === 1 ? '' : 's') : 'Coming Soon';
+          var isLocked = lessonCount === 0;
+          var lockedClass = isLocked ? ' locked' : '';
+          var href = isLocked ? '#' : '/' + pathway.id + '?' + course.slug;
           
-          html += '<a href="/' + pathway.id + '?' + course.slug + '" class="topic-card">';
-          html += '<div class="topic-card-header">';
+          html += '<a href="' + href + '" class="topic-card' + lockedClass + '">';
           html += '<h3 class="topic-name">' + course.topic + '</h3>';
-          html += '<div class="level-badges">';
-          if (course.levels) {
-            course.levels.forEach(function(level) {
-              html += '<div class="level-badge ' + level + '" title="' + (level === 'beg' ? 'Beginner' : level === 'int' ? 'Intermediate' : 'Advanced') + '"></div>';
-            });
-          }
-          html += '</div></div>';
           html += '<span class="topic-lessons">' + lessonText + '</span>';
           html += '</a>';
         });
