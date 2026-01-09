@@ -31,21 +31,32 @@
     }
     
     /* Pathway banner */
-    .pathway-banner {
-      position: relative;
-      height: 100px;
-      border-radius: 12px 12px 0 0;
-      overflow: hidden;
-      background-size: cover;
-      background-position: center;
-    }
-    
-    .pathway-banner::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(6,179,253,0.9) 0%, rgba(6,179,253,0.8) 100%);
-    }
+.pathway-banner {
+  position: relative;
+  height: 140px;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  background-color: #1a1a2e;
+  background-size: cover;
+  background-position: center;
+}
+
+.pathway-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+}
+
+.pathway-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top, rgba(6,179,253,0.1) 0%, transparent 50%);
+}
     
     .pathway-banner h2 {
       position: relative;
@@ -72,9 +83,11 @@
     }
     
     /* Reuse .pathway-topics grid from core.css */
-    .pathway-topics {
-      margin-bottom: 0;
-    }
+.pathway-topics {
+  margin-bottom: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
     
     /* Progress circle on right side */
     .topic-card {
@@ -337,22 +350,22 @@
             var meta = document.createElement('div');
             meta.className = 'topic-meta';
             
-            var lessons = document.createElement('span');
-            lessons.className = 'topic-lessons';
-            lessons.textContent = item.course.lessons.length + ' lesson' + (item.course.lessons.length === 1 ? '' : 's');
-            meta.appendChild(lessons);
-            
             if (item.course.levels && item.course.levels.length > 0) {
-              var badges = document.createElement('div');
-              badges.className = 'level-badges';
-              item.course.levels.forEach(function(level) {
-                var badge = document.createElement('span');
-                badge.className = 'level-badge ' + level.toLowerCase();
-                badge.textContent = level.toUpperCase();
-                badges.appendChild(badge);
-              });
-              meta.appendChild(badges);
-            }
+  var badges = document.createElement('div');
+  badges.className = 'level-badges';
+  item.course.levels.forEach(function(level) {
+    var badge = document.createElement('span');
+    badge.className = 'level-badge ' + level.toLowerCase();
+    badge.textContent = level.toUpperCase();
+    badges.appendChild(badge);
+  });
+  meta.appendChild(badges);
+}
+
+var lessons = document.createElement('span');
+lessons.className = 'topic-lessons';
+lessons.textContent = item.course.lessons.length + ' Lesson' + (item.course.lessons.length === 1 ? '' : 's');
+meta.appendChild(lessons);
             
             info.appendChild(meta);
             card.appendChild(info);
