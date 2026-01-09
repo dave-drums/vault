@@ -148,7 +148,6 @@ function createPracticeContent(user){
   // Load progress to find active courses and last lesson
   db.collection('users').doc(user.uid).collection('progress').get()
     .then(function(progressSnap){
-      var lastLessonUrl = '';
       var activeCourses = {};
       var lastActivePathway = null;
       var lastActiveCourseId = null;
@@ -174,23 +173,8 @@ function createPracticeContent(user){
           if (window.VAULT_COURSES && window.VAULT_COURSES[courseId]) {
             lastActivePathway = window.VAULT_COURSES[courseId].pathway;
           }
-          
-          var pathway = courseId.match(/^[a-z]+/)[0];
-          var slug = window.VAULT_COURSES[courseId].slug;
-          lastLessonUrl = '/' + pathway + '/?' + slug + '&l=' + data.lastLesson;
         }
       });
-      
-      // Show continue button
-      if (lastLessonUrl) {
-        var pathMatch = lastLessonUrl.match(/^\/([a-z]+)\?c=(\d+)/);
-        if (pathMatch) {
-          var courseData = window.VAULT_COURSES && window.VAULT_COURSES[pathMatch[1] + pathMatch[2]];
-          if (courseData && courseData.pathwayName) {
-            content.innerHTML = '<div class="progress-continue"><a href="' + lastLessonUrl + '" class="btn-continue">Continue: ' + courseData.pathwayName + '</a></div>';
-          }
-        }
-      }
       
       // Render pathway cards
       renderPathwayCards(content, user.uid, activeCourses, lastActivePathway, lastActiveCourseId);
@@ -207,13 +191,13 @@ function createPracticeContent(user){
       var grid = document.createElement('div');
       grid.className = 'stats-grid';
       
-      var pathways = ['groove', 'fills', 'sticks', 'kicks', 'reading'];
+      var pathways = ['gs', 'fs', 'ss', 'ks', 'rs'];
       var pathwayConfig = {
-        groove: { label: 'Groove Studies', key: 'groove' },
-        fills: { label: 'Fill Studies', key: 'fills' },
-        sticks: { label: 'Stick Studies', key: 'sticks' },
-        kicks: { label: 'Kick Studies', key: 'kicks' },
-        reading: { label: 'Rhythm Studies', key: 'reading' }
+        gs: { label: 'Groove Studies', key: 'gs' },
+        fs: { label: 'Fill Studies', key: 'fs' },
+        ss: { label: 'Stick Studies', key: 'ss' },
+        ks: { label: 'Kick Studies', key: 'ks' },
+        rs: { label: 'Rhythm Studies', key: 'rs' }
       };
       
       pathways.forEach(function(pathway){
