@@ -855,9 +855,9 @@ body {
 }
 
 .level-badge {
-  font-size: 10px;
-  padding: 5px 8px;
-  border-radius: 5px;
+  font-size: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
