@@ -25,58 +25,55 @@
   <script src="/config/course-data.js"></script>
   
   <style>
-    /* Pathway section spacing */
     .pathway-section {
       margin-bottom: 56px;
     }
     
-    /* Pathway banner */
-.pathway-banner {
-  position: relative;
-  height: 140px;
-  border-radius: 12px 12px 0 0;
-  overflow: hidden;
-  background-color: #1a1a2e;
-  background-size: cover;
-  background-position: center;
-}
+    .pathway-banner {
+      position: relative;
+      height: 140px;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      background-color: #1a1a2e;
+      background-size: cover;
+      background-position: center;
+    }
 
-.pathway-banner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: inherit;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.15;
-}
+    .pathway-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: inherit;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.15;
+    }
 
-.pathway-banner::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(26,26,46,0.7), rgba(26,26,46,0.9));
-}
+    .pathway-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(26,26,46,0.7), rgba(26,26,46,0.9));
+    }
     
-.pathway-banner > div {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0 24px;
-  z-index: 1;
-}
+    .pathway-banner > div {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 24px;
+      z-index: 1;
+    }
 
-.pathway-banner h2 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
+    .pathway-banner h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
     
-    /* Courses container */
     .pathway-content {
       background: #fff;
       border: 1px solid var(--border);
@@ -84,12 +81,10 @@
       border-radius: 0 0 12px 12px;
       padding: 24px;
       box-shadow: var(--shadow);
-      margin-top: -1px;
     }
     
-    /* Reuse .pathway-topics grid from core.css */
     .pathway-topics {
-      margin-bottom: 0;
+      margin-bottom: 0 !important;
       grid-template-columns: repeat(3, 1fr) !important;
       gap: 16px !important;
       display: grid !important;
@@ -100,13 +95,13 @@
         grid-template-columns: repeat(2, 1fr) !important;
       }
     }
+    
     @media (max-width: 600px) {
       .pathway-topics {
         grid-template-columns: 1fr !important;
       }
     }
     
-    /* Progress circle on right side */
     .topic-card {
       flex-direction: row;
       align-items: center;
@@ -144,16 +139,13 @@
       flex-shrink: 0;
     }
     
-    /* Coming soon section */
     .coming-soon {
-  margin-top: 20px;
-  padding: 16px;
-  border-top: 2px solid var(--border);
-  background: linear-gradient(to bottom, #fafbfc, #fff);
-  border-radius: 0 0 8px 8px;
-  margin: 20px -24px -24px -24px;
-  padding: 16px 24px 24px 24px;
-}
+      margin: 20px -24px -24px -24px;
+      padding: 16px 24px 24px 24px;
+      border-top: 2px solid var(--border);
+      background: linear-gradient(to bottom, #fafbfc, #fff);
+      border-radius: 0 0 8px 8px;
+    }
     
     .coming-soon-toggle {
       width: 100%;
@@ -223,15 +215,14 @@
     }
    
     @media (max-width: 768px) {
-  .pathway-banner > div {
-    padding: 0 20px;
-  }
-  
-  .pathway-banner h2 {
-    font-size: 20px;
-  }
-}
-
+      .pathway-banner > div {
+        padding: 0 20px;
+      }
+      
+      .pathway-banner h2 {
+        font-size: 20px;
+      }
+    }
   </style>
   
 </head>
@@ -352,6 +343,7 @@
         var title = document.createElement('h2');
         title.textContent = pathway.name;
         titleContainer.appendChild(title);
+        
         var desc = document.createElement('p');
         desc.style.cssText = 'color: rgba(255,255,255,0.8); font-size: 14px; margin: 4px 0 0 0; font-weight: 400;';
         var descriptions = {
@@ -363,7 +355,9 @@
         };
         desc.textContent = descriptions[pathway.id] || '';
         titleContainer.appendChild(desc);
+        
         banner.appendChild(titleContainer);
+        section.appendChild(banner);
         
         // Content
         var content = document.createElement('div');
@@ -395,7 +389,8 @@
             meta.appendChild(lessons);
             
             if (item.course.levels && item.course.levels.length > 0) {
-              var badges = document.createElement('div');badges.className = 'level-badges';
+              var badges = document.createElement('div');
+              badges.className = 'level-badges';
               item.course.levels.forEach(function(level) {
                 var badge = document.createElement('span');
                 badge.className = 'level-badge ' + level.toLowerCase();
