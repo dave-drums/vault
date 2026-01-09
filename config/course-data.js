@@ -43,8 +43,8 @@ window.getCourseBySlug = function(pathway, slug) {
       'gs-quarter-note': { slug: 'quarter-note', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Quarter Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06'] },
       'gs-sixteenth-note-1': { slug: 'sixteenth-note-1', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note 1', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06'] },
       'gs-sixteenth-note-2': { slug: 'sixteenth-note-2', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Sixteenth Note 2', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06'] },
+      'gs-hihat-control': { slug: 'hihat-control', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Hi-Hat Control', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09'] },
       
-      'gs-hihat-control': { slug: 'hihat-control', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Hi-Hat Control', levels: ['beg', 'int'], lessons: [] },
       'gs-half-double-time': { slug: 'half-double-time', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Half & Double Time', levels: ['int'], lessons: [] },
       'gs-triplet-grooves': { slug: 'triplet-grooves', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Triplet Grooves', levels: ['int'], lessons: [] },
       'gs-linear-grooves': { slug: 'linear-grooves', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Linear Grooves', levels: ['int', 'adv'], lessons: [] },
