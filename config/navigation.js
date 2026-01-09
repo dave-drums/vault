@@ -147,7 +147,7 @@ Promise.all([
         '    <a href="/" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.home + '</span><span>Courses</span></a>' +
         '    <a href="/groove" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
         '    <a href="/metronome" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
-        '    <a href="/stats" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
+        '    <a href="/progress" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
         '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
@@ -175,7 +175,7 @@ Promise.all([
         '    <a href="/" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.home + '</span><span>Courses</span></a>' +
         '    <a href="/groove" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
         '    <a href="/metronome" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
-        '    <a href="/stats" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
+        '    <a href="/progress" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
         '    <a href="/contact" class="sidebar-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
@@ -299,7 +299,7 @@ Promise.all([
         '    <a href="/" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.home + '</span><span>Courses</span></a>' +
         '    <a href="/groove" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
         '    <a href="/metronome" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
-        '    <a href="/stats" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
+        '    <a href="/progress" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
         '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
@@ -322,7 +322,7 @@ Promise.all([
         '    <a href="/" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.home + '</span><span>Courses</span></a>' +
         '    <a href="/groove" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.music + '</span><span>GrooveScribe</span></a>' +
         '    <a href="/metronome" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.clock + '</span><span>Metronome</span></a>' +
-        '    <a href="/stats" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
+        '    <a href="/progress" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chart + '</span><span>My Stats</span></a>' +
         '    <a href="/profile" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.user + '</span><span>My Profile</span></a>' +
         '    <a href="/updates" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.megaphone + '</span><span>Updates</span></a>' +
         '    <a href="/contact" class="vault-menu-link"><span class="nav-icon">' + NAV_ICONS.chat + '</span><span>Contact</span></a>' +
