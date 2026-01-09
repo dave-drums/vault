@@ -48,7 +48,7 @@
   background-image: inherit;
   background-size: cover;
   background-position: center;
-  opacity: 0.15;
+  opacity: 0.4;
 }
 
 .pathway-banner::after {
@@ -83,11 +83,22 @@
     }
     
     /* Reuse .pathway-topics grid from core.css */
-.pathway-topics {
-  margin-bottom: 0;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
+    .pathway-topics {
+      margin-bottom: 0;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    
+    @media (max-width: 900px) {
+      .pathway-topics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .pathway-topics {
+        grid-template-columns: 1fr;
+      }
+    }
     
     /* Progress circle on right side */
     .topic-card {
@@ -218,7 +229,7 @@
     <div class="hero-banner" data-bg="home"></div>
     <div class="hero-content">
       <h1 class="hero-title">Practice Vault</h1>
-      <div class="hero-badge">Course Pathways</div>
+      <div class="hero-badge">Course Library</div>
     </div>
   </div>
   
@@ -350,22 +361,21 @@
             var meta = document.createElement('div');
             meta.className = 'topic-meta';
             
+            var lessons = document.createElement('span');
+            lessons.className = 'topic-lessons';
+            lessons.textContent = item.course.lessons.length + ' Lesson' + (item.course.lessons.length === 1 ? '' : 's');
+            meta.appendChild(lessons);
+            
             if (item.course.levels && item.course.levels.length > 0) {
-  var badges = document.createElement('div');
-  badges.className = 'level-badges';
-  item.course.levels.forEach(function(level) {
-    var badge = document.createElement('span');
-    badge.className = 'level-badge ' + level.toLowerCase();
-    badge.textContent = level.toUpperCase();
-    badges.appendChild(badge);
-  });
-  meta.appendChild(badges);
-}
-
-var lessons = document.createElement('span');
-lessons.className = 'topic-lessons';
-lessons.textContent = item.course.lessons.length + ' Lesson' + (item.course.lessons.length === 1 ? '' : 's');
-meta.appendChild(lessons);
+              var badges = document.createElement('div');badges.className = 'level-badges';
+              item.course.levels.forEach(function(level) {
+                var badge = document.createElement('span');
+                badge.className = 'level-badge ' + level.toLowerCase();
+                badge.textContent = level.toUpperCase();
+                badges.appendChild(badge);
+              });
+              meta.appendChild(badges);
+            }
             
             info.appendChild(meta);
             card.appendChild(info);
