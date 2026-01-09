@@ -149,6 +149,7 @@ function createPracticeContent(user){
   db.collection('users').doc(user.uid).collection('progress').get()
     .then(function(progressSnap){
       var activeCourses = {};
+      var pathwayTimes = {};  // Track lastUpdated per pathway
       var lastActivePathway = null;
       var lastActiveCourseId = null;
       var mostRecentTime = 0;
@@ -159,10 +160,15 @@ function createPracticeContent(user){
         var data = doc.data();
         var time = data.lastUpdated ? data.lastUpdated.toMillis() : 0;
         
-        // Track active courses by pathway
+        // Track active courses by pathway - keep most recent only
         if (window.VAULT_COURSES && window.VAULT_COURSES[courseId]) {
           var pathway = window.VAULT_COURSES[courseId].pathway;
-          activeCourses[pathway] = courseId;
+          
+          // Only update if this course is more recent than existing one
+          if (!pathwayTimes[pathway] || time > pathwayTimes[pathway]) {
+            activeCourses[pathway] = courseId;
+            pathwayTimes[pathway] = time;
+          }
         }
         
         // Find most recent for continue button
