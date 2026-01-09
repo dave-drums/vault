@@ -48,14 +48,14 @@
   background-image: inherit;
   background-size: cover;
   background-position: center;
-  opacity: 0.4;
+  opacity: 0.15;
 }
 
 .pathway-banner::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at top, rgba(6,179,253,0.1) 0%, transparent 50%);
+  background: linear-gradient(to bottom, rgba(26,26,46,0.7), rgba(26,26,46,0.9));
 }
     
     .pathway-banner h2 {
@@ -85,8 +85,9 @@
     /* Reuse .pathway-topics grid from core.css */
     .pathway-topics {
       margin-bottom: 0;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 16px !important;
+      display: grid !important;
     }
     
     @media (max-width: 900px) {
@@ -120,6 +121,8 @@
     
     .topic-card .topic-meta {
       margin-top: 0;
+      justify-content: flex-start;
+      gap: 12px;
     }
     
     .progress-circle {
@@ -332,10 +335,23 @@
         var banner = document.createElement('div');
         banner.className = 'pathway-banner';
         banner.style.backgroundImage = 'url(' + pathway.image + ')';
+        
+        var titleContainer = document.createElement('div');
         var title = document.createElement('h2');
         title.textContent = pathway.name;
-        banner.appendChild(title);
-        section.appendChild(banner);
+        titleContainer.appendChild(title);
+        var desc = document.createElement('p');
+        desc.style.cssText = 'color: rgba(255,255,255,0.8); font-size: 14px; margin: 4px 0 0 0; font-weight: 400;';
+        var descriptions = {
+          'gs': 'Explore essential groove concepts',
+          'fs': 'Build your fills and transitions',
+          'ss': 'Develop hand speed and control',
+          'ks': 'Strengthen foot power and coordination',
+          'rs': 'Improve reading and notation skills'
+        };
+        desc.textContent = descriptions[pathway.id] || '';
+        titleContainer.appendChild(desc);
+        banner.appendChild(titleContainer);
         
         // Content
         var content = document.createElement('div');
