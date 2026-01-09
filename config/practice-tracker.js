@@ -505,6 +505,7 @@
                       .doc(lessonInfo.courseId).set({
                         completed: newCompleted,
                         lastLesson: lessonInfo.lessonId,
+                        lastLessonTitle: lessonInfo.lessonTitle,
                         lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                       }, { merge: true })
                       .then(function() {
