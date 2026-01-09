@@ -38,6 +38,8 @@
       background-size: cover;
       background-position: center;
       box-shadow: var(--shadow);
+      mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     }
 
     .pathway-banner::before {
@@ -54,7 +56,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(26,26,46,0.5) 0%, rgba(26,26,46,0.85) 70%, rgba(26,26,46,1) 100%);
+      background: linear-gradient(to bottom, rgba(26,26,46,0.7), rgba(26,26,46,0.9));
     }
     
     .pathway-banner > div {
@@ -82,6 +84,9 @@
       border-radius: 0 0 12px 12px;
       padding: 24px;
       box-shadow: var(--shadow);
+      margin-top: -40px;
+      position: relative;
+      z-index: 1;
     }
     
     .pathway-topics {
