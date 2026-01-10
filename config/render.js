@@ -15,7 +15,7 @@
   const GROOVE_EMBED = CFG.grooveEmbedPath || "/GrooveEmbed.html";
   const YT_LOGO = CFG.youtubeLogoSrc || "/s/youtube-logo.png";
 
-  const ID_RE = /^(V|G|T|A|BR|H|HR)>\s*(.*)$/;
+  const ID_RE = /^(V|E|G|T|A|BR|HR)>\s*(.*)$/;
 
   function parseBold(text){
     return String(text || "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
@@ -191,11 +191,6 @@
         continue;
       }
 
-      if(tag === "H"){
-        tokens.push({type:"h", text:rest});
-        continue;
-      }
-
       if(tag === "A"){
         const au = parseAudio(rest);
         if(au.url) tokens.push({type:"audio", name:au.name, url:au.url});
@@ -268,14 +263,6 @@
         const d = document.createElement("div");
         d.className = "vault-divider";
         out.appendChild(d);
-        return;
-      }
-
-      if(t.type === "h"){
-        const h = document.createElement("div");
-        h.className = "vault-heading";
-        h.textContent = t.text || "";
-        out.appendChild(h);
         return;
       }
 
@@ -403,7 +390,7 @@
   }
 
   function hasMarkers(text){
-    return /(^|\n)\s*(V>|G>|T>|A>|BR>|H>|HR>)/.test(text || "");
+    return /(^|\n)\s*(V>|E>|G>|T>|A>|BR>|HR>)/.test(text || "");
   }
 
   function run(){
