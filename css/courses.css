@@ -489,6 +489,8 @@
   width: 100%;
   border: none;
   display: block;
+  margin: 0;
+  padding: 0;
 }
 
 /* Audio */
