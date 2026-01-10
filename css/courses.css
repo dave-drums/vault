@@ -76,22 +76,6 @@
   background: #f8f9fa;
 }
 
-/* Heading (H>) - Can stand alone or be followed by text */
-.vault-heading{
-  width: min(860px, 100%);
-  max-width: 860px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 16px 24px;
-  border-radius: 12px;
-  border-left: 3px solid #06b3fd;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  font-weight: 600;
-  font-size: var(--text-body);
-  color: #1a1a1a;
-  font-family: 'Inter', sans-serif;
-}
-
 /* Text (T>) - Merges with heading if adjacent */
 .vault-text {
   width: min(860px, 100%);
