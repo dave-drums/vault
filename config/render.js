@@ -422,7 +422,7 @@
     const data = event.data || {};
     if(data.type !== "grooveHeight") return;
 
-    document.querySelectorAll(".vault-groove-player iframe").forEach(function(iframe){
+    document.querySelectorAll(".vault-groove-player iframe, .exercise-card iframe").forEach(function(iframe){
       if(iframe.contentWindow === event.source){
         iframe.style.height = (data.height || 150) + "px";
       }
