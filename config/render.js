@@ -132,6 +132,44 @@
       const tag = m[1];
       const rest = (m[2] || "").trim();
 
+      if(tag === "E"){
+  const title = rest;
+  let subtitle = null;
+  let grooveUrl = null;
+  
+  let j = i + 1;
+  while(j < lines.length){
+    const nxtLine = (lines[j] || "").trim();
+    if(!nxtLine){ j++; continue; }
+    
+    if(/^https?:\/\//i.test(nxtLine)){
+      grooveUrl = nxtLine;
+      i = j;
+      break;
+    }
+    
+    subtitle = nxtLine;
+    j++;
+    
+    while(j < lines.length){
+      const urlLine = (lines[j] || "").trim();
+      if(!urlLine){ j++; continue; }
+      if(/^https?:\/\//i.test(urlLine)){
+        grooveUrl = urlLine;
+        i = j;
+        break;
+      }
+      break;
+    }
+    break;
+  }
+  
+  if(grooveUrl){
+    tokens.push({type:"exercise", title:title, subtitle:subtitle, url:grooveUrl});
+  }
+  continue;
+}
+
       if(tag === "V"){
         if(rest) tokens.push({type:"video", id:rest});
         continue;
@@ -240,6 +278,44 @@
         out.appendChild(h);
         return;
       }
+
+      if(t.type === "exercise"){
+  const card = document.createElement("div");
+  card.className = "exercise-card";
+  
+  const header = document.createElement("div");
+  header.className = "exercise-header";
+  
+  const title = document.createElement("div");
+  title.className = "exercise-title";
+  title.textContent = t.title || "";
+  header.appendChild(title);
+  
+  if(t.subtitle){
+    const subtitle = document.createElement("div");
+    subtitle.className = "exercise-subtitle";
+    subtitle.innerHTML = parseBold(t.subtitle);
+    header.appendChild(subtitle);
+  }
+  
+  card.appendChild(header);
+  
+  const iframe = document.createElement("iframe");
+  iframe.src = normaliseGrooveUrl(t.url);
+  iframe.loading = "lazy";
+  iframe.setAttribute("frameborder","0");
+  iframe.setAttribute("allow","accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture");
+  iframe.style.height = "150px";
+  card.appendChild(iframe);
+  
+  out.appendChild(card);
+  
+  const spacer = document.createElement("div");
+  spacer.style.height = "5rem";
+  out.appendChild(spacer);
+  
+  return;
+}
 
       if(t.type === "text"){
         if(t.yt){
