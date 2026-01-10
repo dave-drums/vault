@@ -466,6 +466,47 @@
   height:150px;
 }
 
+/* =====================================================
+   EXERCISE CARD (E> tag)
+   ===================================================== */
+.exercise-card {
+  width: min(860px, 100%);
+  margin: 0 auto;
+  background: #fff;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  font-family: 'Inter', sans-serif;
+}
+
+.exercise-header {
+  padding: 14px 24px;
+  background: linear-gradient(90deg, rgba(6,179,253,0.04) 0%, transparent 100%);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.exercise-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.exercise-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.exercise-card iframe {
+  width: 100%;
+  border: none;
+  display: block;
+}
+
 /* Audio */
 .vault-audio-wrap{
   width:min(860px,100%);
