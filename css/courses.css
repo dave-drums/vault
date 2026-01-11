@@ -1,6 +1,5 @@
 /* ============================================
    PRACTICE VAULT - COURSE PAGES STYLES
-   For: gs.html, fs.html, rs.html
    ============================================ */
 
 /* UTILITY CLASSES */
@@ -33,58 +32,69 @@
   border-radius: 8px;
 }
 
-/* Course logo - top left */
+/* Course logo */
 .hero-logo {
   position: absolute;
   top: 20px;
   left: 20px;
   z-index: 3;
 }
+
 .hero-logo a {
   display: block;
 }
+
 .hero-logo img {
   height: 64px;
   width: auto;
   opacity: 0.9;
   transition: opacity 0.2s;
 }
+
 .hero-logo img:hover {
   opacity: 1;
 }
 
-/* Modern Course Index */
-.course-container{max-width:1200px;margin:0 auto;padding:32px 20px}
-.course-container p{margin:0}
-
-/* MASSIVE spacing after progress bar */
-.progress-container{
-  margin-bottom:60px;
+/* Course Index */
+.course-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px;
 }
 
-/* Thicker progress bar */
-.progress-bar{
-  height:12px !important;
-  border-radius:6px !important;
-}
-.progress-fill{
-  border-radius:6px !important;
+.course-container p {
+  margin: 0;
 }
 
-/* MOCKUP 1: Separate Bubbles for Text and Notation */
+.progress-container {
+  margin-bottom: 60px;
+}
+
+.progress-bar {
+  height: 12px !important;
+  border-radius: 6px !important;
+}
+
+.progress-fill {
+  border-radius: 6px !important;
+}
+
 #lesson-content {
   background: #f8f9fa;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 20px 32px;
 }
 
-/* Text (T>) - Merges with heading if adjacent */
+/* Text Bubbles */
 .vault-text {
   width: min(860px, 100%);
   max-width: 860px;
   margin: 0 auto;
-  background: #2d2d44; 
+  background: #3a3a52;
+  border: 1px solid rgba(0,0,0,0.2);
   padding: 16px 24px;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.2); 
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   font-size: var(--text-body);
   line-height: 1.6;
@@ -99,220 +109,168 @@
   height: 16px;
 }
 
-.vault-text-row {
-  width: min(860px, 100%);
-  max-width: 860px;
-  margin: 0 auto;
+/* Course Progress */
+.course-progress-section {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px !important;
+  box-shadow: var(--shadow);
+}
+
+.course-progress-header {
   display: flex;
-  gap: 16px;
-  align-items: stretch;
-  background: #1a1a2e;
-  padding: 16px 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: var(--text-ui);
 }
 
-.vault-text-main {
-  flex: 1;
+.course-progress-label {
   font-size: var(--text-body);
-  line-height: 1.6;
-  color: #fff; /* White text */
-  padding: 0;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  text-align: left;
+  font-weight: 600;
+  margin: 0;
 }
 
-/* When text follows heading, merge them visually */
-.vault-heading + .vault-text,
-.vault-heading + .vault-text-row {
-  margin-top: -8px;
-  padding-top: 4px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+.course-progress-text {
+  font-size: var(--text-body);
+  font-weight: 600;
+  margin: 0;
 }
 
-/* Adjust heading when followed by text */
-.vault-heading:has(+ .vault-text),
-.vault-heading:has(+ .vault-text-row) {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  padding-bottom: 12px;
-  box-shadow: none;
+.course-progress-bar-bg {
+  width: 100%;
+  height: 16px;
+  background-color: var(--border);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.vault-text-yt {
-  flex: 0 0 auto;
-  width: 160px;
-  background: #ff0000;
-  border: none;
-  border-radius: 8px;
+.course-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #38bdf8);
+  border-radius: 16px;
+  transition: width .4s ease;
+}
+
+/* Course Chapters */
+.course-chapter {
+  margin-bottom: 64px;
+}
+
+.course-chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+}
+
+.course-chapter-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--heading-card);
+  letter-spacing: 0;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  text-transform: none;
+}
+
+.course-lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.course-lesson-item {
+  background: var(--surface);
+  padding: 16px 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: all .2s ease;
   cursor: pointer;
-  transition: all 0.2s ease;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  min-height: 60px;
+}
+
+.course-lesson-item:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.course-lesson-link {
+  flex: 1;
+  user-select: none;
+  color: var(--text-primary);
+  font-weight: 400;
+  font-size: var(--text-small);
+  line-height: 1.4;
+}
+
+.course-lesson-status {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 20px;
+  flex-shrink: 0;
+  transition: all .2s ease;
 }
 
-.vault-text-yt:hover {
-  background: #cc0000;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255,0,0,0.3);
+.course-lesson-status.completed {
+  background: linear-gradient(135deg, var(--accent), #38bdf8);
+  border: none;
 }
 
-.vault-yt-logo {
-  max-height: 22px;
-  width: auto;
-  display: block;
+.course-lesson-status.completed::after {
+  content: '✓';
+  color: #fff;
+  font-size: var(--text-tiny);
+  font-weight: 700;
 }
 
-
-.course-progress-section{
-  background:var(--surface);
-  border-radius:16px;
-  padding:24px;
-  margin-bottom:24px !important;
-  box-shadow:var(--shadow);
-}
-.course-progress-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-  color:var(--text-primary);
-  font-weight:600;
-  font-size:var(--text-ui);
-}
-.course-progress-label{
-  font-size:var(--text-body);
-  font-weight:600;
-  margin:0;
-}
-.course-progress-text{
-  font-size:var(--text-body);
-  font-weight:600;
-  margin:0;
-}
-.course-progress-bar-bg{
-  width:100%;
-  height:16px;
-  background-color:var(--border);
-  border-radius:16px;
-  overflow:hidden;
-}
-.course-progress-bar-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--accent),#38bdf8);
-  border-radius:16px;
-  transition:width .4s ease;
+.course-lesson-status.incomplete {
+  background: var(--bg);
+  border: 2px solid var(--border);
 }
 
-.course-chapter{margin-bottom:64px}
-.course-chapter-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);
-}
-.course-chapter-title{
-  margin:0;
-  color:var(--text-primary);
-  font-size:var(--heading-card);
-  letter-spacing:0;
-  font-weight:600;
-  font-family:'Inter', sans-serif;
-  text-transform:none;
+/* Vault Render */
+.vault-seq {
+  width: 100%;
 }
 
-.course-lessons-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:12px;
-}
-.course-lesson-item{
-  background:var(--surface);
-  padding:16px 20px;
-  border-radius:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  transition:all .2s ease;
-  cursor:pointer;
-  border:1px solid var(--border);
-  box-shadow:var(--shadow);
-  min-height:60px;
-}
-.course-lesson-item:hover{
-  background:var(--surface-hover);
-  border-color:var(--accent);
-  box-shadow:var(--shadow-lg);
-  transform:translateY(-1px);
-}
-.course-lesson-link{
-  flex:1;
-  user-select:none;
-  color:var(--text-primary);
-  font-weight:400;
-  font-size:var(--text-small);
-  line-height:1.4;
-}
-.course-lesson-status{
-  width:24px;
-  height:24px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-  transition:all .2s ease;
-}
-.course-lesson-status.completed{
-  background:linear-gradient(135deg,var(--accent),#38bdf8);
-  border:none;
-}
-.course-lesson-status.completed::after{
-  content:'✓';
-  color:#fff;
-  font-size:var(--text-tiny);
-  font-weight:700;
-}
-.course-lesson-status.incomplete{
-  background:var(--bg);
-  border:2px solid var(--border);
+/* Video */
+.vault-video-wrapper {
+  width: min(860px, 100%);
+  margin: 0 auto;
 }
 
-/* Modern Lesson View */
-#lesson-content{max-width:900px;margin:0 auto;padding:60px 20px 32px}
-
-/* Vault Render Styles - Modern & Professional */
-.vault-seq{width:100%}
-
-/* Video Styling */
-.vault-video-wrapper{
-  width:min(860px,100%);
-  margin:0 auto;
-}
-.vault-video-embed{
-  position:relative;
-  padding-top:56.25%;
-  border-radius:12px;
-  overflow:hidden;
-  background:#000;
-  box-shadow:var(--shadow-lg);
-}
-.vault-video-embed iframe{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:0;
+.vault-video-embed {
+  position: relative;
+  padding-top: 56.25%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow-lg);
 }
 
-/* Text Bubbles */
+.vault-video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 
 /* Course Navigation */
 .course-back-nav {
@@ -341,7 +299,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Lesson Navigation Buttons */
+/* Lesson Navigation */
 .lesson-nav-top,
 .lesson-nav-bottom {
   width: min(860px, 100%);
@@ -401,60 +359,48 @@
   box-shadow: 0 2px 8px rgba(16,185,129,0.3);
 }
 
-@media(max-width:640px){
-  .lesson-nav-top,
-  .lesson-nav-bottom {
-    flex-direction: column;
-  }
-  
-  .lesson-nav-back,
-  .lesson-nav-complete {
-    width: 100%;
-  }
+/* Dividers */
+.vault-divider {
+  width: min(860px, 100%);
+  height: 1px;
+  background: var(--border) !important;
+  margin: 32px auto;
 }
 
-/* Headings & Dividers */
-.vault-divider{
-  width:min(860px,100%);
-  height:1px;
-  background:var(--border)!important;
-  margin:32px auto;
-}
-.vault-spacer{
-  width:100%;
+.vault-spacer {
+  width: 100%;
 }
 
 /* Groove Player */
-/* Groove Notation - Separate bubble with blue accent */
-.vault-groove-wrap{
-  width:min(860px,100%);
-  margin:0 auto;
+.vault-groove-wrap {
+  width: min(860px, 100%);
+  margin: 0 auto;
   background: #fff;
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(6,179,253,0.12);
   border: 1px solid rgba(6,179,253,0.2);
 }
-.vault-groove-player{
-  width:100%;
-  padding:0;
-  background:transparent!important;
-  border:none!important;
-  border-radius:12px;
-  box-sizing:border-box;
-  overflow:hidden;
-}
-.vault-groove-player iframe{
-  width:100%;
-  border:0;
-  display:block;
-  border-radius:8px;
-  height:150px;
+
+.vault-groove-player {
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* =====================================================
-   EXERCISE CARD (E> tag)
-   ===================================================== */
+.vault-groove-player iframe {
+  width: 100%;
+  border: 0;
+  display: block;
+  border-radius: 8px;
+  height: 150px;
+}
+
+/* Exercise Card */
 .exercise-card {
   width: min(860px, 100%);
   margin: 0 auto;
@@ -496,90 +442,26 @@
 }
 
 /* Audio */
-.vault-audio-wrap{
-  width:min(860px,100%);
-  margin:1rem auto 0;
-}
-.vault-audio{
-  padding:16px 20px;
-  border-radius:12px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  box-shadow:var(--shadow);
-}
-.vault-audio-title{
-  font-weight:600;
-  margin-bottom:8px;
-  color:var(--text-primary);
+.vault-audio-wrap {
+  width: min(860px, 100%);
+  margin: 1rem auto 0;
 }
 
-/* YouTube Lightbox */
-.vault-yt-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  z-index:999999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  box-sizing:border-box;
-}
-.vault-yt-inner{
-  width:100%;
-  max-width:1000px;
-  background:#000;
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-  box-shadow:0 8px 32px rgba(0,0,0,.3);
-}
-.vault-yt-iframe-wrap{
-  position:relative;
-  padding-top:56.25%;
-}
-.vault-yt-iframe-wrap iframe{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:0;
-}
-.vault-yt-close{
-  position:absolute;
-  top:12px;
-  right:12px;
-  background:rgba(0,0,0,.7);
-  border:none;
-  color:#fff;
-  font-size:32px;
-  line-height:1;
-  padding:4px 12px;
-  cursor:pointer;
-  border-radius:8px;
-  z-index:2;
-  transition:all .2s;
-}
-.vault-yt-close:hover{
-  background:rgba(0,0,0,.9);
+.vault-audio {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
-/* Mobile */
-@media(max-width:640px){
-  .vault-text-row{flex-direction:column}
-  .vault-text-yt{flex:0 0 auto;width:100%;padding:16px 20px}
+.vault-audio-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
-@media(max-width:768px){
-  .course-lessons-grid{grid-template-columns:1fr}
-  .course-container{padding:20px 16px}
-}
-
-/* ============================================
-   PRACTICE TRACKER STYLES
-   ============================================ */
-
-/* Practice Sticky Bar */
+/* Practice Tracker */
 .practice-sticky-bar {
   position: sticky;
   top: 0;
@@ -707,7 +589,6 @@
   box-shadow: 0 2px 8px rgba(16,185,129,0.3);
 }
 
-/* Dropdown */
 .practice-dropdown {
   position: absolute;
   top: calc(100% + 12px);
@@ -801,8 +682,16 @@
   text-align: center;
 }
 
-/* Mobile */
+/* Mobile Responsive */
 @media (max-width: 768px) {
+  .course-lessons-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .course-container {
+    padding: 20px 16px;
+  }
+  
   .practice-sticky-bar {
     z-index: 900;
   }
@@ -821,7 +710,7 @@
   .practice-btn {
     font-size: var(--text-small);
     padding: 12px 16px;
-   justify-content: center;
+    justify-content: center;
   }
   
   .practice-icon {
@@ -835,6 +724,16 @@
 }
 
 @media (max-width: 640px) {
+  .lesson-nav-top,
+  .lesson-nav-bottom {
+    flex-direction: column;
+  }
+  
+  .lesson-nav-back,
+  .lesson-nav-complete {
+    width: 100%;
+  }
+  
   .practice-bar-inner {
     gap: 8px;
     flex-wrap: wrap;
