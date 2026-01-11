@@ -198,28 +198,29 @@
       }
 
       if(tag === "T"){
-  const textLines = [];
+        const textLines = [];
 
-  if(rest) textLines.push(rest);
+        if(rest) textLines.push(rest);
 
-  let j = i + 1;
-  while(j < lines.length){
-    const nxtRaw = lines[j] || "";
-    const nxtTrim = nxtRaw.trim();
+        let j = i + 1;
+        while(j < lines.length){
+          const nxtRaw = lines[j] || "";
+          const nxtTrim = nxtRaw.trim();
 
-    if(nxtTrim && ID_RE.test(nxtTrim)) break;
+          if(nxtTrim && ID_RE.test(nxtTrim)) break;
 
-    textLines.push(nxtRaw.replace(/\s+$/,""));
-    j++;
-  }
+          textLines.push(nxtRaw.replace(/\s+$/,""));
+          j++;
+        }
 
-  while(textLines.length && String(textLines[0]).trim() === "") textLines.shift();
-  while(textLines.length && String(textLines[textLines.length-1]).trim() === "") textLines.pop();
+        while(textLines.length && String(textLines[0]).trim() === "") textLines.shift();
+        while(textLines.length && String(textLines[textLines.length-1]).trim() === "") textLines.pop();
 
-  tokens.push({type:"text", lines:textLines});
-  i = j - 1;
-  continue;
-}
+        tokens.push({type:"text", lines:textLines});
+        i = j - 1;
+        continue;
+      }
+    }
 
     return tokens;
   }
