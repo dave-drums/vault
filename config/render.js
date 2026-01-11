@@ -198,34 +198,28 @@
       }
 
       if(tag === "T"){
-        const textLines = [];
-        let ytLine = null;
+  const textLines = [];
 
-        if(rest) textLines.push(rest);
+  if(rest) textLines.push(rest);
 
-        let j = i + 1;
-        while(j < lines.length){
-          const nxtRaw = lines[j] || "";
-          const nxtTrim = nxtRaw.trim();
+  let j = i + 1;
+  while(j < lines.length){
+    const nxtRaw = lines[j] || "";
+    const nxtTrim = nxtRaw.trim();
 
-          if(nxtTrim && ID_RE.test(nxtTrim)) break;
+    if(nxtTrim && ID_RE.test(nxtTrim)) break;
 
-          if(nxtTrim && (nxtTrim.includes("youtube.com") || nxtTrim.includes("youtu.be")) && !ytLine){
-            ytLine = nxtTrim;
-          }else{
-            textLines.push(nxtRaw.replace(/\s+$/,""));
-          }
-          j++;
-        }
+    textLines.push(nxtRaw.replace(/\s+$/,""));
+    j++;
+  }
 
-        while(textLines.length && String(textLines[0]).trim() === "") textLines.shift();
-        while(textLines.length && String(textLines[textLines.length-1]).trim() === "") textLines.pop();
+  while(textLines.length && String(textLines[0]).trim() === "") textLines.shift();
+  while(textLines.length && String(textLines[textLines.length-1]).trim() === "") textLines.pop();
 
-        tokens.push({type:"text", lines:textLines, yt:ytLine});
-        i = j - 1;
-        continue;
-      }
-    }
+  tokens.push({type:"text", lines:textLines});
+  i = j - 1;
+  continue;
+}
 
     return tokens;
   }
@@ -305,44 +299,20 @@
 }
 
       if(t.type === "text"){
-  if(t.yt){
-    const row = document.createElement("div");
-    row.className = "vault-text-row";
-
-    const main = document.createElement("div");
-    main.className = "vault-text vault-text-main";
-    
-    // First line bold with <strong>, rest normal
-    main.innerHTML = (t.lines || []).map((l, idx) => {
-      const s = String(l || "");
-      if(s.trim() === "") return "<div>&nbsp;</div>";
-      if(idx === 0) return '<div><strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' + parseBold(s) + '</strong></div>';
-      return `<div>${parseBold(s)}</div>`;
-    }).join("");
-
-    const btn = document.createElement("button");
-    btn.className = "vault-text-yt";
-    btn.type = "button";
-    btn.addEventListener("click", ()=>openYT(t.yt));
-    btn.innerHTML = `<img src="${YT_LOGO}" class="vault-yt-logo" alt="YouTube">`;
-
-    row.appendChild(main);
-    row.appendChild(btn);
-    out.appendChild(row);
-  }else{
-    const box = document.createElement("div");
-    box.className = "vault-text";
-    
-    // First line bold with <strong>, rest normal
-    box.innerHTML = (t.lines || []).map((l, idx) => {
-      const s = String(l || "");
-      if(s.trim() === "") return "<div>&nbsp;</div>";
-      if(idx === 0) return `<div><strong>${parseBold(s)}</strong></div>`;
-      return `<div>${parseBold(s)}</div>`;
-    }).join("");
-    
-    out.appendChild(box);
-  }
+  const box = document.createElement("div");
+  box.className = "vault-text";
+  
+  // First line bold with info SVG, rest normal
+  box.innerHTML = (t.lines || []).map((l, idx) => {
+    const s = String(l || "");
+    if(s.trim() === "") return "<div>&nbsp;</div>";
+    if(idx === 0) {
+      return '<div><strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' + parseBold(s) + '</strong></div>';
+    }
+    return `<div>${parseBold(s)}</div>`;
+  }).join("");
+  
+  out.appendChild(box);
   
   // Auto-add 3rem spacing
   const spacer = document.createElement("div");
