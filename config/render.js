@@ -305,37 +305,52 @@
 }
 
       if(t.type === "text"){
-        if(t.yt){
-          const row = document.createElement("div");
-          row.className = "vault-text-row";
+  if(t.yt){
+    const row = document.createElement("div");
+    row.className = "vault-text-row";
 
-          const main = document.createElement("div");
-          main.className = "vault-text vault-text-main";
-          main.innerHTML = (t.lines || []).map(l=>{
-            const s = String(l || "");
-            return s.trim() === "" ? "<div>&nbsp;</div>" : `<div>${parseBold(s)}</div>`;
-          }).join("");
+    const main = document.createElement("div");
+    main.className = "vault-text vault-text-main";
+    
+    // First line bold with <strong>, rest normal
+    main.innerHTML = (t.lines || []).map((l, idx) => {
+      const s = String(l || "");
+      if(s.trim() === "") return "<div>&nbsp;</div>";
+      if(idx === 0) return `<div><strong>${parseBold(s)}</strong></div>`;
+      return `<div>${parseBold(s)}</div>`;
+    }).join("");
 
-          const btn = document.createElement("button");
-          btn.className = "vault-text-yt";
-          btn.type = "button";
-          btn.addEventListener("click", ()=>openYT(t.yt));
-          btn.innerHTML = `<img src="${YT_LOGO}" class="vault-yt-logo" alt="YouTube">`;
+    const btn = document.createElement("button");
+    btn.className = "vault-text-yt";
+    btn.type = "button";
+    btn.addEventListener("click", ()=>openYT(t.yt));
+    btn.innerHTML = `<img src="${YT_LOGO}" class="vault-yt-logo" alt="YouTube">`;
 
-          row.appendChild(main);
-          row.appendChild(btn);
-          out.appendChild(row);
-        }else{
-          const box = document.createElement("div");
-          box.className = "vault-text";
-          box.innerHTML = (t.lines || []).map(l=>{
-            const s = String(l || "");
-            return s.trim() === "" ? "<div>&nbsp;</div>" : `<div>${parseBold(s)}</div>`;
-          }).join("");
-          out.appendChild(box);
-        }
-        return;
-      }
+    row.appendChild(main);
+    row.appendChild(btn);
+    out.appendChild(row);
+  }else{
+    const box = document.createElement("div");
+    box.className = "vault-text";
+    
+    // First line bold with <strong>, rest normal
+    box.innerHTML = (t.lines || []).map((l, idx) => {
+      const s = String(l || "");
+      if(s.trim() === "") return "<div>&nbsp;</div>";
+      if(idx === 0) return `<div><strong>${parseBold(s)}</strong></div>`;
+      return `<div>${parseBold(s)}</div>`;
+    }).join("");
+    
+    out.appendChild(box);
+  }
+  
+  // Auto-add 3rem spacing
+  const spacer = document.createElement("div");
+  spacer.style.height = "3rem";
+  out.appendChild(spacer);
+  
+  return;
+}
 
       if(t.type === "groove"){
         const wrap = document.createElement("div");
