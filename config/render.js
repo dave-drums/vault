@@ -316,7 +316,7 @@
     main.innerHTML = (t.lines || []).map((l, idx) => {
       const s = String(l || "");
       if(s.trim() === "") return "<div>&nbsp;</div>";
-      if(idx === 0) return `<div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><strong>${parseBold(s)}</strong></div>`;
+      if(idx === 0) return '<div><strong><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' + parseBold(s) + '</strong></div>';
       return `<div>${parseBold(s)}</div>`;
     }).join("");
 
