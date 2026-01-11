@@ -81,13 +81,22 @@
   width: min(860px, 100%);
   max-width: 860px;
   margin: 0 auto;
-  background: #1a1a2e;
+  background: #2d2d44; 
   padding: 16px 24px;
   border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.2); 
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   font-size: var(--text-body);
   line-height: 1.6;
   color: #fff;
+}
+
+.vault-text strong svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
 }
 
 .vault-text-row {
@@ -459,7 +468,7 @@
 
 .exercise-header {
   padding: 14px 24px;
-  background: linear-gradient(90deg, rgba(6,179,253,0.04) 0%, transparent 100%);
+  background: #fafbfc;
   border-bottom: 1px solid #f0f0f0;
 }
 
