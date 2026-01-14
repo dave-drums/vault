@@ -69,15 +69,18 @@ window.getCourseBySlug = function(pathway, slug) {
 
 
       
-      'ss-hand-speed': { slug: 'hand-speed', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Hand Speed & Endurance', levels: ['beg', 'int', 'adv'], lessons: [] },
-      'ss-rudiments': { slug: 'rudiments', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Learn Rudiments', levels: ['beg', 'int', 'adv'], lessons: [] },
+      'ss-singles': { slug: 'singles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Single Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13'] },
+      'ss-doubles': { slug: 'doubles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Double Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: [] },
+      'ss-paradiddle': { slug: 'paradiddle', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Paradiddles', levels: ['beg', 'int', 'adv'], lessons: [] },
+      'ss-flams': { slug: 'flams', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Flams', levels: ['beg', 'int', 'adv'], lessons: [] },
+      'ss-left-hand': { slug: 'left-hand', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Left Hand Control', levels: ['beg', 'int', 'adv'], lessons: [] },
+      'ss-patterns': { slug: 'patterns', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Other Patterns', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-technique': { slug: 'technique', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Technique', levels: ['beg', 'int'], lessons: [] },
 
 
       
       'ks-single-pedal': { slug: 'single-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Single Pedal', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ks-double-pedal': { slug: 'double-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Double Pedal', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08'] },
-      
       'ks-technique': { slug: 'technique', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Technique & Setup', levels: ['beg', 'int'], lessons: [] },
 
 
