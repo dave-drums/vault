@@ -219,11 +219,16 @@ body {
 .container,
 .contact-container,
 .create-container,
-.reset-container,
-.groove-container {
+.reset-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 0 20px 60px;
+}
+
+.groove-container {
+   max-width: 1300px;
+   margin: 0 auto;
+   padding: 0 20px 60px;
 }
 
 .contact-container,
