@@ -350,16 +350,41 @@ function getThreadId(){
   const parts = path.split('/').filter(p => p.length > 0);
   const params = new URLSearchParams(window.location.search);
   
-  // Handle direct pathway URLs: /gs, /fs, /ss, /ks, /rs
-  if (parts.length === 0) return 'vault_home';
+  // Extract pathway from URL (gs, fs, ss, ks, rs)
+  let pathway = null;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const part = parts[i];
+    if (part === 'gs' || part === 'fs' || part === 'ss' || part === 'ks' || part === 'rs') {
+      pathway = part;
+      break;
+    }
+  }
   
-  const pathway = parts[parts.length - 1]; // Last part is the pathway (gs, fs, etc)
-  const courseNum = params.get('c');
+  if (!pathway) return 'vault_home';
+  
+  // Get slug from query string (first param that's not 'l')
+  let slug = null;
+  for (const [key, value] of params.entries()) {
+    if (key !== 'l') {
+      slug = key;
+      break;
+    }
+  }
+  
+  if (!slug) return 'vault_home';
+  
+  // Get courseId using getCourseBySlug
+  let courseId = null;
+  if (window.getCourseBySlug) {
+    const result = window.getCourseBySlug(pathway, slug);
+    courseId = result ? result.courseId : null;
+  }
+  
+  if (!courseId) return 'vault_home';
+  
+  // Get lesson ID
   const lesson = params.get('l');
   
-  if (!courseNum) return 'vault_home';
-  
-  const courseId = pathway + courseNum; // gs1, fs2, rs1, etc
   const base = 'vault_' + courseId;
   return lesson ? base + '_lesson_' + lesson : base;
 }
