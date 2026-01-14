@@ -222,7 +222,7 @@ function openAddUserModal(db){
     '<div class="modal-header">' +
       '<div>' +
         '<div class="modal-title">Add User</div>' +
-        '<div class="modal-subtitle">Create an invite link (7-day expiry)</div>' +
+        '<div class="modal-subtitle">Create an invite link</div>' +
       '</div>' +
       '<button id="modal-close-btn" class="modal-close-btn">&times;</button>' +
     '</div>';
@@ -249,7 +249,7 @@ function openAddUserModal(db){
         '<label class="form-label">Invite Link</label>' +
         '<textarea id="invite-url" readonly class="form-textarea"></textarea>' +
       '</div>' +
-      '<div class="form-help-text">Link expires in 7 days</div>' +
+      '<div class="form-help-text">Link does not expire</div>' +
       '<button id="copy-invite" class="btn btn-primary btn-full">📋 Copy Link</button>' +
       '<button id="reset-modal" class="btn btn-secondary btn-full">Close</button>' +
     '</div>';
@@ -288,13 +288,11 @@ function openAddUserModal(db){
     createBtn.textContent = 'Creating...';
 
     var token = randomToken(16);
-    var expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     
     db.collection(INVITES_COL).doc(token).set({
       email: email,
       used: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      expiresAt: firebase.firestore.Timestamp.fromDate(expires)
     }).then(function(){
       var link = CREATE_ACCOUNT_URL_BASE + token;
       
