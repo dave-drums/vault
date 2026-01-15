@@ -69,7 +69,7 @@ window.getCourseBySlug = function(pathway, slug) {
 
 
       
-      'ss-singles': { slug: 'singles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Single Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13'] },
+      'ss-singles': { slug: 'singles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Single Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: ['70', '80', '90', '100', '110', '120', '130', '140', '150', '160', '170', '180', '190'] },
       'ss-doubles': { slug: 'doubles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Double Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-paradiddle': { slug: 'paradiddle', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Paradiddles', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-flams': { slug: 'flams', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Flams', levels: ['beg', 'int', 'adv'], lessons: [] },
