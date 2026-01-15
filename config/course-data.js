@@ -56,8 +56,6 @@ window.getCourseBySlug = function(pathway, slug) {
       'gs-world-grooves': { slug: 'world-grooves', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'World Grooves', levels: ['int', 'adv'], lessons: [] },
       'gs-odd-time': { slug: 'odd-time', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Odd Time', levels: ['int', 'adv'], lessons: [] },
 
-
-      
       'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07'] },
       'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05'] },
       'fs-fill-grooves': { slug: 'fill-grooves', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Fill Grooves', levels: ['beg', 'int'], lessons: ['01', '02', '03'] },
@@ -67,10 +65,8 @@ window.getCourseBySlug = function(pathway, slug) {
       'fs-open-hat-fills': { slug: 'open-hat-fills', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Open Hi-Hat Fills', levels: ['int', 'adv'], lessons: [] },
       'fs-triple-meter': { slug: 'triple-meter', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Triple Meter', levels: ['int'], lessons: [] },
 
-
-      
       'ss-singles': { slug: 'singles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Single Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: ['70', '80', '90', '100', '110', '120', '130', '140', '150', '160', '170', '180', '190'] },
-      'ss-doubles': { slug: 'doubles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Double Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: [] },
+      'ss-doubles': { slug: 'doubles', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Double Stroke Roll', levels: ['beg', 'int', 'adv'], lessons: ['70', '80', '90', '100', '110', '120', '130', '140', '150', '160', '170', '180', '190'] },
       'ss-paradiddle': { slug: 'paradiddle', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Paradiddles', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-flams': { slug: 'flams', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Flams', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-left-hand': { slug: 'left-hand', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Left Hand Control', levels: ['beg', 'int', 'adv'], lessons: [] },
