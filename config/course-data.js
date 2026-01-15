@@ -12,7 +12,6 @@
 (function(){
   'use strict';
   
-  // ADD THIS FUNCTION HERE (line 12)
   function normalizeCompleted(completed) {
     if (!completed) return [];
     if (Array.isArray(completed)) return completed;
@@ -56,7 +55,7 @@ window.getCourseBySlug = function(pathway, slug) {
       'gs-world-grooves': { slug: 'world-grooves', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'World Grooves', levels: ['int', 'adv'], lessons: [] },
       'gs-odd-time': { slug: 'odd-time', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Odd Time', levels: ['int', 'adv'], lessons: [] },
 
-      'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07'] },
+      'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'] },
       'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05'] },
       'fs-fill-grooves': { slug: 'fill-grooves', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Fill Grooves', levels: ['beg', 'int'], lessons: ['01', '02', '03'] },
       
