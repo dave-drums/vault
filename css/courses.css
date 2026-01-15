@@ -96,7 +96,7 @@
   padding: 16px 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  font-size: var(--text-body);
+  font-size: var(--text-ui);
   line-height: 1.6;
   color: #fff;
 }
@@ -419,14 +419,14 @@
 }
 
 .exercise-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--text-ui);
+  font-weight: 600;
   color: #333;
   margin: 0;
 }
 
 .exercise-subtitle {
-  font-size: 13px;
+  font-size: var(--text-ui);
   font-weight: 400;
   color: #666;
   margin-top: 4px;
