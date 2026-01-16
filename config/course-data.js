@@ -56,7 +56,7 @@ window.getCourseBySlug = function(pathway, slug) {
       'gs-odd-time': { slug: 'odd-time', pathway: 'gs', pathwayName: 'Groove Studies', topic: 'Odd Time', levels: ['int', 'adv'], lessons: [] },
 
       'fs-eighth-note': { slug: 'eighth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note', levels: ['beg'], lessons: ['01', '02', '03', '04', '05', '06', '07'] },
-      'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05'] },
+      'fs-sixteenth-note': { slug: 'sixteenth-note', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Sixteenth Note', levels: ['beg', 'int'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18'] },
       'fs-fill-grooves': { slug: 'fill-grooves', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Fill Grooves', levels: ['beg', 'int'], lessons: ['01', '02', '03'] },
       'fs-eighth-note-triplet': { slug: 'eighth-note-triplet', pathway: 'fs', pathwayName: 'Fill Studies', topic: 'Eighth Note Triplet', levels: ['int'], lessons: ['01', '02', '03', '04', '05'] },
       
