@@ -10,6 +10,7 @@
 
   // SVG icon definitions
   var NAV_ICONS = {
+    play: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>',
     home: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M181 23c3 1 3 1 5 4 0 3 0 6-2 8l-2 2-2 1c-4 4-8 7-12 10l-3 2c-3 2-7 5-10 7 2 0 2 0 3 1 8 2 16 4 25 7 6 3 6 3 13 2 4-2 7-4 11-6 5-3 9-4 15-2l3 5c-1 3-2 6-5 8-2 1-4 2-6 3l-3 1-6 1 2 2c6 8 10 15 8 26-3 10-11 18-20 24-9 5-9 5-14 5-3-1-4-1-5-4-1-3-1-3 0-6 3-3 6-5 9-7 7-3 13-7 15-14 0-4-1-7-2-11-3-3-5-6-9-7-3 1-3 1-5 2l-3 1-4 2-3 1-9 4-30 13-3 1c-2 1-5 2-7 3l-4 1-5-1-2-2 1-5c2-2 5-3 7-4l2-1 8-4 3-1 20-10 12-6c-5-3-11-4-17-5l-4-1c-6-2-11-3-17 0-3 2-5 4-8 7-4 3-8 6-12 9l-5 3-2 2c-3 2-6 5-9 7-2 1-2 1-6 1l-2-1-1-5c3-4 7-7 11-11l2-1 14-12 13-10 16-14c4-3 8-7 12-10 17-15 17-15 22-15zm-72 35c2 3 2 4 2 6-1 2-1 2-3 5-2 1-5 2-7 2l-4 1c-14 3-29 8-39 19-3 4-3 9-2 14 4 9 16 14 26 17 24 8 49 9 75 5l2-1 2 0 5 2 3 6-1 5-2 2c-20 12-58 6-79 1-10-3-20-7-29-13l-3-1-2-1c0 7 0 14 0 21l0 7 0 10 0 3 1 10 4 18 14 9 0-3 0-12 0-5-1-7 0-2 0-7c0-4 0-6 2-9 3-2 5-2 9-1 2 2 3 3 3 6 0 3 0 5 0 8 0 1 0 2 0 3 0 3 0 6 0 9 0 2 0 4 0 6 0 5-1 10-1 15 4 1 8 1 11 2l4 1 3 1 1 0 4 1 12 1 0-4-1-14 0-6-1-9 0-3-1-6c0-4 0-4 3-10 3-1 3-1 6-1 3 1 4 2 6 5 0 3 0 6 0 10 0 1 0 2 0 3 0 3 0 6 0 9 0 2 0 4 0 6 0 5-1 10-1 15 3 0 7-1 10-1l3 0 3 0 3 0 13-2 0-4 0-15 0-6-1-9 0-3 0-3 0-1 0-3 0-2 1-4c3-2 3-2 5-3 3 1 4 2 6 5 1 3 1 6 1 9 0 1 0 2 0 3 0 2 0 4 0 6 0 3 0 6 0 9 0 2 0 4 0 6 0 5-1 10-1 15 2-1 4-2 6-3l3-2 6-3c6-3 10-6 12-13 0-3-1-6-1-9 0-2 0-4 0-6 0-3 0-6 0-9 0-2 0-3 0-6 0-1 0-2 0-3 0-1 0-2 0-2 0-4 0-6 3-10 3-2 3-2 5-2 3 1 4 2 6 5 1 3 1 6 1 9 0 1 0 2 0 3 0 2 0 4 0 6 0 3 0 6 0 9 0 2 0 4 0 6 0 1 0 2 0 3 0 9-3 16-9 22-27 25-64 26-99 24-7 0-13-1-20-3l-2 0c-17-4-34-12-45-27-4-6-4-13-4-20 0-1 0-1 0-2 0-3 0-5 0-8 0-2 0-3 0-5 0-4 0-7 0-11 0-4 0-9 0-13 0-4 0-7 0-11 0-2 0-3 0-5 0-25 0-25 9-35 11-10 48-32 63-21z"/></svg>',
      // home: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>',
     music: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" /></svg>',
@@ -128,6 +129,7 @@ Promise.all([
           '<div class="sidebar-section">' +
           '  <div class="sidebar-section-title">Continue with</div>' +
           '  <a href="' + lastLessonUrl + '" class="sidebar-btn sidebar-continue">' +
+          '    <span class="nav-icon">' + NAV_ICONS.play + '</span>' +
           '    <span class="sidebar-btn-text">' + lastLessonTitle + '</span>' +
           '  </a>' +
           '</div><div class="sidebar-divider"></div>'
@@ -283,7 +285,7 @@ Promise.all([
         ? '<div class="vault-menu-section">' +
           '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
           '  <div class="vault-menu-section-title">Continue with</div>' +
-          '  <a href=\"' + lastLessonUrl + '\" class=\"vault-menu-btn vault-menu-continue\"><span>' + lastLessonTitle + '</span></a>' +
+          '  <a href=\"' + lastLessonUrl + '\" class=\"vault-menu-btn vault-menu-continue\"><span class=\"nav-icon\">' + NAV_ICONS.play + '</span><span>' + lastLessonTitle + '</span></a>' +
           '</div><div class="vault-menu-divider"></div>'
         : '';
       
