@@ -73,7 +73,7 @@ window.getCourseBySlug = function(pathway, slug) {
       'ss-patterns': { slug: 'patterns', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Other Patterns', levels: ['beg', 'int', 'adv'], lessons: [] },
       'ss-technique': { slug: 'technique', pathway: 'ss', pathwayName: 'Stick Studies', topic: 'Technique', levels: ['beg', 'int'], lessons: [] },
 
-      'ks-single-pedal': { slug: 'single-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Single Pedal', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08', '09'] },
+      'ks-single-pedal': { slug: 'single-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Single Pedal', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08'] },
       'ks-double-pedal': { slug: 'double-pedal', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Double Pedal', levels: ['beg', 'int', 'adv'], lessons: ['01', '02', '03', '04', '05', '06', '07', '08'] },
       'ks-technique': { slug: 'technique', pathway: 'ks', pathwayName: 'Kick Studies', topic: 'Technique & Setup', levels: ['beg', 'int'], lessons: [] },
 
