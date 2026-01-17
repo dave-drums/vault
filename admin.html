@@ -361,7 +361,7 @@ function openInvitesModal(db){
 
       var tableHtml = 
         '<div class="invite-table">' +
-          '<div class="invite-table-header" style="grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;">' +
+          '<div class="invite-table-header" style="grid-template-columns:2fr 1fr 1.5fr 1fr;">' +
             '<div>Email</div>' +
             '<div>Status</div>' +
             '<div>Created</div>' +
@@ -383,10 +383,10 @@ function openInvitesModal(db){
           statusText = 'Active';
         }
 
-        var opacity = (used || isExpired) ? '0.6' : '1';
+        var opacity = used ? '0.6' : '1';
 
         tableHtml += 
-          '<div class="invite-table-row" style="grid-template-columns:2fr 1fr 1.5fr 1.5fr 1fr;opacity:' + opacity + ';">' +
+          '<div class="invite-table-row" style="grid-template-columns:2fr 1fr 1.5fr 1fr;opacity:' + opacity + ';">' +
             '<div class="invite-email">' + escapeHtml(email) + '</div>' +
             '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>' +
             '<div class="invite-date">' + createdAt + '</div>' +
