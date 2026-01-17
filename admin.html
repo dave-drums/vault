@@ -365,7 +365,6 @@ function openInvitesModal(db){
             '<div>Email</div>' +
             '<div>Status</div>' +
             '<div>Created</div>' +
-            '<div>Expires</div>' +
             '<div>Action</div>' +
           '</div>';
 
@@ -374,21 +373,13 @@ function openInvitesModal(db){
         var email = d.email || '-';
         var used = d.used === true;
         var createdAt = d.createdAt ? formatDateOnly(d.createdAt) : '-';
-        var expiresAt = d.expiresAt ? formatDateOnly(d.expiresAt) : '-';
-        
-        var now = Date.now();
-        var expiryMs = tsToMs(d.expiresAt);
-        var isExpired = expiryMs > 0 && now > expiryMs;
 
         var statusClass, statusText;
         if (used) {
           statusClass = 'invite-status-used';
           statusText = 'Used';
-        } else if (isExpired) {
-          statusClass = 'invite-status-pending'; // Reuse pending style for expired
-          statusText = 'Expired';
         } else {
-          statusClass = 'invite-status-pending';
+          statusClass = 'invite-status-pending'; 
           statusText = 'Active';
         }
 
@@ -399,7 +390,6 @@ function openInvitesModal(db){
             '<div class="invite-email">' + escapeHtml(email) + '</div>' +
             '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>' +
             '<div class="invite-date">' + createdAt + '</div>' +
-            '<div class="invite-date">' + expiresAt + '</div>' +
             '<div>' +
               (used ? '<span class="invite-placeholder">—</span>' : 
                 '<button class="revoke-invite-btn btn btn-danger btn-icon" data-invite-id="' + doc.id + '">Revoke</button>') +
