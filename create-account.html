@@ -101,14 +101,6 @@
         return;
       }
 
-      if (invite.expiresAt && typeof invite.expiresAt.toDate === "function") {
-        const expiresMs = invite.expiresAt.toDate().getTime();
-        if (Date.now() > expiresMs) {
-          renderMessage("This invite link has expired. Please request a new invite link.");
-          return;
-        }
-      }
-
       renderForm({ token, email });
 
     } catch (err) {
@@ -232,14 +224,6 @@
           return;
         }
 
-        if (inviteData.expiresAt && typeof inviteData.expiresAt.toDate === "function") {
-          const expiresMs = inviteData.expiresAt.toDate().getTime();
-          if (Date.now() > expiresMs) {
-            msg.textContent = "This invite link has expired. Please request a new invite link.";
-            btn.disabled = false;
-            return;
-          }
-        }
       } catch (e) {
         msg.textContent = "Could not verify invite. Please try again.";
         btn.disabled = false;
