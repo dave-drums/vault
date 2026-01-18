@@ -114,7 +114,8 @@ Promise.all([
         
         mostRecent = {
           url: '/' + pathway + '?' + slug + '&l=' + data.lastLesson,
-          title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
+           title: data.lastLessonTitle || ('Lesson ' + data.lastLesson),
+           pathwayName: window.VAULT_COURSES[courseId].pathwayName
         };
       }
     });
@@ -130,7 +131,7 @@ Promise.all([
           '  <div class="sidebar-section-title">Continue with</div>' +
           '  <a href="' + lastLessonUrl + '" class="sidebar-btn sidebar-continue">' +
           '    <span class="nav-icon">' + NAV_ICONS.play + '</span>' +
-          '    <span class="sidebar-btn-text">' + lastLessonTitle + '</span>' +
+          '    <span class="continue-text"><span class="continue-pathway">' + (mostRecent.pathwayName || '') + '</span><span class="continue-lesson">' + lastLessonTitle + '</span></span>' +
           '  </a>' +
           '</div><div class="sidebar-divider"></div>'
         : '';
@@ -271,7 +272,8 @@ Promise.all([
         
         mostRecent = {
           url: '/' + pathway + '?' + slug + '&l=' + data.lastLesson,
-          title: data.lastLessonTitle || ('Lesson ' + data.lastLesson)
+           title: data.lastLessonTitle || ('Lesson ' + data.lastLesson),
+           pathwayName: window.VAULT_COURSES[courseId].pathwayName
         };
       }
     });
@@ -285,7 +287,7 @@ Promise.all([
         ? '<div class="vault-menu-section">' +
           '  <div style="font-size:var(--text-body);color:#fff;margin-bottom:16px;font-weight:500;">Hi, ' + firstName + '.</div>' +
           '  <div class="vault-menu-section-title">Continue with</div>' +
-          '  <a href=\"' + lastLessonUrl + '\" class=\"vault-menu-btn vault-menu-continue\"><span class=\"nav-icon\">' + NAV_ICONS.play + '</span><span>' + lastLessonTitle + '</span></a>' +
+          '  <a href=\"' + lastLessonUrl + '\" class=\"vault-menu-btn vault-menu-continue\"><span class=\"nav-icon\">' + NAV_ICONS.play + '</span><span class=\"continue-text\"><span class=\"continue-pathway\">' + (mostRecent.pathwayName || '') + '</span><span class=\"continue-lesson\">' + lastLessonTitle + '</span></span></a>' +
           '</div><div class="vault-menu-divider"></div>'
         : '';
       
