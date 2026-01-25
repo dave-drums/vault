@@ -198,69 +198,16 @@
     return false;
   }
   
-  if (!shouldShowTimer()) {
-    // Clear any existing timer state if we're on a non-timer page
+    if (!shouldShowTimer()) {
+    // On non-timer pages, just clear sessionStorage
+    // The session was already saved via beforeunload when leaving the timer page
     try {
-      var savedSessionId = sessionStorage.getItem('vault_timer_session_id');
-      var savedSeconds = sessionStorage.getItem('vault_timer_seconds');
-      
-      // If there was an active session, finalize it
-      if (savedSessionId && savedSeconds && firebase && firebase.firestore && firebase.auth) {
-        var auth = firebase.auth();
-        auth.onAuthStateChanged(function(user) {
-          if (user && savedSessionId && parseInt(savedSeconds, 10) >= 10) {
-            var db = firebase.firestore();
-            var dateKey = getTodayDateKey();
-            var finalSeconds = parseInt(savedSeconds, 10);
-            
-            // Finalize the session
-            db.collection('users').doc(user.uid).collection('practice')
-              .doc('sessions').collection('items').doc(savedSessionId)
-              .update({
-                duration: finalSeconds,
-                status: 'completed',
-                completedAt: firebase.firestore.FieldValue.serverTimestamp()
-              })
-              .catch(function(err) {
-                console.warn('Failed to finalize session on navigation:', err);
-              });
-            
-            // Update stats
-            db.collection('users').doc(user.uid).collection('practice').doc('stats')
-              .set({
-                totalSeconds: firebase.firestore.FieldValue.increment(finalSeconds),
-                sessionCount: firebase.firestore.FieldValue.increment(1),
-                lastPracticeDate: dateKey
-              }, { merge: true })
-              .catch(function(err) {
-                console.warn('Failed to update stats on navigation:', err);
-              });
-          }
-        });
-      }
-      
-      // Clear sessionStorage
       sessionStorage.removeItem('vault_timer_seconds');
       sessionStorage.removeItem('vault_timer_playing');
       sessionStorage.removeItem('vault_timer_session_id');
       sessionStorage.removeItem('vault_timer_last_update');
-    } catch(e) {
-      console.warn('Failed to clean up timer state:', e);
-    }
-    
+    } catch(e) {}
     return;
-  }
-  
-  // Helper for date key (needed above)
-  function getTodayDateKey() {
-    var now = new Date();
-    var offset = 10 * 60; // Brisbane time (UTC+10)
-    var localMs = now.getTime() + (offset * 60 * 1000);
-    var localDate = new Date(localMs);
-    var y = localDate.getUTCFullYear();
-    var m = String(localDate.getUTCMonth() + 1).padStart(2, '0');
-    var d = String(localDate.getUTCDate()).padStart(2, '0');
-    return y + '-' + m + '-' + d;
   }
   
   // Wait for Firebase
@@ -926,7 +873,7 @@ function injectStyles() {
     // ============================================
     var lastAutoSave = 0;
     
-    function autoSaveOnPageChange() {
+   function autoSaveOnPageChange() {
       if (!currentUser) return;
       
       // Debounce (prevent duplicate saves)
@@ -934,8 +881,35 @@ function injectStyles() {
       if (now - lastAutoSave < 2000) return;
       lastAutoSave = now;
       
-      // Update active session if running
-      if (currentSessionId && seconds >= 10) {
+      // If timer is running, finalize the session
+      // (we don't know if next page will be a timer page or not)
+      if (currentSessionId && seconds >= 10 && isPlaying) {
+        var dateKey = getTodayDateKey();
+        
+        // Final update to session
+        db.collection('users').doc(currentUser.uid).collection('practice')
+          .doc('sessions').collection('items').doc(currentSessionId)
+          .update({
+            duration: seconds,
+            status: 'completed',
+            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+          })
+          .catch(function(err) {
+            console.warn('Failed to finalize session:', err);
+          });
+        
+        // Update stats
+        db.collection('users').doc(currentUser.uid).collection('practice').doc('stats')
+          .set({
+            totalSeconds: firebase.firestore.FieldValue.increment(seconds),
+            sessionCount: firebase.firestore.FieldValue.increment(1),
+            lastPracticeDate: dateKey
+          }, { merge: true })
+          .catch(function(err) {
+            console.warn('Failed to update stats:', err);
+          });
+      } else if (currentSessionId && seconds >= 10) {
+        // Timer is paused, just update duration
         updateActiveSession();
       }
       
