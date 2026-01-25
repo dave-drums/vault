@@ -526,7 +526,7 @@ if (pathway && slug && window.getCourseBySlug) {
     // Back button
     var backBtn = document.createElement('button');
     backBtn.className = 'lesson-nav-back';
-    backBtn.textContent = '← Back';
+    backBtn.textContent = '← Back To Course';
     backBtn.onclick = function() {
       window.location.href = window.location.pathname + '?' + courseConfig.slug;
     };
