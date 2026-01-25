@@ -540,10 +540,10 @@ if (pathway && slug && window.getCourseBySlug) {
     inner.appendChild(nextBtn);
     bar.appendChild(inner);
     
-    // Insert at top of lesson-content
+    // Insert before lesson-content (as a sibling, not inside it)
     var lessonContent = document.getElementById('lesson-content');
-    if (lessonContent) {
-      lessonContent.insertBefore(bar, lessonContent.firstChild);
+    if (lessonContent && lessonContent.parentNode) {
+      lessonContent.parentNode.insertBefore(bar, lessonContent);
     }
     
     // Setup next/complete button logic
