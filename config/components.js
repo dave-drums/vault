@@ -749,13 +749,22 @@ function injectStyles() {
           transition: transform 0.3s ease, left 0.3s ease;
         }
         
-        /* Adjust for sidebar on desktop */
-        body.has-sidebar .vault-timer-dropdown {
-          left: 200px;
+        /* Adjust for sidebar on desktop only (≥769px) */
+        @media (min-width: 769px) {
+          body.has-sidebar .vault-timer-dropdown {
+            left: 200px;
+          }
+          
+          body.has-sidebar.sidebar-collapsed .vault-timer-dropdown {
+            left: 64px;
+          }
         }
         
-        body.has-sidebar.sidebar-collapsed .vault-timer-dropdown {
-          left: 64px;
+        /* Mobile: no sidebar adjustment */
+        @media (max-width: 768px) {
+          .vault-timer-dropdown {
+            left: 0;
+          }
         }
         
         .vault-timer-dropdown.show {
