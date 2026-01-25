@@ -801,7 +801,7 @@ function injectStyles() {
           position: fixed;
           bottom: 0;
           right: 0;
-          left: 200px;
+          left: 240px;
           background: rgba(26, 26, 46, 0.98);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
