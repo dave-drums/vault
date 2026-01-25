@@ -505,10 +505,119 @@ if (pathway && slug && window.getCourseBySlug) {
     
     return lessonContent.join('\n').trim();
   }
-  
-  function addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db) {
+
+    function addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db) {
     // Deprecated - functionality moved to injectLessonNavBar
     // Keeping function signature for compatibility
+  }
+
+  function injectLessonNavBar(courseId, lessonId, courseConfig, auth, db) {
+    // Check if bar already exists
+    if (document.getElementById('lesson-nav-bar')) return;
+    
+    // Create sticky bar
+    var bar = document.createElement('div');
+    bar.id = 'lesson-nav-bar';
+    bar.className = 'practice-sticky-bar';
+    
+    var inner = document.createElement('div');
+    inner.className = 'practice-bar-inner';
+    
+    // Back button
+    var backBtn = document.createElement('button');
+    backBtn.className = 'lesson-nav-back';
+    backBtn.textContent = '← Back';
+    backBtn.onclick = function() {
+      window.location.href = window.location.pathname + '?' + courseConfig.slug;
+    };
+    
+    // Next/Complete button
+    var nextBtn = document.createElement('button');
+    nextBtn.id = 'lesson-nav-next-btn';
+    nextBtn.className = 'lesson-nav-complete';
+    
+    inner.appendChild(backBtn);
+    inner.appendChild(nextBtn);
+    bar.appendChild(inner);
+    
+    // Insert at top of lesson-content
+    var lessonContent = document.getElementById('lesson-content');
+    if (lessonContent) {
+      lessonContent.insertBefore(bar, lessonContent.firstChild);
+    }
+    
+    // Setup next/complete button logic
+    auth.onAuthStateChanged(function(user) {
+      if (!user) return;
+      
+      var uid = user.uid;
+      
+      // Get user's showProgress setting
+      db.collection('users').doc(uid).get().then(function(userDoc) {
+        var showProgress = userDoc.exists ? (userDoc.data().showProgress !== false) : true;
+        
+        // Get current progress
+        db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+          .then(function(progressDoc) {
+            var completed = [];
+            if (progressDoc.exists) {
+              completed = window.normalizeCompleted(progressDoc.data().completed);
+            }
+            
+            var isCompleted = completed.includes(lessonId);
+            
+            // Update button text and state
+            if (showProgress) {
+              if (isCompleted) {
+                nextBtn.textContent = 'Completed ✓';
+                nextBtn.classList.add('completed');
+              } else {
+                nextBtn.textContent = 'Complete Lesson ✓';
+              }
+            } else {
+              nextBtn.textContent = 'Next Lesson →';
+            }
+            
+            // Add click handler
+            nextBtn.onclick = function() {
+              var currentIndex = courseConfig.lessons.indexOf(lessonId);
+              var nextLesson = currentIndex < courseConfig.lessons.length - 1 
+                ? courseConfig.lessons[currentIndex + 1] 
+                : null;
+              
+              if (showProgress && !completed.includes(lessonId)) {
+                // Use progress-manager API to mark complete
+                if (window.VaultProgress) {
+                  window.VaultProgress.updateProgress(courseId, lessonId, uid)
+                    .then(function() {
+                      navigate();
+                    })
+                    .catch(function(err) {
+                      console.error('Error marking complete:', err);
+                      if (window.VaultToast) {
+                        window.VaultToast.error('Failed to mark lesson complete');
+                      }
+                    });
+                } else {
+                  console.error('VaultProgress not loaded!');
+                }
+              } else {
+                navigate();
+              }
+              
+              function navigate() {
+                if (nextLesson) {
+                  window.location.href = window.location.pathname + '?' + courseConfig.slug + '&l=' + nextLesson;
+                } else {
+                  window.location.href = window.location.pathname + '?' + courseConfig.slug;
+                }
+              }
+            };
+          });
+      }).catch(function(err) {
+        console.error('Error setting up nav bar:', err);
+      });
+    });
   }
 
 })();
