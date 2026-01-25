@@ -68,6 +68,218 @@
     .tab-content.active {
       display: block;
     }
+
+    /* Progress Modal Improvements */
+    .progress-search {
+      padding: 16px 24px;
+      border-bottom: 1px solid #e9ecef;
+      background: #f8f9fa;
+    }
+    .search-input {
+      width: 100%;
+      padding: 10px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .pathway-tabs {
+      display: flex;
+      border-bottom: 2px solid #e9ecef;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .pathway-tab {
+      flex: 1;
+      padding: 14px 16px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      bottom: -2px;
+      font-family: inherit;
+      text-align: center;
+    }
+    .pathway-tab:hover {
+      color: #1a1a2e;
+      background: #f8f9fa;
+    }
+    .pathway-tab.active {
+      color: #06b3fd;
+      border-bottom-color: #06b3fd;
+      background: white;
+    }
+    .pathway-badge {
+      display: inline-block;
+      background: #e9ecef;
+      color: #666;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+    .pathway-tab.active .pathway-badge {
+      background: #e0f2fe;
+      color: #06b3fd;
+    }
+    .pathway-content {
+      display: none;
+      padding: 16px 0;
+    }
+    .pathway-content.active {
+      display: block;
+    }
+    .course-section {
+      margin: 0 24px 12px 24px;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+    }
+    .course-header {
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .course-header:hover {
+      background: #f8f9fa;
+    }
+    .course-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .course-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+    .course-meta {
+      font-size: 13px;
+      color: #666;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .course-level {
+      display: inline-block;
+      background: #e9ecef;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .course-stats {
+      font-size: 14px;
+      color: #666;
+    }
+    .course-arrow {
+      font-size: 20px;
+      color: #999;
+      transition: transform 0.2s;
+    }
+    .course-section.expanded .course-arrow {
+      transform: rotate(180deg);
+    }
+    .course-progress-bar {
+      height: 4px;
+      background: #e9ecef;
+      margin: 0 20px 16px 20px;
+    }
+    .course-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #06b3fd, #38bdf8);
+      transition: width 0.3s;
+    }
+    .course-lessons {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .course-section.expanded .course-lessons {
+      max-height: 2000px;
+    }
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      padding: 0 20px 16px 20px;
+    }
+    .lesson-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lesson-item:hover {
+      background: #fff;
+      border-color: #06b3fd;
+    }
+    .lesson-item.completed {
+      background: #d1fae5;
+      border-color: #10b981;
+    }
+    .lesson-id {
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+    .lesson-toggle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #e0e0e0;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .lesson-toggle.completed {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.3;
+    }
+    @media (max-width: 768px) {
+      .lesson-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .pathway-tab {
+        font-size: 12px;
+        padding: 12px 8px;
+      }
+      .pathway-badge {
+        display: none;
+      }
+    }
   </style>
   
 </head>
@@ -474,7 +686,7 @@ function openInvitesModal(db){
     });
 }
 
-// Progress Modal
+// Progress Modal - IMPROVED VERSION with tabs and collapsible courses
 function openProgressModal(db, uid, displayName){
   var overlay = makeOverlay();
   var box = document.createElement('div');
@@ -484,81 +696,180 @@ function openProgressModal(db, uid, displayName){
   var header = document.createElement('div');
   header.className = 'modal-header';
   header.innerHTML =
-    '<div style="flex:1;min-width:0;"><div class="modal-title">' + escapeHtml(displayName || 'Student') + ' - Course Progress</div></div>' +
+    '<div style="flex:1;min-width:0;">' +
+      '<div class="modal-title">' + escapeHtml(displayName || 'Student') + ' - Course Progress</div>' +
+      '<div class="modal-subtitle">Click courses to expand and view lessons</div>' +
+    '</div>' +
     '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
   header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
   box.appendChild(header);
 
+  // Search box
+  var searchContainer = document.createElement('div');
+  searchContainer.className = 'progress-search';
+  searchContainer.innerHTML = '<input type="text" class="search-input" placeholder="Search courses...">';
+  box.appendChild(searchContainer);
+
+  // Pathway tabs
+  var tabsNav = document.createElement('div');
+  tabsNav.className = 'pathway-tabs';
+  tabsNav.innerHTML = 
+    '<button class="pathway-tab active" data-pathway="gs">GS <span class="pathway-badge">0</span></button>' +
+    '<button class="pathway-tab" data-pathway="fs">FS <span class="pathway-badge">0</span></button>' +
+    '<button class="pathway-tab" data-pathway="ss">SS <span class="pathway-badge">0</span></button>' +
+    '<button class="pathway-tab" data-pathway="ks">KS <span class="pathway-badge">0</span></button>' +
+    '<button class="pathway-tab" data-pathway="rs">RS <span class="pathway-badge">0</span></button>';
+  box.appendChild(tabsNav);
+
   var body = document.createElement('div');
   body.className = 'modal-body-scrollable';
+  body.style.padding = '0';
   body.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading progress...</div>';
   box.appendChild(body);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  // Load progress
+  // Load progress - EXACT SAME Firebase operations as before
   db.collection('users').doc(uid).collection('progress').get()
     .then(function(snap){
       var allProgress = {};
       snap.forEach(function(doc){ allProgress[doc.id] = doc.data(); });
 
-      var html = '';
       var COURSES = window.VAULT_COURSES || {};
+      
+      // Organize courses by pathway
+      var pathwayCourses = { gs: [], fs: [], ss: [], ks: [], rs: [] };
+      var pathwayCounts = { gs: 0, fs: 0, ss: 0, ks: 0, rs: 0 };
 
       for (var courseId in COURSES) {
         var course = COURSES[courseId];
         if (!course.lessons || !course.lessons.length) continue;
+        
+        var pathway = course.pathway || 'gs';
+        pathwayCourses[pathway].push({ courseId: courseId, course: course });
+        pathwayCounts[pathway]++;
+      }
 
-        var prog = allProgress[courseId] || {};
-        var completedRaw = prog.completed || [];
-        var completed = [];
+      // Update pathway badges
+      tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
+        var pathway = tab.getAttribute('data-pathway');
+        var badge = tab.querySelector('.pathway-badge');
+        if (badge) badge.textContent = pathwayCounts[pathway];
+      });
 
-        if (Array.isArray(completedRaw)) {
-          completed = completedRaw;
-        } else if (typeof completedRaw === 'object' && completedRaw !== null) {
-          for (var k in completedRaw) {
-            if (completedRaw[k] === true) completed.push(k);
-          }
-        }
-
-        var total = course.lessons.length;
-        var completedCount = 0;
-        course.lessons.forEach(function(lessonId){
-          if (completed.indexOf(lessonId) !== -1) completedCount++;
-        });
-
-        var pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-
-        html += '<div class="course-section">';
-        html += '<div class="course-section-header">';
-        html += '<div class="course-info">';
-        html += '<div class="course-name">' + escapeHtml(course.topic || courseId) + '</div>';
-        var levelBadge = (course.levels || []).join(', ').toUpperCase();
-        if (levelBadge) html += '<div class="course-level-badge">' + escapeHtml(levelBadge) + '</div>';
-        html += '</div>';
-        html += '<div class="course-stats">';
-        html += '<div class="course-stat"><strong>' + completedCount + '/' + total + '</strong> complete</div>';
-        html += '</div>';
-        html += '</div>';
-        html += '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>';
-
-        // Lesson grid
-        html += '<div class="lesson-grid">';
-        course.lessons.forEach(function(lessonId){
-          var isComplete = completed.indexOf(lessonId) !== -1;
-          html += '<div class="lesson-item' + (isComplete ? ' completed' : '') + '" data-course="' + escapeHtml(courseId) + '" data-lesson="' + escapeHtml(lessonId) + '" data-uid="' + escapeHtml(uid) + '">';
-          html += '<div class="lesson-id">' + escapeHtml(lessonId) + '</div>';
-          html += '<div class="lesson-toggle' + (isComplete ? ' completed' : '') + '"></div>';
+      // Create pathway content divs
+      var html = '';
+      for (var pathway in pathwayCourses) {
+        var courses = pathwayCourses[pathway];
+        var isActive = pathway === 'gs' ? ' active' : '';
+        
+        html += '<div id="' + pathway + '-content" class="pathway-content' + isActive + '">';
+        
+        if (courses.length === 0) {
+          html += '<div class="empty-state">';
+          html += '<div class="empty-state-icon">🥁</div>';
+          html += '<div style="font-size:16px;color:#666;font-weight:500;">No courses in this pathway yet</div>';
           html += '</div>';
-        });
-        html += '</div>';
+        } else {
+          courses.forEach(function(courseObj){
+            var courseId = courseObj.courseId;
+            var course = courseObj.course;
+            
+            var prog = allProgress[courseId] || {};
+            var completedRaw = prog.completed || [];
+            var completed = [];
+
+            // EXACT SAME normalization logic as before
+            if (Array.isArray(completedRaw)) {
+              completed = completedRaw;
+            } else if (typeof completedRaw === 'object' && completedRaw !== null) {
+              for (var k in completedRaw) {
+                if (completedRaw[k] === true) completed.push(k);
+              }
+            }
+
+            var total = course.lessons.length;
+            var completedCount = 0;
+            course.lessons.forEach(function(lessonId){
+              if (completed.indexOf(lessonId) !== -1) completedCount++;
+            });
+
+            var pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+            var levelBadge = (course.levels || []).join(' • ').toUpperCase();
+
+            html += '<div class="course-section" data-course-name="' + escapeHtml(course.topic || courseId) + '">';
+            
+            // Course header (clickable to expand/collapse)
+            html += '<div class="course-header">';
+            html += '<div class="course-info">';
+            html += '<div class="course-name">' + escapeHtml(course.topic || courseId) + '</div>';
+            html += '<div class="course-meta">';
+            if (levelBadge) html += '<span class="course-level">' + escapeHtml(levelBadge) + '</span>';
+            html += '<span class="course-stats">' + completedCount + '/' + total + ' complete</span>';
+            html += '</div>';
+            html += '</div>';
+            html += '<div class="course-arrow">▼</div>';
+            html += '</div>';
+            
+            // Progress bar
+            html += '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>';
+            
+            // Collapsible lesson grid
+            html += '<div class="course-lessons">';
+            html += '<div class="lesson-grid">';
+            course.lessons.forEach(function(lessonId){
+              var isComplete = completed.indexOf(lessonId) !== -1;
+              html += '<div class="lesson-item' + (isComplete ? ' completed' : '') + '" data-course="' + escapeHtml(courseId) + '" data-lesson="' + escapeHtml(lessonId) + '" data-uid="' + escapeHtml(uid) + '">';
+              html += '<span class="lesson-id">' + escapeHtml(lessonId) + '</span>';
+              html += '<span class="lesson-toggle' + (isComplete ? ' completed' : '') + '">' + (isComplete ? '✓' : '') + '</span>';
+              html += '</div>';
+            });
+            html += '</div>';
+            html += '</div>';
+            
+            html += '</div>';
+          });
+        }
+        
         html += '</div>';
       }
 
-      if (!html) html = '<div style="text-align:center;padding:40px;color:#999;">No courses with lessons available.</div>';
       body.innerHTML = html;
 
-      // Bind lesson toggles
+      // Bind tab switching
+      tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
+        tab.addEventListener('click', function(){
+          var pathway = tab.getAttribute('data-pathway');
+          
+          tabsNav.querySelectorAll('.pathway-tab').forEach(function(t){ t.classList.remove('active'); });
+          tab.classList.add('active');
+          
+          body.querySelectorAll('.pathway-content').forEach(function(content){
+            content.classList.remove('active');
+          });
+          body.querySelector('#' + pathway + '-content').classList.add('active');
+        });
+      });
+
+      // Bind course expansion
+      body.querySelectorAll('.course-header').forEach(function(header){
+        header.addEventListener('click', function(){
+          var section = header.closest('.course-section');
+          section.classList.toggle('expanded');
+        });
+      });
+
+      // Bind search
+      var searchInput = searchContainer.querySelector('.search-input');
+      searchInput.addEventListener('input', function(e){
+        var query = e.target.value.toLowerCase();
+        body.querySelectorAll('.course-section').forEach(function(section){
+          var courseName = section.getAttribute('data-course-name').toLowerCase();
+          section.style.display = courseName.includes(query) || query === '' ? 'block' : 'none';
+        });
+      });
+
+      // Bind lesson toggles - EXACT SAME Firebase operations as before
       body.querySelectorAll('.lesson-item').forEach(function(item){
         item.addEventListener('click', function(){
           var courseId = item.getAttribute('data-course');
@@ -574,6 +885,7 @@ function openProgressModal(db, uid, displayName){
             var completedRaw = data.completed || [];
             var completed = [];
 
+            // EXACT SAME normalization logic as before
             if (Array.isArray(completedRaw)) {
               completed = completedRaw;
             } else if (typeof completedRaw === 'object' && completedRaw !== null) {
@@ -588,10 +900,12 @@ function openProgressModal(db, uid, displayName){
               if (completed.indexOf(lessonId) === -1) completed.push(lessonId);
             }
 
+            // EXACT SAME Firebase write as before
             return progressRef.set({ completed: completed }, { merge: true });
           }).then(function(){
             toggle.classList.toggle('completed');
             item.classList.toggle('completed');
+            toggle.textContent = toggle.classList.contains('completed') ? '✓' : '';
 
             // Update progress bar
             var section = item.closest('.course-section');
@@ -601,8 +915,8 @@ function openProgressModal(db, uid, displayName){
             var fillBar = section.querySelector('.course-progress-fill');
             if (fillBar) fillBar.style.width = pct + '%';
 
-            var statEl = section.querySelector('.course-stat strong');
-            if (statEl) statEl.textContent = completedLessons.length + '/' + allLessons.length;
+            var statEl = section.querySelector('.course-stats');
+            if (statEl) statEl.textContent = completedLessons.length + '/' + allLessons.length + ' complete';
           }).catch(function(e){
             if (window.VaultErrors) window.VaultErrors.handle(e, 'Toggle Progress');
             else alert('Error: ' + (e.message || e));
@@ -825,9 +1139,9 @@ function render(users){
 // Render invites tab
 function renderInvitesTab(){
   var html = '<div class="admin-section">';
-  html += '<div class="admin-section-header">';
+  html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;">';
   html += '<div class="admin-section-title">Invite Management</div>';
-  html += '<button id="pv-create-invite-btn" class="btn btn-primary">+ Create Invite</button>';
+  html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="width:auto;">+ Create Invite</button>';
   html += '</div>';
 
   html += '<div style="padding:12px;">';
