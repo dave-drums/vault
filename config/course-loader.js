@@ -554,7 +554,7 @@ if (pathway && slug && window.getCourseBySlug) {
       
       // Get user's showProgress setting
       db.collection('users').doc(uid).get().then(function(userDoc) {
-        var showProgress = userDoc.exists ? (userDoc.data().showProgress !== false) : true;
+        var showProgress = userDoc.exists ? (userDoc.data().selfProgress === true) : false;
         
         // Get current progress
         db.collection('users').doc(uid).collection('progress').doc(courseId).get()
