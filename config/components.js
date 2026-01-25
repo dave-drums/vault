@@ -198,7 +198,70 @@
     return false;
   }
   
-  if (!shouldShowTimer()) return;
+  if (!shouldShowTimer()) {
+    // Clear any existing timer state if we're on a non-timer page
+    try {
+      var savedSessionId = sessionStorage.getItem('vault_timer_session_id');
+      var savedSeconds = sessionStorage.getItem('vault_timer_seconds');
+      
+      // If there was an active session, finalize it
+      if (savedSessionId && savedSeconds && firebase && firebase.firestore && firebase.auth) {
+        var auth = firebase.auth();
+        auth.onAuthStateChanged(function(user) {
+          if (user && savedSessionId && parseInt(savedSeconds, 10) >= 10) {
+            var db = firebase.firestore();
+            var dateKey = getTodayDateKey();
+            var finalSeconds = parseInt(savedSeconds, 10);
+            
+            // Finalize the session
+            db.collection('users').doc(user.uid).collection('practice')
+              .doc('sessions').collection('items').doc(savedSessionId)
+              .update({
+                duration: finalSeconds,
+                status: 'completed',
+                completedAt: firebase.firestore.FieldValue.serverTimestamp()
+              })
+              .catch(function(err) {
+                console.warn('Failed to finalize session on navigation:', err);
+              });
+            
+            // Update stats
+            db.collection('users').doc(user.uid).collection('practice').doc('stats')
+              .set({
+                totalSeconds: firebase.firestore.FieldValue.increment(finalSeconds),
+                sessionCount: firebase.firestore.FieldValue.increment(1),
+                lastPracticeDate: dateKey
+              }, { merge: true })
+              .catch(function(err) {
+                console.warn('Failed to update stats on navigation:', err);
+              });
+          }
+        });
+      }
+      
+      // Clear sessionStorage
+      sessionStorage.removeItem('vault_timer_seconds');
+      sessionStorage.removeItem('vault_timer_playing');
+      sessionStorage.removeItem('vault_timer_session_id');
+      sessionStorage.removeItem('vault_timer_last_update');
+    } catch(e) {
+      console.warn('Failed to clean up timer state:', e);
+    }
+    
+    return;
+  }
+  
+  // Helper for date key (needed above)
+  function getTodayDateKey() {
+    var now = new Date();
+    var offset = 10 * 60; // Brisbane time (UTC+10)
+    var localMs = now.getTime() + (offset * 60 * 1000);
+    var localDate = new Date(localMs);
+    var y = localDate.getUTCFullYear();
+    var m = String(localDate.getUTCMonth() + 1).padStart(2, '0');
+    var d = String(localDate.getUTCDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
   
   // Wait for Firebase
   function waitForFirebase(callback) {
@@ -733,12 +796,12 @@ function injectStyles() {
           font-family: 'Inter', monospace;
           font-variant-numeric: tabular-nums;
         }
-        
+
         .vault-timer-dropdown {
           position: fixed;
           bottom: 0;
           right: 0;
-          left: 0;
+          left: 200px;
           background: rgba(26, 26, 46, 0.98);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
@@ -746,25 +809,20 @@ function injectStyles() {
           box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
           z-index: 9996;
           transform: translateY(100%);
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, left 0.3s ease;
         }
         
         .vault-timer-dropdown.show {
           transform: translateY(0);
         }
         
-        /* Match sidebar behavior exactly like top bar */
-        @media (min-width: 769px) {
-          body.has-sidebar .vault-timer-dropdown {
-            left: 200px;
-            transition: left 0.3s ease, transform 0.3s ease;
-          }
-          
-          body.has-sidebar.sidebar-collapsed .vault-timer-dropdown {
-            left: 64px;
+        /* Mobile: full width */
+        @media (max-width: 768px) {
+          .vault-timer-dropdown {
+            left: 0;
           }
         }
-        
+
         
         .vault-timer-dropdown-inner {
           max-width: 860px;
@@ -819,7 +877,7 @@ function injectStyles() {
         
         .vault-timer-stats {
           font-size: var(--text-small);
-          color: rgba(255,255,255,0.5);
+          color: #FFFFFF;
           white-space: nowrap;
         }
         
