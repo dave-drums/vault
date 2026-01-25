@@ -626,10 +626,12 @@
       bar.className = 'vault-timer-dropdown';
       bar.innerHTML =
         '<div class="vault-timer-dropdown-inner">' +
-        '  <div class="vault-timer-dropdown-timer" id="vault-timer-dropdown-time">00:00</div>' +
-        '  <button id="vault-timer-play-btn" class="vault-timer-play-btn">' +
-        '    <span id="vault-timer-play-text">Start ▶</span>' +
-        '  </button>' +
+        '  <div class="vault-timer-dropdown-left">' +
+        '    <span class="vault-timer-dropdown-timer" id="vault-timer-dropdown-time">00:00</span>' +
+        '    <button id="vault-timer-play-btn" class="vault-timer-play-btn">' +
+        '      <span id="vault-timer-play-text">Start ▶</span>' +
+        '    </button>' +
+        '  </div>' +
         '  <div class="vault-timer-stats" id="vault-timer-stats">Today\'s total: 0:00</div>' +
         '</div>';
       
@@ -682,14 +684,14 @@
         });
     }
     
-    function injectStyles() {
+function injectStyles() {
       var css = `
         .vault-timer-btn {
           position: fixed;
           bottom: 24px;
           right: 24px;
-          width: 56px;
-          height: 56px;
+          width: 72px;
+          height: 72px;
           background: rgba(6, 179, 253, 0.9);
           border: none;
           border-radius: 50%;
@@ -700,7 +702,7 @@
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 2px;
+          gap: 4px;
           box-shadow: 0 4px 12px rgba(0,0,0,0.15);
           transition: all 0.3s ease;
         }
@@ -716,8 +718,8 @@
         }
         
         .vault-timer-icon {
-          width: 20px;
-          height: 20px;
+          width: 28px;
+          height: 28px;
         }
         
         .vault-timer-icon svg {
@@ -726,7 +728,7 @@
         }
         
         .vault-timer-time {
-          font-size: 9px;
+          font-size: var(--text-micro);
           font-weight: 600;
           font-family: 'Inter', monospace;
           font-variant-numeric: tabular-nums;
@@ -754,26 +756,30 @@
         .vault-timer-dropdown-inner {
           max-width: 860px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 14px 20px;
           display: flex;
-          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+        }
+        
+        .vault-timer-dropdown-left {
+          display: flex;
           align-items: center;
           gap: 16px;
         }
         
         .vault-timer-dropdown-timer {
           font-family: 'Inter', monospace;
-          font-size: 48px;
+          font-size: var(--text-large);
           color: #38bdf8;
           font-weight: 600;
-          letter-spacing: -1px;
           font-variant-numeric: tabular-nums;
+          min-width: 60px;
         }
         
         .vault-timer-play-btn {
-          width: 100%;
-          max-width: 300px;
-          padding: 14px;
+          padding: 10px 20px;
           border: none;
           border-radius: 8px;
           font-weight: 600;
@@ -784,6 +790,7 @@
           background: rgba(255,255,255,0.1);
           color: white;
           border: 1px solid rgba(255,255,255,0.2);
+          white-space: nowrap;
         }
         
         .vault-timer-play-btn:hover {
@@ -800,24 +807,35 @@
         .vault-timer-stats {
           font-size: var(--text-small);
           color: rgba(255,255,255,0.5);
-          text-align: center;
+          white-space: nowrap;
         }
         
         @media (max-width: 768px) {
           .vault-timer-btn {
             bottom: 20px;
             right: 20px;
-            width: 52px;
-            height: 52px;
+            width: 64px;
+            height: 64px;
           }
           
           .vault-timer-icon {
-            width: 18px;
-            height: 18px;
+            width: 24px;
+            height: 24px;
+          }
+          
+          .vault-timer-dropdown-inner {
+            padding: 12px 16px;
+            flex-wrap: wrap;
           }
           
           .vault-timer-dropdown-timer {
-            font-size: 40px;
+            font-size: var(--text-body);
+          }
+          
+          .vault-timer-stats {
+            width: 100%;
+            text-align: center;
+            font-size: var(--text-tiny);
           }
         }
       `;
