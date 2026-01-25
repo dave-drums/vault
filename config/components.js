@@ -383,17 +383,11 @@
       var timeStr = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
       
       var timerBtn = document.getElementById('vault-timer-btn-time');
-      var dropdownTimer = document.getElementById('vault-timer-dropdown-time');
-      
       if (timerBtn) timerBtn.textContent = timeStr;
-      if (dropdownTimer) dropdownTimer.textContent = timeStr;
     }
-    
-    function updateUI() {
+        
+     function updateUI() {
       var timerBtn = document.getElementById('vault-timer-btn');
-      var playBtn = document.getElementById('vault-timer-play-btn');
-      var playBtnText = document.getElementById('vault-timer-play-text');
-      
       if (!timerBtn) return;
       
       if (isPlaying) {
@@ -401,17 +395,8 @@
       } else {
         timerBtn.classList.remove('active');
       }
-      
-      if (playBtn) {
-        if (isPlaying) {
-          playBtn.classList.add('active');
-          playBtnText.textContent = 'Stop ⏹';
-        } else {
-          playBtn.classList.remove('active');
-          playBtnText.textContent = 'Start ▶';
-        }
-      }
     }
+    
     
     // ============================================
     // IDLE DETECTION
@@ -577,6 +562,11 @@
         stopTimer();
         stopPeriodicAutoSave();
         finalizeSession();
+        
+        // Show toast
+        if (window.VaultToast) {
+          window.VaultToast.info('Practice session stopped');
+        }
       } else {
         // START
         isPlaying = true;
@@ -588,34 +578,24 @@
         
         startTimer();
         startPeriodicAutoSave();
+        
+        // Show toast
+        if (window.VaultToast) {
+          window.VaultToast.success('Practice session started');
+        }
       }
       updateUI();
     }
     
-    // ============================================
-    // DROPDOWN CONTROLS
-    // ============================================
-    function toggleDropdown() {
-      var dropdown = document.getElementById('vault-timer-dropdown');
-      if (dropdown) {
-        dropdown.classList.toggle('show');
-      }
-    }
-    
-    function closeDropdown() {
-      var dropdown = document.getElementById('vault-timer-dropdown');
-      if (dropdown) {
-        dropdown.classList.remove('show');
-      }
-    }
+
     
     // ============================================
     // UI INJECTION
     // ============================================
-    function injectUI() {
+     function injectUI() {
       injectStyles();
       
-      // Timer button (bottom right)
+      // Timer button (bottom right) - click to start/stop
       var btn = document.createElement('button');
       btn.id = 'vault-timer-btn';
       btn.className = 'vault-timer-btn';
@@ -627,74 +607,11 @@
         '</div>' +
         '<div id="vault-timer-btn-time" class="vault-timer-time">00:00</div>';
       
-      btn.onclick = toggleDropdown;
+      btn.onclick = togglePlayPause;
       document.body.appendChild(btn);
-      
-      // Bottom sticky bar (dropdown)
-      var bar = document.createElement('div');
-      bar.id = 'vault-timer-dropdown';
-      bar.className = 'vault-timer-dropdown';
-      bar.innerHTML =
-        '<div class="vault-timer-dropdown-inner">' +
-        '  <div class="vault-timer-dropdown-left">' +
-        '    <span class="vault-timer-dropdown-timer" id="vault-timer-dropdown-time">00:00</span>' +
-        '    <button id="vault-timer-play-btn" class="vault-timer-play-btn">' +
-        '      <span id="vault-timer-play-text">Start ▶</span>' +
-        '    </button>' +
-        '  </div>' +
-        '  <div class="vault-timer-stats" id="vault-timer-stats">Today\'s total: 0:00</div>' +
-        '</div>';
-      
-      document.body.appendChild(bar);
-      
-      // Bind events
-      var playBtn = document.getElementById('vault-timer-play-btn');
-      if (playBtn) {
-        playBtn.addEventListener('click', togglePlayPause);
-      }
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(e) {
-        var btn = document.getElementById('vault-timer-btn');
-        var dropdown = document.getElementById('vault-timer-dropdown');
-        if (btn && dropdown && 
-            !btn.contains(e.target) && 
-            !dropdown.contains(e.target)) {
-          closeDropdown();
-        }
-      });
-      
-      // Load today's total
-      loadTodayTotal();
     }
-    
-    function loadTodayTotal() {
-      if (!currentUser) return;
-      
-      var dateKey = getTodayDateKey();
-      db.collection('users').doc(currentUser.uid).collection('practice')
-        .doc('sessions').collection('items')
-        .where('date', '==', dateKey)
-        .get()
-        .then(function(snap) {
-          var totalSeconds = 0;
-          snap.forEach(function(doc) {
-            totalSeconds += doc.data().duration || 0;
-          });
-          var mins = Math.floor(totalSeconds / 60);
-          var secs = totalSeconds % 60;
-          var timeStr = mins + ':' + String(secs).padStart(2, '0');
-          var statsEl = document.getElementById('vault-timer-stats');
-          if (statsEl) {
-            statsEl.textContent = 'Today\'s total: ' + timeStr;
-          }
-        })
-        .catch(function(err) {
-          console.warn('Failed to load today total:', err);
-        });
-    }
-    
-function injectStyles() {
+
+     function injectStyles() {
       var css = `
         .vault-timer-btn {
           position: fixed;
@@ -743,95 +660,6 @@ function injectStyles() {
           font-family: 'Inter', monospace;
           font-variant-numeric: tabular-nums;
         }
-
-.vault-timer-dropdown {
-          position: fixed;
-          bottom: 0;
-          right: 0;
-          left: 240px;
-          background: rgba(26, 26, 46, 0.98);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-top: 2px solid rgba(6, 179, 253, 0.3);
-          box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-          z-index: 9996;
-          transform: translateY(100%);
-          transition: transform 0.3s ease, left 0.3s ease;
-        }
-        
-        .vault-timer-dropdown.show {
-          transform: translateY(0);
-        }
-        
-        /* Collapsed sidebar */
-        body.sidebar-collapsed .vault-timer-dropdown {
-          left: 72px;
-        }
-        
-        /* Mobile: full width */
-        @media (max-width: 768px) {
-          .vault-timer-dropdown {
-            left: 0;
-          }
-        }
-
-        
-        .vault-timer-dropdown-inner {
-          max-width: 860px;
-          margin: 0 auto;
-          padding: 14px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 20px;
-        }
-        
-        .vault-timer-dropdown-left {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-        
-        .vault-timer-dropdown-timer {
-          font-family: 'Inter', monospace;
-          font-size: var(--text-large);
-          color: #38bdf8;
-          font-weight: 600;
-          font-variant-numeric: tabular-nums;
-          min-width: 60px;
-        }
-        
-        .vault-timer-play-btn {
-          padding: 10px 20px;
-          border: none;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: var(--text-ui);
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: 'Inter', sans-serif;
-          background: rgba(255,255,255,0.1);
-          color: white;
-          border: 1px solid rgba(255,255,255,0.2);
-          white-space: nowrap;
-        }
-        
-        .vault-timer-play-btn:hover {
-          background: rgba(255,255,255,0.15);
-          border-color: rgba(255,255,255,0.3);
-        }
-        
-        .vault-timer-play-btn.active {
-          background: rgba(6,179,253,0.2);
-          border-color: rgba(6,179,253,0.5);
-          color: #38bdf8;
-        }
-        
-        .vault-timer-stats {
-          font-size: var(--text-small);
-          color: #FFFFFF;
-          white-space: nowrap;
-        }
         
         @media (max-width: 768px) {
           .vault-timer-btn {
@@ -845,21 +673,6 @@ function injectStyles() {
             width: 24px;
             height: 24px;
           }
-          
-          .vault-timer-dropdown-inner {
-            padding: 12px 16px;
-            flex-wrap: wrap;
-          }
-          
-          .vault-timer-dropdown-timer {
-            font-size: var(--text-body);
-          }
-          
-          .vault-timer-stats {
-            width: 100%;
-            text-align: center;
-            font-size: var(--text-tiny);
-          }
         }
       `;
       
@@ -867,6 +680,8 @@ function injectStyles() {
       style.textContent = css;
       document.head.appendChild(style);
     }
+
+    
     
     // ============================================
     // PAGE LIFECYCLE - AUTO-SAVE ON NAVIGATION
