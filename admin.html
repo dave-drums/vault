@@ -31,6 +31,45 @@
   <script src="/config/components.js"></script>
   <script src="/config/navigation.js"></script>
   
+  <style>
+    /* Tab Navigation Styles */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e9ecef;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tab-btn {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 15px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      bottom: -2px;
+      font-family: 'Inter', sans-serif;
+    }
+    .tab-btn:hover {
+      color: #1a1a2e;
+    }
+    .tab-btn.active {
+      color: #06b3fd;
+      border-bottom-color: #06b3fd;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+  
 </head>
 <body>
   <div id="page-loader" class="page-loader">
@@ -48,7 +87,25 @@
   
   <!-- Main Container -->
   <div class="admin-container">
-    <div id="vault-admin-root"></div>
+    <!-- Tab Navigation -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="students">Students</button>
+      <button class="tab-btn" data-tab="invites">Invites</button>
+      <button class="tab-btn" data-tab="videos">Video Submissions</button>
+    </div>
+    
+    <!-- Tab Contents -->
+    <div id="students-tab" class="tab-content active"></div>
+    <div id="invites-tab" class="tab-content"></div>
+    <div id="videos-tab" class="tab-content">
+      <div class="admin-section">
+        <div style="text-align: center; padding: 60px 20px; color: #999;">
+          <div style="font-size: 64px; margin-bottom: 16px; opacity: 0.3;">🎥</div>
+          <h3 style="font-size: 18px; margin: 0 0 8px 0; color: #666;">Coming Soon</h3>
+          <p style="margin: 0; font-size: 14px;">Video submission system will be added here</p>
+        </div>
+      </div>
+    </div>
   </div>
   
   <!-- Admin Console Logic -->
@@ -57,13 +114,14 @@
 (function(){
 var db;
 var auth;
-var rootEl;
+var studentsTabEl;
+var invitesTabEl;
 
 function pvGetFontBaseEl(){
   return (
     document.querySelector('.sqs-block-content') ||
     document.querySelector('.sqs-layout') ||
-    document.getElementById('vault-admin-root') ||
+    document.getElementById('students-tab') ||
     document.body
   );
 }
@@ -214,764 +272,795 @@ function makeOverlay(){
 // NEW: Add User Modal with two-step process
 function openAddUserModal(db){
   var overlay = makeOverlay();
-
   var box = document.createElement('div');
   box.className = 'modal-box';
+  pvApplyFontFromBase(box);
 
-  var headerHtml = 
-    '<div class="modal-header">' +
-      '<div>' +
-        '<div class="modal-title">Add User</div>' +
-        '<div class="modal-subtitle">Create an invite link</div>' +
-      '</div>' +
-      '<button id="modal-close-btn" class="modal-close-btn">&times;</button>' +
+  var header = document.createElement('div');
+  header.className = 'modal-header';
+  header.innerHTML =
+    '<div style="flex:1;min-width:0;"><div class="modal-title">Add New Student</div><div class="modal-subtitle">Step 1: Enter student details</div></div>' +
+    '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
+  header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
+  box.appendChild(header);
+
+  var body = document.createElement('div');
+  body.className = 'modal-body';
+  body.innerHTML =
+    '<div class="form-group">' +
+      '<label class="form-label">Email Address</label>' +
+      '<input type="email" id="pv-new-email" class="form-input" placeholder="student@example.com">' +
+    '</div>' +
+    '<div class="form-group">' +
+      '<label class="form-label">First Name</label>' +
+      '<input type="text" id="pv-new-firstname" class="form-input" placeholder="John">' +
+    '</div>' +
+    '<div class="form-group">' +
+      '<label class="form-label">Last Name</label>' +
+      '<input type="text" id="pv-new-lastname" class="form-input" placeholder="Smith">' +
+    '</div>' +
+    '<div class="button-group">' +
+      '<button type="button" class="btn btn-secondary">Cancel</button>' +
+      '<button type="button" class="btn btn-primary">Next</button>' +
     '</div>';
-
-  var step1Html = 
-    '<div id="email-step" class="step-container">' +
-      '<div class="form-group">' +
-        '<label class="form-label">Email Address</label>' +
-        '<input type="email" id="invite-email" placeholder="user@example.com" class="form-input">' +
-      '</div>' +
-      '<div class="button-group">' +
-        '<button id="invite-close" class="btn btn-secondary">Close</button>' +
-        '<button id="invite-create" class="btn btn-primary">Create Invite</button>' +
-      '</div>' +
-    '</div>';
-
-  var step2Html = 
-    '<div id="invite-link-step" class="step-container hidden">' +
-      '<div class="success-message">' +
-        '<div class="success-icon">✓</div>' +
-        '<div class="success-text">Invite Created Successfully</div>' +
-      '</div>' +
-      '<div class="form-group">' +
-        '<label class="form-label">Invite Link</label>' +
-        '<textarea id="invite-url" readonly class="form-textarea"></textarea>' +
-      '</div>' +
-      '<div class="form-help-text">Link does not expire</div>' +
-      '<button id="copy-invite" class="btn btn-primary btn-full">📋 Copy Link</button>' +
-      '<button id="reset-modal" class="btn btn-secondary btn-full">Close</button>' +
-    '</div>';
-
-  box.innerHTML = headerHtml + step1Html + step2Html;
+  box.appendChild(body);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  function close(){ overlay.remove(); }
-  
-  box.querySelector('#modal-close-btn').addEventListener('click', close);
-  box.querySelector('#invite-close').addEventListener('click', close);
+  body.querySelector('.btn-secondary').addEventListener('click', function(){ overlay.remove(); });
+  body.querySelector('.btn-primary').addEventListener('click', function(){
+    var email = (box.querySelector('#pv-new-email').value || '').trim();
+    var firstName = (box.querySelector('#pv-new-firstname').value || '').trim();
+    var lastName = (box.querySelector('#pv-new-lastname').value || '').trim();
 
-  var emailInput = box.querySelector('#invite-email');
-  var createBtn = box.querySelector('#invite-create');
-  var step1 = box.querySelector('#email-step');
-  var step2 = box.querySelector('#invite-link-step');
-  var urlTextarea = box.querySelector('#invite-url');
-
-  function resetModal(){
-    step1.classList.remove('hidden');
-    step2.classList.add('hidden');
-    emailInput.value = '';
-  }
-
-  box.querySelector('#reset-modal').addEventListener('click', close);
-
-  createBtn.addEventListener('click', function(){
-    var email = (emailInput.value || '').trim().toLowerCase();
     if (!email) {
-      if (window.VaultErrors) window.VaultErrors.info('Please enter an email address');
+      if (window.VaultErrors) window.VaultErrors.handle({message:'Email is required'},'Add User');
+      else alert('Email is required');
+      return;
+    }
+    if (!firstName) {
+      if (window.VaultErrors) window.VaultErrors.handle({message:'First name is required'},'Add User');
+      else alert('First name is required');
+      return;
+    }
+    if (!lastName) {
+      if (window.VaultErrors) window.VaultErrors.handle({message:'Last name is required'},'Add User');
+      else alert('Last name is required');
       return;
     }
 
-    createBtn.disabled = true;
-    createBtn.textContent = 'Creating...';
-
+    // Step 2: create token & show link
     var token = randomToken(16);
-    
-    db.collection(INVITES_COL).doc(token).set({
+    db.collection(INVITES_COL).add({
       email: email,
-      used: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    }).then(function(){
-      var link = CREATE_ACCOUNT_URL_BASE + token;
-      
-      step1.classList.add('hidden');
-      step2.classList.remove('hidden');
-      urlTextarea.value = link;
-      
-      createBtn.disabled = false;
-      createBtn.textContent = 'Create Invite';
-    }).catch(function(err){
-      createBtn.disabled = false;
-      createBtn.textContent = 'Create Invite';
-      if (window.VaultErrors) {
-        window.VaultErrors.handle(err, 'Create Invite');
-      } else {
-        alert('Failed to create invite');
-      }
-    });
-  });
-
-  box.querySelector('#copy-invite').addEventListener('click', function(){
-    copyText(urlTextarea.value).then(function(){
-      if (window.VaultErrors) {
-        window.VaultErrors.success('Invite link copied!');
-      }
-    }).catch(function(){
-      if (window.VaultErrors) {
-        window.VaultErrors.info('Failed to copy link');
-      }
-    });
-  });
-}
-
-// NEW: Invites Modal with revoke for all invites
-function openInvitesModal(db){
-  var overlay = makeOverlay();
-
-  var box = document.createElement('div');
-  box.className = 'modal-box modal-box-wide modal-box-full-height';
-
-  box.innerHTML =
-    '<div class="modal-header">' +
-      '<div>' +
-        '<div class="modal-title">Invitation Links</div>' +
-        '<div class="modal-subtitle">Manage user invitations</div>' +
-      '</div>' +
-      '<button id="invites-close" class="modal-close-btn">&times;</button>' +
-    '</div>' +
-    '<div id="invites-list-container" class="modal-body-scrollable"></div>';
-
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  function close(){ overlay.remove(); }
-  box.querySelector('#invites-close').addEventListener('click', close);
-
-  var listContainer = box.querySelector('#invites-list-container');
-  listContainer.innerHTML = '<div class="empty-message">Loading...</div>';
-
-  db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(100).get()
-    .then(function(snap){
-      if (snap.empty) {
-        listContainer.innerHTML = '<div class="empty-message">No invites yet.</div>';
-        return;
-      }
-
-      var tableHtml = 
-        '<div class="invite-table">' +
-          '<div class="invite-table-header" style="grid-template-columns:2fr 1fr 1.5fr 1fr;">' +
-            '<div>Email</div>' +
-            '<div>Status</div>' +
-            '<div>Created</div>' +
-            '<div>Action</div>' +
-          '</div>';
-
-      snap.forEach(function(doc){
-        var d = doc.data();
-        var email = d.email || '-';
-        var used = d.used === true;
-        var createdAt = d.createdAt ? formatDateOnly(d.createdAt) : '-';
-
-        var statusClass, statusText;
-        if (used) {
-          statusClass = 'invite-status-used';
-          statusText = 'Used';
-        } else {
-          statusClass = 'invite-status-pending'; 
-          statusText = 'Active';
-        }
-
-        var opacity = used ? '0.6' : '1';
-
-        tableHtml += 
-          '<div class="invite-table-row" style="grid-template-columns:2fr 1fr 1.5fr 1fr;opacity:' + opacity + ';">' +
-            '<div class="invite-email">' + escapeHtml(email) + '</div>' +
-            '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>' +
-            '<div class="invite-date">' + createdAt + '</div>' +
-            '<div>' +
-              (used ? '<span class="invite-placeholder">—</span>' : 
-                '<button class="revoke-invite-btn btn btn-danger btn-icon" data-invite-id="' + doc.id + '">Revoke</button>') +
-            '</div>' +
-          '</div>';
-      });
-
-      tableHtml += '</div>';
-      listContainer.innerHTML = tableHtml;
-
-      listContainer.querySelectorAll('.revoke-invite-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var inviteId = btn.getAttribute('data-invite-id');
-          if (confirm('Revoke this invitation? The link will no longer work.')) {
-            db.collection(INVITES_COL).doc(inviteId).delete()
-              .then(function(){
-                if (window.VaultErrors) {
-                  window.VaultErrors.success('Invitation revoked');
-                }
-                overlay.remove();
-                openInvitesModal(db);
-              })
-              .catch(function(e){
-                if (window.VaultErrors) {
-                  window.VaultErrors.handle(e, 'Revoke Invite');
-                } else {
-                  alert('Failed to revoke invite');
-                }
-              });
-          }
-        });
-      });
-    })
-    .catch(function(e){
-      listContainer.innerHTML = '<div class="error-message">Error loading invites</div>';
-      if (window.VaultErrors) {
-        window.VaultErrors.handle(e, 'Load Invites');
-      }
-    });
-}
-
-var ONLINE_WINDOW_MS = 3 * 60 * 1000;
-
-document.addEventListener('DOMContentLoaded', function(){
-  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
-
-  auth = firebase.auth();
-  db = firebase.firestore();
-  rootEl = document.getElementById('vault-admin-root');
-  if (!rootEl) return;
-
-  function pvIsAdmin(user){
-    if (!user || !user.uid) return Promise.resolve(false);
-    return db.collection('admins').doc(user.uid).get()
-      .then(function(doc){ return doc.exists; })
-      .catch(function(){ return false; });
-  }
-
-  // NEW: Inline accordion editing - no separate profile modal
-  function saveUserChanges(uid, accordionEl){
-    var firstName = accordionEl.querySelector('.edit-firstname').value.trim();
-    var lastName = accordionEl.querySelector('.edit-lastname').value.trim();
-    var displayName = accordionEl.querySelector('.edit-displayname').value.trim();
-    var ageConfirmed = accordionEl.querySelector('.edit-age-confirmed').checked;
-    var selfProgress = accordionEl.querySelector('.edit-self-progress').checked;
-
-    var updates = {
       firstName: firstName,
       lastName: lastName,
-      displayName: displayName,
-      ageConfirmed: ageConfirmed,
-      selfProgress: selfProgress
-    };
+      token: token,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      status: 'pending'
+    }).then(function(){
+      var link = CREATE_ACCOUNT_URL_BASE + encodeURIComponent(token);
 
-    db.collection('users').doc(uid).set(updates, { merge: true })
-      .then(function(){
-        if (window.VaultErrors) {
-          window.VaultErrors.success('Changes saved');
-        }
-        loadOnce();
-      })
-      .catch(function(e){
-        if (window.VaultErrors) {
-          window.VaultErrors.handle(e, 'Save Changes');
-        } else {
-          alert('Save failed');
-        }
-      });
-  }
+      header.innerHTML =
+        '<div style="flex:1;min-width:0;"><div class="modal-title">Student Invite Created!</div><div class="modal-subtitle">Share this link with ' + escapeHtml(firstName) + '</div></div>' +
+        '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
+      header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
 
-  function openProgressModal(db, uid, displayName){
-    var overlay = makeOverlay();
-
-    var box = document.createElement('div');
-    box.className = 'modal-box modal-box-wide modal-box-full-height';
-
-    // Modal Header
-    var headerHtml = 
-      '<div class="modal-header">' +
-        '<div>' +
-          '<div class="modal-title">Progress Report: ' + escapeHtml(displayName) + '</div>' +
-          '<div class="modal-subtitle">View and manage lesson completion</div>' +
+      body.innerHTML =
+        '<div class="success-message">' +
+          '<div class="success-icon">✓</div>' +
+          '<div class="success-text">Invite link created!</div>' +
         '</div>' +
-        '<button id="progress-modal-close" class="modal-close-btn">&times;</button>' +
-      '</div>';
+        '<div class="form-group">' +
+          '<label class="form-label">Invite Link</label>' +
+          '<input type="text" readonly class="form-input" value="' + link + '">' +
+        '</div>' +
+        '<p class="form-help-text">Send this link to ' + escapeHtml(firstName) + ' so they can create their account.</p>' +
+        '<div class="button-group">' +
+          '<button type="button" class="btn btn-secondary">Close</button>' +
+          '<button type="button" class="btn btn-primary">Copy Link</button>' +
+        '</div>';
 
-    box.innerHTML = headerHtml;
-    
-    // Modal Body (scrollable)
-    var modalBody = document.createElement('div');
-    modalBody.className = 'modal-body-scrollable';
-    
-    // Course sections container (no self-progress, no stats)
-    var coursesContainer = document.createElement('div');
-    coursesContainer.id = 'progress-courses-container';
-    modalBody.appendChild(coursesContainer);
-    
-    box.appendChild(modalBody);
-    
-    // Close button handler
-    box.querySelector('#progress-modal-close').addEventListener('click', function(){
-      overlay.remove();
-    });
-    
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    
-    // Load all progress data
-    loadAllProgress(db, uid, coursesContainer);
-  }
-  
-  function loadAllProgress(db, uid, coursesContainer){
-    if (!window.VAULT_COURSES) {
-      coursesContainer.innerHTML = '<div class="empty-message">No courses available</div>';
-      return;
-    }
-    
-    // Get all course IDs that have lessons
-    var courseIds = [];
-    for (var cId in window.VAULT_COURSES) {
-      if (window.VAULT_COURSES[cId].lessons && window.VAULT_COURSES[cId].lessons.length > 0) {
-        courseIds.push(cId);
-      }
-    }
-    
-    if (courseIds.length === 0) {
-      coursesContainer.innerHTML = '<div class="empty-message">No courses with lessons yet</div>';
-      return;
-    }
-    
-    // Load progress for all courses
-    var progressPromises = courseIds.map(function(courseId){
-      return db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-        .then(function(snap){
-          return {
-            courseId: courseId,
-            data: snap.exists ? snap.data() : {}
-          };
+      body.querySelector('.btn-secondary').addEventListener('click', function(){ overlay.remove(); });
+      body.querySelector('.btn-primary').addEventListener('click', function(){
+        copyText(link).then(function(){
+          if (window.VaultErrors) window.VaultErrors.success('Link copied!');
+          else alert('Link copied!');
+        }).catch(function(e){
+          if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Link');
+          else alert('Failed to copy link');
         });
-    });
-    
-    Promise.all(progressPromises).then(function(results){
-      var courseProgress = {};
-      
-      results.forEach(function(result){
-        var courseId = result.courseId;
-        var courseData = window.VAULT_COURSES[courseId];
-        var progressData = result.data;
-        var completed = progressData.completed || {};
-        
-        var lessonCount = courseData.lessons.length;
-        var completedCount = 0;
-        
-var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : Object.keys(completed).filter(function(k){return completed[k]===true;}));
-courseData.lessons.forEach(function(lessonId){
-  if (completedArray.indexOf(lessonId) !== -1) {
-    completedCount++;
-  }
-});
-        
-        courseProgress[courseId] = {
-          completed: completedCount,
-          total: lessonCount,
-          completedLessons: completed
-        };
       });
-      
-      // Render course sections
-      var coursesHtml = '';
-      
-      courseIds.forEach(function(courseId){
-        var courseData = window.VAULT_COURSES[courseId];
-        var progress = courseProgress[courseId];
-        
-        var levelBadgeColor = '#e0f2fe';
-        var levelTextColor = '#0284c7';
-        if (courseData.topic.includes('Intermediate')) {
-          levelBadgeColor = '#fef3c7';
-          levelTextColor = '#d97706';
-        } else if (courseData.topic.includes('Advanced')) {
-          levelBadgeColor = '#fee2e2';
-          levelTextColor = '#dc2626';
-        }
-        
-        coursesHtml += '<div class="course-section">';
-        
-        // Course header
-        coursesHtml += '<div class="course-section-header">';
-        coursesHtml += '<div class="course-info">';
-        coursesHtml += '<div class="course-name">' + escapeHtml(courseData.pathwayName) + '</div>';
-        coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.topic) + '</div>';
-        coursesHtml += '</div>';
-        coursesHtml += '</div>';
-        
-        // Lesson grid
-        coursesHtml += '<div class="lesson-grid">';
-        
-        courseData.lessons.forEach(function(lessonId){
-var completedArray = window.normalizeCompleted ? window.normalizeCompleted(progress.completedLessons) : (Array.isArray(progress.completedLessons) ? progress.completedLessons : []);
-var isCompleted = completedArray.indexOf(lessonId) !== -1;
-          var completedClass = isCompleted ? ' completed' : '';
-          
-          coursesHtml += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '">';
-          coursesHtml += '<span class="lesson-id">' + lessonId + '</span>';
-          coursesHtml += '<div class="lesson-toggle' + completedClass + '"></div>';
-          coursesHtml += '</div>';
-        });
-        
-        coursesHtml += '</div>';
-        coursesHtml += '</div>';
-      });
-      
-      coursesContainer.innerHTML = coursesHtml;
-      
-// Add click handlers for lesson items
-coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
-  item.addEventListener('click', function(){
-    var courseId = item.getAttribute('data-course');
-    var lessonId = item.getAttribute('data-lesson');
-    var isCompleted = item.classList.contains('completed');
-    var newState = !isCompleted;
-    
-    // Update Firestore - use ARRAY format
-    var currentProgress = courseProgress[courseId].completedLessons;
-    var newCompleted;
-    
-    if (Array.isArray(currentProgress)) {
-      // Array format
-      if (newState) {
-        newCompleted = currentProgress.concat([lessonId]);
-      } else {
-        newCompleted = currentProgress.filter(function(id){ return id !== lessonId; });
-      }
-    } else {
-      // Object format - convert to array
-      var arr = Object.keys(currentProgress).filter(function(k){ return currentProgress[k] === true; });
-      if (newState) {
-        newCompleted = arr.concat([lessonId]);
-      } else {
-        newCompleted = arr.filter(function(id){ return id !== lessonId; });
-      }
-    }
-    
-    db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .set({
-        completed: newCompleted,
-        lastLesson: lessonId,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true })
-      .then(function(){
-        if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
-        loadAllProgress(db, uid, coursesContainer);
-      })
-      .catch(function(e){
-        console.error('Failed to update:', e);
-        if(window.VaultToast) {
-          window.VaultToast.error('Update failed: ' + e.message);
-        }
-      });
-  });
-});
-      
     }).catch(function(e){
-      console.error('Failed to load progress:', e);
-      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading progress data</div>';
+      if (window.VaultErrors) window.VaultErrors.handle(e, 'Create Invite');
+      else alert('Error: ' + (e.message || e));
     });
-  }
+  });
+}
 
-  function bindHandlers(){
-    // Toggle user accordion
-    rootEl.querySelectorAll('.user-item-header').forEach(function(header){
-      header.addEventListener('click', function(){
-        var item = header.closest('.user-item');
-        var accordion = item.querySelector('.user-accordion');
-        var wasOpen = accordion.classList.contains('expanded');
+// Invites Modal
+function openInvitesModal(db){
+  var overlay = makeOverlay();
+  var box = document.createElement('div');
+  box.className = 'modal-box modal-box-wide modal-box-full-height';
+  pvApplyFontFromBase(box);
 
-        // Close all
-        rootEl.querySelectorAll('.user-accordion').forEach(function(a){
-          a.classList.remove('expanded');
+  var header = document.createElement('div');
+  header.className = 'modal-header';
+  header.innerHTML =
+    '<div style="flex:1;min-width:0;"><div class="modal-title">Manage Invites</div><div class="modal-subtitle">View and manage student invites</div></div>' +
+    '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
+  header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
+  box.appendChild(header);
+
+  var body = document.createElement('div');
+  body.className = 'modal-body-scrollable';
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading invites...</div>';
+  box.appendChild(body);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Load invites
+  db.collection(INVITES_COL).orderBy('createdAt', 'desc').get()
+    .then(function(snap){
+      var invites = [];
+      snap.forEach(function(doc){ invites.push({ id: doc.id, data: doc.data() }); });
+
+      var html = '<button type="button" class="btn btn-primary btn-full">+ Create New Invite</button>';
+      html += '<div class="invite-table">';
+      html += '<div class="invite-table-header"><div>Email</div><div>Status</div><div>Created</div><div>Actions</div></div>';
+
+      if (!invites.length) {
+        html += '<div style="text-align:center;padding:40px;color:#999;">No invites yet.</div>';
+      } else {
+        invites.forEach(function(inv){
+          var d = inv.data;
+          var link = CREATE_ACCOUNT_URL_BASE + encodeURIComponent(d.token || '');
+          var statusClass = (d.status === 'used') ? 'invite-status-used' : 'invite-status-pending';
+
+          html += '<div class="invite-table-row">';
+          html += '<div class="invite-email">' + escapeHtml(d.email || 'No email') + '</div>';
+          html += '<div><span class="invite-status ' + statusClass + '">' + escapeHtml(d.status || 'pending') + '</span></div>';
+          html += '<div class="invite-date">' + formatDateOnly(d.createdAt) + '</div>';
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+          html += '<button type="button" class="btn btn-action copy-invite-btn" data-link="' + escapeHtml(link) + '">Copy Link</button>';
+          html += '<button type="button" class="btn btn-danger" data-id="' + inv.id + '">Remove</button>';
+          html += '</div>';
+          html += '</div>';
         });
+      }
 
-        // Open clicked if wasn't open
-        if (!wasOpen) {
-          accordion.classList.add('expanded');
+      html += '</div>';
+      body.innerHTML = html;
+
+      // Bind copy buttons
+      body.querySelectorAll('.copy-invite-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var link = btn.getAttribute('data-link');
+          copyText(link).then(function(){
+            if (window.VaultErrors) window.VaultErrors.success('Invite link copied!');
+            else alert('Link copied!');
+          }).catch(function(e){
+            if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Invite Link');
+            else alert('Failed to copy link');
+          });
+        });
+      });
+
+      // Bind remove buttons
+      body.querySelectorAll('.btn-danger').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var inviteId = btn.getAttribute('data-id');
+          if (!confirm('Are you sure you want to remove this invite?')) return;
+          
+          db.collection(INVITES_COL).doc(inviteId).delete()
+            .then(function(){
+              if (window.VaultErrors) window.VaultErrors.success('Invite removed');
+              openInvitesModal(db); // Refresh the modal
+              overlay.remove();
+            })
+            .catch(function(e){
+              if (window.VaultErrors) window.VaultErrors.handle(e, 'Remove Invite');
+              else alert('Error: ' + (e.message || e));
+            });
+        });
+      });
+
+      // Bind create button
+      body.querySelector('.btn-primary').addEventListener('click', function(){ overlay.remove(); openAddUserModal(db); });
+
+    }).catch(function(e){
+      body.innerHTML = '<div class="error-message">Error loading invites: ' + escapeHtml(e.message || e) + '</div>';
+    });
+}
+
+// Progress Modal
+function openProgressModal(db, uid, displayName){
+  var overlay = makeOverlay();
+  var box = document.createElement('div');
+  box.className = 'modal-box modal-box-wide modal-box-full-height';
+  pvApplyFontFromBase(box);
+
+  var header = document.createElement('div');
+  header.className = 'modal-header';
+  header.innerHTML =
+    '<div style="flex:1;min-width:0;"><div class="modal-title">' + escapeHtml(displayName || 'Student') + ' - Course Progress</div></div>' +
+    '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
+  header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
+  box.appendChild(header);
+
+  var body = document.createElement('div');
+  body.className = 'modal-body-scrollable';
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading progress...</div>';
+  box.appendChild(body);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Load progress
+  db.collection('users').doc(uid).collection('progress').get()
+    .then(function(snap){
+      var allProgress = {};
+      snap.forEach(function(doc){ allProgress[doc.id] = doc.data(); });
+
+      var html = '';
+      var COURSES = window.VAULT_COURSES || {};
+
+      for (var courseId in COURSES) {
+        var course = COURSES[courseId];
+        if (!course.lessons || !course.lessons.length) continue;
+
+        var prog = allProgress[courseId] || {};
+        var completedRaw = prog.completed || [];
+        var completed = [];
+
+        if (Array.isArray(completedRaw)) {
+          completed = completedRaw;
+        } else if (typeof completedRaw === 'object' && completedRaw !== null) {
+          for (var k in completedRaw) {
+            if (completedRaw[k] === true) completed.push(k);
+          }
         }
+
+        var total = course.lessons.length;
+        var completedCount = 0;
+        course.lessons.forEach(function(lessonId){
+          if (completed.indexOf(lessonId) !== -1) completedCount++;
+        });
+
+        var pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+        html += '<div class="course-section">';
+        html += '<div class="course-section-header">';
+        html += '<div class="course-info">';
+        html += '<div class="course-name">' + escapeHtml(course.topic || courseId) + '</div>';
+        var levelBadge = (course.levels || []).join(', ').toUpperCase();
+        if (levelBadge) html += '<div class="course-level-badge">' + escapeHtml(levelBadge) + '</div>';
+        html += '</div>';
+        html += '<div class="course-stats">';
+        html += '<div class="course-stat"><strong>' + completedCount + '/' + total + '</strong> complete</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>';
+
+        // Lesson grid
+        html += '<div class="lesson-grid">';
+        course.lessons.forEach(function(lessonId){
+          var isComplete = completed.indexOf(lessonId) !== -1;
+          html += '<div class="lesson-item' + (isComplete ? ' completed' : '') + '" data-course="' + escapeHtml(courseId) + '" data-lesson="' + escapeHtml(lessonId) + '" data-uid="' + escapeHtml(uid) + '">';
+          html += '<div class="lesson-id">' + escapeHtml(lessonId) + '</div>';
+          html += '<div class="lesson-toggle' + (isComplete ? ' completed' : '') + '"></div>';
+          html += '</div>';
+        });
+        html += '</div>';
+        html += '</div>';
+      }
+
+      if (!html) html = '<div style="text-align:center;padding:40px;color:#999;">No courses with lessons available.</div>';
+      body.innerHTML = html;
+
+      // Bind lesson toggles
+      body.querySelectorAll('.lesson-item').forEach(function(item){
+        item.addEventListener('click', function(){
+          var courseId = item.getAttribute('data-course');
+          var lessonId = item.getAttribute('data-lesson');
+          var uid = item.getAttribute('data-uid');
+          var toggle = item.querySelector('.lesson-toggle');
+          var isComplete = toggle.classList.contains('completed');
+
+          var progressRef = db.collection('users').doc(uid).collection('progress').doc(courseId);
+
+          progressRef.get().then(function(doc){
+            var data = doc.exists ? (doc.data() || {}) : {};
+            var completedRaw = data.completed || [];
+            var completed = [];
+
+            if (Array.isArray(completedRaw)) {
+              completed = completedRaw;
+            } else if (typeof completedRaw === 'object' && completedRaw !== null) {
+              for (var k in completedRaw) {
+                if (completedRaw[k] === true) completed.push(k);
+              }
+            }
+
+            if (isComplete) {
+              completed = completed.filter(function(id){ return id !== lessonId; });
+            } else {
+              if (completed.indexOf(lessonId) === -1) completed.push(lessonId);
+            }
+
+            return progressRef.set({ completed: completed }, { merge: true });
+          }).then(function(){
+            toggle.classList.toggle('completed');
+            item.classList.toggle('completed');
+
+            // Update progress bar
+            var section = item.closest('.course-section');
+            var allLessons = section.querySelectorAll('.lesson-toggle');
+            var completedLessons = section.querySelectorAll('.lesson-toggle.completed');
+            var pct = allLessons.length > 0 ? Math.round((completedLessons.length / allLessons.length) * 100) : 0;
+            var fillBar = section.querySelector('.course-progress-fill');
+            if (fillBar) fillBar.style.width = pct + '%';
+
+            var statEl = section.querySelector('.course-stat strong');
+            if (statEl) statEl.textContent = completedLessons.length + '/' + allLessons.length;
+          }).catch(function(e){
+            if (window.VaultErrors) window.VaultErrors.handle(e, 'Toggle Progress');
+            else alert('Error: ' + (e.message || e));
+          });
+        });
       });
+    }).catch(function(e){
+      body.innerHTML = '<div class="error-message">Error loading progress: ' + escapeHtml(e.message || e) + '</div>';
     });
+}
 
-    // Save Changes buttons
-    rootEl.querySelectorAll('.save-changes-btn').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        var uid = btn.getAttribute('data-uid');
-        var accordionEl = btn.closest('.user-item');
-        saveUserChanges(uid, accordionEl);
-      });
+// Save user changes
+function saveUserChanges(uid, accordionEl){
+  var firstName = (accordionEl.querySelector('.edit-firstname').value || '').trim();
+  var lastName = (accordionEl.querySelector('.edit-lastname').value || '').trim();
+  var displayName = (accordionEl.querySelector('.edit-displayname').value || '').trim();
+  var ageConfirmed = accordionEl.querySelector('.edit-age-confirmed').checked;
+  var selfProgress = accordionEl.querySelector('.edit-self-progress').checked;
+
+  var updates = {
+    firstName: firstName,
+    lastName: lastName,
+    displayName: displayName,
+    ageConfirmed: ageConfirmed,
+    selfProgress: selfProgress
+  };
+
+  db.collection('users').doc(uid).set(updates, { merge: true })
+    .then(function(){
+      if (window.VaultErrors) window.VaultErrors.success('Changes saved!');
+      else alert('Changes saved!');
+    })
+    .catch(function(e){
+      if (window.VaultErrors) window.VaultErrors.handle(e, 'Save Changes');
+      else alert('Error: ' + (e.message || e));
     });
+}
 
-    // View Progress buttons
-    rootEl.querySelectorAll('.view-progress-btn').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        var uid = btn.getAttribute('data-uid');
-        var displayName = btn.getAttribute('data-name');
-        openProgressModal(db, uid, displayName);
-      });
+function pvIsAdmin(user){
+  if (!user) return Promise.resolve(false);
+  return db.collection('admins').doc(user.uid).get()
+    .then(function(doc){ return doc.exists; })
+    .catch(function(){ return false; });
+}
+
+var ONLINE_WINDOW_MS = 5 * 60 * 1000;
+
+function bindHandlers(){
+  // Accordion toggles
+  studentsTabEl.querySelectorAll('.user-item').forEach(function(item){
+    var header = item.querySelector('.user-item-header');
+    var accordion = item.querySelector('.user-accordion');
+    var arrow = header.querySelector('.user-meta div');
+
+    header.addEventListener('click', function(e){
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+
+      var isExpanded = accordion.classList.contains('expanded');
+      accordion.classList.toggle('expanded');
+      arrow.textContent = isExpanded ? '▼' : '▲';
     });
+  });
 
-    var addBtn = rootEl.querySelector('#pv-add-user-btn');
-    if (addBtn) addBtn.addEventListener('click', function(){ openAddUserModal(db); });
+  // Save Changes buttons
+  studentsTabEl.querySelectorAll('.save-changes-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var uid = btn.getAttribute('data-uid');
+      var accordionEl = btn.closest('.user-item');
+      saveUserChanges(uid, accordionEl);
+    });
+  });
 
-    var invitesBtn = rootEl.querySelector('#pv-invites-btn');
-    if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
+  // View Progress buttons
+  studentsTabEl.querySelectorAll('.view-progress-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var uid = btn.getAttribute('data-uid');
+      var displayName = btn.getAttribute('data-name');
+      openProgressModal(db, uid, displayName);
+    });
+  });
 
-    var refreshBtn = rootEl.querySelector('#pv-refresh-btn');
-    if (refreshBtn) refreshBtn.addEventListener('click', function(){ 
-      loadOnce().catch(function(e){ 
-        if (window.VaultErrors) window.VaultErrors.handle(e, 'Refresh'); 
-      }); 
+  var refreshBtn = studentsTabEl.querySelector('#pv-refresh-btn');
+  if (refreshBtn) refreshBtn.addEventListener('click', function(){ 
+    loadOnce().catch(function(e){ 
+      if (window.VaultErrors) window.VaultErrors.handle(e, 'Refresh'); 
+    }); 
+  });
+}
+
+// Render students tab
+function render(users){
+  var nowMs = Date.now();
+
+  var online = users.filter(function(u){
+    return (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
+  }).sort(function(a,b){ return tsToMs(b.lastActive) - tsToMs(a.lastActive); });
+
+  var html = '';
+
+  // Student List section with accordion
+  html += '<div class="admin-section">';
+  html += '<div class="admin-section-header">' +
+            '<div class="admin-section-title">Student Management <span class="admin-section-count">(' + users.length + ')</span></div>' +
+            '<button id="pv-refresh-btn" class="btn btn-icon" title="Refresh">↻</button>' +
+          '</div>';
+
+  html += '<div style="padding:12px;">';
+
+  if (!users.length) {
+    html += '<div class="empty-message">No students yet.</div>';
+  } else {
+    users.forEach(function(u){
+      var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
+      var activityDot = statusDot(u.lastActive, u.joinedAt);
+      
+      var statusText = isOnline ? 'Online' : 'Offline';
+      var onlineStyle = isOnline ? 'color:#10b981;font-weight:500;' : 'color:#999;font-weight:normal;';
+      var onlineEmoji = isOnline ? '🟢 ' : '';
+
+      html += '<div class="user-item">';
+      
+      // User Header (collapsed view)
+      html += '<div class="user-item-header">';
+      html += '<div style="flex:1;min-width:0;">';
+      html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="' + onlineStyle + 'font-size:var(--text-small);">| ' + onlineEmoji + statusText + '</span></div>';
+      // Show last seen (with login fallback)
+      var lastActiveDisplay = u.lastActive ? formatTsNoYear(u.lastActive) : formatTsNoYear(u.lastLogin);
+      html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last seen: ' + lastActiveDisplay + '</div>';
+      html += '</div>';
+      html += '<div class="user-meta">';
+      html += '<div style="font-size:18px;">▼</div>';
+      html += '</div>';
+      html += '</div>';
+
+      // User Accordion Body (expanded view)
+      html += '<div class="user-accordion">';
+      html += '<div class="accordion-content">';
+      
+      // Practice Statistics
+      html += '<div class="accordion-section">';
+      html += '<div class="accordion-section-title">Practice Statistics</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
+      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Seen</div>';
+      var detailedTimestamp = u.lastActive ? formatTs(u.lastActive) : formatTs(u.lastLogin);
+      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + detailedTimestamp + ' ' + activityDot + '</div>';
+      html += '</div>';
+      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
+      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
+      html += '</div>';
+      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Avg Session</div>';
+      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+      html += '</div>';
+      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Total Practice</div>';
+      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatDuration(u.totalSeconds) + '</div>';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+
+      // Profile Information
+      html += '<div class="accordion-section">';
+      html += '<div class="accordion-section-title">Profile Information</div>';
+      html += '<div class="accordion-row">';
+      html += '<div class="accordion-field">';
+      html += '<label class="form-label">First Name</label>';
+      html += '<input type="text" class="edit-firstname form-input" value="' + escapeHtml(u.firstName) + '" placeholder="First name">';
+      html += '</div>';
+      html += '<div class="accordion-field">';
+      html += '<label class="form-label">Last Name</label>';
+      html += '<input type="text" class="edit-lastname form-input" value="' + escapeHtml(u.lastName) + '" placeholder="Last name">';
+      html += '</div>';
+      html += '<div class="accordion-field">';
+      html += '<label class="form-label">Display Name</label>';
+      html += '<input type="text" class="edit-displayname form-input" value="' + escapeHtml(u.displayName) + '" placeholder="Display name">';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+
+      // Account Permissions
+      html += '<div class="accordion-section">';
+      html += '<div class="accordion-section-title">Account Permissions</div>';
+      html += '<div class="accordion-row">';
+      html += '<label class="checkbox-label">';
+      html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + '>';
+      html += '<span>16+ years old (can access comments)</span>';
+      html += '</label>';
+      html += '<label class="checkbox-label">';
+      html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + '>';
+      html += '<span>Allow self-progress (can complete lessons)</span>';
+      html += '</label>';
+      html += '</div>';
+      html += '</div>';
+
+      // Action Buttons
+      html += '<div class="user-actions">';
+      html += '<button class="view-progress-btn btn btn-primary" style="background:#10b981;border-color:#10b981;" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '">View Progress</button>';
+      html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
+      html += '</div>';
+
+      html += '</div>';
+      html += '</div>';
+
+      html += '</div>';
     });
   }
 
-  // NEW: Render accordion layout
-  function render(users){
-    var nowMs = Date.now();
+  html += '</div>';
+  html += '</div>';
 
-    var online = users.filter(function(u){
-      return (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
-    }).sort(function(a,b){ return tsToMs(b.lastActive) - tsToMs(a.lastActive); });
+  studentsTabEl.innerHTML = html;
 
-    var onlineText = online.length
-      ? ('🥁 ' + online.map(function(u){ return escapeHtml(u.email); }).join(', '))
-      : 'No one online right now.';
+  bindHandlers();
+}
 
-    var html = '';
+// Render invites tab
+function renderInvitesTab(){
+  var html = '<div class="admin-section">';
+  html += '<div class="admin-section-header">';
+  html += '<div class="admin-section-title">Invite Management</div>';
+  html += '<button id="pv-create-invite-btn" class="btn btn-primary">+ Create Invite</button>';
+  html += '</div>';
 
-    // Student List section with accordion
-    html += '<div class="admin-section">';
-    html += '<div class="admin-section-header" style="flex-direction:column;align-items:center;gap:16px;">' +
-              '<div style="display:flex;align-items:center;gap:12px;">' +
-  '<div class="admin-section-title">STUDENT LIST <span class="admin-section-count">(' + users.length + ')</span></div>' +
-  '<button id="pv-refresh-btn" class="btn btn-icon" title="Refresh">↻</button>' +
-'</div>' +
-              '<div style="display:flex;gap:10px;">' +
-                '<button id="pv-invites-btn" class="btn btn-header">Invites</button>' +
-                '<button id="pv-add-user-btn" class="btn btn-header btn-header-primary">+ Add User</button>' +
-              '</div>' +
-            '</div>';
+  html += '<div style="padding:12px;">';
+  html += '<div id="invites-list-container"><div style="text-align:center;padding:40px;color:#999;">Loading invites...</div></div>';
+  html += '</div>';
+  html += '</div>';
 
-    html += '<div style="padding:12px;">';
+  invitesTabEl.innerHTML = html;
 
-    if (!users.length) {
-      html += '<div class="empty-message">No students yet.</div>';
-    } else {
-      users.forEach(function(u){
-        var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
-        var activityDot = statusDot(u.lastActive, u.joinedAt);
-        
-        var statusText = isOnline ? 'Online' : 'Offline';
-        var onlineStyle = isOnline ? 'color:#10b981;font-weight:500;' : 'color:#999;font-weight:normal;';
-        var onlineEmoji = isOnline ? '🟢 ' : '';
+  // Bind create invite button
+  var createBtn = invitesTabEl.querySelector('#pv-create-invite-btn');
+  if (createBtn) createBtn.addEventListener('click', function(){ openAddUserModal(db); });
 
-        html += '<div class="user-item">';
-        
-        // User Header (collapsed view)
-        html += '<div class="user-item-header">';
-        html += '<div style="flex:1;min-width:0;">';
-        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="' + onlineStyle + 'font-size:var(--text-small);">| ' + onlineEmoji + statusText + '</span></div>';
-        // Show last seen (with login fallback)
-        var lastActiveDisplay = u.lastActive ? formatTsNoYear(u.lastActive) : formatTsNoYear(u.lastLogin);
-        html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last seen: ' + lastActiveDisplay + '</div>';
-        html += '</div>';
-        html += '<div class="user-meta">';
-        html += '<div style="font-size:18px;">▼</div>';
-        html += '</div>';
-        html += '</div>';
+  // Load invites
+  loadInvites();
+}
 
-        // User Accordion Body (expanded view)
-        html += '<div class="user-accordion">';
-        html += '<div class="accordion-content">';
-        
-        // Practice Statistics
-        html += '<div class="accordion-section">';
-        html += '<div class="accordion-section-title">Practice Statistics</div>';
-        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
-        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Seen</div>';
-        var detailedTimestamp = u.lastActive ? formatTs(u.lastActive) : formatTs(u.lastLogin);
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + detailedTimestamp + ' ' + activityDot + '</div>';
-        html += '</div>';
-        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
-        html += '</div>';
-        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Avg Session</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
-        html += '</div>';
-        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Total Practice</div>';
-        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatDuration(u.totalSeconds) + '</div>';
-        html += '</div>';
-        html += '</div>';
-        html += '</div>';
+function loadInvites(){
+  var container = invitesTabEl.querySelector('#invites-list-container');
+  if (!container) return;
 
-        // Profile Information
-        html += '<div class="accordion-section">';
-        html += '<div class="accordion-section-title">Profile Information</div>';
-        html += '<div class="accordion-row">';
-        html += '<div class="accordion-field">';
-        html += '<label class="form-label">First Name</label>';
-        html += '<input type="text" class="edit-firstname form-input" value="' + escapeHtml(u.firstName) + '" placeholder="First name">';
-        html += '</div>';
-        html += '<div class="accordion-field">';
-        html += '<label class="form-label">Last Name</label>';
-        html += '<input type="text" class="edit-lastname form-input" value="' + escapeHtml(u.lastName) + '" placeholder="Last name">';
-        html += '</div>';
-        html += '<div class="accordion-field">';
-        html += '<label class="form-label">Display Name</label>';
-        html += '<input type="text" class="edit-displayname form-input" value="' + escapeHtml(u.displayName) + '" placeholder="Display name">';
-        html += '</div>';
-        html += '</div>';
-        html += '</div>';
+  db.collection(INVITES_COL).orderBy('createdAt', 'desc').get()
+    .then(function(snap){
+      var invites = [];
+      snap.forEach(function(doc){ invites.push({ id: doc.id, data: doc.data() }); });
 
-        // Account Permissions
-        html += '<div class="accordion-section">';
-        html += '<div class="accordion-section-title">Account Permissions</div>';
-        html += '<div class="accordion-row">';
-        html += '<label class="checkbox-label">';
-        html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + '>';
-        html += '<span>16+ years old (can access comments)</span>';
-        html += '</label>';
-        html += '<label class="checkbox-label">';
-        html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + '>';
-        html += '<span>Allow self-progress (can complete lessons)</span>';
-        html += '</label>';
-        html += '</div>';
-        html += '</div>';
+      var html = '<div class="invite-table">';
+      html += '<div class="invite-table-header"><div>Email</div><div>Status</div><div>Created</div><div>Actions</div></div>';
 
-        // Action Buttons
-        html += '<div class="user-actions">';
-        html += '<button class="view-progress-btn btn btn-primary" style="background:#10b981;border-color:#10b981;" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '">View Progress</button>';
-        html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
-        html += '</div>';
+      if (!invites.length) {
+        html += '<div style="text-align:center;padding:40px;color:#999;">No invites yet. Click "Create Invite" to add one.</div>';
+      } else {
+        invites.forEach(function(inv){
+          var d = inv.data;
+          var link = CREATE_ACCOUNT_URL_BASE + encodeURIComponent(d.token || '');
+          var statusClass = (d.status === 'used') ? 'invite-status-used' : 'invite-status-pending';
 
-        html += '</div>';
-        html += '</div>';
+          html += '<div class="invite-table-row">';
+          html += '<div class="invite-email">' + escapeHtml(d.email || 'No email') + '</div>';
+          html += '<div><span class="invite-status ' + statusClass + '">' + escapeHtml(d.status || 'pending') + '</span></div>';
+          html += '<div class="invite-date">' + formatDateOnly(d.createdAt) + '</div>';
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+          html += '<button type="button" class="btn btn-secondary copy-invite-btn" style="padding:6px 12px;font-size:12px;" data-link="' + escapeHtml(link) + '">Copy Link</button>';
+          html += '<button type="button" class="btn btn-secondary remove-invite-btn" style="padding:6px 12px;font-size:12px;" data-id="' + inv.id + '">Remove</button>';
+          html += '</div>';
+          html += '</div>';
+        });
+      }
 
-        html += '</div>';
-      });
-    }
+      html += '</div>';
+      container.innerHTML = html;
 
-    html += '</div>';
-    html += '</div>';
-
-    rootEl.innerHTML = html;
-
-    bindHandlers();
-  }
-
-  function loadOnce(){
-    return Promise.all([
-      db.collection('users').get(),
-      db.collection('admins').get()
-    ]).then(function(results){
-      var usersSnap = results[0];
-      var adminSnap = results[1];
-      
-      var adminUids = {};
-      adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
-      
-      var users = [];
-      usersSnap.forEach(function(d){
-        var data = d.data() || {};
-        
-        if (adminUids[d.id]) return;
-        
-        users.push({
-          uid: d.id,
-          email: data.email || '',
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          displayName: data.displayName || '',
-          ageConfirmed: data.ageConfirmed === true,
-          selfProgress: data.selfProgress === true,
-          joinedAt: data.createdAt || null,
-          fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
+      // Bind copy buttons
+      container.querySelectorAll('.copy-invite-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var link = btn.getAttribute('data-link');
+          copyText(link).then(function(){
+            if (window.VaultErrors) window.VaultErrors.success('Invite link copied!');
+            else alert('Link copied!');
+          }).catch(function(e){
+            if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Invite Link');
+            else alert('Failed to copy link');
+          });
         });
       });
 
-      var statGets = users.map(function(u){
-        return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
-          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+      // Bind remove buttons
+      container.querySelectorAll('.remove-invite-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var inviteId = btn.getAttribute('data-id');
+          if (!confirm('Are you sure you want to remove this invite?')) return;
+          
+          db.collection(INVITES_COL).doc(inviteId).delete()
+            .then(function(){
+              if (window.VaultErrors) window.VaultErrors.success('Invite removed');
+              loadInvites(); // Refresh the list
+            })
+            .catch(function(e){
+              if (window.VaultErrors) window.VaultErrors.handle(e, 'Remove Invite');
+              else alert('Error: ' + (e.message || e));
+            });
+        });
       });
 
-      // ADD THIS - Load practice stats separately
-      var practiceGets = users.map(function(u){
-        return db.collection('users').doc(u.uid).collection('practice').doc('stats').get()
-          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+    }).catch(function(e){
+      container.innerHTML = '<div class="error-message">Error loading invites: ' + escapeHtml(e.message || e) + '</div>';
+    });
+}
+
+function loadOnce(){
+  return Promise.all([
+    db.collection('users').get(),
+    db.collection('admins').get()
+  ]).then(function(results){
+    var usersSnap = results[0];
+    var adminSnap = results[1];
+    
+    var adminUids = {};
+    adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
+    
+    var users = [];
+    usersSnap.forEach(function(d){
+      var data = d.data() || {};
+      
+      if (adminUids[d.id]) return;
+      
+      users.push({
+        uid: d.id,
+        email: data.email || '',
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        displayName: data.displayName || '',
+        ageConfirmed: data.ageConfirmed === true,
+        selfProgress: data.selfProgress === true,
+        joinedAt: data.createdAt || null,
+        fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
       });
+    });
 
-     return Promise.all([Promise.all(statGets), Promise.all(practiceGets)]).then(function(res){
-  var statsArr = res[0];
-  var practiceArr = res[1];
+    var statGets = users.map(function(u){
+      return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
+        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+    });
 
-        var statsByUid = {};
+    var practiceGets = users.map(function(u){
+      return db.collection('users').doc(u.uid).collection('practice').doc('stats').get()
+        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+    });
+
+   return Promise.all([Promise.all(statGets), Promise.all(practiceGets)]).then(function(res){
+var statsArr = res[0];
+var practiceArr = res[1];
+
+      var statsByUid = {};
 statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
 
 var practiceByUid = {};
 practiceArr.forEach(function(x){ practiceByUid[x.uid] = x.data || {}; });
 
 users.forEach(function(u){
-  var st = statsByUid[u.uid] || {};
-  var pr = practiceByUid[u.uid] || {};
+var st = statsByUid[u.uid] || {};
+var pr = practiceByUid[u.uid] || {};
 
-  u.lastLogin = st.lastLoginAt || null;
-  u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
-  u.lastDeviceType = st.lastDeviceType || '';
-  u.lastDeviceEmoji = st.lastDeviceEmoji || '';
-  u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
-  u.totalSeconds = (typeof pr.totalSeconds === 'number') ? pr.totalSeconds : 0;
+u.lastLogin = st.lastLoginAt || null;
+u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
+u.lastDeviceType = st.lastDeviceType || '';
+u.lastDeviceEmoji = st.lastDeviceEmoji || '';
+u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
+u.totalSeconds = (typeof pr.totalSeconds === 'number') ? pr.totalSeconds : 0;
 });
 
-       users.sort(function(a, b) {
-         return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
-       });
+     users.sort(function(a, b) {
+       return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
+     });
 
-        render(users);
-      });
-    }).catch(function(e){
-      console.error(e);
-      if (window.VaultErrors) {
-        window.VaultErrors.handle(e, 'Load Admin Data');
-      } else {
-        alert('Load error: ' + (e && e.message || e));
-      }
+      render(users);
     });
-  }
-
-  auth.onAuthStateChanged(function(user){
-    showBody();
-
-    if (!user) {
-      // Not logged in - redirect to login
-      window.location.href = '/login';
-      return;
+  }).catch(function(e){
+    console.error(e);
+    if (window.VaultErrors) {
+      window.VaultErrors.handle(e, 'Load Admin Data');
+    } else {
+      alert('Load error: ' + (e && e.message || e));
     }
+  });
+}
 
-    pvIsAdmin(user).then(function(ok){
-      if (!ok) {
-        // Logged in but not admin - redirect to home
-        window.location.href = '/';
+// Tab switching
+function initTabs(){
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var tabContents = document.querySelectorAll('.tab-content');
+
+  tabBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var tabName = btn.getAttribute('data-tab');
+      
+      // Update active tab button
+      tabBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      
+      // Update active tab content
+      tabContents.forEach(function(content){
+        content.classList.remove('active');
+      });
+      document.getElementById(tabName + '-tab').classList.add('active');
+    });
+  });
+}
+
+// Initialize
+function init(){
+  try {
+    db = firebase.firestore();
+    auth = firebase.auth();
+    studentsTabEl = document.getElementById('students-tab');
+    invitesTabEl = document.getElementById('invites-tab');
+
+    initTabs();
+    renderInvitesTab();
+
+    auth.onAuthStateChanged(function(user){
+      showBody();
+
+      if (!user) {
+        window.location.href = '/login';
         return;
       }
 
-      loadOnce().catch(function(e){
-        rootEl.textContent = (e && e.message) ? e.message : 'Error loading admin data.';
+      pvIsAdmin(user).then(function(ok){
+        if (!ok) {
+          window.location.href = '/';
+          return;
+        }
+
+        loadOnce().catch(function(e){
+          if (studentsTabEl) studentsTabEl.textContent = (e && e.message) ? e.message : 'Error loading admin data.';
+        });
       });
-      
     });
-  });
-});
+  } catch (e) {
+    console.error('[Admin Init Error]', e);
+    if (window.VaultErrors) {
+      window.VaultErrors.handle(e, 'Admin Init');
+    }
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
 })();
   </script>
 
