@@ -414,6 +414,9 @@ if (pathway && slug && window.getCourseBySlug) {
       
       // Add complete lesson handler
       addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db);
+
+           // Add lesson navigation bar
+      injectLessonNavBar(courseId, lessonId, courseConfig, auth, db); 
       
       // Write progress (last lesson viewed)
       auth.onAuthStateChanged(function(user) {
@@ -504,88 +507,8 @@ if (pathway && slug && window.getCourseBySlug) {
   }
   
   function addCompleteLessonHandler(courseId, lessonId, courseConfig, auth, db) {
-    const topBtn = document.getElementById('complete-lesson-top');
-    const bottomBtn = document.getElementById('complete-lesson-bottom');
-    
-    if (!topBtn || !bottomBtn) return;
-    
-    auth.onAuthStateChanged(function(user) {
-      if (!user) {
-        topBtn.classList.add('hidden');
-        bottomBtn.classList.add('hidden');
-        return;
-      }
-      
-      const uid = user.uid;
-      
-      // Get user's showProgress setting and current progress
-      Promise.all([
-        db.collection('users').doc(uid).get(),
-        db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-      ]).then(function(results) {
-        const userDoc = results[0];
-        const progressDoc = results[1];
-        
-        const showProgress = userDoc.exists ? (userDoc.data().showProgress !== false) : true;
-        
-        let completed = [];
-        if (progressDoc.exists) {
-          completed = window.normalizeCompleted(progressDoc.data().completed);
-        }
-        
-        const isCompleted = completed.includes(lessonId);
-        
-        // Update button states
-        if (isCompleted && showProgress) {
-          topBtn.textContent = 'Completed ✓';
-          bottomBtn.textContent = 'Completed ✓';
-          topBtn.classList.add('completed');
-          bottomBtn.classList.add('completed');
-        }
-        const handleComplete = function() {
-  // Find next lesson (define ONCE at top)
-  const currentIndex = courseConfig.lessons.indexOf(lessonId);
-  const nextLesson = currentIndex < courseConfig.lessons.length - 1 
-    ? courseConfig.lessons[currentIndex + 1] 
-    : null;
-  
-  if (showProgress && !completed.includes(lessonId)) {
-    // Use progress-manager.js API
-    if (window.VaultProgress) {
-      window.VaultProgress.updateProgress(courseId, lessonId, uid)
-        .then(function() {
-          // Navigate (use variables from above, don't redefine)
-          if (nextLesson) {
-            window.location.href = window.location.pathname + '?' + courseConfig.slug + '&l=' + nextLesson;
-          } else {
-            window.location.href = window.location.pathname + '?' + courseConfig.slug;
-          }
-        })
-        .catch(function(err) {
-          console.error('Error marking complete:', err);
-          if (window.VaultToast) {
-            window.VaultToast.error('Failed to mark lesson complete');
-          }
-        });
-    } else {
-      console.error('VaultProgress not loaded!');
-    }
-  } else {
-    // Just navigate without marking complete
-    if (nextLesson) {
-      window.location.href = window.location.pathname + '?' + window.VAULT_COURSES[courseId].slug + '&l=' + nextLesson;
-    } else {
-      window.location.href = window.location.pathname + '?' + window.VAULT_COURSES[courseId].slug;
-    }
-  }
-};
-        
-        topBtn.addEventListener('click', handleComplete);
-        bottomBtn.addEventListener('click', handleComplete);
-      }).catch(function(err) {
-        console.error('Error setting up complete handler:', err);
-      });
-    });
+    // Deprecated - functionality moved to injectLessonNavBar
+    // Keeping function signature for compatibility
   }
 
 })();
