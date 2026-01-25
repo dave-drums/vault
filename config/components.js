@@ -565,7 +565,7 @@
         
         // Show toast
         if (window.VaultToast) {
-          window.VaultToast.info('Practice session stopped');
+          window.VaultToast.info('Practice timer stopped');
         }
       } else {
         // START
@@ -581,7 +581,7 @@
         
         // Show toast
         if (window.VaultToast) {
-          window.VaultToast.success('Practice session started');
+          window.VaultToast.success('Practice timer started');
         }
       }
       updateUI();
