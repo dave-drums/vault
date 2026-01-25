@@ -797,7 +797,7 @@ function injectStyles() {
           font-variant-numeric: tabular-nums;
         }
 
-        .vault-timer-dropdown {
+.vault-timer-dropdown {
           position: fixed;
           bottom: 0;
           right: 0;
@@ -814,6 +814,11 @@ function injectStyles() {
         
         .vault-timer-dropdown.show {
           transform: translateY(0);
+        }
+        
+        /* Collapsed sidebar */
+        body.sidebar-collapsed .vault-timer-dropdown {
+          left: 72px;
         }
         
         /* Mobile: full width */
