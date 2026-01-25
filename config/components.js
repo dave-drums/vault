@@ -746,7 +746,16 @@ function injectStyles() {
           box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
           z-index: 9996;
           transform: translateY(100%);
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, left 0.3s ease;
+        }
+        
+        /* Adjust for sidebar on desktop */
+        body.has-sidebar .vault-timer-dropdown {
+          left: 200px;
+        }
+        
+        body.has-sidebar.sidebar-collapsed .vault-timer-dropdown {
+          left: 64px;
         }
         
         .vault-timer-dropdown.show {
