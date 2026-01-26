@@ -533,9 +533,9 @@ document.addEventListener('DOMContentLoaded', function(){
   // Render invites tab
   function renderInvitesTab(){
     var html = '<div class="admin-section">';
-    html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;gap:16px;">';
-    html += '<div class="admin-section-title" style="flex:1;min-width:0;">Invite Management</div>';
-    html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="flex-shrink:0;width:auto;white-space:nowrap;">+ Create Invite</button>';
+    html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;padding:20px;">';
+    html += '<h2 class="admin-section-title" style="margin:0;flex:1;">Invite Management</h2>';
+    html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="flex-shrink:0;">+ Create Invite</button>';
     html += '</div>';
 
     html += '<div style="padding:12px;">';
@@ -683,50 +683,109 @@ document.addEventListener('DOMContentLoaded', function(){
       });
   }
 
+  // Helper: Parse lesson titles from master.txt content
+  function parseLessonTitles(masterText) {
+    var lines = masterText.split('\n');
+    var lessonTitles = {};
+    
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      
+      if (line.startsWith('===') && line.toUpperCase().includes('LESSON') && line.includes('|')) {
+        var match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
+        if (match) {
+          var fullTitle = match[1].trim();
+          var idMatch = fullTitle.match(/[A-Z]*(\d+)/i);
+          if (idMatch) {
+            var lessonId = idMatch[1];
+            lessonTitles[lessonId] = fullTitle;
+          }
+        }
+      }
+    }
+    
+    return lessonTitles;
+  }
+
+  // Helper: Fetch lesson titles for a course
+  function fetchLessonTitles(courseId) {
+    return new Promise(function(resolve, reject) {
+      var storage = firebase.storage();
+      var storageRef = storage.ref();
+      var masterPath = 'courses/' + courseId + '.txt';
+      
+      storageRef.child(masterPath).getDownloadURL()
+        .then(function(url) { return fetch(url); })
+        .then(function(response) { return response.text(); })
+        .then(function(masterText) {
+          var titles = parseLessonTitles(masterText);
+          resolve(titles);
+        })
+        .catch(function(err) {
+          console.warn('Could not load lesson titles for ' + courseId + ':', err);
+          resolve({});
+        });
+    });
+  }
+
   function openProgressModal(db, uid, displayName){
     var overlay = makeOverlay();
-
     var box = document.createElement('div');
     box.className = 'modal-box modal-box-wide modal-box-full-height';
 
-    // Modal Header
-    var headerHtml = 
-      '<div class="modal-header">' +
-        '<div>' +
-          '<div class="modal-title">Progress Report: ' + escapeHtml(displayName) + '</div>' +
-          '<div class="modal-subtitle">View and manage lesson completion</div>' +
-        '</div>' +
-        '<button id="progress-modal-close" class="modal-close-btn">&times;</button>' +
-      '</div>';
+    var header = document.createElement('div');
+    header.className = 'modal-header';
+    header.innerHTML =
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="modal-title">Progress Report: ' + escapeHtml(displayName) + '</div>' +
+        '<div class="modal-subtitle">Click courses to expand and view lessons</div>' +
+      '</div>' +
+      '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
+    header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
+    box.appendChild(header);
 
-    box.innerHTML = headerHtml;
-    
-    // Modal Body (scrollable)
-    var modalBody = document.createElement('div');
-    modalBody.className = 'modal-body-scrollable';
-    
-    // Course sections container (no self-progress, no stats)
-    var coursesContainer = document.createElement('div');
-    coursesContainer.id = 'progress-courses-container';
-    modalBody.appendChild(coursesContainer);
-    
-    box.appendChild(modalBody);
-    
-    // Close button handler
-    box.querySelector('#progress-modal-close').addEventListener('click', function(){
-      overlay.remove();
-    });
-    
+    // Search box
+    var searchContainer = document.createElement('div');
+    searchContainer.style.cssText = 'padding:16px 24px;border-bottom:1px solid #e9ecef;background:#f8f9fa;';
+    searchContainer.innerHTML = '<input type="text" class="search-input" placeholder="Search courses..." style="width:100%;padding:10px 16px;border:1px solid #ddd;border-radius:8px;font-size:14px;">';
+    box.appendChild(searchContainer);
+
+    // Pathway tabs
+    var tabsNav = document.createElement('div');
+    tabsNav.style.cssText = 'display:flex;border-bottom:2px solid #e9ecef;background:white;position:sticky;top:0;z-index:10;';
+    tabsNav.innerHTML = 
+      '<button class="pathway-tab active" data-pathway="gs" style="flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:#666;cursor:pointer;position:relative;bottom:-2px;">GS <span class="pathway-badge" style="display:inline-block;background:#e9ecef;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px;">0</span></button>' +
+      '<button class="pathway-tab" data-pathway="fs" style="flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:#666;cursor:pointer;position:relative;bottom:-2px;">FS <span class="pathway-badge" style="display:inline-block;background:#e9ecef;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px;">0</span></button>' +
+      '<button class="pathway-tab" data-pathway="ss" style="flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:#666;cursor:pointer;position:relative;bottom:-2px;">SS <span class="pathway-badge" style="display:inline-block;background:#e9ecef;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px;">0</span></button>' +
+      '<button class="pathway-tab" data-pathway="ks" style="flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:#666;cursor:pointer;position:relative;bottom:-2px;">KS <span class="pathway-badge" style="display:inline-block;background:#e9ecef;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px;">0</span></button>' +
+      '<button class="pathway-tab" data-pathway="rs" style="flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:14px;font-weight:600;color:#666;cursor:pointer;position:relative;bottom:-2px;">RS <span class="pathway-badge" style="display:inline-block;background:#e9ecef;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;margin-left:6px;">0</span></button>';
+    box.appendChild(tabsNav);
+
+    var body = document.createElement('div');
+    body.className = 'modal-body-scrollable';
+    body.style.padding = '0';
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading progress...</div>';
+    box.appendChild(body);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
-    
-    // Load all progress data
-    loadAllProgress(db, uid, coursesContainer);
+
+    // Bind tab hover effects
+    tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
+      tab.addEventListener('mouseenter', function(){
+        if(!tab.classList.contains('active')) tab.style.background = '#f8f9fa';
+      });
+      tab.addEventListener('mouseleave', function(){
+        if(!tab.classList.contains('active')) tab.style.background = 'none';
+      });
+    });
+
+    // Load all progress with lesson titles
+    loadAllProgressImproved(db, uid, body, tabsNav, searchContainer);
   }
   
-  function loadAllProgress(db, uid, coursesContainer){
+  function loadAllProgressImproved(db, uid, bodyEl, tabsNav, searchContainer){
     if (!window.VAULT_COURSES) {
-      coursesContainer.innerHTML = '<div class="empty-message">No courses available</div>';
+      bodyEl.innerHTML = '<div class="empty-message">No courses available</div>';
       return;
     }
     
@@ -739,25 +798,41 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     
     if (courseIds.length === 0) {
-      coursesContainer.innerHTML = '<div class="empty-message">No courses with lessons yet</div>';
+      bodyEl.innerHTML = '<div class="empty-message">No courses with lessons yet</div>';
       return;
     }
     
-    // Load progress for all courses
-    var progressPromises = courseIds.map(function(courseId){
-      return db.collection('users').doc(uid).collection('progress').doc(courseId).get()
-        .then(function(snap){
-          return {
-            courseId: courseId,
-            data: snap.exists ? snap.data() : {}
-          };
+    // Load progress + lesson titles
+    Promise.all([
+      // Load progress for all courses
+      Promise.all(courseIds.map(function(courseId){
+        return db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+          .then(function(snap){
+            return {
+              courseId: courseId,
+              data: snap.exists ? snap.data() : {}
+            };
+          });
+      })),
+      // Load lesson titles for all courses
+      Promise.all(courseIds.map(function(courseId){
+        return fetchLessonTitles(courseId).then(function(titles){
+          return { courseId: courseId, titles: titles };
         });
-    });
-    
-    Promise.all(progressPromises).then(function(results){
-      var courseProgress = {};
+      }))
+    ]).then(function(results){
+      var progressResults = results[0];
+      var titleResults = results[1];
       
-      results.forEach(function(result){
+      // Build lookup objects
+      var courseProgress = {};
+      var titlesByCourse = {};
+      
+      titleResults.forEach(function(item){
+        titlesByCourse[item.courseId] = item.titles;
+      });
+      
+      progressResults.forEach(function(result){
         var courseId = result.courseId;
         var courseData = window.VAULT_COURSES[courseId];
         var progressData = result.data;
@@ -766,12 +841,12 @@ document.addEventListener('DOMContentLoaded', function(){
         var lessonCount = courseData.lessons.length;
         var completedCount = 0;
         
-var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : Object.keys(completed).filter(function(k){return completed[k]===true;}));
-courseData.lessons.forEach(function(lessonId){
-  if (completedArray.indexOf(lessonId) !== -1) {
-    completedCount++;
-  }
-});
+        var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : Object.keys(completed).filter(function(k){return completed[k]===true;}));
+        courseData.lessons.forEach(function(lessonId){
+          if (completedArray.indexOf(lessonId) !== -1) {
+            completedCount++;
+          }
+        });
         
         courseProgress[courseId] = {
           completed: completedCount,
@@ -780,104 +855,182 @@ courseData.lessons.forEach(function(lessonId){
         };
       });
       
-      // Render course sections
-      var coursesHtml = '';
+      // Organize by pathway
+      var pathwayCourses = { gs: [], fs: [], ss: [], ks: [], rs: [] };
       
       courseIds.forEach(function(courseId){
         var courseData = window.VAULT_COURSES[courseId];
-        var progress = courseProgress[courseId];
+        var pathway = courseData.pathway || 'gs';
+        pathwayCourses[pathway].push(courseId);
+      });
+      
+      // Update pathway badges
+      tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
+        var pathway = tab.getAttribute('data-pathway');
+        var badge = tab.querySelector('.pathway-badge');
+        if (badge) badge.textContent = pathwayCourses[pathway].length;
+      });
+      
+      // Render pathway content
+      var html = '';
+      for (var pathway in pathwayCourses) {
+        var courses = pathwayCourses[pathway];
+        var isActive = pathway === 'gs' ? ' active' : '';
         
-        var levelBadgeColor = '#e0f2fe';
-        var levelTextColor = '#0284c7';
-        if (courseData.topic.includes('Intermediate')) {
-          levelBadgeColor = '#fef3c7';
-          levelTextColor = '#d97706';
-        } else if (courseData.topic.includes('Advanced')) {
-          levelBadgeColor = '#fee2e2';
-          levelTextColor = '#dc2626';
+        html += '<div id="' + pathway + '-content" class="pathway-content" style="display:' + (isActive ? 'block' : 'none') + ';padding:16px 0;">';
+        
+        if (courses.length === 0) {
+          html += '<div style="text-align:center;padding:60px 20px;color:#999;">';
+          html += '<div style="font-size:48px;margin-bottom:12px;opacity:0.3;">🥁</div>';
+          html += '<div style="font-size:16px;color:#666;font-weight:500;">No courses in this pathway yet</div>';
+          html += '</div>';
+        } else {
+          courses.forEach(function(courseId){
+            var courseData = window.VAULT_COURSES[courseId];
+            var progress = courseProgress[courseId];
+            var lessonTitles = titlesByCourse[courseId] || {};
+            
+            var pct = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+            
+            html += '<div class="course-section" data-course-name="' + escapeHtml(courseData.topic) + '" style="margin:0 24px 12px;border:1px solid #e9ecef;border-radius:12px;overflow:hidden;background:white;">';
+            
+            // Course header (clickable)
+            html += '<div class="course-header" style="padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" data-course="' + courseId + '">';
+            html += '<div style="flex:1;">';
+            html += '<div style="font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:4px;">' + escapeHtml(courseData.pathwayName) + ' - ' + escapeHtml(courseData.topic) + '</div>';
+            html += '<div style="font-size:13px;color:#666;">' + progress.completed + '/' + progress.total + ' complete</div>';
+            html += '</div>';
+            html += '<div class="course-arrow" style="font-size:20px;color:#999;transition:transform 0.2s;">▼</div>';
+            html += '</div>';
+            
+            // Progress bar
+            html += '<div style="height:4px;background:#e9ecef;margin:0 20px 16px;">';
+            html += '<div style="height:100%;background:linear-gradient(90deg,#06b3fd,#38bdf8);width:' + pct + '%;transition:width 0.3s;"></div>';
+            html += '</div>';
+            
+            // Collapsible lesson grid
+            html += '<div class="course-lessons" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">';
+            html += '<div class="lesson-grid">';
+            
+            courseData.lessons.forEach(function(lessonId){
+              var completedArray = window.normalizeCompleted ? window.normalizeCompleted(progress.completedLessons) : (Array.isArray(progress.completedLessons) ? progress.completedLessons : []);
+              var isCompleted = completedArray.indexOf(lessonId) !== -1;
+              var lessonTitle = lessonTitles[lessonId] || lessonId;
+              var completedClass = isCompleted ? ' completed' : '';
+              
+              html += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '" title="' + escapeHtml(lessonTitle) + '" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:' + (isCompleted ? '#d1fae5' : '#f8f9fa') + ';border:1px solid ' + (isCompleted ? '#10b981' : '#e9ecef') + ';border-radius:6px;font-size:13px;cursor:pointer;transition:all 0.2s;">';
+              html += '<span class="lesson-id" style="font-weight:500;color:#1a1a2e;">' + escapeHtml(lessonTitle) + '</span>';
+              html += '<div class="lesson-toggle' + completedClass + '" style="width:18px;height:18px;border-radius:50%;border:2px solid ' + (isCompleted ? '#10b981' : '#e0e0e0') + ';background:' + (isCompleted ? '#10b981' : 'white') + ';display:flex;align-items:center;justify-content:center;font-size:11px;color:white;">' + (isCompleted ? '✓' : '') + '</div>';
+              html += '</div>';
+            });
+            
+            html += '</div>';
+            html += '</div>';
+            
+            html += '</div>';
+          });
         }
         
-        coursesHtml += '<div class="course-section">';
-        
-        // Course header
-        coursesHtml += '<div class="course-section-header">';
-        coursesHtml += '<div class="course-info">';
-        coursesHtml += '<div class="course-name">' + escapeHtml(courseData.pathwayName) + '</div>';
-        coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.topic) + '</div>';
-        coursesHtml += '</div>';
-        coursesHtml += '</div>';
-        
-        // Lesson grid
-        coursesHtml += '<div class="lesson-grid">';
-        
-        courseData.lessons.forEach(function(lessonId){
-var completedArray = window.normalizeCompleted ? window.normalizeCompleted(progress.completedLessons) : (Array.isArray(progress.completedLessons) ? progress.completedLessons : []);
-var isCompleted = completedArray.indexOf(lessonId) !== -1;
-          var completedClass = isCompleted ? ' completed' : '';
+        html += '</div>';
+      }
+      
+      bodyEl.innerHTML = html;
+      
+      // Bind tab switching
+      tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
+        tab.addEventListener('click', function(){
+          var pathway = tab.getAttribute('data-pathway');
           
-          coursesHtml += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '">';
-          coursesHtml += '<span class="lesson-id">' + lessonId + '</span>';
-          coursesHtml += '<div class="lesson-toggle' + completedClass + '"></div>';
-          coursesHtml += '</div>';
+          tabsNav.querySelectorAll('.pathway-tab').forEach(function(t){ 
+            t.classList.remove('active'); 
+            t.style.cssText = t.style.cssText.replace('border-bottom-color:#06b3fd', 'border-bottom-color:transparent').replace('color:#06b3fd', 'color:#666');
+          });
+          tab.classList.add('active');
+          tab.style.borderBottomColor = '#06b3fd';
+          tab.style.color = '#06b3fd';
+          
+          bodyEl.querySelectorAll('.pathway-content').forEach(function(content){
+            content.style.display = 'none';
+          });
+          bodyEl.querySelector('#' + pathway + '-content').style.display = 'block';
         });
-        
-        coursesHtml += '</div>';
-        coursesHtml += '</div>';
       });
       
-      coursesContainer.innerHTML = coursesHtml;
-      
-// Add click handlers for lesson items
-coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
-  item.addEventListener('click', function(){
-    var courseId = item.getAttribute('data-course');
-    var lessonId = item.getAttribute('data-lesson');
-    var isCompleted = item.classList.contains('completed');
-    var newState = !isCompleted;
-    
-    // Update Firestore - use ARRAY format
-    var currentProgress = courseProgress[courseId].completedLessons;
-    var newCompleted;
-    
-    if (Array.isArray(currentProgress)) {
-      // Array format
-      if (newState) {
-        newCompleted = currentProgress.concat([lessonId]);
-      } else {
-        newCompleted = currentProgress.filter(function(id){ return id !== lessonId; });
-      }
-    } else {
-      // Object format - convert to array
-      var arr = Object.keys(currentProgress).filter(function(k){ return currentProgress[k] === true; });
-      if (newState) {
-        newCompleted = arr.concat([lessonId]);
-      } else {
-        newCompleted = arr.filter(function(id){ return id !== lessonId; });
-      }
-    }
-    
-    db.collection('users').doc(uid).collection('progress').doc(courseId)
-      .set({
-        completed: newCompleted,
-        lastLesson: lessonId,
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true })
-      .then(function(){
-        if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
-        loadAllProgress(db, uid, coursesContainer);
-      })
-      .catch(function(e){
-        console.error('Failed to update:', e);
-        if(window.VaultToast) {
-          window.VaultToast.error('Update failed: ' + e.message);
-        }
+      // Bind course expansion
+      bodyEl.querySelectorAll('.course-header').forEach(function(header){
+        header.addEventListener('click', function(){
+          var section = header.closest('.course-section');
+          var lessonsDiv = section.querySelector('.course-lessons');
+          var arrow = section.querySelector('.course-arrow');
+          
+          if (lessonsDiv.style.maxHeight && lessonsDiv.style.maxHeight !== '0px') {
+            lessonsDiv.style.maxHeight = '0';
+            arrow.style.transform = 'rotate(0deg)';
+          } else {
+            lessonsDiv.style.maxHeight = '2000px';
+            arrow.style.transform = 'rotate(180deg)';
+          }
+        });
       });
-  });
-});
+      
+      // Bind search
+      var searchInput = searchContainer.querySelector('.search-input');
+      searchInput.addEventListener('input', function(e){
+        var query = e.target.value.toLowerCase();
+        bodyEl.querySelectorAll('.course-section').forEach(function(section){
+          var courseName = section.getAttribute('data-course-name').toLowerCase();
+          section.style.display = courseName.includes(query) || query === '' ? 'block' : 'none';
+        });
+      });
+      
+      // Bind lesson toggles
+      bodyEl.querySelectorAll('.lesson-item').forEach(function(item){
+        item.addEventListener('click', function(){
+          var courseId = item.getAttribute('data-course');
+          var lessonId = item.getAttribute('data-lesson');
+          var isCompleted = item.classList.contains('completed');
+          var newState = !isCompleted;
+          
+          var currentProgress = courseProgress[courseId].completedLessons;
+          var newCompleted;
+          
+          if (Array.isArray(currentProgress)) {
+            if (newState) {
+              newCompleted = currentProgress.concat([lessonId]);
+            } else {
+              newCompleted = currentProgress.filter(function(id){ return id !== lessonId; });
+            }
+          } else {
+            var arr = Object.keys(currentProgress).filter(function(k){ return currentProgress[k] === true; });
+            if (newState) {
+              newCompleted = arr.concat([lessonId]);
+            } else {
+              newCompleted = arr.filter(function(id){ return id !== lessonId; });
+            }
+          }
+          
+          db.collection('users').doc(uid).collection('progress').doc(courseId)
+            .set({
+              completed: newCompleted,
+              lastLesson: lessonId,
+              lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true })
+            .then(function(){
+              if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+              loadAllProgressImproved(db, uid, bodyEl, tabsNav, searchContainer);
+            })
+            .catch(function(e){
+              console.error('Failed to update:', e);
+              if(window.VaultToast) {
+                window.VaultToast.error('Update failed: ' + e.message);
+              }
+            });
+        });
+      });
       
     }).catch(function(e){
       console.error('Failed to load progress:', e);
-      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading progress data</div>';
+      bodyEl.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading progress data</div>';
     });
   }
 
