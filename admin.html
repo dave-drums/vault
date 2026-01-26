@@ -686,6 +686,59 @@ function openInvitesModal(db){
     });
 }
 
+// Helper: Parse lesson titles from master.txt content
+function parseLessonTitles(masterText) {
+  var lines = masterText.split('\n');
+  var lessonTitles = {};
+  
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    
+    // Look for === LESSON | Title ===
+    if (line.startsWith('===') && line.toUpperCase().includes('LESSON') && line.includes('|')) {
+      var match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
+      if (match) {
+        var fullTitle = match[1].trim();
+        
+        // Extract lesson ID from title (e.g., "K1.01 Kick Grid" -> "01")
+        var idMatch = fullTitle.match(/[A-Z]*[\d.]+/i);
+        if (idMatch) {
+          var rawId = idMatch[0];
+          // Get just the number part (01, 02, 70, 80, etc.)
+          var numMatch = rawId.match(/\d+$/);
+          if (numMatch) {
+            var lessonId = numMatch[0];
+            lessonTitles[lessonId] = fullTitle;
+          }
+        }
+      }
+    }
+  }
+  
+  return lessonTitles;
+}
+
+// Helper: Fetch lesson titles for a course from Firebase Storage
+function fetchLessonTitles(courseId) {
+  return new Promise(function(resolve, reject) {
+    var storage = firebase.storage();
+    var storageRef = storage.ref();
+    var masterPath = 'courses/' + courseId + '.txt';
+    
+    storageRef.child(masterPath).getDownloadURL()
+      .then(function(url) { return fetch(url); })
+      .then(function(response) { return response.text(); })
+      .then(function(masterText) {
+        var titles = parseLessonTitles(masterText);
+        resolve(titles);
+      })
+      .catch(function(err) {
+        console.warn('Could not load lesson titles for ' + courseId + ':', err);
+        resolve({}); // Return empty object on error
+      });
+  });
+}
+
 // Progress Modal - IMPROVED VERSION with tabs and collapsible courses
 function openProgressModal(db, uid, displayName){
   var overlay = makeOverlay();
@@ -729,13 +782,36 @@ function openProgressModal(db, uid, displayName){
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  // Load progress - EXACT SAME Firebase operations as before
-  db.collection('users').doc(uid).collection('progress').get()
-    .then(function(snap){
-      var allProgress = {};
-      snap.forEach(function(doc){ allProgress[doc.id] = doc.data(); });
-
+  // Load progress AND lesson titles
+  Promise.all([
+    db.collection('users').doc(uid).collection('progress').get(),
+    (function() {
       var COURSES = window.VAULT_COURSES || {};
+      var titlePromises = [];
+      for (var courseId in COURSES) {
+        titlePromises.push(
+          fetchLessonTitles(courseId).then(function(courseId) {
+            return function(titles) {
+              return { courseId: courseId, titles: titles };
+            };
+          }(courseId))
+        );
+      }
+      return Promise.all(titlePromises);
+    })()
+  ]).then(function(results){
+    var snap = results[0];
+    var allTitles = results[1];
+    
+    var titlesByCourse = {};
+    allTitles.forEach(function(item) {
+      titlesByCourse[item.courseId] = item.titles;
+    });
+    
+    var allProgress = {};
+    snap.forEach(function(doc){ allProgress[doc.id] = doc.data(); });
+
+    var COURSES = window.VAULT_COURSES || {};
       
       // Organize courses by pathway
       var pathwayCourses = { gs: [], fs: [], ss: [], ks: [], rs: [] };
@@ -774,6 +850,7 @@ function openProgressModal(db, uid, displayName){
           courses.forEach(function(courseObj){
             var courseId = courseObj.courseId;
             var course = courseObj.course;
+            var lessonTitles = titlesByCourse[courseId] || {};
             
             var prog = allProgress[courseId] || {};
             var completedRaw = prog.completed || [];
@@ -819,8 +896,9 @@ function openProgressModal(db, uid, displayName){
             html += '<div class="lesson-grid">';
             course.lessons.forEach(function(lessonId){
               var isComplete = completed.indexOf(lessonId) !== -1;
-              html += '<div class="lesson-item' + (isComplete ? ' completed' : '') + '" data-course="' + escapeHtml(courseId) + '" data-lesson="' + escapeHtml(lessonId) + '" data-uid="' + escapeHtml(uid) + '">';
-              html += '<span class="lesson-id">' + escapeHtml(lessonId) + '</span>';
+              var lessonTitle = lessonTitles[lessonId] || lessonId;
+              html += '<div class="lesson-item' + (isComplete ? ' completed' : '') + '" data-course="' + escapeHtml(courseId) + '" data-lesson="' + escapeHtml(lessonId) + '" data-uid="' + escapeHtml(uid) + '" title="' + escapeHtml(lessonTitle) + '">';
+              html += '<span class="lesson-id">' + escapeHtml(lessonTitle) + '</span>';
               html += '<span class="lesson-toggle' + (isComplete ? ' completed' : '') + '">' + (isComplete ? '✓' : '') + '</span>';
               html += '</div>';
             });
