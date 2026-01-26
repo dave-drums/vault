@@ -484,208 +484,120 @@ function makeOverlay(){
 // NEW: Add User Modal with two-step process
 function openAddUserModal(db){
   var overlay = makeOverlay();
+
   var box = document.createElement('div');
   box.className = 'modal-box';
   pvApplyFontFromBase(box);
 
-  var header = document.createElement('div');
-  header.className = 'modal-header';
-  header.innerHTML =
-    '<div style="flex:1;min-width:0;"><div class="modal-title">Add New Student</div><div class="modal-subtitle">Step 1: Enter student details</div></div>' +
-    '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
-  header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
-  box.appendChild(header);
-
-  var body = document.createElement('div');
-  body.className = 'modal-body';
-  body.innerHTML =
-    '<div class="form-group">' +
-      '<label class="form-label">Email Address</label>' +
-      '<input type="email" id="pv-new-email" class="form-input" placeholder="student@example.com">' +
-    '</div>' +
-    '<div class="form-group">' +
-      '<label class="form-label">First Name</label>' +
-      '<input type="text" id="pv-new-firstname" class="form-input" placeholder="John">' +
-    '</div>' +
-    '<div class="form-group">' +
-      '<label class="form-label">Last Name</label>' +
-      '<input type="text" id="pv-new-lastname" class="form-input" placeholder="Smith">' +
-    '</div>' +
-    '<div class="button-group">' +
-      '<button type="button" class="btn btn-secondary">Cancel</button>' +
-      '<button type="button" class="btn btn-primary">Next</button>' +
+  var headerHtml = 
+    '<div class="modal-header">' +
+      '<div>' +
+        '<div class="modal-title">Add User</div>' +
+        '<div class="modal-subtitle">Create an invite link</div>' +
+      '</div>' +
+      '<button id="modal-close-btn" class="modal-close-btn">&times;</button>' +
     '</div>';
-  box.appendChild(body);
+
+  var step1Html = 
+    '<div id="email-step" class="step-container">' +
+      '<div class="form-group">' +
+        '<label class="form-label">Email Address</label>' +
+        '<input type="email" id="invite-email" placeholder="user@example.com" class="form-input">' +
+      '</div>' +
+      '<div class="button-group">' +
+        '<button id="invite-close" class="btn btn-secondary">Close</button>' +
+        '<button id="invite-create" class="btn btn-primary">Create Invite</button>' +
+      '</div>' +
+    '</div>';
+
+  var step2Html = 
+    '<div id="invite-link-step" class="step-container hidden">' +
+      '<div class="success-message">' +
+        '<div class="success-icon">✓</div>' +
+        '<div class="success-text">Invite Created Successfully</div>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">Invite Link</label>' +
+        '<textarea id="invite-url" readonly class="form-textarea"></textarea>' +
+      '</div>' +
+      '<div class="form-help-text">Link does not expire</div>' +
+      '<button id="copy-invite" class="btn btn-primary btn-full">📋 Copy Link</button>' +
+      '<button id="reset-modal" class="btn btn-secondary btn-full">Close</button>' +
+    '</div>';
+
+  box.innerHTML = headerHtml + step1Html + step2Html;
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  body.querySelector('.btn-secondary').addEventListener('click', function(){ overlay.remove(); });
-  body.querySelector('.btn-primary').addEventListener('click', function(){
-    var email = (box.querySelector('#pv-new-email').value || '').trim();
-    var firstName = (box.querySelector('#pv-new-firstname').value || '').trim();
-    var lastName = (box.querySelector('#pv-new-lastname').value || '').trim();
+  function close(){ overlay.remove(); }
+  
+  box.querySelector('#modal-close-btn').addEventListener('click', close);
+  box.querySelector('#invite-close').addEventListener('click', close);
 
+  var emailInput = box.querySelector('#invite-email');
+  var createBtn = box.querySelector('#invite-create');
+  var step1 = box.querySelector('#email-step');
+  var step2 = box.querySelector('#invite-link-step');
+  var urlTextarea = box.querySelector('#invite-url');
+
+  function resetModal(){
+    step1.classList.remove('hidden');
+    step2.classList.add('hidden');
+    emailInput.value = '';
+  }
+
+  box.querySelector('#reset-modal').addEventListener('click', close);
+
+  createBtn.addEventListener('click', function(){
+    var email = (emailInput.value || '').trim().toLowerCase();
     if (!email) {
-      if (window.VaultErrors) window.VaultErrors.handle({message:'Email is required'},'Add User');
-      else alert('Email is required');
-      return;
-    }
-    if (!firstName) {
-      if (window.VaultErrors) window.VaultErrors.handle({message:'First name is required'},'Add User');
-      else alert('First name is required');
-      return;
-    }
-    if (!lastName) {
-      if (window.VaultErrors) window.VaultErrors.handle({message:'Last name is required'},'Add User');
-      else alert('Last name is required');
+      if (window.VaultErrors) window.VaultErrors.info('Please enter an email address');
       return;
     }
 
-    // Step 2: create token & show link
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+
     var token = randomToken(16);
-    db.collection(INVITES_COL).add({
+    
+    db.collection(INVITES_COL).doc(token).set({
       email: email,
-      firstName: firstName,
-      lastName: lastName,
-      token: token,
+      used: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      status: 'pending'
     }).then(function(){
-      var link = CREATE_ACCOUNT_URL_BASE + encodeURIComponent(token);
+      var link = CREATE_ACCOUNT_URL_BASE + token;
+      
+      step1.classList.add('hidden');
+      step2.classList.remove('hidden');
+      urlTextarea.value = link;
+      
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create Invite';
+    }).catch(function(err){
+      createBtn.disabled = false;
+      createBtn.textContent = 'Create Invite';
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(err, 'Create Invite');
+      } else {
+        alert('Failed to create invite');
+      }
+    });
+  });
 
-      header.innerHTML =
-        '<div style="flex:1;min-width:0;"><div class="modal-title">Student Invite Created!</div><div class="modal-subtitle">Share this link with ' + escapeHtml(firstName) + '</div></div>' +
-        '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
-      header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
-
-      body.innerHTML =
-        '<div class="success-message">' +
-          '<div class="success-icon">✓</div>' +
-          '<div class="success-text">Invite link created!</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Invite Link</label>' +
-          '<input type="text" readonly class="form-input" value="' + link + '">' +
-        '</div>' +
-        '<p class="form-help-text">Send this link to ' + escapeHtml(firstName) + ' so they can create their account.</p>' +
-        '<div class="button-group">' +
-          '<button type="button" class="btn btn-secondary">Close</button>' +
-          '<button type="button" class="btn btn-primary">Copy Link</button>' +
-        '</div>';
-
-      body.querySelector('.btn-secondary').addEventListener('click', function(){ overlay.remove(); });
-      body.querySelector('.btn-primary').addEventListener('click', function(){
-        copyText(link).then(function(){
-          if (window.VaultErrors) window.VaultErrors.success('Link copied!');
-          else alert('Link copied!');
-        }).catch(function(e){
-          if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Link');
-          else alert('Failed to copy link');
-        });
-      });
-    }).catch(function(e){
-      if (window.VaultErrors) window.VaultErrors.handle(e, 'Create Invite');
-      else alert('Error: ' + (e.message || e));
+  box.querySelector('#copy-invite').addEventListener('click', function(){
+    copyText(urlTextarea.value).then(function(){
+      if (window.VaultErrors) {
+        window.VaultErrors.success('Invite link copied!');
+      }
+    }).catch(function(){
+      if (window.VaultErrors) {
+        window.VaultErrors.info('Failed to copy link');
+      }
     });
   });
 }
 
 // Invites Modal
-function openInvitesModal(db){
-  var overlay = makeOverlay();
-  var box = document.createElement('div');
-  box.className = 'modal-box modal-box-wide modal-box-full-height';
-  pvApplyFontFromBase(box);
-
-  var header = document.createElement('div');
-  header.className = 'modal-header';
-  header.innerHTML =
-    '<div style="flex:1;min-width:0;"><div class="modal-title">Manage Invites</div><div class="modal-subtitle">View and manage student invites</div></div>' +
-    '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
-  header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
-  box.appendChild(header);
-
-  var body = document.createElement('div');
-  body.className = 'modal-body-scrollable';
-  body.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading invites...</div>';
-  box.appendChild(body);
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  // Load invites
-  db.collection(INVITES_COL).orderBy('createdAt', 'desc').get()
-    .then(function(snap){
-      var invites = [];
-      snap.forEach(function(doc){ invites.push({ id: doc.id, data: doc.data() }); });
-
-      var html = '<button type="button" class="btn btn-primary btn-full">+ Create New Invite</button>';
-      html += '<div class="invite-table">';
-      html += '<div class="invite-table-header"><div>Email</div><div>Status</div><div>Created</div><div>Actions</div></div>';
-
-      if (!invites.length) {
-        html += '<div style="text-align:center;padding:40px;color:#999;">No invites yet.</div>';
-      } else {
-        invites.forEach(function(inv){
-          var d = inv.data;
-          var link = CREATE_ACCOUNT_URL_BASE + encodeURIComponent(d.token || '');
-          var statusClass = (d.status === 'used') ? 'invite-status-used' : 'invite-status-pending';
-
-          html += '<div class="invite-table-row">';
-          html += '<div class="invite-email">' + escapeHtml(d.email || 'No email') + '</div>';
-          html += '<div><span class="invite-status ' + statusClass + '">' + escapeHtml(d.status || 'pending') + '</span></div>';
-          html += '<div class="invite-date">' + formatDateOnly(d.createdAt) + '</div>';
-          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-          html += '<button type="button" class="btn btn-action copy-invite-btn" data-link="' + escapeHtml(link) + '">Copy Link</button>';
-          html += '<button type="button" class="btn btn-danger" data-id="' + inv.id + '">Remove</button>';
-          html += '</div>';
-          html += '</div>';
-        });
-      }
-
-      html += '</div>';
-      body.innerHTML = html;
-
-      // Bind copy buttons
-      body.querySelectorAll('.copy-invite-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var link = btn.getAttribute('data-link');
-          copyText(link).then(function(){
-            if (window.VaultErrors) window.VaultErrors.success('Invite link copied!');
-            else alert('Link copied!');
-          }).catch(function(e){
-            if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Invite Link');
-            else alert('Failed to copy link');
-          });
-        });
-      });
-
-      // Bind remove buttons
-      body.querySelectorAll('.btn-danger').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var inviteId = btn.getAttribute('data-id');
-          if (!confirm('Are you sure you want to remove this invite?')) return;
-          
-          db.collection(INVITES_COL).doc(inviteId).delete()
-            .then(function(){
-              if (window.VaultErrors) window.VaultErrors.success('Invite removed');
-              openInvitesModal(db); // Refresh the modal
-              overlay.remove();
-            })
-            .catch(function(e){
-              if (window.VaultErrors) window.VaultErrors.handle(e, 'Remove Invite');
-              else alert('Error: ' + (e.message || e));
-            });
-        });
-      });
-
-      // Bind create button
-      body.querySelector('.btn-primary').addEventListener('click', function(){ overlay.remove(); openAddUserModal(db); });
-
-    }).catch(function(e){
-      body.innerHTML = '<div class="error-message">Error loading invites: ' + escapeHtml(e.message || e) + '</div>';
-    });
-}
-
 // Helper: Parse lesson titles from master.txt content
 function parseLessonTitles(masterText) {
   var lines = masterText.split('\n');
@@ -1217,9 +1129,9 @@ function render(users){
 // Render invites tab
 function renderInvitesTab(){
   var html = '<div class="admin-section">';
-  html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;">';
-  html += '<div class="admin-section-title">Invite Management</div>';
-  html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="width:auto;">+ Create Invite</button>';
+  html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;gap:16px;">';
+  html += '<div class="admin-section-title" style="flex:1;min-width:0;">Invite Management</div>';
+  html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="flex-shrink:0;width:auto;white-space:nowrap;">+ Create Invite</button>';
   html += '</div>';
 
   html += '<div style="padding:12px;">';
@@ -1254,16 +1166,32 @@ function loadInvites(){
       } else {
         invites.forEach(function(inv){
           var d = inv.data;
-          var link = CREATE_ACCOUNT_URL_BASE + encodeURIComponent(d.token || '');
-          var statusClass = (d.status === 'used') ? 'invite-status-used' : 'invite-status-pending';
+          var email = d.email || '-';
+          var used = d.used === true;
+          var createdAt = formatDateOnly(d.createdAt);
 
-          html += '<div class="invite-table-row">';
-          html += '<div class="invite-email">' + escapeHtml(d.email || 'No email') + '</div>';
-          html += '<div><span class="invite-status ' + statusClass + '">' + escapeHtml(d.status || 'pending') + '</span></div>';
-          html += '<div class="invite-date">' + formatDateOnly(d.createdAt) + '</div>';
+          var statusClass, statusText;
+          if (used) {
+            statusClass = 'invite-status-used';
+            statusText = 'Used';
+          } else {
+            statusClass = 'invite-status-pending'; 
+            statusText = 'Active';
+          }
+
+          var opacity = used ? '0.6' : '1';
+
+          html += '<div class="invite-table-row" style="opacity:' + opacity + ';">';
+          html += '<div class="invite-email">' + escapeHtml(email) + '</div>';
+          html += '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>';
+          html += '<div class="invite-date">' + createdAt + '</div>';
           html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-          html += '<button type="button" class="btn btn-secondary copy-invite-btn" style="padding:6px 12px;font-size:12px;" data-link="' + escapeHtml(link) + '">Copy Link</button>';
-          html += '<button type="button" class="btn btn-secondary remove-invite-btn" style="padding:6px 12px;font-size:12px;" data-id="' + inv.id + '">Remove</button>';
+          if (used) {
+            html += '<span style="color:#999;">—</span>';
+          } else {
+            html += '<button type="button" class="btn btn-secondary copy-invite-btn" style="padding:6px 12px;font-size:12px;" data-token="' + inv.id + '">Copy Link</button>';
+            html += '<button type="button" class="btn btn-secondary remove-invite-btn" style="padding:6px 12px;font-size:12px;" data-id="' + inv.id + '">Remove</button>';
+          }
           html += '</div>';
           html += '</div>';
         });
@@ -1275,7 +1203,8 @@ function loadInvites(){
       // Bind copy buttons
       container.querySelectorAll('.copy-invite-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var link = btn.getAttribute('data-link');
+          var token = btn.getAttribute('data-token');
+          var link = CREATE_ACCOUNT_URL_BASE + token;
           copyText(link).then(function(){
             if (window.VaultErrors) window.VaultErrors.success('Invite link copied!');
             else alert('Link copied!');
@@ -1290,7 +1219,7 @@ function loadInvites(){
       container.querySelectorAll('.remove-invite-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
           var inviteId = btn.getAttribute('data-id');
-          if (!confirm('Are you sure you want to remove this invite?')) return;
+          if (!confirm('Remove this invite? The link will no longer work.')) return;
           
           db.collection(INVITES_COL).doc(inviteId).delete()
             .then(function(){
