@@ -68,218 +68,6 @@
     .tab-content.active {
       display: block;
     }
-
-    /* Progress Modal Improvements */
-    .progress-search {
-      padding: 16px 24px;
-      border-bottom: 1px solid #e9ecef;
-      background: #f8f9fa;
-    }
-    .search-input {
-      width: 100%;
-      padding: 10px 16px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    .pathway-tabs {
-      display: flex;
-      border-bottom: 2px solid #e9ecef;
-      background: white;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .pathway-tab {
-      flex: 1;
-      padding: 14px 16px;
-      background: none;
-      border: none;
-      border-bottom: 3px solid transparent;
-      font-size: 14px;
-      font-weight: 600;
-      color: #666;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      bottom: -2px;
-      font-family: inherit;
-      text-align: center;
-    }
-    .pathway-tab:hover {
-      color: #1a1a2e;
-      background: #f8f9fa;
-    }
-    .pathway-tab.active {
-      color: #06b3fd;
-      border-bottom-color: #06b3fd;
-      background: white;
-    }
-    .pathway-badge {
-      display: inline-block;
-      background: #e9ecef;
-      color: #666;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      margin-left: 6px;
-      font-weight: 500;
-    }
-    .pathway-tab.active .pathway-badge {
-      background: #e0f2fe;
-      color: #06b3fd;
-    }
-    .pathway-content {
-      display: none;
-      padding: 16px 0;
-    }
-    .pathway-content.active {
-      display: block;
-    }
-    .course-section {
-      margin: 0 24px 12px 24px;
-      border: 1px solid #e9ecef;
-      border-radius: 12px;
-      overflow: hidden;
-      background: white;
-    }
-    .course-header {
-      padding: 16px 20px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s;
-      user-select: none;
-    }
-    .course-header:hover {
-      background: #f8f9fa;
-    }
-    .course-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .course-name {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1a1a2e;
-      margin-bottom: 4px;
-    }
-    .course-meta {
-      font-size: 13px;
-      color: #666;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .course-level {
-      display: inline-block;
-      background: #e9ecef;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .course-stats {
-      font-size: 14px;
-      color: #666;
-    }
-    .course-arrow {
-      font-size: 20px;
-      color: #999;
-      transition: transform 0.2s;
-    }
-    .course-section.expanded .course-arrow {
-      transform: rotate(180deg);
-    }
-    .course-progress-bar {
-      height: 4px;
-      background: #e9ecef;
-      margin: 0 20px 16px 20px;
-    }
-    .course-progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #06b3fd, #38bdf8);
-      transition: width 0.3s;
-    }
-    .course-lessons {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-    .course-section.expanded .course-lessons {
-      max-height: 2000px;
-    }
-    .lesson-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      padding: 0 20px 16px 20px;
-    }
-    .lesson-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 10px;
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .lesson-item:hover {
-      background: #fff;
-      border-color: #06b3fd;
-    }
-    .lesson-item.completed {
-      background: #d1fae5;
-      border-color: #10b981;
-    }
-    .lesson-id {
-      font-weight: 500;
-      color: #1a1a2e;
-    }
-    .lesson-toggle {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 2px solid #e0e0e0;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-    }
-    .lesson-toggle.completed {
-      background: #10b981;
-      border-color: #10b981;
-      color: white;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #999;
-    }
-    .empty-state-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.3;
-    }
-    @media (max-width: 768px) {
-      .lesson-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-      .pathway-tab {
-        font-size: 12px;
-        padding: 12px 8px;
-      }
-      .pathway-badge {
-        display: none;
-      }
-    }
   </style>
   
 </head>
@@ -307,8 +95,14 @@
     </div>
     
     <!-- Tab Contents -->
-    <div id="students-tab" class="tab-content active"></div>
-    <div id="invites-tab" class="tab-content"></div>
+    <div id="students-tab" class="tab-content active">
+      <div id="vault-admin-root"></div>
+    </div>
+    
+    <div id="invites-tab" class="tab-content">
+      <!-- Invites content will go here -->
+    </div>
+    
     <div id="videos-tab" class="tab-content">
       <div class="admin-section">
         <div style="text-align: center; padding: 60px 20px; color: #999;">
@@ -326,14 +120,14 @@
 (function(){
 var db;
 var auth;
-var studentsTabEl;
+var rootEl;
 var invitesTabEl;
 
 function pvGetFontBaseEl(){
   return (
     document.querySelector('.sqs-block-content') ||
     document.querySelector('.sqs-layout') ||
-    document.getElementById('students-tab') ||
+    document.getElementById('vault-admin-root') ||
     document.body
   );
 }
@@ -487,7 +281,6 @@ function openAddUserModal(db){
 
   var box = document.createElement('div');
   box.className = 'modal-box';
-  pvApplyFontFromBase(box);
 
   var headerHtml = 
     '<div class="modal-header">' +
@@ -597,791 +390,791 @@ function openAddUserModal(db){
   });
 }
 
-// Invites Modal
-// Helper: Parse lesson titles from master.txt content
-function parseLessonTitles(masterText) {
-  var lines = masterText.split('\n');
-  var lessonTitles = {};
-  
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i].trim();
-    
-    // Look for === LESSON | Title ===
-    if (line.startsWith('===') && line.toUpperCase().includes('LESSON') && line.includes('|')) {
-      var match = line.match(/===\s*LESSON\s*\|\s*(.+?)\s*===/i);
-      if (match) {
-        var fullTitle = match[1].trim();
-        
-        // Extract lesson ID from title (e.g., "K1.01 Kick Grid" -> "01")
-        var idMatch = fullTitle.match(/[A-Z]*[\d.]+/i);
-        if (idMatch) {
-          var rawId = idMatch[0];
-          // Get just the number part (01, 02, 70, 80, etc.)
-          var numMatch = rawId.match(/\d+$/);
-          if (numMatch) {
-            var lessonId = numMatch[0];
-            lessonTitles[lessonId] = fullTitle;
-          }
-        }
-      }
-    }
-  }
-  
-  return lessonTitles;
-}
-
-// Helper: Fetch lesson titles for a course from Firebase Storage
-function fetchLessonTitles(courseId) {
-  return new Promise(function(resolve, reject) {
-    var storage = firebase.storage();
-    var storageRef = storage.ref();
-    var masterPath = 'courses/' + courseId + '.txt';
-    
-    storageRef.child(masterPath).getDownloadURL()
-      .then(function(url) { return fetch(url); })
-      .then(function(response) { return response.text(); })
-      .then(function(masterText) {
-        var titles = parseLessonTitles(masterText);
-        resolve(titles);
-      })
-      .catch(function(err) {
-        console.warn('Could not load lesson titles for ' + courseId + ':', err);
-        resolve({}); // Return empty object on error
-      });
-  });
-}
-
-// Progress Modal - IMPROVED VERSION with tabs and collapsible courses
-function openProgressModal(db, uid, displayName){
+// NEW: Invites Modal with revoke for all invites
+function openInvitesModal(db){
   var overlay = makeOverlay();
+
   var box = document.createElement('div');
   box.className = 'modal-box modal-box-wide modal-box-full-height';
-  pvApplyFontFromBase(box);
 
-  var header = document.createElement('div');
-  header.className = 'modal-header';
-  header.innerHTML =
-    '<div style="flex:1;min-width:0;">' +
-      '<div class="modal-title">' + escapeHtml(displayName || 'Student') + ' - Course Progress</div>' +
-      '<div class="modal-subtitle">Click courses to expand and view lessons</div>' +
+  box.innerHTML =
+    '<div class="modal-header">' +
+      '<div>' +
+        '<div class="modal-title">Invitation Links</div>' +
+        '<div class="modal-subtitle">Manage user invitations</div>' +
+      '</div>' +
+      '<button id="invites-close" class="modal-close-btn">&times;</button>' +
     '</div>' +
-    '<button type="button" class="modal-close-btn" aria-label="Close">&times;</button>';
-  header.querySelector('.modal-close-btn').addEventListener('click', function(){ overlay.remove(); });
-  box.appendChild(header);
+    '<div id="invites-list-container" class="modal-body-scrollable"></div>';
 
-  // Search box
-  var searchContainer = document.createElement('div');
-  searchContainer.className = 'progress-search';
-  searchContainer.innerHTML = '<input type="text" class="search-input" placeholder="Search courses...">';
-  box.appendChild(searchContainer);
-
-  // Pathway tabs
-  var tabsNav = document.createElement('div');
-  tabsNav.className = 'pathway-tabs';
-  tabsNav.innerHTML = 
-    '<button class="pathway-tab active" data-pathway="gs">GS <span class="pathway-badge">0</span></button>' +
-    '<button class="pathway-tab" data-pathway="fs">FS <span class="pathway-badge">0</span></button>' +
-    '<button class="pathway-tab" data-pathway="ss">SS <span class="pathway-badge">0</span></button>' +
-    '<button class="pathway-tab" data-pathway="ks">KS <span class="pathway-badge">0</span></button>' +
-    '<button class="pathway-tab" data-pathway="rs">RS <span class="pathway-badge">0</span></button>';
-  box.appendChild(tabsNav);
-
-  var body = document.createElement('div');
-  body.className = 'modal-body-scrollable';
-  body.style.padding = '0';
-  body.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">Loading progress...</div>';
-  box.appendChild(body);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  // Load progress AND lesson titles
-  Promise.all([
-    db.collection('users').doc(uid).collection('progress').get(),
-    (function() {
-      var COURSES = window.VAULT_COURSES || {};
-      var titlePromises = [];
-      for (var courseId in COURSES) {
-        titlePromises.push(
-          fetchLessonTitles(courseId).then(function(courseId) {
-            return function(titles) {
-              return { courseId: courseId, titles: titles };
-            };
-          }(courseId))
-        );
-      }
-      return Promise.all(titlePromises);
-    })()
-  ]).then(function(results){
-    var snap = results[0];
-    var allTitles = results[1];
-    
-    var titlesByCourse = {};
-    allTitles.forEach(function(item) {
-      titlesByCourse[item.courseId] = item.titles;
-    });
-    
-    var allProgress = {};
-    snap.forEach(function(doc){ allProgress[doc.id] = doc.data(); });
+  function close(){ overlay.remove(); }
+  box.querySelector('#invites-close').addEventListener('click', close);
 
-    var COURSES = window.VAULT_COURSES || {};
-      
-      // Organize courses by pathway
-      var pathwayCourses = { gs: [], fs: [], ss: [], ks: [], rs: [] };
-      var pathwayCounts = { gs: 0, fs: 0, ss: 0, ks: 0, rs: 0 };
+  var listContainer = box.querySelector('#invites-list-container');
+  listContainer.innerHTML = '<div class="empty-message">Loading...</div>';
 
-      for (var courseId in COURSES) {
-        var course = COURSES[courseId];
-        if (!course.lessons || !course.lessons.length) continue;
-        
-        var pathway = course.pathway || 'gs';
-        pathwayCourses[pathway].push({ courseId: courseId, course: course });
-        pathwayCounts[pathway]++;
+  db.collection(INVITES_COL).orderBy('createdAt', 'desc').limit(100).get()
+    .then(function(snap){
+      if (snap.empty) {
+        listContainer.innerHTML = '<div class="empty-message">No invites yet.</div>';
+        return;
       }
 
-      // Update pathway badges
-      tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
-        var pathway = tab.getAttribute('data-pathway');
-        var badge = tab.querySelector('.pathway-badge');
-        if (badge) badge.textContent = pathwayCounts[pathway];
-      });
-
-      // Create pathway content divs
-      var html = '';
-      for (var pathway in pathwayCourses) {
-        var courses = pathwayCourses[pathway];
-        var isActive = pathway === 'gs' ? ' active' : '';
-        
-        html += '<div id="' + pathway + '-content" class="pathway-content' + isActive + '">';
-        
-        if (courses.length === 0) {
-          html += '<div class="empty-state">';
-          html += '<div class="empty-state-icon">🥁</div>';
-          html += '<div style="font-size:16px;color:#666;font-weight:500;">No courses in this pathway yet</div>';
-          html += '</div>';
-        } else {
-          courses.forEach(function(courseObj){
-            var courseId = courseObj.courseId;
-            var course = courseObj.course;
-            var lessonTitles = titlesByCourse[courseId] || {};
-            
-            var prog = allProgress[courseId] || {};
-            var completedRaw = prog.completed || [];
-            var completed = [];
-
-            // EXACT SAME normalization logic as before
-            if (Array.isArray(completedRaw)) {
-              completed = completedRaw;
-            } else if (typeof completedRaw === 'object' && completedRaw !== null) {
-              for (var k in completedRaw) {
-                if (completedRaw[k] === true) completed.push(k);
-              }
-            }
-
-            var total = course.lessons.length;
-            var completedCount = 0;
-            course.lessons.forEach(function(lessonId){
-              if (completed.indexOf(lessonId) !== -1) completedCount++;
-            });
-
-            var pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-            var levelBadge = (course.levels || []).join(' • ').toUpperCase();
-
-            html += '<div class="course-section" data-course-name="' + escapeHtml(course.topic || courseId) + '">';
-            
-            // Course header (clickable to expand/collapse)
-            html += '<div class="course-header">';
-            html += '<div class="course-info">';
-            html += '<div class="course-name">' + escapeHtml(course.topic || courseId) + '</div>';
-            html += '<div class="course-meta">';
-            if (levelBadge) html += '<span class="course-level">' + escapeHtml(levelBadge) + '</span>';
-            html += '<span class="course-stats">' + completedCount + '/' + total + ' complete</span>';
-            html += '</div>';
-            html += '</div>';
-            html += '<div class="course-arrow">▼</div>';
-            html += '</div>';
-            
-            // Progress bar
-            html += '<div class="course-progress-bar"><div class="course-progress-fill" style="width:' + pct + '%"></div></div>';
-            
-            // Collapsible lesson grid
-            html += '<div class="course-lessons">';
-            html += '<div class="lesson-grid">';
-            course.lessons.forEach(function(lessonId){
-              var isComplete = completed.indexOf(lessonId) !== -1;
-              var lessonTitle = lessonTitles[lessonId] || lessonId;
-              html += '<div class="lesson-item' + (isComplete ? ' completed' : '') + '" data-course="' + escapeHtml(courseId) + '" data-lesson="' + escapeHtml(lessonId) + '" data-uid="' + escapeHtml(uid) + '" title="' + escapeHtml(lessonTitle) + '">';
-              html += '<span class="lesson-id">' + escapeHtml(lessonTitle) + '</span>';
-              html += '<span class="lesson-toggle' + (isComplete ? ' completed' : '') + '">' + (isComplete ? '✓' : '') + '</span>';
-              html += '</div>';
-            });
-            html += '</div>';
-            html += '</div>';
-            
-            html += '</div>';
-          });
-        }
-        
-        html += '</div>';
-      }
-
-      body.innerHTML = html;
-
-      // Bind tab switching
-      tabsNav.querySelectorAll('.pathway-tab').forEach(function(tab){
-        tab.addEventListener('click', function(){
-          var pathway = tab.getAttribute('data-pathway');
-          
-          tabsNav.querySelectorAll('.pathway-tab').forEach(function(t){ t.classList.remove('active'); });
-          tab.classList.add('active');
-          
-          body.querySelectorAll('.pathway-content').forEach(function(content){
-            content.classList.remove('active');
-          });
-          body.querySelector('#' + pathway + '-content').classList.add('active');
-        });
-      });
-
-      // Bind course expansion
-      body.querySelectorAll('.course-header').forEach(function(header){
-        header.addEventListener('click', function(){
-          var section = header.closest('.course-section');
-          section.classList.toggle('expanded');
-        });
-      });
-
-      // Bind search
-      var searchInput = searchContainer.querySelector('.search-input');
-      searchInput.addEventListener('input', function(e){
-        var query = e.target.value.toLowerCase();
-        body.querySelectorAll('.course-section').forEach(function(section){
-          var courseName = section.getAttribute('data-course-name').toLowerCase();
-          section.style.display = courseName.includes(query) || query === '' ? 'block' : 'none';
-        });
-      });
-
-      // Bind lesson toggles - EXACT SAME Firebase operations as before
-      body.querySelectorAll('.lesson-item').forEach(function(item){
-        item.addEventListener('click', function(){
-          var courseId = item.getAttribute('data-course');
-          var lessonId = item.getAttribute('data-lesson');
-          var uid = item.getAttribute('data-uid');
-          var toggle = item.querySelector('.lesson-toggle');
-          var isComplete = toggle.classList.contains('completed');
-
-          var progressRef = db.collection('users').doc(uid).collection('progress').doc(courseId);
-
-          progressRef.get().then(function(doc){
-            var data = doc.exists ? (doc.data() || {}) : {};
-            var completedRaw = data.completed || [];
-            var completed = [];
-
-            // EXACT SAME normalization logic as before
-            if (Array.isArray(completedRaw)) {
-              completed = completedRaw;
-            } else if (typeof completedRaw === 'object' && completedRaw !== null) {
-              for (var k in completedRaw) {
-                if (completedRaw[k] === true) completed.push(k);
-              }
-            }
-
-            if (isComplete) {
-              completed = completed.filter(function(id){ return id !== lessonId; });
-            } else {
-              if (completed.indexOf(lessonId) === -1) completed.push(lessonId);
-            }
-
-            // EXACT SAME Firebase write as before
-            return progressRef.set({ completed: completed }, { merge: true });
-          }).then(function(){
-            toggle.classList.toggle('completed');
-            item.classList.toggle('completed');
-            toggle.textContent = toggle.classList.contains('completed') ? '✓' : '';
-
-            // Update progress bar
-            var section = item.closest('.course-section');
-            var allLessons = section.querySelectorAll('.lesson-toggle');
-            var completedLessons = section.querySelectorAll('.lesson-toggle.completed');
-            var pct = allLessons.length > 0 ? Math.round((completedLessons.length / allLessons.length) * 100) : 0;
-            var fillBar = section.querySelector('.course-progress-fill');
-            if (fillBar) fillBar.style.width = pct + '%';
-
-            var statEl = section.querySelector('.course-stats');
-            if (statEl) statEl.textContent = completedLessons.length + '/' + allLessons.length + ' complete';
-          }).catch(function(e){
-            if (window.VaultErrors) window.VaultErrors.handle(e, 'Toggle Progress');
-            else alert('Error: ' + (e.message || e));
-          });
-        });
-      });
-    }).catch(function(e){
-      body.innerHTML = '<div class="error-message">Error loading progress: ' + escapeHtml(e.message || e) + '</div>';
-    });
-}
-
-// Save user changes
-function saveUserChanges(uid, accordionEl){
-  var firstName = (accordionEl.querySelector('.edit-firstname').value || '').trim();
-  var lastName = (accordionEl.querySelector('.edit-lastname').value || '').trim();
-  var displayName = (accordionEl.querySelector('.edit-displayname').value || '').trim();
-  var ageConfirmed = accordionEl.querySelector('.edit-age-confirmed').checked;
-  var selfProgress = accordionEl.querySelector('.edit-self-progress').checked;
-
-  var updates = {
-    firstName: firstName,
-    lastName: lastName,
-    displayName: displayName,
-    ageConfirmed: ageConfirmed,
-    selfProgress: selfProgress
-  };
-
-  db.collection('users').doc(uid).set(updates, { merge: true })
-    .then(function(){
-      if (window.VaultErrors) window.VaultErrors.success('Changes saved!');
-      else alert('Changes saved!');
-    })
-    .catch(function(e){
-      if (window.VaultErrors) window.VaultErrors.handle(e, 'Save Changes');
-      else alert('Error: ' + (e.message || e));
-    });
-}
-
-function pvIsAdmin(user){
-  if (!user) return Promise.resolve(false);
-  return db.collection('admins').doc(user.uid).get()
-    .then(function(doc){ return doc.exists; })
-    .catch(function(){ return false; });
-}
-
-var ONLINE_WINDOW_MS = 5 * 60 * 1000;
-
-function bindHandlers(){
-  // Accordion toggles
-  studentsTabEl.querySelectorAll('.user-item').forEach(function(item){
-    var header = item.querySelector('.user-item-header');
-    var accordion = item.querySelector('.user-accordion');
-    var arrow = header.querySelector('.user-meta div');
-
-    header.addEventListener('click', function(e){
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-
-      var isExpanded = accordion.classList.contains('expanded');
-      accordion.classList.toggle('expanded');
-      arrow.textContent = isExpanded ? '▼' : '▲';
-    });
-  });
-
-  // Save Changes buttons
-  studentsTabEl.querySelectorAll('.save-changes-btn').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var uid = btn.getAttribute('data-uid');
-      var accordionEl = btn.closest('.user-item');
-      saveUserChanges(uid, accordionEl);
-    });
-  });
-
-  // View Progress buttons
-  studentsTabEl.querySelectorAll('.view-progress-btn').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var uid = btn.getAttribute('data-uid');
-      var displayName = btn.getAttribute('data-name');
-      openProgressModal(db, uid, displayName);
-    });
-  });
-
-  var refreshBtn = studentsTabEl.querySelector('#pv-refresh-btn');
-  if (refreshBtn) refreshBtn.addEventListener('click', function(){ 
-    loadOnce().catch(function(e){ 
-      if (window.VaultErrors) window.VaultErrors.handle(e, 'Refresh'); 
-    }); 
-  });
-}
-
-// Render students tab
-function render(users){
-  var nowMs = Date.now();
-
-  var online = users.filter(function(u){
-    return (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
-  }).sort(function(a,b){ return tsToMs(b.lastActive) - tsToMs(a.lastActive); });
-
-  var html = '';
-
-  // Student List section with accordion
-  html += '<div class="admin-section">';
-  html += '<div class="admin-section-header">' +
-            '<div class="admin-section-title">Student Management <span class="admin-section-count">(' + users.length + ')</span></div>' +
-            '<button id="pv-refresh-btn" class="btn btn-icon" title="Refresh">↻</button>' +
+      var tableHtml = 
+        '<div class="invite-table">' +
+          '<div class="invite-table-header" style="grid-template-columns:2fr 1fr 1.5fr 1fr;">' +
+            '<div>Email</div>' +
+            '<div>Status</div>' +
+            '<div>Created</div>' +
+            '<div>Action</div>' +
           '</div>';
 
-  html += '<div style="padding:12px;">';
+      snap.forEach(function(doc){
+        var d = doc.data();
+        var email = d.email || '-';
+        var used = d.used === true;
+        var createdAt = d.createdAt ? formatDateOnly(d.createdAt) : '-';
 
-  if (!users.length) {
-    html += '<div class="empty-message">No students yet.</div>';
-  } else {
-    users.forEach(function(u){
-      var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
-      var activityDot = statusDot(u.lastActive, u.joinedAt);
-      
-      var statusText = isOnline ? 'Online' : 'Offline';
-      var onlineStyle = isOnline ? 'color:#10b981;font-weight:500;' : 'color:#999;font-weight:normal;';
-      var onlineEmoji = isOnline ? '🟢 ' : '';
+        var statusClass, statusText;
+        if (used) {
+          statusClass = 'invite-status-used';
+          statusText = 'Used';
+        } else {
+          statusClass = 'invite-status-pending'; 
+          statusText = 'Active';
+        }
 
-      html += '<div class="user-item">';
-      
-      // User Header (collapsed view)
-      html += '<div class="user-item-header">';
-      html += '<div style="flex:1;min-width:0;">';
-      html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="' + onlineStyle + 'font-size:var(--text-small);">| ' + onlineEmoji + statusText + '</span></div>';
-      // Show last seen (with login fallback)
-      var lastActiveDisplay = u.lastActive ? formatTsNoYear(u.lastActive) : formatTsNoYear(u.lastLogin);
-      html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last seen: ' + lastActiveDisplay + '</div>';
-      html += '</div>';
-      html += '<div class="user-meta">';
-      html += '<div style="font-size:18px;">▼</div>';
-      html += '</div>';
-      html += '</div>';
+        var opacity = used ? '0.6' : '1';
 
-      // User Accordion Body (expanded view)
-      html += '<div class="user-accordion">';
-      html += '<div class="accordion-content">';
-      
-      // Practice Statistics
-      html += '<div class="accordion-section">';
-      html += '<div class="accordion-section-title">Practice Statistics</div>';
-      html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
-      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Seen</div>';
-      var detailedTimestamp = u.lastActive ? formatTs(u.lastActive) : formatTs(u.lastLogin);
-      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + detailedTimestamp + ' ' + activityDot + '</div>';
-      html += '</div>';
-      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
-      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
-      html += '</div>';
-      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Avg Session</div>';
-      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
-      html += '</div>';
-      html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
-      html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Total Practice</div>';
-      html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatDuration(u.totalSeconds) + '</div>';
-      html += '</div>';
-      html += '</div>';
-      html += '</div>';
+        tableHtml += 
+          '<div class="invite-table-row" style="grid-template-columns:2fr 1fr 1.5fr 1fr;opacity:' + opacity + ';">' +
+            '<div class="invite-email">' + escapeHtml(email) + '</div>' +
+            '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>' +
+            '<div class="invite-date">' + createdAt + '</div>' +
+            '<div>' +
+              (used ? '<span class="invite-placeholder">—</span>' : 
+                '<button class="revoke-invite-btn btn btn-danger btn-icon" data-invite-id="' + doc.id + '">Revoke</button>') +
+            '</div>' +
+          '</div>';
+      });
 
-      // Profile Information
-      html += '<div class="accordion-section">';
-      html += '<div class="accordion-section-title">Profile Information</div>';
-      html += '<div class="accordion-row">';
-      html += '<div class="accordion-field">';
-      html += '<label class="form-label">First Name</label>';
-      html += '<input type="text" class="edit-firstname form-input" value="' + escapeHtml(u.firstName) + '" placeholder="First name">';
-      html += '</div>';
-      html += '<div class="accordion-field">';
-      html += '<label class="form-label">Last Name</label>';
-      html += '<input type="text" class="edit-lastname form-input" value="' + escapeHtml(u.lastName) + '" placeholder="Last name">';
-      html += '</div>';
-      html += '<div class="accordion-field">';
-      html += '<label class="form-label">Display Name</label>';
-      html += '<input type="text" class="edit-displayname form-input" value="' + escapeHtml(u.displayName) + '" placeholder="Display name">';
-      html += '</div>';
-      html += '</div>';
-      html += '</div>';
+      tableHtml += '</div>';
+      listContainer.innerHTML = tableHtml;
 
-      // Account Permissions
-      html += '<div class="accordion-section">';
-      html += '<div class="accordion-section-title">Account Permissions</div>';
-      html += '<div class="accordion-row">';
-      html += '<label class="checkbox-label">';
-      html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + '>';
-      html += '<span>16+ years old (can access comments)</span>';
-      html += '</label>';
-      html += '<label class="checkbox-label">';
-      html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + '>';
-      html += '<span>Allow self-progress (can complete lessons)</span>';
-      html += '</label>';
-      html += '</div>';
-      html += '</div>';
+      listContainer.querySelectorAll('.revoke-invite-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var inviteId = btn.getAttribute('data-invite-id');
+          if (confirm('Revoke this invitation? The link will no longer work.')) {
+            db.collection(INVITES_COL).doc(inviteId).delete()
+              .then(function(){
+                if (window.VaultErrors) {
+                  window.VaultErrors.success('Invitation revoked');
+                }
+                overlay.remove();
+                openInvitesModal(db);
+              })
+              .catch(function(e){
+                if (window.VaultErrors) {
+                  window.VaultErrors.handle(e, 'Revoke Invite');
+                } else {
+                  alert('Failed to revoke invite');
+                }
+              });
+          }
+        });
+      });
+    })
+    .catch(function(e){
+      listContainer.innerHTML = '<div class="error-message">Error loading invites</div>';
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(e, 'Load Invites');
+      }
+    });
+}
 
-      // Action Buttons
-      html += '<div class="user-actions">';
-      html += '<button class="view-progress-btn btn btn-primary" style="background:#10b981;border-color:#10b981;" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '">View Progress</button>';
-      html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
-      html += '</div>';
+var ONLINE_WINDOW_MS = 3 * 60 * 1000;
 
-      html += '</div>';
-      html += '</div>';
+document.addEventListener('DOMContentLoaded', function(){
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) return;
 
-      html += '</div>';
+  auth = firebase.auth();
+  db = firebase.firestore();
+  rootEl = document.getElementById('vault-admin-root');
+  invitesTabEl = document.getElementById('invites-tab');
+  if (!rootEl) return;
+
+  // Initialize tab switching
+  function initTabs(){
+    var tabBtns = document.querySelectorAll('.tab-btn');
+    var tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var tabName = btn.getAttribute('data-tab');
+        
+        // Update active tab button
+        tabBtns.forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        
+        // Update active tab content
+        tabContents.forEach(function(content){
+          content.classList.remove('active');
+        });
+        document.getElementById(tabName + '-tab').classList.add('active');
+      });
     });
   }
 
-  html += '</div>';
-  html += '</div>';
+  initTabs();
+  
+  // Render invites tab
+  function renderInvitesTab(){
+    var html = '<div class="admin-section">';
+    html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;gap:16px;">';
+    html += '<div class="admin-section-title" style="flex:1;min-width:0;">Invite Management</div>';
+    html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="flex-shrink:0;width:auto;white-space:nowrap;">+ Create Invite</button>';
+    html += '</div>';
 
-  studentsTabEl.innerHTML = html;
+    html += '<div style="padding:12px;">';
+    html += '<div id="invites-list-container"><div style="text-align:center;padding:40px;color:#999;">Loading invites...</div></div>';
+    html += '</div>';
+    html += '</div>';
 
-  bindHandlers();
-}
+    invitesTabEl.innerHTML = html;
 
-// Render invites tab
-function renderInvitesTab(){
-  var html = '<div class="admin-section">';
-  html += '<div class="admin-section-header" style="display:flex;justify-content:space-between;align-items:center;gap:16px;">';
-  html += '<div class="admin-section-title" style="flex:1;min-width:0;">Invite Management</div>';
-  html += '<button id="pv-create-invite-btn" class="btn btn-primary" style="flex-shrink:0;width:auto;white-space:nowrap;">+ Create Invite</button>';
-  html += '</div>';
+    // Bind create invite button
+    var createBtn = invitesTabEl.querySelector('#pv-create-invite-btn');
+    if (createBtn) createBtn.addEventListener('click', function(){ openAddUserModal(db); });
 
-  html += '<div style="padding:12px;">';
-  html += '<div id="invites-list-container"><div style="text-align:center;padding:40px;color:#999;">Loading invites...</div></div>';
-  html += '</div>';
-  html += '</div>';
+    // Load invites
+    loadInvites();
+  }
+  
+  function loadInvites(){
+    var container = invitesTabEl.querySelector('#invites-list-container');
+    if (!container) return;
 
-  invitesTabEl.innerHTML = html;
+    db.collection(INVITES_COL).orderBy('createdAt', 'desc').get()
+      .then(function(snap){
+        var invites = [];
+        snap.forEach(function(doc){ invites.push({ id: doc.id, data: doc.data() }); });
 
-  // Bind create invite button
-  var createBtn = invitesTabEl.querySelector('#pv-create-invite-btn');
-  if (createBtn) createBtn.addEventListener('click', function(){ openAddUserModal(db); });
+        var html = '<div class="invite-table">';
+        html += '<div class="invite-table-header"><div>Email</div><div>Status</div><div>Created</div><div>Actions</div></div>';
 
-  // Load invites
-  loadInvites();
-}
+        if (!invites.length) {
+          html += '<div style="text-align:center;padding:40px;color:#999;">No invites yet. Click "Create Invite" to add one.</div>';
+        } else {
+          invites.forEach(function(inv){
+            var d = inv.data;
+            var email = d.email || '-';
+            var used = d.used === true;
+            var createdAt = formatDateOnly(d.createdAt);
 
-function loadInvites(){
-  var container = invitesTabEl.querySelector('#invites-list-container');
-  if (!container) return;
+            var statusClass, statusText;
+            if (used) {
+              statusClass = 'invite-status-used';
+              statusText = 'Used';
+            } else {
+              statusClass = 'invite-status-pending'; 
+              statusText = 'Active';
+            }
 
-  db.collection(INVITES_COL).orderBy('createdAt', 'desc').get()
-    .then(function(snap){
-      var invites = [];
-      snap.forEach(function(doc){ invites.push({ id: doc.id, data: doc.data() }); });
+            var opacity = used ? '0.6' : '1';
 
-      var html = '<div class="invite-table">';
-      html += '<div class="invite-table-header"><div>Email</div><div>Status</div><div>Created</div><div>Actions</div></div>';
+            html += '<div class="invite-table-row" style="opacity:' + opacity + ';">';
+            html += '<div class="invite-email">' + escapeHtml(email) + '</div>';
+            html += '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>';
+            html += '<div class="invite-date">' + createdAt + '</div>';
+            html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+            if (used) {
+              html += '<span style="color:#999;">—</span>';
+            } else {
+              html += '<button type="button" class="btn btn-secondary copy-invite-btn" style="padding:6px 12px;font-size:12px;" data-token="' + inv.id + '">Copy Link</button>';
+              html += '<button type="button" class="btn btn-secondary remove-invite-btn" style="padding:6px 12px;font-size:12px;" data-id="' + inv.id + '">Remove</button>';
+            }
+            html += '</div>';
+            html += '</div>';
+          });
+        }
 
-      if (!invites.length) {
-        html += '<div style="text-align:center;padding:40px;color:#999;">No invites yet. Click "Create Invite" to add one.</div>';
-      } else {
-        invites.forEach(function(inv){
-          var d = inv.data;
-          var email = d.email || '-';
-          var used = d.used === true;
-          var createdAt = formatDateOnly(d.createdAt);
+        html += '</div>';
+        container.innerHTML = html;
 
-          var statusClass, statusText;
-          if (used) {
-            statusClass = 'invite-status-used';
-            statusText = 'Used';
-          } else {
-            statusClass = 'invite-status-pending'; 
-            statusText = 'Active';
-          }
-
-          var opacity = used ? '0.6' : '1';
-
-          html += '<div class="invite-table-row" style="opacity:' + opacity + ';">';
-          html += '<div class="invite-email">' + escapeHtml(email) + '</div>';
-          html += '<div><span class="invite-status ' + statusClass + '">' + statusText + '</span></div>';
-          html += '<div class="invite-date">' + createdAt + '</div>';
-          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
-          if (used) {
-            html += '<span style="color:#999;">—</span>';
-          } else {
-            html += '<button type="button" class="btn btn-secondary copy-invite-btn" style="padding:6px 12px;font-size:12px;" data-token="' + inv.id + '">Copy Link</button>';
-            html += '<button type="button" class="btn btn-secondary remove-invite-btn" style="padding:6px 12px;font-size:12px;" data-id="' + inv.id + '">Remove</button>';
-          }
-          html += '</div>';
-          html += '</div>';
-        });
-      }
-
-      html += '</div>';
-      container.innerHTML = html;
-
-      // Bind copy buttons
-      container.querySelectorAll('.copy-invite-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var token = btn.getAttribute('data-token');
-          var link = CREATE_ACCOUNT_URL_BASE + token;
-          copyText(link).then(function(){
-            if (window.VaultErrors) window.VaultErrors.success('Invite link copied!');
-            else alert('Link copied!');
-          }).catch(function(e){
-            if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Invite Link');
-            else alert('Failed to copy link');
+        // Bind copy buttons
+        container.querySelectorAll('.copy-invite-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var token = btn.getAttribute('data-token');
+            var link = CREATE_ACCOUNT_URL_BASE + token;
+            copyText(link).then(function(){
+              if (window.VaultErrors) window.VaultErrors.success('Invite link copied!');
+              else alert('Link copied!');
+            }).catch(function(e){
+              if (window.VaultErrors) window.VaultErrors.handle(e, 'Copy Invite Link');
+              else alert('Failed to copy link');
+            });
           });
         });
-      });
 
-      // Bind remove buttons
-      container.querySelectorAll('.remove-invite-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var inviteId = btn.getAttribute('data-id');
-          if (!confirm('Remove this invite? The link will no longer work.')) return;
+        // Bind remove buttons
+        container.querySelectorAll('.remove-invite-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var inviteId = btn.getAttribute('data-id');
+            if (!confirm('Remove this invite? The link will no longer work.')) return;
+            
+            db.collection(INVITES_COL).doc(inviteId).delete()
+              .then(function(){
+                if (window.VaultErrors) window.VaultErrors.success('Invite removed');
+                loadInvites(); // Refresh the list
+              })
+              .catch(function(e){
+                if (window.VaultErrors) window.VaultErrors.handle(e, 'Remove Invite');
+                else alert('Error: ' + (e.message || e));
+              });
+          });
+        });
+
+      }).catch(function(e){
+        container.innerHTML = '<div class="error-message">Error loading invites: ' + escapeHtml(e.message || e) + '</div>';
+      });
+  }
+
+  renderInvitesTab();
+
+  function pvIsAdmin(user){
+    if (!user || !user.uid) return Promise.resolve(false);
+    return db.collection('admins').doc(user.uid).get()
+      .then(function(doc){ return doc.exists; })
+      .catch(function(){ return false; });
+  }
+
+  // NEW: Inline accordion editing - no separate profile modal
+  function saveUserChanges(uid, accordionEl){
+    var firstName = accordionEl.querySelector('.edit-firstname').value.trim();
+    var lastName = accordionEl.querySelector('.edit-lastname').value.trim();
+    var displayName = accordionEl.querySelector('.edit-displayname').value.trim();
+    var ageConfirmed = accordionEl.querySelector('.edit-age-confirmed').checked;
+    var selfProgress = accordionEl.querySelector('.edit-self-progress').checked;
+
+    var updates = {
+      firstName: firstName,
+      lastName: lastName,
+      displayName: displayName,
+      ageConfirmed: ageConfirmed,
+      selfProgress: selfProgress
+    };
+
+    db.collection('users').doc(uid).set(updates, { merge: true })
+      .then(function(){
+        if (window.VaultErrors) {
+          window.VaultErrors.success('Changes saved');
+        }
+        loadOnce();
+      })
+      .catch(function(e){
+        if (window.VaultErrors) {
+          window.VaultErrors.handle(e, 'Save Changes');
+        } else {
+          alert('Save failed');
+        }
+      });
+  }
+
+  function openProgressModal(db, uid, displayName){
+    var overlay = makeOverlay();
+
+    var box = document.createElement('div');
+    box.className = 'modal-box modal-box-wide modal-box-full-height';
+
+    // Modal Header
+    var headerHtml = 
+      '<div class="modal-header">' +
+        '<div>' +
+          '<div class="modal-title">Progress Report: ' + escapeHtml(displayName) + '</div>' +
+          '<div class="modal-subtitle">View and manage lesson completion</div>' +
+        '</div>' +
+        '<button id="progress-modal-close" class="modal-close-btn">&times;</button>' +
+      '</div>';
+
+    box.innerHTML = headerHtml;
+    
+    // Modal Body (scrollable)
+    var modalBody = document.createElement('div');
+    modalBody.className = 'modal-body-scrollable';
+    
+    // Course sections container (no self-progress, no stats)
+    var coursesContainer = document.createElement('div');
+    coursesContainer.id = 'progress-courses-container';
+    modalBody.appendChild(coursesContainer);
+    
+    box.appendChild(modalBody);
+    
+    // Close button handler
+    box.querySelector('#progress-modal-close').addEventListener('click', function(){
+      overlay.remove();
+    });
+    
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    
+    // Load all progress data
+    loadAllProgress(db, uid, coursesContainer);
+  }
+  
+  function loadAllProgress(db, uid, coursesContainer){
+    if (!window.VAULT_COURSES) {
+      coursesContainer.innerHTML = '<div class="empty-message">No courses available</div>';
+      return;
+    }
+    
+    // Get all course IDs that have lessons
+    var courseIds = [];
+    for (var cId in window.VAULT_COURSES) {
+      if (window.VAULT_COURSES[cId].lessons && window.VAULT_COURSES[cId].lessons.length > 0) {
+        courseIds.push(cId);
+      }
+    }
+    
+    if (courseIds.length === 0) {
+      coursesContainer.innerHTML = '<div class="empty-message">No courses with lessons yet</div>';
+      return;
+    }
+    
+    // Load progress for all courses
+    var progressPromises = courseIds.map(function(courseId){
+      return db.collection('users').doc(uid).collection('progress').doc(courseId).get()
+        .then(function(snap){
+          return {
+            courseId: courseId,
+            data: snap.exists ? snap.data() : {}
+          };
+        });
+    });
+    
+    Promise.all(progressPromises).then(function(results){
+      var courseProgress = {};
+      
+      results.forEach(function(result){
+        var courseId = result.courseId;
+        var courseData = window.VAULT_COURSES[courseId];
+        var progressData = result.data;
+        var completed = progressData.completed || {};
+        
+        var lessonCount = courseData.lessons.length;
+        var completedCount = 0;
+        
+var completedArray = window.normalizeCompleted ? window.normalizeCompleted(completed) : (Array.isArray(completed) ? completed : Object.keys(completed).filter(function(k){return completed[k]===true;}));
+courseData.lessons.forEach(function(lessonId){
+  if (completedArray.indexOf(lessonId) !== -1) {
+    completedCount++;
+  }
+});
+        
+        courseProgress[courseId] = {
+          completed: completedCount,
+          total: lessonCount,
+          completedLessons: completed
+        };
+      });
+      
+      // Render course sections
+      var coursesHtml = '';
+      
+      courseIds.forEach(function(courseId){
+        var courseData = window.VAULT_COURSES[courseId];
+        var progress = courseProgress[courseId];
+        
+        var levelBadgeColor = '#e0f2fe';
+        var levelTextColor = '#0284c7';
+        if (courseData.topic.includes('Intermediate')) {
+          levelBadgeColor = '#fef3c7';
+          levelTextColor = '#d97706';
+        } else if (courseData.topic.includes('Advanced')) {
+          levelBadgeColor = '#fee2e2';
+          levelTextColor = '#dc2626';
+        }
+        
+        coursesHtml += '<div class="course-section">';
+        
+        // Course header
+        coursesHtml += '<div class="course-section-header">';
+        coursesHtml += '<div class="course-info">';
+        coursesHtml += '<div class="course-name">' + escapeHtml(courseData.pathwayName) + '</div>';
+        coursesHtml += '<div class="course-level-badge" style="background:' + levelBadgeColor + ';color:' + levelTextColor + ';">' + escapeHtml(courseData.topic) + '</div>';
+        coursesHtml += '</div>';
+        coursesHtml += '</div>';
+        
+        // Lesson grid
+        coursesHtml += '<div class="lesson-grid">';
+        
+        courseData.lessons.forEach(function(lessonId){
+var completedArray = window.normalizeCompleted ? window.normalizeCompleted(progress.completedLessons) : (Array.isArray(progress.completedLessons) ? progress.completedLessons : []);
+var isCompleted = completedArray.indexOf(lessonId) !== -1;
+          var completedClass = isCompleted ? ' completed' : '';
           
-          db.collection(INVITES_COL).doc(inviteId).delete()
-            .then(function(){
-              if (window.VaultErrors) window.VaultErrors.success('Invite removed');
-              loadInvites(); // Refresh the list
-            })
-            .catch(function(e){
-              if (window.VaultErrors) window.VaultErrors.handle(e, 'Remove Invite');
-              else alert('Error: ' + (e.message || e));
-            });
+          coursesHtml += '<div class="lesson-item' + completedClass + '" data-course="' + courseId + '" data-lesson="' + lessonId + '">';
+          coursesHtml += '<span class="lesson-id">' + lessonId + '</span>';
+          coursesHtml += '<div class="lesson-toggle' + completedClass + '"></div>';
+          coursesHtml += '</div>';
+        });
+        
+        coursesHtml += '</div>';
+        coursesHtml += '</div>';
+      });
+      
+      coursesContainer.innerHTML = coursesHtml;
+      
+// Add click handlers for lesson items
+coursesContainer.querySelectorAll('.lesson-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    var courseId = item.getAttribute('data-course');
+    var lessonId = item.getAttribute('data-lesson');
+    var isCompleted = item.classList.contains('completed');
+    var newState = !isCompleted;
+    
+    // Update Firestore - use ARRAY format
+    var currentProgress = courseProgress[courseId].completedLessons;
+    var newCompleted;
+    
+    if (Array.isArray(currentProgress)) {
+      // Array format
+      if (newState) {
+        newCompleted = currentProgress.concat([lessonId]);
+      } else {
+        newCompleted = currentProgress.filter(function(id){ return id !== lessonId; });
+      }
+    } else {
+      // Object format - convert to array
+      var arr = Object.keys(currentProgress).filter(function(k){ return currentProgress[k] === true; });
+      if (newState) {
+        newCompleted = arr.concat([lessonId]);
+      } else {
+        newCompleted = arr.filter(function(id){ return id !== lessonId; });
+      }
+    }
+    
+    db.collection('users').doc(uid).collection('progress').doc(courseId)
+      .set({
+        completed: newCompleted,
+        lastLesson: lessonId,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true })
+      .then(function(){
+        if(window.VaultToast) window.VaultToast.success('Updated: Lesson ' + lessonId);
+        loadAllProgress(db, uid, coursesContainer);
+      })
+      .catch(function(e){
+        console.error('Failed to update:', e);
+        if(window.VaultToast) {
+          window.VaultToast.error('Update failed: ' + e.message);
+        }
+      });
+  });
+});
+      
+    }).catch(function(e){
+      console.error('Failed to load progress:', e);
+      coursesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#dc2626;">Error loading progress data</div>';
+    });
+  }
+
+  function bindHandlers(){
+    // Toggle user accordion
+    rootEl.querySelectorAll('.user-item-header').forEach(function(header){
+      header.addEventListener('click', function(){
+        var item = header.closest('.user-item');
+        var accordion = item.querySelector('.user-accordion');
+        var wasOpen = accordion.classList.contains('expanded');
+
+        // Close all
+        rootEl.querySelectorAll('.user-accordion').forEach(function(a){
+          a.classList.remove('expanded');
+        });
+
+        // Open clicked if wasn't open
+        if (!wasOpen) {
+          accordion.classList.add('expanded');
+        }
+      });
+    });
+
+    // Save Changes buttons
+    rootEl.querySelectorAll('.save-changes-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var uid = btn.getAttribute('data-uid');
+        var accordionEl = btn.closest('.user-item');
+        saveUserChanges(uid, accordionEl);
+      });
+    });
+
+    // View Progress buttons
+    rootEl.querySelectorAll('.view-progress-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var uid = btn.getAttribute('data-uid');
+        var displayName = btn.getAttribute('data-name');
+        openProgressModal(db, uid, displayName);
+      });
+    });
+
+    var addBtn = rootEl.querySelector('#pv-add-user-btn');
+    if (addBtn) addBtn.addEventListener('click', function(){ openAddUserModal(db); });
+
+    var invitesBtn = rootEl.querySelector('#pv-invites-btn');
+    if (invitesBtn) invitesBtn.addEventListener('click', function(){ openInvitesModal(db); });
+
+    var refreshBtn = rootEl.querySelector('#pv-refresh-btn');
+    if (refreshBtn) refreshBtn.addEventListener('click', function(){ 
+      loadOnce().catch(function(e){ 
+        if (window.VaultErrors) window.VaultErrors.handle(e, 'Refresh'); 
+      }); 
+    });
+  }
+
+  // NEW: Render accordion layout
+  function render(users){
+    var nowMs = Date.now();
+
+    var online = users.filter(function(u){
+      return (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
+    }).sort(function(a,b){ return tsToMs(b.lastActive) - tsToMs(a.lastActive); });
+
+    var onlineText = online.length
+      ? ('🥁 ' + online.map(function(u){ return escapeHtml(u.email); }).join(', '))
+      : 'No one online right now.';
+
+    var html = '';
+
+    // Student List section with accordion
+    html += '<div class="admin-section">';
+    html += '<div class="admin-section-header" style="flex-direction:column;align-items:center;gap:16px;">' +
+              '<div style="display:flex;align-items:center;gap:12px;">' +
+  '<div class="admin-section-title">STUDENT LIST <span class="admin-section-count">(' + users.length + ')</span></div>' +
+  '<button id="pv-refresh-btn" class="btn btn-icon" title="Refresh">↻</button>' +
+'</div>' +
+              '<div style="display:flex;gap:10px;">' +
+                '<button id="pv-invites-btn" class="btn btn-header">Invites</button>' +
+                '<button id="pv-add-user-btn" class="btn btn-header btn-header-primary">+ Add User</button>' +
+              '</div>' +
+            '</div>';
+
+    html += '<div style="padding:12px;">';
+
+    if (!users.length) {
+      html += '<div class="empty-message">No students yet.</div>';
+    } else {
+      users.forEach(function(u){
+        var isOnline = (nowMs - tsToMs(u.lastActive)) <= ONLINE_WINDOW_MS;
+        var activityDot = statusDot(u.lastActive, u.joinedAt);
+        
+        var statusText = isOnline ? 'Online' : 'Offline';
+        var onlineStyle = isOnline ? 'color:#10b981;font-weight:500;' : 'color:#999;font-weight:normal;';
+        var onlineEmoji = isOnline ? '🟢 ' : '';
+
+        html += '<div class="user-item">';
+        
+        // User Header (collapsed view)
+        html += '<div class="user-item-header">';
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<div class="user-name">' + escapeHtml(u.fullName || u.displayName || 'No name') + ' <span style="' + onlineStyle + 'font-size:var(--text-small);">| ' + onlineEmoji + statusText + '</span></div>';
+        // Show last seen (with login fallback)
+        var lastActiveDisplay = u.lastActive ? formatTsNoYear(u.lastActive) : formatTsNoYear(u.lastLogin);
+        html += '<div class="user-email">' + escapeHtml(u.email) + ' • Last seen: ' + lastActiveDisplay + '</div>';
+        html += '</div>';
+        html += '<div class="user-meta">';
+        html += '<div style="font-size:18px;">▼</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // User Accordion Body (expanded view)
+        html += '<div class="user-accordion">';
+        html += '<div class="accordion-content">';
+        
+        // Practice Statistics
+        html += '<div class="accordion-section">';
+        html += '<div class="accordion-section-title">Practice Statistics</div>';
+        html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Last Seen</div>';
+        var detailedTimestamp = u.lastActive ? formatTs(u.lastActive) : formatTs(u.lastLogin);
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + detailedTimestamp + ' ' + activityDot + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Login Count</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + (u.loginCount || 0) + ' times</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Avg Session</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatAvgTime(u.totalSeconds, u.loginCount) + '</div>';
+        html += '</div>';
+        html += '<div style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e9ecef;">';
+        html += '<div style="font-size:var(--text-micro);color:#999;text-transform:uppercase;margin-bottom:4px;">Total Practice</div>';
+        html += '<div style="font-size:var(--text-small);font-weight:500;color:#1a1a2e;">' + formatDuration(u.totalSeconds) + '</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Profile Information
+        html += '<div class="accordion-section">';
+        html += '<div class="accordion-section-title">Profile Information</div>';
+        html += '<div class="accordion-row">';
+        html += '<div class="accordion-field">';
+        html += '<label class="form-label">First Name</label>';
+        html += '<input type="text" class="edit-firstname form-input" value="' + escapeHtml(u.firstName) + '" placeholder="First name">';
+        html += '</div>';
+        html += '<div class="accordion-field">';
+        html += '<label class="form-label">Last Name</label>';
+        html += '<input type="text" class="edit-lastname form-input" value="' + escapeHtml(u.lastName) + '" placeholder="Last name">';
+        html += '</div>';
+        html += '<div class="accordion-field">';
+        html += '<label class="form-label">Display Name</label>';
+        html += '<input type="text" class="edit-displayname form-input" value="' + escapeHtml(u.displayName) + '" placeholder="Display name">';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+
+        // Account Permissions
+        html += '<div class="accordion-section">';
+        html += '<div class="accordion-section-title">Account Permissions</div>';
+        html += '<div class="accordion-row">';
+        html += '<label class="checkbox-label">';
+        html += '<input type="checkbox" class="edit-age-confirmed" ' + (u.ageConfirmed ? 'checked' : '') + '>';
+        html += '<span>16+ years old (can access comments)</span>';
+        html += '</label>';
+        html += '<label class="checkbox-label">';
+        html += '<input type="checkbox" class="edit-self-progress" ' + (u.selfProgress ? 'checked' : '') + '>';
+        html += '<span>Allow self-progress (can complete lessons)</span>';
+        html += '</label>';
+        html += '</div>';
+        html += '</div>';
+
+        // Action Buttons
+        html += '<div class="user-actions">';
+        html += '<button class="view-progress-btn btn btn-primary" style="background:#10b981;border-color:#10b981;" data-uid="' + escapeHtml(u.uid) + '" data-name="' + escapeHtml(u.fullName || u.displayName || u.email) + '">View Progress</button>';
+        html += '<button class="save-changes-btn btn btn-primary" data-uid="' + escapeHtml(u.uid) + '">Save Changes</button>';
+        html += '</div>';
+
+        html += '</div>';
+        html += '</div>';
+
+        html += '</div>';
+      });
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    rootEl.innerHTML = html;
+
+    bindHandlers();
+  }
+
+  function loadOnce(){
+    return Promise.all([
+      db.collection('users').get(),
+      db.collection('admins').get()
+    ]).then(function(results){
+      var usersSnap = results[0];
+      var adminSnap = results[1];
+      
+      var adminUids = {};
+      adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
+      
+      var users = [];
+      usersSnap.forEach(function(d){
+        var data = d.data() || {};
+        
+        if (adminUids[d.id]) return;
+        
+        users.push({
+          uid: d.id,
+          email: data.email || '',
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          displayName: data.displayName || '',
+          ageConfirmed: data.ageConfirmed === true,
+          selfProgress: data.selfProgress === true,
+          joinedAt: data.createdAt || null,
+          fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
         });
       });
 
-    }).catch(function(e){
-      container.innerHTML = '<div class="error-message">Error loading invites: ' + escapeHtml(e.message || e) + '</div>';
-    });
-}
-
-function loadOnce(){
-  return Promise.all([
-    db.collection('users').get(),
-    db.collection('admins').get()
-  ]).then(function(results){
-    var usersSnap = results[0];
-    var adminSnap = results[1];
-    
-    var adminUids = {};
-    adminSnap.forEach(function(doc){ adminUids[doc.id] = true; });
-    
-    var users = [];
-    usersSnap.forEach(function(d){
-      var data = d.data() || {};
-      
-      if (adminUids[d.id]) return;
-      
-      users.push({
-        uid: d.id,
-        email: data.email || '',
-        firstName: data.firstName || '',
-        lastName: data.lastName || '',
-        displayName: data.displayName || '',
-        ageConfirmed: data.ageConfirmed === true,
-        selfProgress: data.selfProgress === true,
-        joinedAt: data.createdAt || null,
-        fullName: (data.firstName && data.lastName) ? (data.firstName + ' ' + data.lastName).trim() : (data.displayName || '-')
+      var statGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
+          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
       });
-    });
 
-    var statGets = users.map(function(u){
-      return db.collection('users').doc(u.uid).collection('metrics').doc('stats').get()
-        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
-    });
+      // ADD THIS - Load practice stats separately
+      var practiceGets = users.map(function(u){
+        return db.collection('users').doc(u.uid).collection('practice').doc('stats').get()
+          .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
+      });
 
-    var practiceGets = users.map(function(u){
-      return db.collection('users').doc(u.uid).collection('practice').doc('stats').get()
-        .then(function(s){ return { uid: u.uid, data: (s.exists ? (s.data() || {}) : {}) }; });
-    });
+     return Promise.all([Promise.all(statGets), Promise.all(practiceGets)]).then(function(res){
+  var statsArr = res[0];
+  var practiceArr = res[1];
 
-   return Promise.all([Promise.all(statGets), Promise.all(practiceGets)]).then(function(res){
-var statsArr = res[0];
-var practiceArr = res[1];
-
-      var statsByUid = {};
+        var statsByUid = {};
 statsArr.forEach(function(x){ statsByUid[x.uid] = x.data || {}; });
 
 var practiceByUid = {};
 practiceArr.forEach(function(x){ practiceByUid[x.uid] = x.data || {}; });
 
 users.forEach(function(u){
-var st = statsByUid[u.uid] || {};
-var pr = practiceByUid[u.uid] || {};
+  var st = statsByUid[u.uid] || {};
+  var pr = practiceByUid[u.uid] || {};
 
-u.lastLogin = st.lastLoginAt || null;
-u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
-u.lastDeviceType = st.lastDeviceType || '';
-u.lastDeviceEmoji = st.lastDeviceEmoji || '';
-u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
-u.totalSeconds = (typeof pr.totalSeconds === 'number') ? pr.totalSeconds : 0;
+  u.lastLogin = st.lastLoginAt || null;
+  u.lastActive = st.lastSeenAt || st.lastLoginAt || null;
+  u.lastDeviceType = st.lastDeviceType || '';
+  u.lastDeviceEmoji = st.lastDeviceEmoji || '';
+  u.loginCount = (typeof st.loginCount === 'number') ? st.loginCount : 0;
+  u.totalSeconds = (typeof pr.totalSeconds === 'number') ? pr.totalSeconds : 0;
 });
 
-     users.sort(function(a, b) {
-       return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
-     });
+       users.sort(function(a, b) {
+         return (tsToMs(b.lastActive) || 0) - (tsToMs(a.lastActive) || 0);
+       });
 
-      render(users);
-    });
-  }).catch(function(e){
-    console.error(e);
-    if (window.VaultErrors) {
-      window.VaultErrors.handle(e, 'Load Admin Data');
-    } else {
-      alert('Load error: ' + (e && e.message || e));
-    }
-  });
-}
-
-// Tab switching
-function initTabs(){
-  var tabBtns = document.querySelectorAll('.tab-btn');
-  var tabContents = document.querySelectorAll('.tab-content');
-
-  tabBtns.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var tabName = btn.getAttribute('data-tab');
-      
-      // Update active tab button
-      tabBtns.forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      
-      // Update active tab content
-      tabContents.forEach(function(content){
-        content.classList.remove('active');
+        render(users);
       });
-      document.getElementById(tabName + '-tab').classList.add('active');
+    }).catch(function(e){
+      console.error(e);
+      if (window.VaultErrors) {
+        window.VaultErrors.handle(e, 'Load Admin Data');
+      } else {
+        alert('Load error: ' + (e && e.message || e));
+      }
     });
-  });
-}
+  }
 
-// Initialize
-function init(){
-  try {
-    db = firebase.firestore();
-    auth = firebase.auth();
-    studentsTabEl = document.getElementById('students-tab');
-    invitesTabEl = document.getElementById('invites-tab');
+  auth.onAuthStateChanged(function(user){
+    showBody();
 
-    initTabs();
-    renderInvitesTab();
+    if (!user) {
+      // Not logged in - redirect to login
+      window.location.href = '/login';
+      return;
+    }
 
-    auth.onAuthStateChanged(function(user){
-      showBody();
-
-      if (!user) {
-        window.location.href = '/login';
+    pvIsAdmin(user).then(function(ok){
+      if (!ok) {
+        // Logged in but not admin - redirect to home
+        window.location.href = '/';
         return;
       }
 
-      pvIsAdmin(user).then(function(ok){
-        if (!ok) {
-          window.location.href = '/';
-          return;
-        }
-
-        loadOnce().catch(function(e){
-          if (studentsTabEl) studentsTabEl.textContent = (e && e.message) ? e.message : 'Error loading admin data.';
-        });
+      loadOnce().catch(function(e){
+        rootEl.textContent = (e && e.message) ? e.message : 'Error loading admin data.';
       });
+      
     });
-  } catch (e) {
-    console.error('[Admin Init Error]', e);
-    if (window.VaultErrors) {
-      window.VaultErrors.handle(e, 'Admin Init');
-    }
-  }
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-
+  });
+});
 })();
   </script>
 
